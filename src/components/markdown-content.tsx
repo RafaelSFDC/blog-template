@@ -7,23 +7,23 @@ interface MarkdownContentProps {
 }
 
 const styles = {
-  h1: 'display-title mb-6 text-4xl font-bold text-(--sea-ink)',
-  h2: 'display-title mb-4 text-3xl font-bold text-(--sea-ink)',
-  h3: 'mb-3 text-xl font-bold text-(--sea-ink)',
-  p: 'mb-4 leading-relaxed text-(--sea-ink-soft)',
-  a: 'text-(--lagoon-deep) underline-offset-4 hover:underline',
-  ul: 'mb-4 list-disc space-y-2 pl-6 text-(--sea-ink-soft)',
-  ol: 'mb-4 list-decimal space-y-2 pl-6 text-(--sea-ink-soft)',
+  h1: 'display-title mb-6 text-4xl font-bold text-foreground',
+  h2: 'display-title mb-4 text-3xl font-bold text-foreground',
+  h3: 'mb-3 text-xl font-bold text-foreground',
+  p: 'mb-4 leading-relaxed text-muted-foreground',
+  a: 'text-primary underline-offset-4 hover:underline',
+  ul: 'mb-4 list-disc space-y-2 pl-6 text-muted-foreground',
+  ol: 'mb-4 list-decimal space-y-2 pl-6 text-muted-foreground',
   li: 'leading-relaxed',
-  blockquote: 'my-4 border-l-4 border-(--lagoon-deep) pl-4 italic text-(--sea-ink-soft)',
-  code: 'rounded border border-(--line) bg-(--chip-bg) px-2 py-1 font-mono text-sm text-(--lagoon-deep)',
-  pre: 'mb-4 overflow-x-auto rounded-lg border border-(--line) bg-(--chip-bg) p-4',
+  blockquote: 'my-4 border-l-4 border-primary pl-4 italic text-muted-foreground',
+  code: 'rounded border border-border bg-muted px-2 py-1 font-mono text-sm text-primary',
+  pre: 'mb-4 overflow-x-auto rounded-lg border border-border bg-muted p-4',
   table: 'w-full border-collapse mb-4',
-  th: 'border border-(--line) bg-(--chip-bg) p-2 text-left text-(--sea-ink)',
-  td: 'border border-(--line) p-2 text-(--sea-ink-soft)',
+  th: 'border border-border bg-muted p-2 text-left text-foreground',
+  td: 'border border-border p-2 text-muted-foreground',
   img: 'max-w-full h-auto rounded-lg my-4',
-  hr: 'my-8 border-(--line)',
-  strong: 'font-semibold text-(--sea-ink)',
+  hr: 'my-8 border-border',
+  strong: 'font-semibold text-foreground',
 }
 
 export function MarkdownContent({
@@ -70,7 +70,7 @@ export function MarkdownContent({
             if (isCodeBlock) {
               return (
                 <pre className={styles.pre}>
-                  <code className="text-sm font-mono text-(--sea-ink-soft)">
+                  <code className="text-sm font-mono text-muted-foreground">
                     {children}
                   </code>
                 </pre>

@@ -71,7 +71,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-(--line) p-2 bg-(--chip-bg)">
+    <div className="flex flex-wrap items-center gap-1 border-b border-border p-2 bg-muted">
       {buttons.map((btn, i) => (
         <Button
           key={i}
@@ -80,21 +80,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
           size="icon"
           onClick={btn.action}
           title={btn.title}
-          className={`h-8 w-8 rounded-md transition-colors hover:bg-(--line) ${
-            btn.isActive() ? 'bg-(--line) text-(--lagoon-deep)' : 'text-(--sea-ink-soft)'
+          className={`h-8 w-8 rounded-md transition-colors hover:bg-border ${
+            btn.isActive() ? 'bg-border text-primary' : 'text-muted-foreground'
           }`}
         >
           {btn.icon}
         </Button>
       ))}
-      <div className="mx-1 h-6 w-px bg-(--line)" />
+      <div className="mx-1 h-6 w-px bg-border" />
       <Button
         type="button"
         variant="ghost"
         size="icon"
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
-        className="h-8 w-8 rounded-md text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+        className="h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-border disabled:opacity-30"
       >
         <Undo className="h-4 w-4" />
       </Button>
@@ -104,7 +104,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         size="icon"
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
-        className="h-8 w-8 rounded-md text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+        className="h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-border disabled:opacity-30"
       >
         <Redo className="h-4 w-4" />
       </Button>
@@ -132,13 +132,13 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm focus:outline-none max-w-none min-h-[300px] p-4 text-(--sea-ink)',
+        class: 'prose prose-sm focus:outline-none max-w-none min-h-[300px] p-4 text-foreground',
       },
     },
   })
 
   return (
-    <div className="overflow-hidden rounded-xl border border-input bg-(--chip-bg) transition-shadow focus-within:ring-2 focus-within:ring-(--lagoon-deep)/20">
+    <div className="overflow-hidden rounded-xl border border-input bg-muted transition-shadow focus-within:ring-2 focus-within:ring-primary/20">
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
     </div>

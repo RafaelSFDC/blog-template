@@ -79,8 +79,8 @@ function BetterAuthDemo() {
     <main className="page-wrap px-4 pb-20 pt-14">
       <section className="island-shell clip-sash rounded-4xl p-8 text-center sm:p-10">
         <p className="island-kicker mb-4">Authentication</p>
-        <h1 className="display-title text-5xl text-(--sea-ink) sm:text-6xl">Admin Access</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-(--sea-ink-soft)">
+        <h1 className="display-title text-5xl text-foreground sm:text-6xl">Admin Access</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
           Sign in with Better Auth to access the dashboard.
         </p>
       </section>
@@ -89,8 +89,8 @@ function BetterAuthDemo() {
         <p className="mt-8 text-sm text-(--sea-ink-soft)">Loading…</p>
       ) : session?.user ? (
         <section className="island-shell mt-8 rounded-[1.6rem] p-6 sm:p-8">
-          <h2 className="display-title text-3xl text-(--sea-ink)">Session Active</h2>
-          <p className="mt-3 wrap-break-word text-sm text-(--sea-ink-soft)">
+          <h2 className="display-title text-3xl text-foreground">Session Active</h2>
+          <p className="mt-3 wrap-break-word text-sm text-muted-foreground">
             Signed in as: {session.user.email}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -140,7 +140,7 @@ function BetterAuthDemo() {
 
           {mode === 'sign-up' ? (
             <div className="mb-4">
-              <label htmlFor="name" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+              <label htmlFor="name" className="mb-2 block text-sm font-semibold text-foreground">
                 Name
               </label>
               <input
@@ -151,13 +151,13 @@ function BetterAuthDemo() {
                 value={name}
                 onChange={(event) => setName(event.currentTarget.value)}
                 placeholder="Your name…"
-                className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+                className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
               />
             </div>
           ) : null}
 
           <div className="mb-4">
-            <label htmlFor="email" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+            <label htmlFor="email" className="mb-2 block text-sm font-semibold text-foreground">
               Email
             </label>
             <input
@@ -170,12 +170,12 @@ function BetterAuthDemo() {
               value={email}
               onChange={(event) => setEmail(event.currentTarget.value)}
               placeholder="admin@yourdomain.com…"
-              className="w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+              className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
             />
           </div>
 
           <div className="mb-2">
-            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-foreground">
               Password
             </label>
             <input
@@ -187,12 +187,12 @@ function BetterAuthDemo() {
               value={password}
               onChange={(event) => setPassword(event.currentTarget.value)}
               placeholder="At least 8 characters…"
-              className="w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+              className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
             />
           </div>
 
           {message ? (
-            <p className="mt-4 text-sm text-(--sea-ink-soft)" aria-live="polite">
+            <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
               {message}
             </p>
           ) : null}

@@ -5,12 +5,12 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="site-footer mt-16 px-4 pb-12 pt-10 text-center text-(--sea-ink-soft)">
+    <footer className="site-footer mt-16 px-4 pb-12 pt-10 text-center text-muted-foreground">
       <div className="page-wrap">
         <hr className="deco-rule mb-6" />
         <div className="mb-8 flex flex-wrap justify-center gap-4 text-sm font-bold">
           <Button asChild variant="ghost" size="sm" className="hover:text-primary transition-colors font-bold">
-            <Link to="/blog" search={{ q: '' }}>
+            <Link to="/blog" search={{ q: '', category: '' }}>
               Stories
             </Link>
           </Button>
@@ -25,7 +25,7 @@ export default function Footer() {
             </Link>
           </Button>
         </div>
-        <p className="m-0 text-sm text-(--sea-ink-soft)">
+        <p className="m-0 text-sm text-muted-foreground">
           &copy; {year} PlayfulPulse. Made with creativity and joy.
         </p>
       </div>

@@ -62,8 +62,8 @@ function DashboardPage() {
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="display-title text-5xl text-(--sea-ink) sm:text-6xl">Manage Posts</h1>
-            <p className="mt-3 max-w-2xl text-(--sea-ink-soft)">
+            <h1 className="display-title text-5xl text-foreground sm:text-6xl">Manage Posts</h1>
+            <p className="mt-3 max-w-2xl text-muted-foreground">
               Create drafts, edit published posts, and maintain your blog archive.
             </p>
           </div>
@@ -90,14 +90,14 @@ function DashboardPage() {
             <article key={post.id} className="island-shell rounded-2xl p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--sea-ink-soft)">
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     {post.publishedAt ? dateFormatter.format(new Date(post.publishedAt)) : 'Draft'}
                   </p>
-                  <h2 className="display-title mt-2 wrap-break-word text-3xl text-(--sea-ink)">
+                  <h2 className="display-title mt-2 wrap-break-word text-3xl text-foreground">
                     {post.title}
                   </h2>
-                  <p className="mt-2 wrap-break-word text-sm text-(--sea-ink-soft)">/{post.slug}</p>
-                  <p className="mt-4 line-clamp-2 text-sm text-(--sea-ink-soft)">{post.excerpt}</p>
+                  <p className="mt-2 wrap-break-word text-sm text-muted-foreground">/{post.slug}</p>
+                  <p className="mt-4 line-clamp-2 text-sm text-muted-foreground">{post.excerpt}</p>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
@@ -135,8 +135,8 @@ function DashboardPage() {
           ))
         ) : (
           <div className="island-shell rounded-2xl p-10 text-center">
-            <h2 className="display-title text-3xl text-(--sea-ink)">No Posts Yet</h2>
-            <p className="mt-3 text-sm text-(--sea-ink-soft)">
+            <h2 className="display-title text-3xl text-foreground">No Posts Yet</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
               Start by creating your first post from this dashboard.
             </p>
           </div>

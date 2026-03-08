@@ -90,15 +90,15 @@ function NewPostPage() {
     <main className="page-wrap px-4 pb-16 pt-14">
       <section className="island-shell rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
-        <h1 className="display-title text-5xl text-(--sea-ink) sm:text-6xl">Write New Post</h1>
-        <p className="mt-3 max-w-2xl text-(--sea-ink-soft)">
+        <h1 className="display-title text-5xl text-foreground sm:text-6xl">Write New Post</h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
           Draft and publish directly from your control panel.
         </p>
       </section>
 
       <form onSubmit={onSubmit} className="island-shell mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8">
         <div>
-          <label htmlFor="title" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+          <label htmlFor="title" className="mb-2 block text-sm font-semibold text-foreground">
             Title
           </label>
           <input
@@ -116,12 +116,12 @@ function NewPostPage() {
               }
             }}
             placeholder="Designing A Better Publishing Workflow…"
-            className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+            className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
           />
         </div>
 
         <div>
-          <label htmlFor="slug" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+          <label htmlFor="slug" className="mb-2 block text-sm font-semibold text-foreground">
             Slug
           </label>
           <input
@@ -134,12 +134,12 @@ function NewPostPage() {
             value={slug}
             onChange={(event) => setSlug(slugify(event.currentTarget.value))}
             placeholder="designing-a-better-publishing-workflow…"
-            className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+            className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
           />
         </div>
 
         <div>
-          <label htmlFor="excerpt" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+          <label htmlFor="excerpt" className="mb-2 block text-sm font-semibold text-foreground">
             Excerpt
           </label>
           <textarea
@@ -149,12 +149,12 @@ function NewPostPage() {
             value={excerpt}
             onChange={(event) => setExcerpt(event.currentTarget.value)}
             placeholder="Summarize the key argument of this post in 1 short paragraph…"
-            className="min-h-28 w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+            className="min-h-28 w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
           />
         </div>
 
         <div>
-          <label htmlFor="content" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
+          <label htmlFor="content" className="mb-2 block text-sm font-semibold text-foreground">
             Content
           </label>
           <TiptapEditor 

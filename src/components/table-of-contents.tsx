@@ -38,7 +38,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
 
   return (
     <nav className="island-shell rounded-2xl px-4 py-3 sm:px-6 bg-card">
-      <div className="mb-6 flex items-center gap-3 border-b border-(--line) pb-4 text-(--sea-ink)">
+      <div className="mb-6 flex items-center gap-3 border-b border-border pb-4 text-foreground">
         <ListIcon className="h-5 w-5" />
         <h2 className="display-title text-xl font-bold tracking-tight">Neste artigo</h2>
       </div>
@@ -49,10 +49,10 @@ export function TableOfContents({ content }: TableOfContentsProps) {
             style={{ paddingLeft: `${(heading.level - 2) * 1.5}rem` }}
             className="group flex items-start gap-2"
           >
-             <Hash className="mt-1 h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-40 text-(--lagoon-deep)" />
+             <Hash className="mt-1 h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-40 text-primary" />
              <a 
                href={`#${heading.id}`}
-               className="text-sm font-medium text-(--sea-ink-soft) transition-colors hover:text-(--lagoon-deep)"
+               className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
              >
                {heading.text}
              </a>

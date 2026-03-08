@@ -38,14 +38,14 @@ export function SocialSharing({ url, title }: SocialSharingProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-xs font-bold uppercase tracking-widest text-(--sea-ink-soft) sm:mr-2">Compartilhe</span>
+      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground sm:mr-2">Compartilhe</span>
       {shareLinks.map((link) => (
         <a
           key={link.name}
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex h-10 w-10 items-center justify-center rounded-full border border-(--line) text-(--sea-ink-soft) transition-all hover:scale-110 hover:text-white ${link.color}`}
+          className={`flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all hover:scale-110 hover:text-white ${link.color}`}
           title={`Share on ${link.name}`}
         >
           {link.icon}
@@ -55,7 +55,7 @@ export function SocialSharing({ url, title }: SocialSharingProps) {
         variant="outline"
         size="icon"
         onClick={copyToClipboard}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-(--line) text-(--sea-ink-soft) transition-all hover:scale-110 hover:bg-(--lagoon-deep) hover:text-white"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all hover:scale-110 hover:bg-primary hover:text-white"
         title="Copy link"
       >
         <LinkIcon className="h-4 w-4" />

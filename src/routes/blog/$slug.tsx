@@ -104,13 +104,13 @@ function PostDetail() {
         {/* Tags */}
         {post.tags && (
           <div className="island-shell flex flex-wrap gap-2 p-6 sm:p-8 bg-card rounded-2xl">
-            <span className="mr-2 text-xs font-bold uppercase tracking-widest text-(--sea-ink-soft)">
+            <span className="mr-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Tags
             </span>
             {post.tags.split(",").map((tag: string) => (
               <span
                 key={tag}
-                className="rounded-full bg-(--line) px-4 py-1.5 text-xs font-bold text-(--sea-ink-soft) transition-all hover:bg-(--lagoon-deep) hover:text-white hover:-translate-y-0.5"
+                className="rounded-full bg-border px-4 py-1.5 text-xs font-bold text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary hover:-translate-y-0.5"
               >
                 #{tag.trim()}
               </span>

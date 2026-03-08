@@ -132,10 +132,10 @@ function RootErrorComponent({ error }: { error: unknown }) {
     <main className="page-wrap px-4 pb-16 pt-14">
       <section className="island-shell clip-sash rounded-3xl p-8">
         <p className="island-kicker mb-3">Route Error</p>
-        <h1 className="display-title mb-3 text-2xl font-bold text-(--sea-ink) sm:text-3xl">
+        <h1 className="display-title mb-3 text-2xl font-bold text-foreground sm:text-3xl">
           Something went wrong
         </h1>
-        <p className="mb-4 text-(--sea-ink-soft)">
+        <p className="mb-4 text-muted-foreground">
           An unexpected error occurred while rendering this route.
         </p>
         <ErrorComponent error={error} />
@@ -149,10 +149,10 @@ function RootNotFoundComponent() {
     <main className="page-wrap px-4 pb-16 pt-14">
       <section className="island-shell clip-sash rounded-3xl p-8 text-center">
         <p className="island-kicker mb-3">404 - Not Found</p>
-        <h1 className="display-title mb-3 text-4xl font-bold text-(--sea-ink) sm:text-6xl">
+        <h1 className="display-title mb-3 text-4xl font-bold text-foreground sm:text-6xl">
           Lost in the Vibe?
         </h1>
-        <p className="mx-auto mb-8 max-w-md text-lg text-(--sea-ink-soft)">
+        <p className="mx-auto mb-8 max-w-md text-lg text-muted-foreground">
           The page you're looking for has drifted off the grid. Let's get you back to the signal.
         </p>
         <div className="flex justify-center">

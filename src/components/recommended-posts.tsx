@@ -20,7 +20,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
     <section className="flex flex-col gap-8">
       <div className="island-shell flex items-center justify-between rounded-2xl bg-accent px-4 py-3 sm:px-6 transition-transform hover:-translate-y-1">
         <div>
-          <h2 className="display-title text-2xl font-bold text-(--sea-ink) sm:text-3xl">
+          <h2 className="display-title text-2xl font-bold text-foreground sm:text-3xl">
             Também pode gostar
           </h2>
         </div>
@@ -28,7 +28,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
           <Link
             to="/blog"
             search={{ q: '', category: '' }}
-            className="flex items-center gap-2 rounded-full border-3 border-(--sea-ink) bg-white px-5 py-2 text-xs font-black text-(--sea-ink) transition-all hover:bg-(--sea-ink) hover:text-white"
+            className="flex items-center gap-2 rounded-full border-3 border-foreground bg-background px-5 py-2 text-xs font-black text-foreground transition-all hover:bg-foreground hover:text-background"
           >
             Ver todos
             <ArrowRight className="h-4 w-4" />
@@ -45,7 +45,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
             className="island-shell group block overflow-hidden rounded-2xl bg-card p-6 transition-all hover:-translate-y-2 hover:shadow-2xl"
           >
             {post.coverImage && (
-              <div className="relative mb-6 aspect-video overflow-hidden rounded-xl border-2 border-(--line)">
+              <div className="relative mb-6 aspect-video overflow-hidden rounded-xl border-2 border-border">
                 <img
                   src={post.coverImage}
                   alt={post.title}
@@ -53,13 +53,13 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
                 />
               </div>
             )}
-            <div className="mb-4 inline-block rounded-full border-2 border-(--lagoon-deep)/20 bg-(--lagoon-deep)/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-(--lagoon-deep)">
+            <div className="mb-4 inline-block rounded-full border-2 border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
               {post.category || 'General'}
             </div>
-            <h3 className="mb-3 text-xl font-bold leading-tight text-(--sea-ink) transition-colors group-hover:text-(--lagoon-deep)">
+            <h3 className="mb-3 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
               {post.title}
             </h3>
-            <p className="line-clamp-2 text-sm text-(--sea-ink-soft)">
+            <p className="line-clamp-2 text-sm text-muted-foreground">
               {post.excerpt}
             </p>
           </Link>

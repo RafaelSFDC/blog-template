@@ -69,12 +69,12 @@ export function Newsletter({
   }
 
   return (
-    <section className={cn("island-shell rounded-2xl bg-primary px-4 py-8 sm:px-6 text-center border-border", className)}>
-      <div className="mx-auto max-w-2xl text-primary-foreground">
-        <h3 className="display-title mb-6 text-4xl font-extrabold uppercase italic tracking-tighter sm:text-6xl text-primary-foreground">
+    <section className={cn("island-shell rounded-2xl bg-card px-4 py-8 sm:px-6 text-center border-border", className)}>
+      <div className="mx-auto max-w-2xl text-foreground">
+        <h3 className="display-title mb-6 text-4xl font-extrabold uppercase italic tracking-tighter sm:text-6xl text-foreground">
           {title}
         </h3>
-        <p className="mb-10 text-lg font-bold sm:text-xl text-primary-foreground/90">
+        <p className="mb-10 text-lg font-bold sm:text-xl text-muted-foreground">
           {description}
         </p>
         

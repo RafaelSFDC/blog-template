@@ -191,7 +191,7 @@ function Home() {
           </div>
         ) : (
           <div className="island-shell rounded-3xl p-12 text-center">
-            <p className="text-(--sea-ink-soft)">
+            <p className="text-muted-foreground">
               No posts yet. Run the seed command to create your first 5
               articles.
             </p>

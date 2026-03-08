@@ -20,42 +20,42 @@ export function BlogHero({ post }: BlogHeroProps) {
       <Breadcrumbs />
 
       {/* Metadata Bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-center gap-4 text-xs font-bold uppercase tracking-widest text-(--sea-ink-soft) sm:justify-start">
+      <div className="mb-6 flex flex-wrap items-center justify-center gap-4 text-xs font-bold uppercase tracking-widest text-muted-foreground sm:justify-start">
         {post.category && (
-          <div className="flex items-center gap-1.5 rounded-full bg-(--lagoon-deep)/10 px-3 py-1 text-(--lagoon-deep)">
+          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-primary">
             <Tag className="h-3 w-3" />
             {post.category}
           </div>
         )}
-        <div className="flex items-center gap-1.5 border-l border-(--line) pl-4">
+        <div className="flex items-center gap-1.5 border-l border-border pl-4">
           <Calendar className="h-3 w-3" />
           <span>
             {post.publishedAt ? postDateFormatter.format(new Date(post.publishedAt)) : 'Draft'}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 border-l border-(--line) pl-4">
+        <div className="flex items-center gap-1.5 border-l border-border pl-4">
           <User className="h-3 w-3" />
           <span>{post.authorName || 'Editorial Team'}</span>
         </div>
         {post.readingTime && (
-          <div className="hidden items-center gap-1.5 border-l border-(--line) pl-4 sm:flex">
+          <div className="hidden items-center gap-1.5 border-l border-border pl-4 sm:flex">
             <Clock className="h-3 w-3" />
             <span>{post.readingTime} min leitura</span>
           </div>
         )}
       </div>
 
-      <h1 className="display-title mb-6 text-4xl font-bold leading-[1.1] text-(--sea-ink) sm:text-5xl lg:text-7xl">
+      <h1 className="display-title mb-6 text-4xl font-bold leading-[1.1] text-foreground sm:text-5xl lg:text-7xl">
         {post.title}
       </h1>
 
-      <p className="mb-12 text-xl font-medium leading-relaxed text-(--sea-ink-soft) sm:text-2xl">
+      <p className="mb-12 text-xl font-medium leading-relaxed text-muted-foreground sm:text-2xl">
         {post.excerpt}
       </p>
 
       {/* Hero Image */}
       {post.coverImage && (
-        <div className="relative mb-16 aspect-video overflow-hidden rounded-4xl border-4 border-(--line) shadow-2xl">
+        <div className="relative mb-16 aspect-video overflow-hidden rounded-4xl border-4 border-border shadow-2xl">
           <img
             src={post.coverImage}
             alt={post.title}

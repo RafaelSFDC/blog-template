@@ -106,7 +106,7 @@ export default function Header() {
                 </Link>
               </Button>
               <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
-                <Link to="/blog" search={{ q: '' }} onClick={() => setIsMenuOpen(false)}>
+                <Link to="/blog" search={{ q: '', category: '' }} onClick={() => setIsMenuOpen(false)}>
                   Stories
                 </Link>
               </Button>
