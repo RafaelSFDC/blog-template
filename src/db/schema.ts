@@ -1,7 +1,7 @@
 import { sqliteTable, integer, text, index } from 'drizzle-orm/sqlite-core'
-import { relations, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 
-export const users = sqliteTable('users', {
+export const user = sqliteTable('users', {
   id: text().primaryKey(),
   name: text().notNull(),
   email: text().notNull().unique(),
@@ -17,7 +17,7 @@ export const users = sqliteTable('users', {
   ),
 })
 
-export const sessions = sqliteTable(
+export const session = sqliteTable(
   'sessions',
   {
     id: text().primaryKey(),
@@ -33,12 +33,12 @@ export const sessions = sqliteTable(
     userAgent: text('user_agent'),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
   },
   (table) => [index('sessions_userId_idx').on(table.userId)],
 )
 
-export const accounts = sqliteTable(
+export const account = sqliteTable(
   'accounts',
   {
     id: text().primaryKey(),
@@ -46,7 +46,7 @@ export const accounts = sqliteTable(
     providerId: text('provider_id').notNull(),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),
@@ -68,7 +68,7 @@ export const accounts = sqliteTable(
   (table) => [index('accounts_userId_idx').on(table.userId)],
 )
 
-export const verifications = sqliteTable(
+export const verification = sqliteTable(
   'verifications',
   {
     id: text().primaryKey(),
@@ -97,7 +97,7 @@ export const posts = sqliteTable('posts', {
   category: text().default('General'),
   tags: text(), // Comma-separated tags
   readingTime: integer('reading_time'),
-  authorId: text('author_id').references(() => users.id),
+  authorId: text('author_id').references(() => user.id),
   publishedAt: integer('published_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),

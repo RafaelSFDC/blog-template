@@ -1,5 +1,5 @@
 import { db } from '#/db/index'
-import { appSettings, users } from '#/db/schema'
+import { appSettings } from '#/db/schema'
 import { eq } from 'drizzle-orm'
 
 const REGISTRATION_LOCK_KEY = 'registration_locked'
@@ -9,7 +9,7 @@ export async function isRegistrationLocked() {
     db.query.appSettings.findFirst({
       where: eq(appSettings.key, REGISTRATION_LOCK_KEY),
     }),
-    db.query.users.findFirst({
+    db.query.user.findFirst({
       columns: { id: true },
     }),
   ])
