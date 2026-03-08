@@ -27,3 +27,11 @@ export const posts = sqliteTable('posts', {
     sql`(unixepoch())`,
   ),
 })
+
+export const appSettings = sqliteTable('app_settings', {
+  key: text().primaryKey(),
+  value: text().notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})

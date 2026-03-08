@@ -25,6 +25,12 @@ sqlite.exec(`
     updated_at INTEGER DEFAULT (unixepoch()),
     FOREIGN KEY (author_id) REFERENCES users(id)
   );
+
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL,
+    updated_at INTEGER DEFAULT (unixepoch())
+  );
 `)
 
 export const db = drizzle(sqlite, { schema })
