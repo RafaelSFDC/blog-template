@@ -51,7 +51,7 @@ const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
     .limit(3);
 });
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_public/")({
   loader: () => getTopPosts(),
   head: () => ({
     meta: [

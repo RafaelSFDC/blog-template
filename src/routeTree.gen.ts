@@ -10,29 +10,31 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as BlogIndexRouteImport } from './routes/blog/index'
-import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
-import { Route as DashboardNewRouteImport } from './routes/dashboard/new'
-import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
-import { Route as DashboardPostIdEditRouteImport } from './routes/dashboard/$postId.edit'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
+import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/index'
+import { Route as DashboardPostsIndexRouteImport } from './routes/dashboard/posts/index'
+import { Route as DashboardPagesIndexRouteImport } from './routes/dashboard/pages/index'
+import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/media/index'
+import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
+import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
+import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
+import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
+import { Route as DashboardPostsPostIdEditRouteImport } from './routes/dashboard/posts/$postId.edit'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -40,29 +42,60 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => rootRouteImport,
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
 } as any)
-const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
-  id: '/demo/better-auth',
-  path: '/demo/better-auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardNewRoute = DashboardNewRouteImport.update({
-  id: '/new',
-  path: '/new',
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => DashboardRoute,
 } as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
 } as any)
-const DashboardPostIdEditRoute = DashboardPostIdEditRouteImport.update({
-  id: '/$postId/edit',
-  path: '/$postId/edit',
+const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTagsIndexRoute = DashboardTagsIndexRouteImport.update({
+  id: '/tags/',
+  path: '/tags/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPostsIndexRoute = DashboardPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPagesIndexRoute = DashboardPagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMediaIndexRoute = DashboardMediaIndexRouteImport.update({
+  id: '/media/',
+  path: '/media/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCategoriesIndexRoute =
+  DashboardCategoriesIndexRouteImport.update({
+    id: '/categories/',
+    path: '/categories/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
+  id: '/posts/new',
+  path: '/posts/new',
   getParentRoute: () => DashboardRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -70,88 +103,144 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicDemoBetterAuthRoute = PublicDemoBetterAuthRouteImport.update({
+  id: '/demo/better-auth',
+  path: '/demo/better-auth',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const DashboardPostsPostIdEditRoute =
+  DashboardPostsPostIdEditRouteImport.update({
+    id: '/posts/$postId/edit',
+    path: '/posts/$postId/edit',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/blog/$slug': typeof BlogSlugRoute
-  '/dashboard/new': typeof DashboardNewRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/blog/': typeof BlogIndexRoute
+  '/about': typeof PublicAboutRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
+  '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/blog/': typeof PublicBlogIndexRoute
+  '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
+  '/dashboard/media/': typeof DashboardMediaIndexRoute
+  '/dashboard/pages/': typeof DashboardPagesIndexRoute
+  '/dashboard/posts/': typeof DashboardPostsIndexRoute
+  '/dashboard/tags/': typeof DashboardTagsIndexRoute
+  '/dashboard/users/': typeof DashboardUsersIndexRoute
+  '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/blog/$slug': typeof BlogSlugRoute
-  '/dashboard/new': typeof DashboardNewRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/blog': typeof BlogIndexRoute
+  '/about': typeof PublicAboutRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
+  '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/blog': typeof PublicBlogIndexRoute
+  '/dashboard/categories': typeof DashboardCategoriesIndexRoute
+  '/dashboard/media': typeof DashboardMediaIndexRoute
+  '/dashboard/pages': typeof DashboardPagesIndexRoute
+  '/dashboard/posts': typeof DashboardPostsIndexRoute
+  '/dashboard/tags': typeof DashboardTagsIndexRoute
+  '/dashboard/users': typeof DashboardUsersIndexRoute
+  '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
-  '/blog/$slug': typeof BlogSlugRoute
-  '/dashboard/new': typeof DashboardNewRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/blog/': typeof BlogIndexRoute
+  '/_public/about': typeof PublicAboutRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/_public/blog/$slug': typeof PublicBlogSlugRoute
+  '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
+  '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/_public/blog/': typeof PublicBlogIndexRoute
+  '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
+  '/dashboard/media/': typeof DashboardMediaIndexRoute
+  '/dashboard/pages/': typeof DashboardPagesIndexRoute
+  '/dashboard/posts/': typeof DashboardPostsIndexRoute
+  '/dashboard/tags/': typeof DashboardTagsIndexRoute
+  '/dashboard/users/': typeof DashboardUsersIndexRoute
+  '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/dashboard'
-    | '/blog/$slug'
-    | '/dashboard/new'
-    | '/demo/better-auth'
-    | '/blog/'
+    | '/about'
+    | '/dashboard/settings'
     | '/dashboard/'
+    | '/blog/$slug'
+    | '/demo/better-auth'
     | '/api/auth/$'
-    | '/dashboard/$postId/edit'
+    | '/dashboard/posts/new'
+    | '/blog/'
+    | '/dashboard/categories/'
+    | '/dashboard/media/'
+    | '/dashboard/pages/'
+    | '/dashboard/posts/'
+    | '/dashboard/tags/'
+    | '/dashboard/users/'
+    | '/dashboard/posts/$postId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/about'
-    | '/blog/$slug'
-    | '/dashboard/new'
-    | '/demo/better-auth'
-    | '/blog'
+    | '/dashboard/settings'
+    | '/'
     | '/dashboard'
+    | '/blog/$slug'
+    | '/demo/better-auth'
     | '/api/auth/$'
-    | '/dashboard/$postId/edit'
+    | '/dashboard/posts/new'
+    | '/blog'
+    | '/dashboard/categories'
+    | '/dashboard/media'
+    | '/dashboard/pages'
+    | '/dashboard/posts'
+    | '/dashboard/tags'
+    | '/dashboard/users'
+    | '/dashboard/posts/$postId/edit'
   id:
     | '__root__'
-    | '/'
-    | '/about'
+    | '/_public'
     | '/dashboard'
-    | '/blog/$slug'
-    | '/dashboard/new'
-    | '/demo/better-auth'
-    | '/blog/'
+    | '/_public/about'
+    | '/dashboard/settings'
+    | '/_public/'
     | '/dashboard/'
+    | '/_public/blog/$slug'
+    | '/_public/demo/better-auth'
     | '/api/auth/$'
-    | '/dashboard/$postId/edit'
+    | '/dashboard/posts/new'
+    | '/_public/blog/'
+    | '/dashboard/categories/'
+    | '/dashboard/media/'
+    | '/dashboard/pages/'
+    | '/dashboard/posts/'
+    | '/dashboard/tags/'
+    | '/dashboard/users/'
+    | '/dashboard/posts/$postId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
-  BlogSlugRoute: typeof BlogSlugRoute
-  DemoBetterAuthRoute: typeof DemoBetterAuthRoute
-  BlogIndexRoute: typeof BlogIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -164,18 +253,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -185,39 +267,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/blog/': {
-      id: '/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/demo/better-auth': {
-      id: '/demo/better-auth'
-      path: '/demo/better-auth'
-      fullPath: '/demo/better-auth'
-      preLoaderRoute: typeof DemoBetterAuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/new': {
-      id: '/dashboard/new'
-      path: '/new'
-      fullPath: '/dashboard/new'
-      preLoaderRoute: typeof DashboardNewRouteImport
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/dashboard/$postId/edit': {
-      id: '/dashboard/$postId/edit'
-      path: '/$postId/edit'
-      fullPath: '/dashboard/$postId/edit'
-      preLoaderRoute: typeof DashboardPostIdEditRouteImport
+    '/dashboard/users/': {
+      id: '/dashboard/users/'
+      path: '/users'
+      fullPath: '/dashboard/users/'
+      preLoaderRoute: typeof DashboardUsersIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tags/': {
+      id: '/dashboard/tags/'
+      path: '/tags'
+      fullPath: '/dashboard/tags/'
+      preLoaderRoute: typeof DashboardTagsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/posts/': {
+      id: '/dashboard/posts/'
+      path: '/posts'
+      fullPath: '/dashboard/posts/'
+      preLoaderRoute: typeof DashboardPostsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/pages/': {
+      id: '/dashboard/pages/'
+      path: '/pages'
+      fullPath: '/dashboard/pages/'
+      preLoaderRoute: typeof DashboardPagesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/media/': {
+      id: '/dashboard/media/'
+      path: '/media'
+      fullPath: '/dashboard/media/'
+      preLoaderRoute: typeof DashboardMediaIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/categories/': {
+      id: '/dashboard/categories/'
+      path: '/categories'
+      fullPath: '/dashboard/categories/'
+      preLoaderRoute: typeof DashboardCategoriesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_public/blog/': {
+      id: '/_public/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof PublicBlogIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/dashboard/posts/new': {
+      id: '/dashboard/posts/new'
+      path: '/posts/new'
+      fullPath: '/dashboard/posts/new'
+      preLoaderRoute: typeof DashboardPostsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/api/auth/$': {
@@ -227,19 +351,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_public/demo/better-auth': {
+      id: '/_public/demo/better-auth'
+      path: '/demo/better-auth'
+      fullPath: '/demo/better-auth'
+      preLoaderRoute: typeof PublicDemoBetterAuthRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/$slug': {
+      id: '/_public/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof PublicBlogSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/dashboard/posts/$postId/edit': {
+      id: '/dashboard/posts/$postId/edit'
+      path: '/posts/$postId/edit'
+      fullPath: '/dashboard/posts/$postId/edit'
+      preLoaderRoute: typeof DashboardPostsPostIdEditRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicBlogSlugRoute: typeof PublicBlogSlugRoute
+  PublicDemoBetterAuthRoute: typeof PublicDemoBetterAuthRoute
+  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicIndexRoute: PublicIndexRoute,
+  PublicBlogSlugRoute: PublicBlogSlugRoute,
+  PublicDemoBetterAuthRoute: PublicDemoBetterAuthRoute,
+  PublicBlogIndexRoute: PublicBlogIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 interface DashboardRouteChildren {
-  DashboardNewRoute: typeof DashboardNewRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardPostIdEditRoute: typeof DashboardPostIdEditRoute
+  DashboardPostsNewRoute: typeof DashboardPostsNewRoute
+  DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
+  DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
+  DashboardPagesIndexRoute: typeof DashboardPagesIndexRoute
+  DashboardPostsIndexRoute: typeof DashboardPostsIndexRoute
+  DashboardTagsIndexRoute: typeof DashboardTagsIndexRoute
+  DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
+  DashboardPostsPostIdEditRoute: typeof DashboardPostsPostIdEditRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardNewRoute: DashboardNewRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardPostIdEditRoute: DashboardPostIdEditRoute,
+  DashboardPostsNewRoute: DashboardPostsNewRoute,
+  DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
+  DashboardMediaIndexRoute: DashboardMediaIndexRoute,
+  DashboardPagesIndexRoute: DashboardPagesIndexRoute,
+  DashboardPostsIndexRoute: DashboardPostsIndexRoute,
+  DashboardTagsIndexRoute: DashboardTagsIndexRoute,
+  DashboardUsersIndexRoute: DashboardUsersIndexRoute,
+  DashboardPostsPostIdEditRoute: DashboardPostsPostIdEditRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -247,12 +425,8 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
-  BlogSlugRoute: BlogSlugRoute,
-  DemoBetterAuthRoute: DemoBetterAuthRoute,
-  BlogIndexRoute: BlogIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

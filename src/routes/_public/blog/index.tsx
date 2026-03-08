@@ -19,7 +19,7 @@ const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
     .limit(12);
 });
 
-export const Route = createFileRoute("/blog/")({
+export const Route = createFileRoute("/_public/blog/")({
   validateSearch: (search: Record<string, unknown>) => ({
     q: typeof search.q === "string" ? search.q : "",
     category: typeof search.category === "string" ? search.category : "",

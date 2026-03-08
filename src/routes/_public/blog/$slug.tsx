@@ -37,7 +37,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
     };
   });
 
-export const Route = createFileRoute("/blog/$slug")({
+export const Route = createFileRoute("/_public/blog/$slug")({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
   head: ({ loaderData }) => {
     const post = loaderData?.post

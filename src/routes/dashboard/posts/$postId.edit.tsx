@@ -51,7 +51,7 @@ const updatePost = createServerFn({ method: 'POST' })
     return { ok: true as const }
   })
 
-export const Route = createFileRoute('/dashboard/$postId/edit')({
+export const Route = createFileRoute('/dashboard/posts/$postId/edit')({
   loader: ({ params }) => {
     const id = Number(params.postId)
     if (!Number.isFinite(id)) {

@@ -84,6 +84,30 @@ export const verification = sqliteTable(
   },
   (table) => [index('verifications_identifier_idx').on(table.identifier)],
 )
+export const categories = sqliteTable('categories', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  slug: text().notNull().unique(),
+  description: text(),
+})
+
+export const tags = sqliteTable('tags', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  slug: text().notNull().unique(),
+})
+
+export const media = sqliteTable('media', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  url: text().notNull(),
+  altText: text('alt_text'),
+  filename: text().notNull(),
+  mimeType: text('mime_type'),
+  size: integer(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
 
 export const posts = sqliteTable('posts', {
   id: integer({ mode: 'number' }).primaryKey({
@@ -94,17 +118,37 @@ export const posts = sqliteTable('posts', {
   excerpt: text().notNull(),
   content: text().notNull(), // Markdown or HTML content
   coverImage: text('cover_image'),
-  category: text().default('General'),
-  tags: text(), // Comma-separated tags
+  featuredImageId: integer('featured_image_id').references(() => media.id),
+  status: text().notNull().default('draft'), // draft, published, scheduled, private
   readingTime: integer('reading_time'),
   authorId: text('author_id').references(() => user.id),
-  publishedAt: integer('published_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+  publishedAt: integer('published_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
 })
+
+export const postCategories = sqliteTable('post_categories', {
+  postId: integer('post_id')
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade' }),
+  categoryId: integer('category_id')
+    .notNull()
+    .references(() => categories.id, { onDelete: 'cascade' }),
+}, (table) => [
+  index('post_categories_idx').on(table.postId, table.categoryId)
+])
+
+export const postTags = sqliteTable('post_tags', {
+  postId: integer('post_id')
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade' }),
+  tagId: integer('tag_id')
+    .notNull()
+    .references(() => tags.id, { onDelete: 'cascade' }),
+}, (table) => [
+  index('post_tags_idx').on(table.postId, table.tagId)
+])
 
 export const appSettings = sqliteTable('app_settings', {
   key: text().primaryKey(),

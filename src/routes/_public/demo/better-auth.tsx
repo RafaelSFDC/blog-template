@@ -12,7 +12,7 @@ const getRegistrationStatus = createServerFn({ method: 'GET' }).handler(async ()
   }
 })
 
-export const Route = createFileRoute('/demo/better-auth')({
+export const Route = createFileRoute('/_public/demo/better-auth')({
   head: () => ({
     meta: [
       { title: 'Admin Access | PlayfulPulse' },

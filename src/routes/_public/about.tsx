@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Badge } from '#/components/ui/badge'
 
-export const Route = createFileRoute('/about')({
+export const Route = createFileRoute('/_public/about')({
   head: () => ({
     meta: [
       { title: 'About | PlayfulPulse Blog' },

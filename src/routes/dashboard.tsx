@@ -25,6 +25,17 @@ export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
 })
 
+import { DashboardSidebar } from '#/components/dashboard/Sidebar'
+
 function DashboardLayout() {
-  return <Outlet />
+  return (
+    <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/25">
+      <DashboardSidebar />
+      <main className="flex-1 overflow-y-auto px-6 py-10 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  )
 }

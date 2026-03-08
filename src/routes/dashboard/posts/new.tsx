@@ -36,7 +36,7 @@ const createPost = createServerFn({ method: 'POST' })
     return created[0]
   })
 
-export const Route = createFileRoute('/dashboard/new')({
+export const Route = createFileRoute('/dashboard/posts/new')({
   component: NewPostPage,
 })
 
