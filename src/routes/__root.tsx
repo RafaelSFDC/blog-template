@@ -46,8 +46,42 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         title: 'PlayfulPulse Blog',
       },
+      {
+        name: 'description',
+        content:
+          'PlayfulPulse is a modern publication about design systems, web performance, and creative product thinking.',
+      },
+      {
+        property: 'og:site_name',
+        content: 'PlayfulPulse',
+      },
+      {
+        property: 'og:type',
+        content: 'website',
+      },
+      {
+        property: 'og:title',
+        content: 'PlayfulPulse Blog',
+      },
+      {
+        property: 'og:description',
+        content:
+          'A high-performance blog template with editorial pages, markdown posts, and admin publishing tools.',
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'theme-color',
+        content: '#2d7d8e',
+      },
     ],
     links: [
+      {
+        rel: 'icon',
+        href: '/favicon.ico',
+      },
       {
         rel: 'stylesheet',
         href: appCss,

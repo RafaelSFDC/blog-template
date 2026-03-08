@@ -8,6 +8,11 @@ const ensureAdminAccess = createServerFn({ method: 'GET' }).handler(async () => 
 })
 
 export const Route = createFileRoute('/dashboard')({
+  head: () => ({
+    meta: [
+      { name: 'robots', content: 'noindex, nofollow' },
+    ],
+  }),
   beforeLoad: async () => {
     try {
       await ensureAdminAccess()

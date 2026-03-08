@@ -45,8 +45,16 @@ export function MarkdownContent({
             <a
               href={href}
               className={styles.a}
-              target="_blank"
-              rel="noopener noreferrer"
+              target={
+                href?.startsWith('http://') || href?.startsWith('https://')
+                  ? '_blank'
+                  : undefined
+              }
+              rel={
+                href?.startsWith('http://') || href?.startsWith('https://')
+                  ? 'noopener noreferrer'
+                  : undefined
+              }
             >
               {children}
             </a>

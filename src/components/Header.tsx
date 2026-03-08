@@ -1,8 +1,21 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { useState, type FormEvent } from 'react'
 import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+
+  async function onSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const q = query.trim()
+    await navigate({
+      to: '/blog',
+      search: q ? { q } : {},
+    })
+  }
+
   return (
     <header className="sticky top-0 z-50 px-4 py-4 backdrop-blur-xl">
       <nav className="page-wrap island-shell rounded-[2rem] px-4 py-4 sm:px-6">
@@ -20,23 +33,28 @@ export default function Header() {
           </Link>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <label className="relative w-full sm:w-72">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sky">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M21 21l-4.4-4.4m1.4-5.1a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="3"
-                  />
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="Search for magic..."
-                className="h-12 w-full rounded-full border-4 border-white bg-white/80 pl-11 pr-4 text-sm font-semibold text-(--sea-ink) shadow-inner-soft outline-none focus-visible:ring-4 focus-visible:ring-mint"
-              />
-            </label>
+            <form onSubmit={onSearch} className="w-full sm:w-72">
+              <label className="relative block">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sky">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M21 21l-4.4-4.4m1.4-5.1a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="3"
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="search"
+                  aria-label="Search posts"
+                  value={query}
+                  onChange={(event) => setQuery(event.currentTarget.value)}
+                  placeholder="Search stories..."
+                  className="h-12 w-full rounded-full border-4 border-white bg-white/80 pl-11 pr-4 text-sm font-semibold text-(--sea-ink) shadow-inner-soft outline-none focus-visible:ring-4 focus-visible:ring-mint"
+                />
+              </label>
+            </form>
 
             <div className="flex items-center gap-2">
               <Link

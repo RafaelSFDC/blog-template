@@ -2,7 +2,7 @@
 
 A premium, high-performance blog template built with **TanStack Start**, **Drizzle ORM**, and **Tailwind CSS**.
 
-![Blog Hero](/blog_hero_image_1772952577328.png)
+![Blog Hero](/demo-neon.svg)
 
 ## ✨ Features
 

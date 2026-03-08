@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router'
+
 export default function Footer() {
   const year = new Date().getFullYear()
 
@@ -6,9 +8,15 @@ export default function Footer() {
       <div className="page-wrap">
         <hr className="deco-rule mb-6" />
         <div className="mb-4 flex justify-center gap-6 text-sm font-bold">
-          <a href="#" className="hover:text-coral transition-colors">Instagram</a>
-          <a href="#" className="hover:text-mint transition-colors">Dribbble</a>
-          <a href="#" className="hover:text-sky transition-colors">Twitter</a>
+          <Link to="/blog" className="hover:text-coral transition-colors no-underline">
+            Stories
+          </Link>
+          <Link to="/about" className="hover:text-mint transition-colors no-underline">
+            About
+          </Link>
+          <Link to="/dashboard" className="hover:text-sky transition-colors no-underline">
+            Dashboard
+          </Link>
         </div>
         <p className="m-0 text-sm text-(--sea-ink-soft)">
           &copy; {year} PlayfulPulse. Made with creativity and joy.
@@ -18,7 +26,7 @@ export default function Footer() {
         <a
           href="https://x.com/tan_stack"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="toy-button rounded-2xl border-4 border-white bg-(--chip-bg) p-2 text-[var(--sea-ink-soft)] shadow-toy transition-[transform,opacity] hover:text-[var(--sea-ink)]"
         >
           <span className="sr-only">Follow TanStack on X</span>
@@ -32,7 +40,7 @@ export default function Footer() {
         <a
           href="https://github.com/TanStack"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="toy-button rounded-2xl border-4 border-white bg-(--chip-bg) p-2 text-[var(--sea-ink-soft)] shadow-toy transition-[transform,opacity] hover:text-[var(--sea-ink)]"
         >
           <span className="sr-only">Go to TanStack GitHub</span>

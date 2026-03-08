@@ -27,6 +27,29 @@ const getPostBySlug = createServerFn({ method: 'GET' })
 
 export const Route = createFileRoute('/blog/$slug')({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: `${loaderData.title} | PlayfulPulse Blog`,
+      },
+      {
+        name: 'description',
+        content: loaderData.excerpt,
+      },
+      {
+        property: 'og:title',
+        content: loaderData.title,
+      },
+      {
+        property: 'og:description',
+        content: loaderData.excerpt,
+      },
+      {
+        property: 'og:type',
+        content: 'article',
+      },
+    ],
+  }),
   component: PostDetail,
 })
 
@@ -51,14 +74,9 @@ function PostDetail() {
         </header>
 
         <div className="island-shell mb-12 overflow-hidden rounded-3xl border-(--line) shadow-2xl">
-           <img 
-            src="/blog_hero_image_1772952577328.png" 
-            alt={post.title} 
-            width={1600}
-            height={900}
-            fetchPriority="high"
-            className="h-full w-full object-cover"
-          />
+          <div className="relative flex min-h-72 items-end bg-[radial-gradient(circle_at_20%_20%,oklch(0.92_0.14_190),transparent_55%),radial-gradient(circle_at_80%_10%,oklch(0.86_0.18_45),transparent_45%),linear-gradient(120deg,oklch(0.66_0.16_220),oklch(0.74_0.2_320))] p-8">
+            <p className="display-title text-3xl text-white sm:text-4xl">{post.title}</p>
+          </div>
         </div>
 
         <div className="blog-content">

@@ -4,6 +4,12 @@ import { Link } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 
 export const Route = createFileRoute('/demo/better-auth')({
+  head: () => ({
+    meta: [
+      { title: 'Admin Access | PlayfulPulse' },
+      { name: 'robots', content: 'noindex, nofollow' },
+    ],
+  }),
   component: BetterAuthDemo,
 })
 

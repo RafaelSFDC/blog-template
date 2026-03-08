@@ -11,6 +11,16 @@ const getTopPosts = createServerFn({ method: 'GET' }).handler(async () => {
 
 export const Route = createFileRoute('/')({ 
   loader: () => getTopPosts(),
+  head: () => ({
+    meta: [
+      { title: 'PlayfulPulse | Design, Tech, and Creative Publishing' },
+      {
+        name: 'description',
+        content:
+          'Discover featured stories on design systems, web engineering, and editorial product strategy.',
+      },
+    ],
+  }),
   component: Home 
 })
 
