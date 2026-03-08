@@ -1,0 +1,67 @@
+import { Link } from '@tanstack/react-router'
+import { ArrowRight } from 'lucide-react'
+
+interface Post {
+  id: number
+  slug: string
+  title: string
+  excerpt: string
+  coverImage?: string | null
+  category?: string | null
+}
+
+interface RecommendedPostsProps {
+  posts: Post[]
+}
+
+export function RecommendedPosts({ posts }: RecommendedPostsProps) {
+  return (
+    <section className="flex flex-col gap-8">
+      <div className="island-shell flex items-center justify-between rounded-2xl bg-accent px-4 py-3 sm:px-6 transition-transform hover:-translate-y-1">
+        <div>
+          <h2 className="display-title text-2xl font-bold text-(--sea-ink) sm:text-3xl">
+            Também pode gostar
+          </h2>
+        </div>
+        <Link
+          to="/blog"
+          search={{ q: '', category: '' }}
+          className="hidden items-center gap-2 rounded-full border-3 border-(--sea-ink) bg-white px-5 py-2 text-xs font-black text-(--sea-ink) transition-all hover:bg-(--sea-ink) hover:text-white sm:flex"
+        >
+          Ver todos
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            to="/blog/$slug"
+            params={{ slug: post.slug }}
+            className="island-shell group block overflow-hidden rounded-2xl bg-card p-6 transition-all hover:-translate-y-2 hover:shadow-2xl"
+          >
+            {post.coverImage && (
+              <div className="relative mb-6 aspect-video overflow-hidden rounded-xl border-2 border-(--line)">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              </div>
+            )}
+            <div className="mb-4 inline-block rounded-full border-2 border-(--lagoon-deep)/20 bg-(--lagoon-deep)/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-(--lagoon-deep)">
+              {post.category || 'General'}
+            </div>
+            <h3 className="mb-3 text-xl font-bold leading-tight text-(--sea-ink) transition-colors group-hover:text-(--lagoon-deep)">
+              {post.title}
+            </h3>
+            <p className="line-clamp-2 text-sm text-(--sea-ink-soft)">
+              {post.excerpt}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
+}

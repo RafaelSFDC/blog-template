@@ -18,7 +18,11 @@ export const posts = sqliteTable('posts', {
   slug: text().notNull().unique(),
   title: text().notNull(),
   excerpt: text().notNull(),
-  content: text().notNull(), // Markdown content
+  content: text().notNull(), // Markdown or HTML content
+  coverImage: text('cover_image'),
+  category: text().default('General'),
+  tags: text(), // Comma-separated tags
+  readingTime: integer('reading_time'),
   authorId: text('author_id').references(() => users.id),
   publishedAt: integer('published_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,

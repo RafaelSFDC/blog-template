@@ -87,7 +87,7 @@ function NewPostPage() {
 
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell rounded-[2rem] p-8 sm:p-10">
+      <section className="island-shell rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <h1 className="display-title text-5xl text-(--sea-ink) sm:text-6xl">Write New Post</h1>
         <p className="mt-3 max-w-2xl text-(--sea-ink-soft)">
@@ -115,7 +115,7 @@ function NewPostPage() {
               }
             }}
             placeholder="Designing A Better Publishing Workflow…"
-            className="w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+            className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
           />
         </div>
 
@@ -133,7 +133,7 @@ function NewPostPage() {
             value={slug}
             onChange={(event) => setSlug(slugify(event.currentTarget.value))}
             placeholder="designing-a-better-publishing-workflow…"
-            className="w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+            className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
           />
         </div>
 

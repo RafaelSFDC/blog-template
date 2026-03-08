@@ -100,19 +100,27 @@ export default function Header() {
             </CommandDialog>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Link to="/" className="nav-link text-xs sm:text-sm" activeProps={{ className: 'nav-link is-active' }} onClick={() => setIsMenuOpen(false)}>
-                Home
-              </Link>
-              <Link to="/blog" search={{ q: '' }} className="nav-link text-xs sm:text-sm" activeProps={{ className: 'nav-link is-active' }} onClick={() => setIsMenuOpen(false)}>
-                Stories
-              </Link>
-              <Link to="/about" className="nav-link text-xs sm:text-sm" activeProps={{ className: 'nav-link is-active' }} onClick={() => setIsMenuOpen(false)}>
-                About
-              </Link>
-              {session && (
-                <Link to="/dashboard" className="nav-link text-xs sm:text-sm" activeProps={{ className: 'nav-link is-active' }} onClick={() => setIsMenuOpen(false)}>
-                  Dashboard
+              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+                <Link to="/" onClick={() => setIsMenuOpen(false)}>
+                  Home
                 </Link>
+              </Button>
+              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+                <Link to="/blog" search={{ q: '' }} onClick={() => setIsMenuOpen(false)}>
+                  Stories
+                </Link>
+              </Button>
+              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+                <Link to="/about" onClick={() => setIsMenuOpen(false)}>
+                  About
+                </Link>
+              </Button>
+              {session && (
+                <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                    Dashboard
+                  </Link>
+                </Button>
               )}
             </div>
 

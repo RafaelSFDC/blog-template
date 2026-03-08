@@ -90,6 +90,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   shellComponent: RootDocument,
   errorComponent: RootErrorComponent,
+  notFoundComponent: RootNotFoundComponent,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -138,6 +139,30 @@ function RootErrorComponent({ error }: { error: unknown }) {
           An unexpected error occurred while rendering this route.
         </p>
         <ErrorComponent error={error} />
+      </section>
+    </main>
+  )
+}
+
+function RootNotFoundComponent() {
+  return (
+    <main className="page-wrap px-4 pb-16 pt-14">
+      <section className="island-shell clip-sash rounded-3xl p-8 text-center">
+        <p className="island-kicker mb-3">404 - Not Found</p>
+        <h1 className="display-title mb-3 text-4xl font-bold text-(--sea-ink) sm:text-6xl">
+          Lost in the Vibe?
+        </h1>
+        <p className="mx-auto mb-8 max-w-md text-lg text-(--sea-ink-soft)">
+          The page you're looking for has drifted off the grid. Let's get you back to the signal.
+        </p>
+        <div className="flex justify-center">
+          <a
+            href="/"
+            className="vibe-btn-primary inline-flex h-12 items-center justify-center rounded-full px-8 text-lg font-bold transition-all hover:scale-105 active:scale-95"
+          >
+            Return to Feed
+          </a>
+        </div>
       </section>
     </main>
   )

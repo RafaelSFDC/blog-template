@@ -1,79 +1,97 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
-import { posts } from '#/db/schema'
-import { desc } from 'drizzle-orm'
-import { PostCard } from '#/components/blog/PostCard'
-import { useMemo, useState, type FormEvent } from 'react'
-import { Search } from 'lucide-react'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "#/db/index";
+import { posts } from "#/db/schema";
+import { desc } from "drizzle-orm";
+import { PostCard, cardThemes } from "#/components/blog/PostCard";
+import { useMemo, useState, useEffect } from "react";
+import { Search, X } from "lucide-react";
+import { Newsletter } from "#/components/blog/newsletter";
 
-const getLatestPosts = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    return await db.select().from(posts).orderBy(desc(posts.publishedAt)).limit(12)
-  })
+const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
+  return await db
+    .select()
+    .from(posts)
+    .orderBy(desc(posts.publishedAt))
+    .limit(12);
+});
 
-export const Route = createFileRoute('/blog/')({
+export const Route = createFileRoute("/blog/")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === 'string' ? search.q : '',
+    q: typeof search.q === "string" ? search.q : "",
+    category: typeof search.category === "string" ? search.category : "",
   }),
   loader: () => getLatestPosts(),
   head: (ctx: any) => {
-    const search = ctx.search as { q: string }
-    const hasQuery = search.q.trim().length > 0
+    const search = ctx.search as { q?: string; category?: string };
+    const q = search.q || "";
+    const hasQuery = q.trim().length > 0;
     return {
       meta: [
         {
           title: hasQuery
             ? `Search "${search.q}" | VibeZine`
-            : 'All Stories | VibeZine Blog',
+            : "All Stories | VibeZine Blog",
         },
         {
-          name: 'description',
+          name: "description",
           content: hasQuery
             ? `Search results for "${search.q}" in VibeZine stories.`
-            : 'Browse all articles on design, tech, and cultural experiments.',
+            : "Browse all articles on design, tech, and cultural experiments.",
         },
       ],
-    }
+    };
   },
   component: BlogIndex,
-})
+});
 
 function BlogIndex() {
-  const latestPosts = Route.useLoaderData()
-  const { q } = Route.useSearch()
-  const query = q.trim().toLowerCase()
-  const [email, setEmail] = useState('')
-  const [newsletterMessage, setNewsletterMessage] = useState('')
+  const latestPosts = Route.useLoaderData();
+  const search = Route.useSearch();
+  const q = typeof search.q === "string" ? search.q : "";
+  const category = typeof search.category === "string" ? search.category : "";
+
+  const navigate = useNavigate();
+  const query = q.trim().toLowerCase();
+  const [localSearch, setLocalSearch] = useState(q);
+
+  useEffect(() => {
+    setLocalSearch(q);
+  }, [q]);
 
   const filteredPosts = useMemo(() => {
-    if (!query) {
-      return latestPosts
-    }
-
     return latestPosts.filter((post: any) => {
-      const title = String(post.title || '').toLowerCase()
-      const excerpt = String(post.excerpt || '').toLowerCase()
-      return title.includes(query) || excerpt.includes(query)
-    })
-  }, [latestPosts, query])
+      const matchesQuery =
+        !query ||
+        String(post.title || "")
+          .toLowerCase()
+          .includes(query) ||
+        String(post.excerpt || "")
+          .toLowerCase()
+          .includes(query);
 
-  function onSubscribe(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const normalizedEmail = email.trim().toLowerCase()
-    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+      const postId = Number(post.id) || 0;
+      const postCategory = cardThemes[postId % cardThemes.length]?.badge || "";
+      const matchesCategory =
+        !category || postCategory.toLowerCase() === category.toLowerCase();
 
-    if (!isValid) {
-      setNewsletterMessage('Please provide a valid email address.')
-      return
-    }
+      return matchesQuery && matchesCategory;
+    });
+  }, [latestPosts, query, category]);
 
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('newsletterEmail', normalizedEmail)
-    }
+  function handleSearch(val: string) {
+    setLocalSearch(val);
+    navigate({
+      to: ".",
+      search: (prev: any) => ({ ...prev, q: val || undefined }),
+    });
+  }
 
-    setNewsletterMessage('Thanks! You are on the list.')
-    setEmail('')
+  function handleCategory(cat: string) {
+    navigate({
+      to: ".",
+      search: (prev: any) => ({ ...prev, category: cat || undefined }),
+    });
   }
 
   return (
@@ -88,28 +106,46 @@ function BlogIndex() {
         </p>
       </header>
 
-      <section className="mb-8">
-        {query ? (
-          <p className="mb-4 text-sm font-semibold text-(--sea-ink-soft)">
-            Showing results for "{q}".
-          </p>
-        ) : null}
+      <section className="mb-8 flex flex-col gap-6">
+        <div className="relative max-w-xl">
+          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            value={localSearch}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Search stories..."
+            className="h-14 w-full rounded-lg border-3 border-border bg-card pl-12 pr-12 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-primary/20 shadow-zine-sm"
+          />
+          {localSearch && (
+            <button
+              onClick={() => handleSearch("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-md transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-3">
-          <button className="toy-button rounded-lg border-2 border-border bg-accent px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
+          <button
+            onClick={() => handleCategory("")}
+            className={`toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all ${!category ? "bg-accent text-foreground scale-105 z-10" : "bg-background text-muted-foreground hover:bg-secondary/50"}`}
+          >
             ✨ All Stories
           </button>
-          <button className="toy-button rounded-lg border-2 border-border bg-secondary px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
-            🎨 Design
-          </button>
-          <button className="toy-button rounded-lg border-2 border-border bg-sky px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
-            🚀 Tech
-          </button>
-          <button className="toy-button rounded-lg border-2 border-border bg-primary px-6 py-2 font-black text-white shadow-zine-sm sm:border-3">
-            🧸 Culture
-          </button>
-          <button className="toy-button rounded-lg border-2 border-border bg-grape px-6 py-2 font-black text-white shadow-zine-sm sm:border-3">
-            🍦 Lifestyle
-          </button>
+          {cardThemes.map((theme) => {
+            const isActive =
+              category && category.toLowerCase() === theme.badge.toLowerCase();
+            return (
+              <button
+                key={theme.badge}
+                onClick={() => handleCategory(theme.badge)}
+                className={`toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all ${isActive ? `${theme.cover} text-foreground scale-105 z-10` : "bg-background text-muted-foreground hover:bg-secondary/50"}`}
+              >
+                {theme.badge}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -125,43 +161,17 @@ function BlogIndex() {
             <Search className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="text-xl font-black text-foreground uppercase tracking-tight">
-            {query ? `Search for "${q}" failed` : 'No stories found'}
+            {query ? `Search for "${q}" failed` : "No stories found"}
           </h2>
           <p className="mt-2 text-muted-foreground font-bold">
             {query
-              ? 'Try different keywords or check your spelling.'
-              : 'The archive is currently empty.'}
+              ? "Try different keywords or check your spelling."
+              : "The archive is currently empty."}
           </p>
         </div>
       )}
 
-      <section className="relative mt-12 overflow-hidden rounded-lg border-4 border-border bg-primary p-8 text-center shadow-zine sm:p-12">
-        <h2 className="display-title relative z-10 mb-4 text-4xl text-white sm:text-5xl font-extrabold uppercase tracking-tighter">
-          Join the Tribe!
-        </h2>
-        <p className="relative z-10 mx-auto mb-7 max-w-xl text-white/90 font-bold">
-          No noise. Just high-energy design drops and creative insights every Sunday.
-        </p>
-        <form onSubmit={onSubscribe} className="relative z-10 mx-auto flex max-w-xl flex-col gap-4 sm:flex-row">
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.currentTarget.value)}
-            placeholder="your@edgy.email"
-            required
-            className="h-14 flex-1 rounded-lg border-2 border-border bg-white/95 px-6 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-accent sm:border-3"
-          />
-          <button type="submit" className="toy-button rounded-lg border-2 border-border bg-accent px-8 py-4 font-black text-foreground shadow-zine-sm sm:border-3">
-            Subscribe!
-          </button>
-        </form>
-        {newsletterMessage ? (
-          <p className="relative z-10 mt-4 text-sm font-semibold text-white" aria-live="polite">
-            {newsletterMessage}
-          </p>
-        ) : null}
-      </section>
+      <Newsletter />
     </main>
-  )
+  );
 }
-

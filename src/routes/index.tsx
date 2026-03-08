@@ -4,8 +4,9 @@ import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { desc } from "drizzle-orm";
 import { PostCard } from "#/components/blog/PostCard";
-import { Zap, Mail, ArrowRight, TrendingUp } from "lucide-react";
+import { Zap, ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "#/components/ui/button";
+import { Newsletter } from "#/components/blog/newsletter";
 
 function MarqueeTicker() {
   const items = [
@@ -87,30 +88,12 @@ function Home() {
             layout that actually has a soul.
           </p>
 
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="mt-12 flex flex-col sm:flex-row gap-3 max-w-md"
-          >
-            <div className="relative flex-1">
-              <Mail
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                size={18}
-              />
-              <input
-                type="email"
-                placeholder="Join the newsletter..."
-                className="h-12 w-full rounded-lg border-2 border-border bg-background pl-11 pr-4 text-sm font-bold shadow-zine-sm outline-none focus:ring-4 focus:ring-primary/20"
-              />
-            </div>
-            <Button variant="zine" size="lg" className="sm:w-auto">
-              Join
-            </Button>
-          </form>
+          <Newsletter variant="compact" placeholder="Join the newsletter..." className="mt-12" />
 
           <div className="mt-8 flex flex-wrap gap-4 border-t-2 border-border/10 pt-8">
             <Link
               to="/blog"
-              search={{ q: "" }}
+              search={{ q: "", category: "" }}
               className="group flex items-center gap-2 text-sm font-black text-foreground no-underline uppercase tracking-widest hover:text-primary transition-colors"
             >
               Learn More About Our Vision
@@ -164,7 +147,7 @@ function Home() {
               size="lg"
               className="w-full text-white"
             >
-              <Link to="/blog" search={{ q: "" }} className="text-white">
+              <Link to="/blog" search={{ q: "", category: "" }} className="text-white">
                 Start Reading
               </Link>
             </Button>
@@ -182,7 +165,7 @@ function Home() {
           </div>
           <Link
             to="/blog"
-            search={{ q: "" }}
+            search={{ q: "", category: "" }}
             className="group flex items-center gap-1.5 text-sm font-black text-primary no-underline uppercase tracking-widest"
           >
             Full Archive

@@ -1,108 +1,132 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
-import { posts } from '#/db/schema'
-import { eq } from 'drizzle-orm'
-import { MarkdownContent } from '#/components/markdown-content'
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "#/db/index";
+import { posts } from "#/db/schema";
+import { and, eq, ne } from "drizzle-orm";
+import { MarkdownContent } from "#/components/markdown-content";
+import { BlogHero } from "#/components/blog-hero";
+import { RecommendedPosts } from "#/components/recommended-posts";
+import { TableOfContents } from "#/components/table-of-contents";
+import { AuthorBio } from "#/components/author-bio";
+import { SocialSharing } from "#/components/social-sharing";
+import { Newsletter } from "#/components/blog/newsletter";
 
-const postDateFormatter = new Intl.DateTimeFormat('en-US', {
-  month: 'long',
-  day: '2-digit',
-  year: 'numeric',
-})
-
-const getPostBySlug = createServerFn({ method: 'GET' })
+const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
   .handler(async ({ data: slug }) => {
     const post = await db.query.posts.findFirst({
       where: eq(posts.slug, slug),
-    })
+    });
 
     if (!post) {
-      throw notFound()
+      throw notFound();
     }
 
-    return post
-  })
+    // Fetch recommended posts (same category, different slug)
+    const recommended = await db.query.posts.findMany({
+      where: and(
+        eq(posts.category, post.category || "General"),
+        ne(posts.slug, slug),
+      ),
+      limit: 3,
+    });
 
-export const Route = createFileRoute('/blog/$slug')({
+    return {
+      post,
+      recommended: (recommended as any[]) || [],
+    };
+  });
+
+export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: `${loaderData.title} | PlayfulPulse Blog`,
-      },
-      {
-        name: 'description',
-        content: loaderData.excerpt,
-      },
-      {
-        property: 'og:title',
-        content: loaderData.title,
-      },
-      {
-        property: 'og:description',
-        content: loaderData.excerpt,
-      },
-      {
-        property: 'og:type',
-        content: 'article',
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const post = loaderData?.post
+    if (!post) {
+      return {
+        meta: [{ title: 'Post Not Found | VibeZine' }],
+      }
+    }
+
+    return {
+      meta: [
+        {
+          title: `${post.title} | VibeZine`,
+        },
+        {
+          name: 'description',
+          content: post.excerpt,
+        },
+        {
+          property: 'og:title',
+          content: post.title,
+        },
+        {
+          property: 'og:description',
+          content: post.excerpt,
+        },
+        {
+          property: 'og:image',
+          content: post.coverImage ?? undefined,
+        },
+        {
+          property: 'og:type',
+          content: 'article',
+        },
+      ],
+    }
+  },
   component: PostDetail,
-})
+});
 
 function PostDetail() {
-  const post: any = Route.useLoaderData()
+  const { post, recommended }: any = Route.useLoaderData();
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <main className="page-wrap px-4 pb-20 pt-14">
-      <article className="mx-auto max-w-3xl">
-        <header className="island-shell clip-sash mb-10 rounded-[2.2rem] p-8 text-center sm:p-10">
-          <div className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-(--lagoon-deep)">
-            <span>Journal Entry</span>
-            <span className="h-1 w-1 rounded-full bg-(--line)" />
-            <span>{post.publishedAt ? postDateFormatter.format(new Date(post.publishedAt)) : 'Draft'}</span>
-          </div>
-          <h1 className="display-title mb-6 text-4xl font-bold leading-tight text-(--sea-ink) sm:text-5xl lg:text-6xl">
-            {post.title}
-          </h1>
-          <p className="mx-auto max-w-2xl text-xl text-(--sea-ink-soft)">
-            {post.excerpt}
-          </p>
-        </header>
+    <main className="pb-20 pt-10">
+      <div className="page-wrap flex flex-col gap-8 sm:gap-12">
+        {/* Post Hero */}
+        <BlogHero post={post} />
 
-        <div className="island-shell mb-12 overflow-hidden rounded-3xl border-(--line) shadow-2xl">
-          <div className="relative flex min-h-72 items-end bg-[radial-gradient(circle_at_20%_20%,oklch(0.92_0.14_190),transparent_55%),radial-gradient(circle_at_80%_10%,oklch(0.86_0.18_45),transparent_45%),linear-gradient(120deg,oklch(0.66_0.16_220),oklch(0.74_0.2_320))] p-8">
-            <p className="display-title text-3xl text-white sm:text-4xl">{post.title}</p>
-          </div>
+        {/* Social Sharing */}
+        <div className="island-shell rounded-2xl bg-card p-4 sm:p-6">
+          <SocialSharing url={currentUrl} title={post.title} />
         </div>
 
-        <div className="blog-content">
+        {/* Table of Contents */}
+        <TableOfContents content={post.content} />
+
+        {/* Main Article Content */}
+        <article className="blog-content island-shell prose-lg bg-card p-6 sm:p-12 rounded-2xl">
           <MarkdownContent content={post.content} />
-        </div>
+        </article>
 
-        <footer className="mt-16 border-t border-(--line) pt-8">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 overflow-hidden rounded-full bg-(--line)">
-               {/* Placeholder for author image */}
-               <div className="flex h-full w-full items-center justify-center bg-(--chip-bg) text-(--sea-ink)">
-                 {post.authorId ? 'A' : 'U'}
-               </div>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-(--sea-ink)">
-                Published by {post.authorId || 'Anonymous'}
-              </p>
-              <p className="text-xs text-(--sea-ink-soft)">
-                Digital Strategist & Web Developer
-              </p>
-            </div>
+        {/* Tags */}
+        {post.tags && (
+          <div className="island-shell flex flex-wrap gap-2 p-6 sm:p-8 bg-card rounded-2xl">
+            <span className="mr-2 text-xs font-bold uppercase tracking-widest text-(--sea-ink-soft)">
+              Tags
+            </span>
+            {post.tags.split(",").map((tag: string) => (
+              <span
+                key={tag}
+                className="rounded-full bg-(--line) px-4 py-1.5 text-xs font-bold text-(--sea-ink-soft) transition-all hover:bg-(--lagoon-deep) hover:text-white hover:-translate-y-0.5"
+              >
+                #{tag.trim()}
+              </span>
+            ))}
           </div>
-        </footer>
-      </article>
-    </main>
-  )
-}
+        )}
 
+        {/* Author Bio */}
+        <AuthorBio />
+
+        {/* Newsletter */}
+        <Newsletter />
+
+        {/* Recommended Posts */}
+        <RecommendedPosts posts={recommended} />
+      </div>
+    </main>
+  );
+}

@@ -14,7 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
-const cardThemes = [
+export const cardThemes = [
   { cover: 'bg-secondary', badge: 'Design', action: 'text-primary', avatar: 'bg-primary' },
   { cover: 'bg-accent', badge: 'Culture', action: 'text-primary', avatar: 'bg-primary' },
   { cover: 'bg-sky', badge: 'Tech', action: 'text-secondary', avatar: 'bg-secondary' },
