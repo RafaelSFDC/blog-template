@@ -21,11 +21,13 @@ import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/user
 import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/index'
 import { Route as DashboardPostsIndexRouteImport } from './routes/dashboard/posts/index'
 import { Route as DashboardPagesIndexRouteImport } from './routes/dashboard/pages/index'
+import { Route as DashboardNewslettersIndexRouteImport } from './routes/dashboard/newsletters/index'
 import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/media/index'
 import { Route as DashboardCommentsIndexRouteImport } from './routes/dashboard/comments/index'
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
+import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
@@ -93,6 +95,12 @@ const DashboardPagesIndexRoute = DashboardPagesIndexRouteImport.update({
   path: '/pages/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardNewslettersIndexRoute =
+  DashboardNewslettersIndexRouteImport.update({
+    id: '/newsletters/',
+    path: '/newsletters/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardMediaIndexRoute = DashboardMediaIndexRouteImport.update({
   id: '/media/',
   path: '/media/',
@@ -117,6 +125,11 @@ const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
 const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   id: '/posts/new',
   path: '/posts/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardNewslettersNewRoute = DashboardNewslettersNewRouteImport.update({
+  id: '/newsletters/new',
+  path: '/newsletters/new',
   getParentRoute: () => DashboardRoute,
 } as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
@@ -170,11 +183,13 @@ export interface FileRoutesByFullPath {
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
+  '/dashboard/newsletters/': typeof DashboardNewslettersIndexRoute
   '/dashboard/pages/': typeof DashboardPagesIndexRoute
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
@@ -194,11 +209,13 @@ export interface FileRoutesByTo {
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments': typeof DashboardCommentsIndexRoute
   '/dashboard/media': typeof DashboardMediaIndexRoute
+  '/dashboard/newsletters': typeof DashboardNewslettersIndexRoute
   '/dashboard/pages': typeof DashboardPagesIndexRoute
   '/dashboard/posts': typeof DashboardPostsIndexRoute
   '/dashboard/tags': typeof DashboardTagsIndexRoute
@@ -221,11 +238,13 @@ export interface FileRoutesById {
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
+  '/dashboard/newsletters/': typeof DashboardNewslettersIndexRoute
   '/dashboard/pages/': typeof DashboardPagesIndexRoute
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
@@ -248,11 +267,13 @@ export interface FileRouteTypes {
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
     | '/dashboard/media/'
+    | '/dashboard/newsletters/'
     | '/dashboard/pages/'
     | '/dashboard/posts/'
     | '/dashboard/tags/'
@@ -272,11 +293,13 @@ export interface FileRouteTypes {
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/blog'
     | '/dashboard/categories'
     | '/dashboard/comments'
     | '/dashboard/media'
+    | '/dashboard/newsletters'
     | '/dashboard/pages'
     | '/dashboard/posts'
     | '/dashboard/tags'
@@ -298,11 +321,13 @@ export interface FileRouteTypes {
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/_public/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
     | '/dashboard/media/'
+    | '/dashboard/newsletters/'
     | '/dashboard/pages/'
     | '/dashboard/posts/'
     | '/dashboard/tags/'
@@ -407,6 +432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPagesIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/newsletters/': {
+      id: '/dashboard/newsletters/'
+      path: '/newsletters'
+      fullPath: '/dashboard/newsletters/'
+      preLoaderRoute: typeof DashboardNewslettersIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/media/': {
       id: '/dashboard/media/'
       path: '/media'
@@ -440,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/posts/new'
       fullPath: '/dashboard/posts/new'
       preLoaderRoute: typeof DashboardPostsNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/newsletters/new': {
+      id: '/dashboard/newsletters/new'
+      path: '/newsletters/new'
+      fullPath: '/dashboard/newsletters/new'
+      preLoaderRoute: typeof DashboardNewslettersNewRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/api/stripe/webhook': {
@@ -516,10 +555,12 @@ const PublicRouteWithChildren =
 interface DashboardRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
   DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
   DashboardCommentsIndexRoute: typeof DashboardCommentsIndexRoute
   DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
+  DashboardNewslettersIndexRoute: typeof DashboardNewslettersIndexRoute
   DashboardPagesIndexRoute: typeof DashboardPagesIndexRoute
   DashboardPostsIndexRoute: typeof DashboardPostsIndexRoute
   DashboardTagsIndexRoute: typeof DashboardTagsIndexRoute
@@ -530,10 +571,12 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
   DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
   DashboardCommentsIndexRoute: DashboardCommentsIndexRoute,
   DashboardMediaIndexRoute: DashboardMediaIndexRoute,
+  DashboardNewslettersIndexRoute: DashboardNewslettersIndexRoute,
   DashboardPagesIndexRoute: DashboardPagesIndexRoute,
   DashboardPostsIndexRoute: DashboardPostsIndexRoute,
   DashboardTagsIndexRoute: DashboardTagsIndexRoute,

@@ -195,3 +195,28 @@ export const subscribers = sqliteTable('subscribers', {
     sql`(unixepoch())`,
   ),
 })
+
+export const newsletters = sqliteTable('newsletters', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  subject: text().notNull(),
+  content: text().notNull(), // HTML or Markdown
+  status: text().notNull().default('draft'), // draft, sending, sent, failed
+  sentAt: integer('sent_at', { mode: 'timestamp' }),
+  postId: integer('post_id').references(() => posts.id), // Optional: link to a post
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
+
+export const newsletterLogs = sqliteTable('newsletter_logs', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  newsletterId: integer('newsletter_id')
+    .notNull()
+    .references(() => newsletters.id, { onDelete: 'cascade' }),
+  subscriberEmail: text('subscriber_email').notNull(),
+  status: text().notNull().default('sent'), // sent, opened, clicked, failed
+  error: text(),
+  sentAt: integer('sent_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
