@@ -1,4 +1,5 @@
 import {
+  ErrorComponent,
   HeadContent,
   Scripts,
   createRootRouteWithContext,
@@ -54,6 +55,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  errorComponent: RootErrorComponent,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -63,7 +65,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
+      <body
+        suppressHydrationWarning
+        className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]"
+      >
         <TanStackQueryProvider>
           <Header />
           {children}
@@ -84,5 +89,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function RootErrorComponent({ error }: { error: unknown }) {
+  return (
+    <main className="page-wrap px-4 pb-16 pt-14">
+      <section className="island-shell rounded-3xl p-8">
+        <h1 className="display-title mb-3 text-2xl font-bold text-(--sea-ink) sm:text-3xl">
+          Something went wrong
+        </h1>
+        <p className="mb-4 text-(--sea-ink-soft)">
+          An unexpected error occurred while rendering this route.
+        </p>
+        <ErrorComponent error={error} />
+      </section>
+    </main>
   )
 }

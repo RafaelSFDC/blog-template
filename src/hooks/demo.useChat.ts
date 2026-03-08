@@ -52,11 +52,8 @@ export function useChat() {
 }
 
 export function useMessages() {
-  const { data: messages } = useLiveQuery((q) =>
-    q.from({ message: messagesCollection }).select(({ message }) => ({
-      ...message,
-    })),
-  )
+  const { data: messages } = useLiveQuery(messagesCollection)
 
   return messages as Message[]
 }
+

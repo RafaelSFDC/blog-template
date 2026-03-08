@@ -1,5 +1,5 @@
-import { StrapiImage } from '@/components/strapi-image'
-import type { TImage } from '@/types/strapi'
+import { StrapiImage } from '#/components/strapi-image'
+import type { TImage } from '#/types/strapi'
 
 export interface ISlider {
   __component: 'shared.slider'

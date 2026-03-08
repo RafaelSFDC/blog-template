@@ -1,9 +1,9 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '@/db'
-import { posts } from '@/db/schema'
+import { db } from '#/db/index'
+import { posts } from '#/db/schema'
 import { eq } from 'drizzle-orm'
-import { MarkdownContent } from '@/components/markdown-content'
+import { MarkdownContent } from '#/components/markdown-content'
 import { format } from 'date-fns'
 
 const getPostBySlug = createServerFn({ method: 'GET' })
@@ -79,3 +79,4 @@ function PostDetail() {
     </main>
   )
 }
+

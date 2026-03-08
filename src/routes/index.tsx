@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '@/db'
-import { posts } from '@/db/schema'
+import { db } from '#/db/index'
+import { posts } from '#/db/schema'
 import { desc } from 'drizzle-orm'
-import { PostCard } from '@/components/blog/PostCard'
+import { PostCard } from '#/components/blog/PostCard'
 
 const getTopPosts = createServerFn({ method: 'GET' }).handler(async () => {
   return await db.select().from(posts).orderBy(desc(posts.publishedAt)).limit(3)
@@ -97,3 +97,4 @@ function Home() {
     </main>
   )
 }
+

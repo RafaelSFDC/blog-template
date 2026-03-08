@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '@/db'
-import { posts } from '@/db/schema'
+import { db } from '#/db/index'
+import { posts } from '#/db/schema'
 import { desc } from 'drizzle-orm'
-import { PostCard } from '@/components/blog/PostCard'
+import { PostCard } from '#/components/blog/PostCard'
 
 const getLatestPosts = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -61,3 +61,4 @@ function BlogIndex() {
     </main>
   )
 }
+
