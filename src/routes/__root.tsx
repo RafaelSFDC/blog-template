@@ -95,8 +95,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* Cloudflare Web Analytics */}
+        <script
+          defer
+          src='https://static.cloudflareinsights.com/beacon.min.js'
+          data-cf-beacon='{"token": "REPLACE_WITH_YOUR_ANALYTICS_TOKEN"}'
+        ></script>
         <HeadContent />
       </head>
+
       <body
         suppressHydrationWarning
         className="font-sans antialiased wrap-anywhere selection:bg-primary/25"

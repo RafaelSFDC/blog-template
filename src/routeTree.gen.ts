@@ -23,6 +23,7 @@ import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/medi
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
+import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
@@ -98,6 +99,11 @@ const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
+  id: '/api/media/$',
+  path: '/api/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/media/$'
     | '/dashboard/posts/new'
     | '/blog/'
     | '/dashboard/categories/'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/media/$'
     | '/dashboard/posts/new'
     | '/blog'
     | '/dashboard/categories'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/_public/blog/$slug'
     | '/_public/demo/better-auth'
     | '/api/auth/$'
+    | '/api/media/$'
     | '/dashboard/posts/new'
     | '/_public/blog/'
     | '/dashboard/categories/'
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiMediaSplatRoute: typeof ApiMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPostsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/media/$': {
+      id: '/api/media/$'
+      path: '/api/media/$'
+      fullPath: '/api/media/$'
+      preLoaderRoute: typeof ApiMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -428,6 +448,7 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiMediaSplatRoute: ApiMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

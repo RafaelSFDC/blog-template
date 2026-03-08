@@ -11,8 +11,13 @@ import {
   ListOrdered, 
   Quote, 
   Undo, 
-  Redo 
+  Redo,
+  Image as ImageIcon
 } from 'lucide-react'
+import ImageExtension from '@tiptap/extension-image'
+import { uploadMedia } from '#/lib/storage'
+import { useRef } from 'react'
+
 
 interface TiptapEditorProps {
   content: string
@@ -108,9 +113,58 @@ const MenuBar = ({ editor }: { editor: any }) => {
       >
         <Redo className="h-4 w-4" />
       </Button>
+      <div className="mx-1 h-6 w-px bg-border" />
+      <ImageUploadButton editor={editor} />
     </div>
   )
 }
+
+function ImageUploadButton({ editor }: { editor: any }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const res = await uploadMedia({ data: formData })
+      if (res?.url) {
+        editor.chain().focus().setImage({ src: res.url, alt: file.name }).run()
+      }
+    } catch (err) {
+      console.error('Upload failed:', err)
+      alert('Upload failed. Check if R2 is configured.')
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  return (
+    <>
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        ref={fileInputRef}
+        onChange={onFileChange}
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={() => fileInputRef.current?.click()}
+        title="Upload Image"
+        className="h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-border"
+      >
+        <ImageIcon className="h-4 w-4" />
+      </Button>
+    </>
+  )
+}
+
 
 export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   const editor = useEditor({
@@ -124,7 +178,13 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
         html: false,
         transformPastedText: true,
       }),
+      ImageExtension.configure({
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full h-auto border-2 border-border shadow-md my-4',
+        },
+      }),
     ],
+
     content: content,
     onUpdate: ({ editor }) => {
       // @ts-ignore - getMarkdown exists on editor with the extension

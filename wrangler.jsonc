@@ -3,5 +3,18 @@
   "name": "tanstack-start-app",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blog-db",
+      "database_id": "REPLACE_WITH_YOUR_D1_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "blog-media"
+    }
+  ]
 }
