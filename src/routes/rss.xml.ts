@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from "#/db/index"
 import { eq, desc } from 'drizzle-orm'
-import { posts } from '../../db/schema'
+import { posts } from '#/db/schema'
 
-export const Route = createFileRoute('/api/rss/xml')({
+export const Route = createFileRoute('/rss/xml')({
   server: {
     handlers: {
       GET: async ({ request }) => {
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/api/rss/xml')({
   <description>Um blog moderno construído com TanStack Start</description>
   <language>pt-br</language>
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-  <atom:link href="${baseUrl}/api/rss.xml" rel="self" type="application/rss+xml" />
+  <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
   ${latestPosts.map((post: any) => `
   <item>
     <title>${post.title}</title>

@@ -3,6 +3,8 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Mail } from "lucide-react";
 import { cn } from "#/lib/utils";
+import { subscribeNewsletter } from "#/server/newsletter-actions";
+import { toast } from "sonner";
 
 interface NewsletterProps {
   title?: string;
@@ -25,16 +27,21 @@ export function Newsletter({
 }: NewsletterProps) {
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubscribe) {
       onSubscribe(email);
     } else {
-      console.log('Newsletter subscription:', email);
-      setEmail('');
-      // In a real app, this would be a toast or API call
-      if (typeof window !== 'undefined') {
-        alert('Thanks for joining!');
+      try {
+        const res = await subscribeNewsletter({ data: email });
+        if (res.success) {
+          toast.success(res.message);
+          setEmail('');
+        } else {
+          toast.error(res.message);
+        }
+      } catch (err) {
+        toast.error("An error occurred. Please try again.");
       }
     }
   };

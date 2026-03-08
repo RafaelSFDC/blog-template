@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree, MessageSquare } from 'lucide-react'
 import { authClient } from '#/lib/auth-client'
 import { Button } from '#/components/ui/button'
 
@@ -23,6 +23,11 @@ const sidebarLinks = [
     label: 'Tags',
     icon: Tags,
     to: '/dashboard/tags',
+  },
+  {
+    label: 'Comments',
+    icon: MessageSquare,
+    to: '/dashboard/comments',
   },
   {
     label: 'Media',

@@ -13,6 +13,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
@@ -20,11 +22,12 @@ import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/
 import { Route as DashboardPostsIndexRouteImport } from './routes/dashboard/posts/index'
 import { Route as DashboardPagesIndexRouteImport } from './routes/dashboard/pages/index'
 import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/media/index'
+import { Route as DashboardCommentsIndexRouteImport } from './routes/dashboard/comments/index'
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
-import { Route as ApiSitemapXmlRouteImport } from './routes/api/sitemap.xml'
-import { Route as ApiRssXmlRouteImport } from './routes/api/rss.xml'
+import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
+import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
@@ -49,6 +52,16 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRoute,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssXmlRoute = RssXmlRouteImport.update({
+  id: '/rss/xml',
+  path: '/rss/xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
@@ -85,6 +98,11 @@ const DashboardMediaIndexRoute = DashboardMediaIndexRouteImport.update({
   path: '/media/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardCommentsIndexRoute = DashboardCommentsIndexRouteImport.update({
+  id: '/comments/',
+  path: '/comments/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardCategoriesIndexRoute =
   DashboardCategoriesIndexRouteImport.update({
     id: '/categories/',
@@ -101,14 +119,14 @@ const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => DashboardRoute,
 } as any)
-const ApiSitemapXmlRoute = ApiSitemapXmlRouteImport.update({
-  id: '/api/sitemap/xml',
-  path: '/api/sitemap/xml',
+const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
+  id: '/api/stripe/webhook',
+  path: '/api/stripe/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiRssXmlRoute = ApiRssXmlRouteImport.update({
-  id: '/api/rss/xml',
-  path: '/api/rss/xml',
+const ApiStripeCheckoutRoute = ApiStripeCheckoutRouteImport.update({
+  id: '/api/stripe/checkout',
+  path: '/api/stripe/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
@@ -143,16 +161,19 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/rss/xml': typeof RssXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
-  '/api/rss/xml': typeof ApiRssXmlRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
+  '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
+  '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
   '/dashboard/pages/': typeof DashboardPagesIndexRoute
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
@@ -163,17 +184,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/rss/xml': typeof RssXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
-  '/api/rss/xml': typeof ApiRssXmlRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
+  '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
+  '/dashboard/comments': typeof DashboardCommentsIndexRoute
   '/dashboard/media': typeof DashboardMediaIndexRoute
   '/dashboard/pages': typeof DashboardPagesIndexRoute
   '/dashboard/posts': typeof DashboardPostsIndexRoute
@@ -187,17 +211,20 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/rss/xml': typeof RssXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
-  '/api/rss/xml': typeof ApiRssXmlRoute
-  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
+  '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
+  '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
   '/dashboard/pages/': typeof DashboardPagesIndexRoute
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
@@ -212,16 +239,19 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/about'
     | '/dashboard/settings'
+    | '/rss/xml'
+    | '/sitemap/xml'
     | '/dashboard/'
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
-    | '/api/rss/xml'
-    | '/api/sitemap/xml'
+    | '/api/stripe/checkout'
+    | '/api/stripe/webhook'
     | '/dashboard/posts/new'
     | '/blog/'
     | '/dashboard/categories/'
+    | '/dashboard/comments/'
     | '/dashboard/media/'
     | '/dashboard/pages/'
     | '/dashboard/posts/'
@@ -232,17 +262,20 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/dashboard/settings'
+    | '/rss/xml'
+    | '/sitemap/xml'
     | '/'
     | '/dashboard'
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
-    | '/api/rss/xml'
-    | '/api/sitemap/xml'
+    | '/api/stripe/checkout'
+    | '/api/stripe/webhook'
     | '/dashboard/posts/new'
     | '/blog'
     | '/dashboard/categories'
+    | '/dashboard/comments'
     | '/dashboard/media'
     | '/dashboard/pages'
     | '/dashboard/posts'
@@ -255,17 +288,20 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/_public/about'
     | '/dashboard/settings'
+    | '/rss/xml'
+    | '/sitemap/xml'
     | '/_public/'
     | '/dashboard/'
     | '/_public/blog/$slug'
     | '/_public/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
-    | '/api/rss/xml'
-    | '/api/sitemap/xml'
+    | '/api/stripe/checkout'
+    | '/api/stripe/webhook'
     | '/dashboard/posts/new'
     | '/_public/blog/'
     | '/dashboard/categories/'
+    | '/dashboard/comments/'
     | '/dashboard/media/'
     | '/dashboard/pages/'
     | '/dashboard/posts/'
@@ -277,10 +313,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
+  RssXmlRoute: typeof RssXmlRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
-  ApiRssXmlRoute: typeof ApiRssXmlRoute
-  ApiSitemapXmlRoute: typeof ApiSitemapXmlRoute
+  ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
+  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +350,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss/xml': {
+      id: '/rss/xml'
+      path: '/rss/xml'
+      fullPath: '/rss/xml'
+      preLoaderRoute: typeof RssXmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/settings': {
       id: '/dashboard/settings'
@@ -362,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMediaIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/comments/': {
+      id: '/dashboard/comments/'
+      path: '/comments'
+      fullPath: '/dashboard/comments/'
+      preLoaderRoute: typeof DashboardCommentsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/categories/': {
       id: '/dashboard/categories/'
       path: '/categories'
@@ -383,18 +442,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPostsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/api/sitemap/xml': {
-      id: '/api/sitemap/xml'
-      path: '/api/sitemap/xml'
-      fullPath: '/api/sitemap/xml'
-      preLoaderRoute: typeof ApiSitemapXmlRouteImport
+    '/api/stripe/webhook': {
+      id: '/api/stripe/webhook'
+      path: '/api/stripe/webhook'
+      fullPath: '/api/stripe/webhook'
+      preLoaderRoute: typeof ApiStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/rss/xml': {
-      id: '/api/rss/xml'
-      path: '/api/rss/xml'
-      fullPath: '/api/rss/xml'
-      preLoaderRoute: typeof ApiRssXmlRouteImport
+    '/api/stripe/checkout': {
+      id: '/api/stripe/checkout'
+      path: '/api/stripe/checkout'
+      fullPath: '/api/stripe/checkout'
+      preLoaderRoute: typeof ApiStripeCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/media/$': {
@@ -459,6 +518,7 @@ interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
   DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
+  DashboardCommentsIndexRoute: typeof DashboardCommentsIndexRoute
   DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
   DashboardPagesIndexRoute: typeof DashboardPagesIndexRoute
   DashboardPostsIndexRoute: typeof DashboardPostsIndexRoute
@@ -472,6 +532,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
   DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
+  DashboardCommentsIndexRoute: DashboardCommentsIndexRoute,
   DashboardMediaIndexRoute: DashboardMediaIndexRoute,
   DashboardPagesIndexRoute: DashboardPagesIndexRoute,
   DashboardPostsIndexRoute: DashboardPostsIndexRoute,
@@ -487,10 +548,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
+  RssXmlRoute: RssXmlRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
-  ApiRssXmlRoute: ApiRssXmlRoute,
-  ApiSitemapXmlRoute: ApiSitemapXmlRoute,
+  ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,
+  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

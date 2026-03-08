@@ -13,18 +13,27 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
   
   // Convert array to a more useful object
   const settingsObj: Record<string, string> = {}
-  settings.forEach(s => {
+  settings.forEach((s: any) => {
     settingsObj[s.key] = s.value
   })
 
   return {
     blogName: settingsObj['blogName'] || 'VibeZine',
     blogDescription: settingsObj['blogDescription'] || 'A vibrant zine-style blog for creators.',
+    blogLogo: settingsObj['blogLogo'] || '',
+    accentColor: settingsObj['accentColor'] || '#ff5c00',
+    fontFamily: settingsObj['fontFamily'] || 'Inter',
   }
 })
 
 const updateAppSettings = createServerFn({ method: 'POST' })
-  .inputValidator((input: { blogName: string; blogDescription: string }) => input)
+  .inputValidator((input: { 
+    blogName: string; 
+    blogDescription: string;
+    blogLogo: string;
+    accentColor: string;
+    fontFamily: string;
+  }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
 
@@ -39,6 +48,9 @@ const updateAppSettings = createServerFn({ method: 'POST' })
 
     await upsert('blogName', data.blogName)
     await upsert('blogDescription', data.blogDescription)
+    await upsert('blogLogo', data.blogLogo)
+    await upsert('accentColor', data.accentColor)
+    await upsert('fontFamily', data.fontFamily)
 
     return { ok: true as const }
   })
@@ -52,6 +64,9 @@ function SettingsPage() {
   const initialSettings = Route.useLoaderData()
   const [blogName, setBlogName] = useState(initialSettings.blogName)
   const [blogDescription, setBlogDescription] = useState(initialSettings.blogDescription)
+  const [blogLogo, setBlogLogo] = useState(initialSettings.blogLogo)
+  const [accentColor, setAccentColor] = useState(initialSettings.accentColor)
+  const [fontFamily, setFontFamily] = useState(initialSettings.fontFamily)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -61,7 +76,13 @@ function SettingsPage() {
     setMessage('')
 
     try {
-      await updateAppSettings({ data: { blogName, blogDescription } })
+      await updateAppSettings({ data: { 
+        blogName, 
+        blogDescription, 
+        blogLogo, 
+        accentColor, 
+        fontFamily 
+      } })
       setMessage('Settings saved successfully!')
     } catch {
       setMessage('Failed to save settings. Please try again.')
@@ -111,6 +132,62 @@ function SettingsPage() {
                   className="min-h-32 w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                   placeholder="Tell your readers what this blog is about..."
                 />
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Branding & Style</h3>
+                
+                <div className="grid gap-6 sm:grid-cols-2">
+                   <div className="space-y-2">
+                    <label htmlFor="blogLogo" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Logo URL
+                    </label>
+                    <input
+                      id="blogLogo"
+                      value={blogLogo}
+                      onChange={(e) => setBlogLogo(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="https://exemplo.com/logo.png"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="accentColor" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Accent Color
+                    </label>
+                    <div className="flex gap-4">
+                      <input
+                        id="accentColor"
+                        type="color"
+                        value={accentColor}
+                        onChange={(e) => setAccentColor(e.target.value)}
+                        className="h-11 w-20 rounded-lg border-2 border-border bg-background p-1 outline-none pointer cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={accentColor}
+                        onChange={(e) => setAccentColor(e.target.value)}
+                        className="flex-1 rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono uppercase"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="fontFamily" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Typography / Font Family
+                    </label>
+                    <select
+                      id="fontFamily"
+                      value={fontFamily}
+                      onChange={(e) => setFontFamily(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                    >
+                      <option value="Inter">Modern (Inter)</option>
+                      <option value="Outfit">Creative (Outfit)</option>
+                      <option value="Playfair Display">Elegant (Playfair Display)</option>
+                      <option value="Space Grotesk">Tech (Space Grotesk)</option>
+                      <option value="Bricolage Grotesque">Expressive (Bricolage Grotesque)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 

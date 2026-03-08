@@ -110,6 +110,9 @@ importers:
       '@tiptap/extension-underline':
         specifier: ^3.20.1
         version: 3.20.1(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))
+      '@tiptap/extension-youtube':
+        specifier: ^3.20.1
+        version: 3.20.1(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))
       '@tiptap/pm':
         specifier: ^3.20.1
         version: 3.20.1
@@ -185,6 +188,9 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      stripe:
+        specifier: ^20.4.1
+        version: 20.4.1(@types/node@22.19.15)
       tailwind-merge:
         specifier: ^3.0.2
         version: 3.5.0
@@ -2815,6 +2821,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.20.1
 
+  '@tiptap/extension-youtube@3.20.1':
+    resolution: {integrity: sha512-psXGX7GTzwxfmiCHeZCxIF8zg5BVzidSt+JaEKpLwUjNo2Q0JHJpDQqeVlZMpJmFgbjpAZ7P1GHlZof961O53w==}
+    peerDependencies:
+      '@tiptap/core': ^3.20.1
+
   '@tiptap/extensions@3.20.1':
     resolution: {integrity: sha512-JRc/v+OBH0qLTdvQ7HvHWTxGJH73QOf1MC0R8NhOX2QnAbg2mPFv1h+FjGa2gfLGuCXBdWQomjekWkUKbC4e5A==}
     peerDependencies:
@@ -5003,6 +5014,15 @@ packages:
 
   strip-literal@3.1.0:
     resolution: {integrity: sha512-8r3mkIM/2+PpjHoOtiAW8Rg3jJLHaV7xPwG+YRGrv6FP0wwk/toTpATxWYOW0BKdWwl82VT2tFYi5DlROa0Mxg==}
+
+  stripe@20.4.1:
+    resolution: {integrity: sha512-axCguHItc8Sxt0HC6aSkdVRPffjYPV7EQqZRb2GkIa8FzWDycE7nHJM19C6xAIynH1Qp1/BHiopSi96jGBxT0w==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@types/node': '>=16'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   style-to-js@1.1.21:
     resolution: {integrity: sha512-RjQetxJrrUJLQPHbLku6U/ocGtzyjbJMP9lCNK7Ag0CNh690nSH8woqWH9u16nMjYBAok+i7JO1NP2pOy8IsPQ==}
@@ -7873,6 +7893,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.20.1(@tiptap/pm@3.20.1)
 
+  '@tiptap/extension-youtube@3.20.1(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))':
+    dependencies:
+      '@tiptap/core': 3.20.1(@tiptap/pm@3.20.1)
+
   '@tiptap/extensions@3.20.1(@tiptap/core@3.20.1(@tiptap/pm@3.20.1))(@tiptap/pm@3.20.1)':
     dependencies:
       '@tiptap/core': 3.20.1(@tiptap/pm@3.20.1)
@@ -10379,6 +10403,10 @@ snapshots:
   strip-literal@3.1.0:
     dependencies:
       js-tokens: 9.0.1
+
+  stripe@20.4.1(@types/node@22.19.15):
+    optionalDependencies:
+      '@types/node': 22.19.15
 
   style-to-js@1.1.21:
     dependencies:

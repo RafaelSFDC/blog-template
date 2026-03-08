@@ -19,6 +19,10 @@ export const user = sqliteTable('users', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  stripePriceId: text('stripe_price_id'),
+  stripeCurrentPeriodEnd: integer('stripe_current_period_end', { mode: 'timestamp' }),
 })
 
 export const session = sqliteTable(
@@ -130,6 +134,7 @@ export const posts = sqliteTable('posts', {
   metaDescription: text('meta_description'),
   ogImage: text('og_image'),
   authorId: text('author_id').references(() => user.id),
+  isPremium: integer('is_premium', { mode: 'boolean' }).default(false),
   publishedAt: integer('published_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
@@ -178,6 +183,15 @@ export const appSettings = sqliteTable('app_settings', {
   key: text().primaryKey(),
   value: text().notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
+
+export const subscribers = sqliteTable('subscribers', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  email: text().notNull().unique(),
+  status: text().notNull().default('active'), // active, unsubscribed
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
 })

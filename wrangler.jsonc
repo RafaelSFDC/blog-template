@@ -1,20 +1,22 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "blog-db",
-      "database_id": "REPLACE_WITH_YOUR_D1_ID"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "STORAGE",
-      "bucket_name": "blog-media"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tanstack-start-app",
+	"compatibility_date": "2025-09-02",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"main": "@tanstack/react-start/server-entry",
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "blog-db",
+			"database_id": "4b5ad0b3-fea9-46fe-8b32-aed3d396f217"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "STORAGE",
+			"bucket_name": "blog-media"
+		}
+	]
 }

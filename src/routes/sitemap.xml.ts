@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from "#/db/index"
 import { eq, desc } from 'drizzle-orm'
-import { posts } from '../../db/schema'
+import { posts } from '#/db/schema'
 
-export const Route = createFileRoute('/api/sitemap/xml')({
+export const Route = createFileRoute('/sitemap/xml')({
   server: {
     handlers: {
       GET: async ({ request }) => {

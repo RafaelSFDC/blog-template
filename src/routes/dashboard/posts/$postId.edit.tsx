@@ -17,6 +17,7 @@ interface PostFormInput {
   metaTitle?: string
   metaDescription?: string
   ogImage?: string
+  isPremium: boolean
 }
 
 const getPostForEdit = createServerFn({ method: 'GET' })
@@ -50,6 +51,7 @@ const updatePost = createServerFn({ method: 'POST' })
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
         ogImage: data.ogImage,
+        isPremium: data.isPremium,
         updatedAt: new Date(),
       })
       .where(eq(posts.id, data.id))
@@ -87,6 +89,7 @@ function EditPostPage() {
   const [metaTitle, setMetaTitle] = useState(post.metaTitle || '')
   const [metaDescription, setMetaDescription] = useState(post.metaDescription || '')
   const [ogImage, setOgImage] = useState(post.ogImage || '')
+  const [isPremium, setIsPremium] = useState(post.isPremium || false)
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [showSEO, setShowSEO] = useState(false)
@@ -113,6 +116,7 @@ function EditPostPage() {
           metaTitle: metaTitle.trim() || undefined,
           metaDescription: metaDescription.trim() || undefined,
           ogImage: ogImage.trim() || undefined,
+          isPremium,
         },
       })
       await navigate({ to: '/dashboard' })
@@ -245,6 +249,20 @@ function EditPostPage() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <input
+            id="isPremium"
+            type="checkbox"
+            checked={isPremium}
+            onChange={(e) => setIsPremium(e.target.checked)}
+            className="h-5 w-5 rounded border-primary bg-background text-primary focus:ring-primary"
+          />
+          <label htmlFor="isPremium" className="flex flex-col cursor-pointer">
+            <span className="text-sm font-bold text-foreground">Post Premium</span>
+            <span className="text-xs text-muted-foreground">Somente assinantes pagos poderão ler o conteúdo completo.</span>
+          </label>
         </div>
 
         {errorMessage ? (

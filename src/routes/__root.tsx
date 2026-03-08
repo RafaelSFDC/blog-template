@@ -11,6 +11,9 @@ import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import { getLocale } from '#/paraglide/runtime'
+import { db } from '#/db/index'
+import { appSettings } from '#/db/schema'
+import { createServerFn } from '@tanstack/react-start'
 
 import appCss from '../styles.css?url'
 
@@ -19,6 +22,19 @@ import type { QueryClient } from '@tanstack/react-query'
 interface MyRouterContext {
   queryClient: QueryClient
 }
+
+const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const settings = await db.select().from(appSettings);
+  const settingsObj: Record<string, string> = {};
+  settings.forEach((s: any) => {
+    settingsObj[s.key] = s.value;
+  });
+  return {
+    blogName: settingsObj["blogName"] || "VibeZine",
+    accentColor: settingsObj["accentColor"] || "#ff5c00",
+    fontFamily: settingsObj["fontFamily"] || "Inter",
+  };
+});
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
 
@@ -30,6 +46,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       document.documentElement.setAttribute('lang', getLocale())
     }
   },
+  loader: () => getGlobalSettings(),
 
   head: () => ({
     meta: [
@@ -83,6 +100,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: 'alternate',
+        type: 'application/rss+xml',
+        title: 'RSS Feed',
+        href: '/rss.xml',
+      },
+      {
+        rel: 'sitemap',
+        type: 'application/xml',
+        title: 'Sitemap',
+        href: '/sitemap.xml',
+      },
     ],
   }),
   shellComponent: RootDocument,
@@ -91,10 +120,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const settings = Route.useLoaderData();
+  const fontSlug = settings.fontFamily.replace(/\s+/g, '+');
+
   return (
     <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href={`https://fonts.googleapis.com/css2?family=${fontSlug}:wght@400;500;700;800;900&display=swap`} rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --primary: ${settings.accentColor};
+            --font-sans: "${settings.fontFamily}", ui-sans-serif, system-ui;
+          }
+        ` }} />
         {/* Cloudflare Web Analytics */}
         <script
           defer

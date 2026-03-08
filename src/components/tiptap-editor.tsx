@@ -12,9 +12,20 @@ import {
   Quote, 
   Undo, 
   Redo,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Video,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Underline as UnderlineIcon,
+  Code
 } from 'lucide-react'
 import ImageExtension from '@tiptap/extension-image'
+import LinkExtension from '@tiptap/extension-link'
+import UnderlineExtension from '@tiptap/extension-underline'
+import YoutubeExtension from '@tiptap/extension-youtube'
+import TextAlign from '@tiptap/extension-text-align'
 import { uploadMedia } from '#/lib/storage'
 import { useRef } from 'react'
 
@@ -56,6 +67,23 @@ const MenuBar = ({ editor }: { editor: any }) => {
       isActive: () => editor.isActive('italic'),
     },
     {
+      icon: <UnderlineIcon className="h-4 w-4" />,
+      title: 'Underline',
+      action: () => editor.chain().focus().toggleUnderline().run(),
+      isActive: () => editor.isActive('underline'),
+    },
+    {
+      icon: <LinkIcon className="h-4 w-4" />,
+      title: 'Link',
+      action: () => {
+        const url = window.prompt('URL')
+        if (url) {
+          editor.chain().focus().setLink({ href: url }).run()
+        }
+      },
+      isActive: () => editor.isActive('link'),
+    },
+    {
       icon: <List className="h-4 w-4" />,
       title: 'Bullet List',
       action: () => editor.chain().focus().toggleBulletList().run(),
@@ -68,10 +96,45 @@ const MenuBar = ({ editor }: { editor: any }) => {
       isActive: () => editor.isActive('orderedList'),
     },
     {
+      icon: <AlignLeft className="h-4 w-4" />,
+      title: 'Align Left',
+      action: () => editor.chain().focus().setTextAlign('left').run(),
+      isActive: () => editor.isActive({ textAlign: 'left' }),
+    },
+    {
+      icon: <AlignCenter className="h-4 w-4" />,
+      title: 'Align Center',
+      action: () => editor.chain().focus().setTextAlign('center').run(),
+      isActive: () => editor.isActive({ textAlign: 'center' }),
+    },
+    {
+      icon: <AlignRight className="h-4 w-4" />,
+      title: 'Align Right',
+      action: () => editor.chain().focus().setTextAlign('right').run(),
+      isActive: () => editor.isActive({ textAlign: 'right' }),
+    },
+    {
       icon: <Quote className="h-4 w-4" />,
       title: 'Blockquote',
       action: () => editor.chain().focus().toggleBlockquote().run(),
       isActive: () => editor.isActive('blockquote'),
+    },
+    {
+      icon: <Video className="h-4 w-4" />,
+      title: 'YouTube',
+      action: () => {
+        const url = window.prompt('YouTube URL')
+        if (url) {
+          editor.chain().focus().setYoutubeVideo({ src: url }).run()
+        }
+      },
+      isActive: () => editor.isActive('youtube'),
+    },
+    {
+      icon: <Code className="h-4 w-4" />,
+      title: 'Code Block',
+      action: () => editor.chain().focus().toggleCodeBlock().run(),
+      isActive: () => editor.isActive('codeBlock'),
     },
   ]
 
@@ -182,6 +245,21 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
         HTMLAttributes: {
           class: 'rounded-lg max-w-full h-auto border-2 border-border shadow-md my-4',
         },
+      }),
+      LinkExtension.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline hover:text-primary/80 transition-colors',
+        },
+      }),
+      UnderlineExtension,
+      YoutubeExtension.configure({
+        HTMLAttributes: {
+          class: 'aspect-video w-full rounded-xl overflow-hidden shadow-lg my-6',
+        },
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
       }),
     ],
 
