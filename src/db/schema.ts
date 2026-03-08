@@ -1,12 +1,29 @@
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
-export const todos = sqliteTable('todos', {
+export const users = sqliteTable('users', {
+  id: text().primaryKey(),
+  name: text().notNull(),
+  email: text().notNull().unique(),
+  image: text(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
+
+export const posts = sqliteTable('posts', {
   id: integer({ mode: 'number' }).primaryKey({
     autoIncrement: true,
   }),
+  slug: text().notNull().unique(),
   title: text().notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+  excerpt: text().notNull(),
+  content: text().notNull(), // Markdown content
+  authorId: text('author_id').references(() => users.id),
+  publishedAt: integer('published_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
 })
