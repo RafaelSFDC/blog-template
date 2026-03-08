@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from '#/components/ui/button'
 
 import { useChat, useMessages } from '#/hooks/demo.useChat'
 
@@ -53,13 +54,14 @@ export default function ChatArea() {
             />
           </div>
 
-          <button
+          <Button
+            variant="zine"
             onClick={postMessage}
             disabled={message.trim() === ''}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 rounded-lg"
           >
             Send
-          </button>
+          </Button>
         </div>
       </div>
     </>

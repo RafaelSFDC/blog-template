@@ -67,12 +67,14 @@ export const MobileToolbarItem = ({
   active?: boolean;
   closeDrawer?: () => void;
 }) => (
-  <button
+  <Button
+    variant="ghost"
     className={cn(
-      "flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors hover:bg-accent",
+      "flex w-full items-center justify-start rounded-md px-4 py-2 text-sm transition-colors hover:bg-accent",
       active && "bg-accent",
     )}
     onClick={(e) => {
+      // @ts-ignore - event type mismatch in cloneElement sometimes
       onClick?.(e);
       setTimeout(() => {
         closeDrawer?.();
@@ -81,5 +83,5 @@ export const MobileToolbarItem = ({
     {...props}
   >
     {children}
-  </button>
+  </Button>
 );

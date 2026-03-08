@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
+import { Button } from '#/components/ui/button'
 
 interface Post {
   id: number
@@ -23,14 +24,16 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
             Também pode gostar
           </h2>
         </div>
-        <Link
-          to="/blog"
-          search={{ q: '', category: '' }}
-          className="hidden items-center gap-2 rounded-full border-3 border-(--sea-ink) bg-white px-5 py-2 text-xs font-black text-(--sea-ink) transition-all hover:bg-(--sea-ink) hover:text-white sm:flex"
-        >
-          Ver todos
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        <Button asChild variant="zine-outline" size="sm" className="hidden sm:flex">
+          <Link
+            to="/blog"
+            search={{ q: '', category: '' }}
+            className="flex items-center gap-2 rounded-full border-3 border-(--sea-ink) bg-white px-5 py-2 text-xs font-black text-(--sea-ink) transition-all hover:bg-(--sea-ink) hover:text-white"
+          >
+            Ver todos
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

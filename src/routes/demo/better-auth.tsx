@@ -4,6 +4,7 @@ import { authClient } from '#/lib/auth-client'
 import { Link } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { isRegistrationLocked } from '#/lib/registration'
+import { Button } from '#/components/ui/button'
 
 const getRegistrationStatus = createServerFn({ method: 'GET' }).handler(async () => {
   return {
@@ -76,7 +77,7 @@ function BetterAuthDemo() {
 
   return (
     <main className="page-wrap px-4 pb-20 pt-14">
-      <section className="island-shell clip-sash rounded-[2rem] p-8 text-center sm:p-10">
+      <section className="island-shell clip-sash rounded-4xl p-8 text-center sm:p-10">
         <p className="island-kicker mb-4">Authentication</p>
         <h1 className="display-title text-5xl text-(--sea-ink) sm:text-6xl">Admin Access</h1>
         <p className="mx-auto mt-4 max-w-2xl text-(--sea-ink-soft)">
@@ -89,51 +90,51 @@ function BetterAuthDemo() {
       ) : session?.user ? (
         <section className="island-shell mt-8 rounded-[1.6rem] p-6 sm:p-8">
           <h2 className="display-title text-3xl text-(--sea-ink)">Session Active</h2>
-          <p className="mt-3 break-words text-sm text-(--sea-ink-soft)">
+          <p className="mt-3 wrap-break-word text-sm text-(--sea-ink-soft)">
             Signed in as: {session.user.email}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link
-              to="/dashboard"
-              className="rounded-full bg-(--lagoon-deep) px-6 py-3 text-sm font-bold text-primary-foreground no-underline transition-[transform,opacity] hover:-translate-y-0.5"
-            >
-              Open Dashboard
-            </Link>
-            <button
+            <Button asChild variant="zine" size="lg" className="rounded-full">
+              <Link
+                to="/dashboard"
+                className="no-underline"
+              >
+                Open Dashboard
+              </Link>
+            </Button>
+            <Button
               type="button"
+              variant="zine-outline"
+              size="lg"
               onClick={() => void authClient.signOut()}
-              className="rounded-full border border-(--line) bg-(--chip-bg) px-6 py-3 text-sm font-bold text-(--sea-ink) transition-[transform,opacity] hover:-translate-y-0.5"
+              className="rounded-full"
             >
               Sign Out
-            </button>
+            </Button>
           </div>
         </section>
       ) : (
         <form onSubmit={onSubmit} className="island-shell mt-8 rounded-[1.6rem] p-6 sm:p-8">
           <div className="mb-6 flex flex-wrap gap-2">
-            <button
+            <Button
               type="button"
+              variant={mode === 'sign-in' ? 'zine' : 'zine-outline'}
+              size="sm"
               onClick={() => setMode('sign-in')}
-              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] ${
-                mode === 'sign-in'
-                  ? 'bg-(--lagoon-deep) text-primary-foreground'
-                  : 'border border-(--line) bg-(--chip-bg) text-(--sea-ink)'
-              }`}
+              className="rounded-full uppercase tracking-[0.14em]"
             >
               Sign In
-            </button>
+            </Button>
             {!registrationLocked ? (
-              <button
+              <Button
                 type="button"
+                variant={mode === 'sign-up' ? 'zine' : 'zine-outline'}
+                size="sm"
                 onClick={() => setMode('sign-up')}
-                className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] ${
-                  mode === 'sign-up'
-                    ? 'bg-(--lagoon-deep) text-primary-foreground'
-                    : 'border border-(--line) bg-(--chip-bg) text-(--sea-ink)'
-                }`}
+                className="rounded-full uppercase tracking-[0.14em]"
               >
                 Sign Up
-              </button>
+              </Button>
             ) : null}
           </div>
 
@@ -150,7 +151,7 @@ function BetterAuthDemo() {
                 value={name}
                 onChange={(event) => setName(event.currentTarget.value)}
                 placeholder="Your name…"
-                className="w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
+                className="w-full rounded-xl border border-input bg-(--chip-bg) px-4 py-3 text-sm text-(--sea-ink)"
               />
             </div>
           ) : null}
@@ -196,13 +197,15 @@ function BetterAuthDemo() {
             </p>
           ) : null}
 
-          <button
+          <Button
             type="submit"
             disabled={saving}
-            className="mt-6 rounded-full bg-(--lagoon-deep) px-6 py-3 text-sm font-bold text-primary-foreground transition-[transform,opacity] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+            variant="zine"
+            size="lg"
+            className="mt-6 rounded-full"
           >
             {saving ? 'Loading…' : mode === 'sign-up' ? 'Create Account' : 'Sign In'}
-          </button>
+          </Button>
         </form>
       )}
     </main>

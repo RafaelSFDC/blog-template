@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
+import { Button } from '#/components/ui/button'
 import { 
   Bold, 
   Italic, 
@@ -72,35 +73,41 @@ const MenuBar = ({ editor }: { editor: any }) => {
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-(--line) p-2 bg-(--chip-bg)">
       {buttons.map((btn, i) => (
-        <button
+        <Button
           key={i}
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={btn.action}
           title={btn.title}
-          className={`rounded-md p-2 transition-colors hover:bg-(--line) ${
+          className={`h-8 w-8 rounded-md transition-colors hover:bg-(--line) ${
             btn.isActive() ? 'bg-(--line) text-(--lagoon-deep)' : 'text-(--sea-ink-soft)'
           }`}
         >
           {btn.icon}
-        </button>
+        </Button>
       ))}
       <div className="mx-1 h-6 w-px bg-(--line)" />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
-        className="rounded-md p-2 text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+        className="h-8 w-8 rounded-md text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
       >
         <Undo className="h-4 w-4" />
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
-        className="rounded-md p-2 text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+        className="h-8 w-8 rounded-md text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
       >
         <Redo className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   )
 }

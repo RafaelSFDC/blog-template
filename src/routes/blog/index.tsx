@@ -7,6 +7,8 @@ import { PostCard, cardThemes } from "#/components/blog/PostCard";
 import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
+import { Button } from "#/components/ui/button";
+import { cn } from "#/lib/utils";
 
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
@@ -117,33 +119,43 @@ function BlogIndex() {
             className="h-14 w-full rounded-lg border-3 border-border bg-card pl-12 pr-12 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-primary/20 shadow-zine-sm"
           />
           {localSearch && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => handleSearch("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-md transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted"
             >
               <X className="h-4 w-4 text-muted-foreground" />
-            </button>
+            </Button>
           )}
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
+          <Button
             onClick={() => handleCategory("")}
-            className={`toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all ${!category ? "bg-accent text-foreground scale-105 z-10" : "bg-background text-muted-foreground hover:bg-secondary/50"}`}
+            variant={!category ? "zine" : "zine-outline"}
+            className={cn(
+              "toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all",
+              !category && "scale-105 z-10"
+            )}
           >
             ✨ All Stories
-          </button>
+          </Button>
           {cardThemes.map((theme) => {
             const isActive =
               category && category.toLowerCase() === theme.badge.toLowerCase();
             return (
-              <button
+              <Button
                 key={theme.badge}
                 onClick={() => handleCategory(theme.badge)}
-                className={`toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all ${isActive ? `${theme.cover} text-foreground scale-105 z-10` : "bg-background text-muted-foreground hover:bg-secondary/50"}`}
+                variant={isActive ? "zine" : "zine-outline"}
+                className={cn(
+                  "toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all",
+                  isActive && `${theme.cover} scale-105 z-10`
+                )}
               >
                 {theme.badge}
-              </button>
+              </Button>
             );
           })}
         </div>

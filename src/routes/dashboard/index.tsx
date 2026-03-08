@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { posts } from '#/db/schema'
@@ -57,7 +58,7 @@ function DashboardPage() {
 
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell clip-sash rounded-[2rem] p-8 sm:p-10">
+      <section className="island-shell clip-sash rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -66,12 +67,14 @@ function DashboardPage() {
               Create drafts, edit published posts, and maintain your blog archive.
             </p>
           </div>
-          <Link
-            to="/dashboard/new"
-            className="rounded-full bg-(--lagoon-deep) px-6 py-3 text-sm font-bold text-primary-foreground no-underline transition-[transform,opacity] hover:-translate-y-0.5"
-          >
-            New Post
-          </Link>
+          <Button asChild variant="zine" size="lg" className="rounded-full">
+            <Link
+              to="/dashboard/new"
+              className="no-underline"
+            >
+              New Post
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -90,36 +93,42 @@ function DashboardPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--sea-ink-soft)">
                     {post.publishedAt ? dateFormatter.format(new Date(post.publishedAt)) : 'Draft'}
                   </p>
-                  <h2 className="display-title mt-2 break-words text-3xl text-(--sea-ink)">
+                  <h2 className="display-title mt-2 wrap-break-word text-3xl text-(--sea-ink)">
                     {post.title}
                   </h2>
-                  <p className="mt-2 break-words text-sm text-(--sea-ink-soft)">/{post.slug}</p>
+                  <p className="mt-2 wrap-break-word text-sm text-(--sea-ink-soft)">/{post.slug}</p>
                   <p className="mt-4 line-clamp-2 text-sm text-(--sea-ink-soft)">{post.excerpt}</p>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <Link
-                    to="/blog/$slug"
-                    params={{ slug: post.slug }}
-                    className="rounded-full border border-(--line) bg-(--chip-bg) px-4 py-2 text-xs font-bold text-(--sea-ink) no-underline transition-[transform,opacity] hover:-translate-y-0.5"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    to="/dashboard/$postId/edit"
-                    params={{ postId: String(post.id) }}
-                    className="rounded-full border border-(--line) bg-(--chip-bg) px-4 py-2 text-xs font-bold text-(--sea-ink) no-underline transition-[transform,opacity] hover:-translate-y-0.5"
-                  >
-                    Edit
-                  </Link>
-                  <button
+                  <Button asChild variant="zine-outline" size="sm" className="rounded-full">
+                    <Link
+                      to="/blog/$slug"
+                      params={{ slug: post.slug }}
+                      className="no-underline"
+                    >
+                      View
+                    </Link>
+                  </Button>
+                  <Button asChild variant="zine-outline" size="sm" className="rounded-full">
+                    <Link
+                      to="/dashboard/$postId/edit"
+                      params={{ postId: String(post.id) }}
+                      className="no-underline"
+                    >
+                      Edit
+                    </Link>
+                  </Button>
+                  <Button
                     type="button"
+                    variant="destructive"
+                    size="sm"
                     onClick={() => void handleDelete(post.id)}
                     disabled={deletingId === post.id}
-                    className="rounded-full border border-destructive/40 bg-destructive/10 px-4 py-2 text-xs font-bold text-destructive transition-[transform,opacity] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-full bg-destructive/10 text-destructive border-destructive/40 hover:bg-destructive hover:text-white"
                   >
                     {deletingId === post.id ? 'Deleting…' : 'Delete'}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </article>

@@ -1,4 +1,5 @@
 import { Twitter, Linkedin, Facebook, Link as LinkIcon } from 'lucide-react'
+import { Button } from '#/components/ui/button'
 
 interface SocialSharingProps {
   url: string
@@ -50,13 +51,15 @@ export function SocialSharing({ url, title }: SocialSharingProps) {
           {link.icon}
         </a>
       ))}
-      <button
+      <Button
+        variant="outline"
+        size="icon"
         onClick={copyToClipboard}
         className="flex h-10 w-10 items-center justify-center rounded-full border border-(--line) text-(--sea-ink-soft) transition-all hover:scale-110 hover:bg-(--lagoon-deep) hover:text-white"
         title="Copy link"
       >
         <LinkIcon className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   )
 }

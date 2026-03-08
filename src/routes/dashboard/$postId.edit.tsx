@@ -1,4 +1,5 @@
 import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { posts } from '#/db/schema'
@@ -187,20 +188,24 @@ function EditPostPage() {
         ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
+          <Button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-(--lagoon-deep) px-6 py-3 text-sm font-bold text-primary-foreground transition-[transform,opacity] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+            variant="zine"
+            size="lg"
+            className="rounded-full"
           >
             {saving ? 'Saving…' : 'Save Changes'}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="zine-outline"
+            size="lg"
             onClick={() => void navigate({ to: '/dashboard' })}
-            className="rounded-full border border-(--line) bg-(--chip-bg) px-6 py-3 text-sm font-bold text-(--sea-ink) transition-[transform,opacity] hover:-translate-y-0.5"
+            className="rounded-full"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
     </main>

@@ -68,9 +68,10 @@ const ColorHighlightButton = ({
 	onClick,
 	isHighlight,
 }: ColorHighlightButtonProps) => (
-	<button
+	<Button
+		variant="ghost"
 		onClick={onClick}
-		className="flex w-full items-center justify-between rounded-sm px-2 py-1 text-sm hover:bg-gray-3"
+		className="flex w-full items-center justify-between rounded-sm px-2 py-1 text-sm hover:bg-gray-3 h-auto"
 		type="button"
 	>
 		<div className="flex items-center space-x-2">
@@ -83,7 +84,7 @@ const ColorHighlightButton = ({
 			<span>{name}</span>
 		</div>
 		{isActive && <CheckIcon className="h-4 w-4" />}
-	</button>
+	</Button>
 );
 
 export const ColorHighlightToolbar = () => {
