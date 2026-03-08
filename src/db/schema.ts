@@ -125,12 +125,32 @@ export const posts = sqliteTable('posts', {
   featuredImageId: integer('featured_image_id').references(() => media.id),
   status: text().notNull().default('draft'), // draft, published, scheduled, private
   readingTime: integer('reading_time'),
+  viewCount: integer('view_count').notNull().default(0),
+  metaTitle: text('meta_title'),
+  metaDescription: text('meta_description'),
+  ogImage: text('og_image'),
   authorId: text('author_id').references(() => user.id),
   publishedAt: integer('published_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
 })
+
+export const comments = sqliteTable('comments', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  postId: integer('post_id')
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade' }),
+  authorName: text('author_name').notNull(),
+  authorEmail: text('author_email'),
+  content: text().notNull(),
+  status: text().notNull().default('pending'), // pending, approved, spam
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+}, (table) => [
+  index('comments_post_id_idx').on(table.postId)
+])
 
 export const postCategories = sqliteTable('post_categories', {
   postId: integer('post_id')

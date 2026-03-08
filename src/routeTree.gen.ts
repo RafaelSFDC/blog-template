@@ -23,6 +23,8 @@ import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/medi
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
+import { Route as ApiSitemapXmlRouteImport } from './routes/api/sitemap.xml'
+import { Route as ApiRssXmlRouteImport } from './routes/api/rss.xml'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
@@ -99,6 +101,16 @@ const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiSitemapXmlRoute = ApiSitemapXmlRouteImport.update({
+  id: '/api/sitemap/xml',
+  path: '/api/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRssXmlRoute = ApiRssXmlRouteImport.update({
+  id: '/api/rss/xml',
+  path: '/api/rss/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   id: '/api/media/$',
   path: '/api/media/$',
@@ -136,6 +148,8 @@ export interface FileRoutesByFullPath {
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/rss/xml': typeof ApiRssXmlRoute
+  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
@@ -155,6 +169,8 @@ export interface FileRoutesByTo {
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/rss/xml': typeof ApiRssXmlRoute
+  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
@@ -177,6 +193,8 @@ export interface FileRoutesById {
   '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/rss/xml': typeof ApiRssXmlRoute
+  '/api/sitemap/xml': typeof ApiSitemapXmlRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
@@ -199,6 +217,8 @@ export interface FileRouteTypes {
     | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
+    | '/api/rss/xml'
+    | '/api/sitemap/xml'
     | '/dashboard/posts/new'
     | '/blog/'
     | '/dashboard/categories/'
@@ -218,6 +238,8 @@ export interface FileRouteTypes {
     | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
+    | '/api/rss/xml'
+    | '/api/sitemap/xml'
     | '/dashboard/posts/new'
     | '/blog'
     | '/dashboard/categories'
@@ -239,6 +261,8 @@ export interface FileRouteTypes {
     | '/_public/demo/better-auth'
     | '/api/auth/$'
     | '/api/media/$'
+    | '/api/rss/xml'
+    | '/api/sitemap/xml'
     | '/dashboard/posts/new'
     | '/_public/blog/'
     | '/dashboard/categories/'
@@ -255,6 +279,8 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
+  ApiRssXmlRoute: typeof ApiRssXmlRoute
+  ApiSitemapXmlRoute: typeof ApiSitemapXmlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -357,6 +383,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPostsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/sitemap/xml': {
+      id: '/api/sitemap/xml'
+      path: '/api/sitemap/xml'
+      fullPath: '/api/sitemap/xml'
+      preLoaderRoute: typeof ApiSitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rss/xml': {
+      id: '/api/rss/xml'
+      path: '/api/rss/xml'
+      fullPath: '/api/rss/xml'
+      preLoaderRoute: typeof ApiRssXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/$': {
       id: '/api/media/$'
       path: '/api/media/$'
@@ -449,6 +489,8 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
+  ApiRssXmlRoute: ApiRssXmlRoute,
+  ApiSitemapXmlRoute: ApiSitemapXmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

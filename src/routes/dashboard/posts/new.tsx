@@ -13,6 +13,9 @@ interface PostFormInput {
   slug: string
   excerpt: string
   content: string
+  metaTitle?: string
+  metaDescription?: string
+  ogImage?: string
 }
 
 const createPost = createServerFn({ method: 'POST' })
@@ -27,6 +30,9 @@ const createPost = createServerFn({ method: 'POST' })
         slug: data.slug,
         excerpt: data.excerpt,
         content: data.content,
+        metaTitle: data.metaTitle,
+        metaDescription: data.metaDescription,
+        ogImage: data.ogImage,
         authorId: session.user.id,
         publishedAt: new Date(),
         updatedAt: new Date(),
@@ -55,8 +61,12 @@ function NewPostPage() {
   const [slug, setSlug] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
+  const [metaTitle, setMetaTitle] = useState('')
+  const [metaDescription, setMetaDescription] = useState('')
+  const [ogImage, setOgImage] = useState('')
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [showSEO, setShowSEO] = useState(false)
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -76,6 +86,9 @@ function NewPostPage() {
           slug: normalizedSlug,
           excerpt: excerpt.trim(),
           content: content.trim(),
+          metaTitle: metaTitle.trim() || undefined,
+          metaDescription: metaDescription.trim() || undefined,
+          ogImage: ogImage.trim() || undefined,
         },
       })
       await navigate({ to: '/dashboard' })
@@ -161,6 +174,59 @@ function NewPostPage() {
             content={content} 
             onChange={setContent} 
           />
+        </div>
+
+        <div className="border-t border-border pt-6">
+          <button
+            type="button"
+            onClick={() => setShowSEO(!showSEO)}
+            className="flex items-center gap-2 text-sm font-bold text-foreground hover:opacity-80"
+          >
+            {showSEO ? '▼' : '▶'} SEO Settings
+          </button>
+          
+          {showSEO && (
+            <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
+              <div>
+                <label htmlFor="metaTitle" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Meta Title (Google Title)
+                </label>
+                <input
+                  id="metaTitle"
+                  type="text"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                  placeholder="Se ometido, usará o título do post"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="metaDescription" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Meta Description
+                </label>
+                <textarea
+                  id="metaDescription"
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  placeholder="Descrição curta para os resultados de busca..."
+                  className="min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="ogImage" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  OG Image URL
+                </label>
+                <input
+                  id="ogImage"
+                  type="text"
+                  value={ogImage}
+                  onChange={(e) => setOgImage(e.target.value)}
+                  placeholder="https://exemplo.com/imagem.jpg"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {errorMessage ? (

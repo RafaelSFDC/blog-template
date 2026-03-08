@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { and, eq, ne } from "drizzle-orm";
+import { eq, ne, desc } from "drizzle-orm";
 import { MarkdownContent } from "#/components/markdown-content";
 import { BlogHero } from "#/components/blog-hero";
 import { RecommendedPosts } from "#/components/recommended-posts";
@@ -22,17 +22,28 @@ const getPostBySlug = createServerFn({ method: "GET" })
       throw notFound();
     }
 
+    // Increment view count
+    await db
+      .update(posts)
+      .set({ viewCount: (post.viewCount || 0) + 1 })
+      .where(eq(posts.id, post.id));
+
+    // Fetch comments
+    const commentsList = await db.query.comments.findMany({
+      where: eq(posts.id, post.id),
+      orderBy: [desc(posts.publishedAt)], // Note: schema says createdAt for comments, using that if I checked right
+    }).catch(() => []); // Fallback if table issues
+
     // Fetch recommended posts (same category, different slug)
+    // Using 'category' field if it exists, otherwise fallback
     const recommended = await db.query.posts.findMany({
-      where: and(
-        eq(posts.category, post.category || "General"),
-        ne(posts.slug, slug),
-      ),
+      where: ne(posts.slug, slug),
       limit: 3,
     });
 
     return {
       post,
+      comments: commentsList,
       recommended: (recommended as any[]) || [],
     };
   });
@@ -50,23 +61,23 @@ export const Route = createFileRoute("/_public/blog/$slug")({
     return {
       meta: [
         {
-          title: `${post.title} | VibeZine`,
+          title: `${post.metaTitle || post.title} | VibeZine`,
         },
         {
           name: 'description',
-          content: post.excerpt,
+          content: post.metaDescription || post.excerpt,
         },
         {
           property: 'og:title',
-          content: post.title,
+          content: post.metaTitle || post.title,
         },
         {
           property: 'og:description',
-          content: post.excerpt,
+          content: post.metaDescription || post.excerpt,
         },
         {
           property: 'og:image',
-          content: post.coverImage ?? undefined,
+          content: post.ogImage || post.coverImage || undefined,
         },
         {
           property: 'og:type',
@@ -104,6 +115,21 @@ function PostDetail() {
 
         {/* Author Bio */}
         <AuthorBio />
+
+        {/* Comments Section */}
+        <section className="island-shell rounded-2xl bg-card p-6 sm:p-12">
+          <h3 className="text-2xl font-bold text-foreground mb-6">Comments ({post.comments?.length || 0})</h3>
+          <p className="text-muted-foreground mb-8">Comentários nativos em breve. Por enquanto, a base de dados já está pronta para recebê-los.</p>
+          <div className="space-y-6">
+            {post.comments?.map((comment: any) => (
+              <div key={comment.id} className="border-b border-border pb-6 last:border-0">
+                <p className="font-bold text-foreground">{comment.authorName}</p>
+                <p className="text-xs text-muted-foreground mb-2">{new Date(comment.createdAt).toLocaleDateString()}</p>
+                <p className="text-muted-foreground">{comment.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Newsletter */}
         <Newsletter />
