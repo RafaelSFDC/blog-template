@@ -7,10 +7,13 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
+    "dev:cf": "wrangler dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "deploy": "pnpm run build && wrangler deploy",
+    "seed": "tsx seed.ts",
+    "seed:cf": "wrangler d1 execute blog-db --local --file=./drizzle/0000_mixed_the_professor.sql && tsx seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

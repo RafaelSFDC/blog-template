@@ -9,6 +9,10 @@ export const user = sqliteTable('users', {
     .default(false)
     .notNull(),
   image: text(),
+  role: text('role').default('user'),
+  banned: integer('banned', { mode: 'boolean' }).default(false),
+  banReason: text('ban_reason'),
+  banExpires: integer('ban_expires', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
