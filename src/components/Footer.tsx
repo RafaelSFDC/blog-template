@@ -2,19 +2,24 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-20 border-t border-[var(--line)] px-4 pb-14 pt-10 text-[var(--sea-ink-soft)]">
-      <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
-        <p className="m-0 text-sm">
-          &copy; {year} Your name here. All rights reserved.
+    <footer className="site-footer mt-16 px-4 pb-12 pt-10 text-center text-(--sea-ink-soft)">
+      <div className="page-wrap">
+        <hr className="deco-rule mb-6" />
+        <div className="mb-4 flex justify-center gap-6 text-sm font-bold">
+          <a href="#" className="hover:text-coral transition-colors">Instagram</a>
+          <a href="#" className="hover:text-mint transition-colors">Dribbble</a>
+          <a href="#" className="hover:text-sky transition-colors">Twitter</a>
+        </div>
+        <p className="m-0 text-sm text-(--sea-ink-soft)">
+          &copy; {year} PlayfulPulse. Made with creativity and joy.
         </p>
-        <p className="island-kicker m-0">Built with TanStack Start</p>
       </div>
-      <div className="mt-4 flex justify-center gap-4">
+      <div className="mt-5 flex justify-center gap-4 opacity-85">
         <a
           href="https://x.com/tan_stack"
           target="_blank"
           rel="noreferrer"
-          className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+          className="toy-button rounded-2xl border-4 border-white bg-(--chip-bg) p-2 text-[var(--sea-ink-soft)] shadow-toy transition-[transform,opacity] hover:text-[var(--sea-ink)]"
         >
           <span className="sr-only">Follow TanStack on X</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
@@ -28,7 +33,7 @@ export default function Footer() {
           href="https://github.com/TanStack"
           target="_blank"
           rel="noreferrer"
-          className="rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+          className="toy-button rounded-2xl border-4 border-white bg-(--chip-bg) p-2 text-[var(--sea-ink-soft)] shadow-toy transition-[transform,opacity] hover:text-[var(--sea-ink)]"
         >
           <span className="sr-only">Go to TanStack GitHub</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">

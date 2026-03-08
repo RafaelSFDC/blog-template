@@ -19,52 +19,66 @@ function Home() {
 
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell rise-in relative overflow-hidden rounded-4xl px-6 py-12 sm:px-10 sm:py-16">
-        <div className="pointer-events-none absolute -left-20 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,var(--hero-a),transparent_66%)] opacity-50" />
-        <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,var(--hero-b),transparent_66%)] opacity-50" />
-        
-        <div className="relative z-10">
-          <p className="island-kicker mb-4">Open Source Blog Template</p>
-          <h1 className="display-title mb-6 max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight text-(--sea-ink) sm:text-7xl">
-            Insights for the <span className="text-(--lagoon-deep)">Modern Web</span> developer.
+      <section className="editorial-grid rise-in">
+        <div className="island-shell clip-sash col-span-12 overflow-hidden rounded-[2.4rem] p-8 sm:p-10 lg:col-span-8 lg:p-12">
+          <p className="island-kicker mb-5">Open Source Publication System</p>
+          <h1 className="display-title headline-fluid mb-6 max-w-4xl text-(--sea-ink)">
+            Publish Sharp Ideas With A Visual Signature.
           </h1>
-          <p className="mb-10 max-w-2xl text-lg text-(--sea-ink-soft) sm:text-xl">
-            A premium, high-performance blog template built with TanStack Start, 
-            Drizzle ORM, and Tailwind CSS. Start sharing your ideas in minutes.
+          <p className="subhead-fluid max-w-2xl text-(--sea-ink-soft)">
+            Build a serious editorial presence with fast server rendering, typed data, and a design language that looks handcrafted.
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-wrap gap-4">
             <Link
               to="/blog"
-              className="rounded-full bg-(--lagoon-deep) px-7 py-3.5 text-base font-bold text-white no-underline shadow-lg transition hover:-translate-y-0.5 hover:bg-(--sea-ink) hover:shadow-xl"
+              className="rounded-full bg-(--lagoon-deep) px-7 py-3.5 text-base font-bold text-primary-foreground no-underline shadow-[0_16px_34px_oklch(0.56_0.18_36/32%)] transition-[transform,opacity] hover:-translate-y-0.5"
             >
-              Expose latest posts
+              Browse Articles
             </Link>
             <a
               href="https://github.com/new"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full border border-(--line) bg-white/40 px-7 py-3.5 text-base font-bold text-(--sea-ink) no-underline backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/60"
+              className="rounded-full border border-(--line) bg-(--chip-bg) px-7 py-3.5 text-base font-bold text-(--sea-ink) no-underline transition-[transform,opacity] hover:-translate-y-0.5"
             >
-              Clone Template
+              Launch Your Copy
             </a>
           </div>
         </div>
+
+        <aside className="island-shell reveal-card col-span-12 rounded-[1.8rem] p-7 lg:col-span-4">
+          <p className="island-kicker mb-4">Signal Snapshot</p>
+          <dl className="space-y-5">
+            <div>
+              <dt className="text-xs uppercase tracking-[0.2em] text-(--sea-ink-soft)">Runtime</dt>
+              <dd className="display-title mt-1 text-3xl text-(--sea-ink)">TanStack Start</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-[0.2em] text-(--sea-ink-soft)">Data Layer</dt>
+              <dd className="display-title mt-1 text-3xl text-(--sea-ink)">Drizzle + SQLite</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-[0.2em] text-(--sea-ink-soft)">Articles</dt>
+              <dd className="display-title mt-1 text-3xl text-(--sea-ink)">{latestPosts.length}</dd>
+            </div>
+          </dl>
+        </aside>
       </section>
 
       <section className="mt-20">
         <div className="mb-10 flex items-end justify-between gap-4">
           <div>
-            <h2 className="display-title text-3xl font-bold text-(--sea-ink) sm:text-4xl">
+            <p className="island-kicker">Selected Stories</p>
+            <h2 className="display-title mt-3 text-4xl font-bold text-(--sea-ink) sm:text-5xl">
               Featured Articles
             </h2>
-            <p className="mt-2 text-(--sea-ink-soft)">Hand-picked stories for you.</p>
           </div>
           <Link
             to="/blog"
             className="group flex items-center gap-1.5 text-sm font-bold text-(--lagoon-deep) no-underline"
           >
-            View all posts
-            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 transition-transform group-hover:translate-x-1">
+            See Full Archive
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 transition-[transform,opacity] group-hover:translate-x-1">
               <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
             </svg>
           </Link>
@@ -78,21 +92,9 @@ function Home() {
           </div>
         ) : (
           <div className="island-shell rounded-3xl p-12 text-center">
-            <p className="text-(--sea-ink-soft)">No posts found. Start by adding one in the admin panel!</p>
+            <p className="text-(--sea-ink-soft)">No posts yet. Run the seed command to create your first 5 articles.</p>
           </div>
         )}
-      </section>
-
-      <section className="mt-20 rounded-[2.5rem] bg-(--sea-ink) p-8 text-white sm:p-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="display-title mb-6 text-4xl font-bold sm:text-5xl">
-            Built for speed and performance.
-          </h2>
-          <p className="text-lg text-(--sea-ink-soft) opacity-80 sm:text-xl">
-            Leveraging TanStack Start's SSR and streaming capabilities to deliver 
-            instant page loads and a seamless reading experience.
-          </p>
-        </div>
       </section>
     </main>
   )

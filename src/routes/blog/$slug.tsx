@@ -4,7 +4,12 @@ import { db } from '#/db/index'
 import { posts } from '#/db/schema'
 import { eq } from 'drizzle-orm'
 import { MarkdownContent } from '#/components/markdown-content'
-import { format } from 'date-fns'
+
+const postDateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: '2-digit',
+  year: 'numeric',
+})
 
 const getPostBySlug = createServerFn({ method: 'GET' })
   .inputValidator((slug: string) => slug)
@@ -31,11 +36,11 @@ function PostDetail() {
   return (
     <main className="page-wrap px-4 pb-20 pt-14">
       <article className="mx-auto max-w-3xl">
-        <header className="mb-10 text-center">
+        <header className="island-shell clip-sash mb-10 rounded-[2.2rem] p-8 text-center sm:p-10">
           <div className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-(--lagoon-deep)">
-            <span>Blog Post</span>
+            <span>Journal Entry</span>
             <span className="h-1 w-1 rounded-full bg-(--line)" />
-            <span>{post.publishedAt ? format(new Date(post.publishedAt), 'MMMM dd, yyyy') : 'Draft'}</span>
+            <span>{post.publishedAt ? postDateFormatter.format(new Date(post.publishedAt)) : 'Draft'}</span>
           </div>
           <h1 className="display-title mb-6 text-4xl font-bold leading-tight text-(--sea-ink) sm:text-5xl lg:text-6xl">
             {post.title}
@@ -49,6 +54,9 @@ function PostDetail() {
            <img 
             src="/blog_hero_image_1772952577328.png" 
             alt={post.title} 
+            width={1600}
+            height={900}
+            fetchPriority="high"
             className="h-full w-full object-cover"
           />
         </div>

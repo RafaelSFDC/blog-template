@@ -7,23 +7,23 @@ interface MarkdownContentProps {
 }
 
 const styles = {
-  h1: 'text-3xl font-bold mb-6 text-white',
-  h2: 'text-2xl font-bold mb-4 text-white',
-  h3: 'text-xl font-bold mb-3 text-white',
-  p: 'mb-4 leading-relaxed text-gray-300',
-  a: 'text-cyan-400 hover:underline',
-  ul: 'list-disc pl-6 mb-4 space-y-2 text-gray-300',
-  ol: 'list-decimal pl-6 mb-4 space-y-2 text-gray-300',
+  h1: 'display-title mb-6 text-4xl font-bold text-(--sea-ink)',
+  h2: 'display-title mb-4 text-3xl font-bold text-(--sea-ink)',
+  h3: 'mb-3 text-xl font-bold text-(--sea-ink)',
+  p: 'mb-4 leading-relaxed text-(--sea-ink-soft)',
+  a: 'text-(--lagoon-deep) underline-offset-4 hover:underline',
+  ul: 'mb-4 list-disc space-y-2 pl-6 text-(--sea-ink-soft)',
+  ol: 'mb-4 list-decimal space-y-2 pl-6 text-(--sea-ink-soft)',
   li: 'leading-relaxed',
-  blockquote: 'border-l-4 border-cyan-400 pl-4 italic text-gray-400 my-4',
-  code: 'bg-slate-800 px-2 py-1 rounded text-cyan-400 text-sm font-mono',
-  pre: 'bg-slate-800 p-4 rounded-lg overflow-x-auto mb-4',
+  blockquote: 'my-4 border-l-4 border-(--lagoon-deep) pl-4 italic text-(--sea-ink-soft)',
+  code: 'rounded border border-(--line) bg-(--chip-bg) px-2 py-1 font-mono text-sm text-(--lagoon-deep)',
+  pre: 'mb-4 overflow-x-auto rounded-lg border border-(--line) bg-(--chip-bg) p-4',
   table: 'w-full border-collapse mb-4',
-  th: 'border border-slate-700 p-2 bg-slate-800 text-left text-white',
-  td: 'border border-slate-700 p-2 text-gray-300',
+  th: 'border border-(--line) bg-(--chip-bg) p-2 text-left text-(--sea-ink)',
+  td: 'border border-(--line) p-2 text-(--sea-ink-soft)',
   img: 'max-w-full h-auto rounded-lg my-4',
-  hr: 'border-slate-700 my-8',
-  strong: 'text-white font-semibold',
+  hr: 'my-8 border-(--line)',
+  strong: 'font-semibold text-(--sea-ink)',
 }
 
 export function MarkdownContent({
@@ -62,7 +62,7 @@ export function MarkdownContent({
             if (isCodeBlock) {
               return (
                 <pre className={styles.pre}>
-                  <code className="text-sm font-mono text-gray-300">
+                  <code className="text-sm font-mono text-(--sea-ink-soft)">
                     {children}
                   </code>
                 </pre>
@@ -77,7 +77,14 @@ export function MarkdownContent({
           th: ({ children }) => <th className={styles.th}>{children}</th>,
           td: ({ children }) => <td className={styles.td}>{children}</td>,
           img: ({ src, alt }) => (
-            <img src={src} alt={alt || ''} className={styles.img} />
+            <img
+              src={src}
+              alt={alt || ''}
+              width={1200}
+              height={675}
+              loading="lazy"
+              className={styles.img}
+            />
           ),
           hr: () => <hr className={styles.hr} />,
           strong: ({ children }) => (

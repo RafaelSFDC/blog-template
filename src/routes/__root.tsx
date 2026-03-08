@@ -44,7 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'PlayfulPulse Blog',
       },
     ],
     links: [
@@ -67,7 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body
         suppressHydrationWarning
-        className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]"
+        className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-primary/25"
       >
         <TanStackQueryProvider>
           <Header />
@@ -95,7 +95,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootErrorComponent({ error }: { error: unknown }) {
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell rounded-3xl p-8">
+      <section className="island-shell clip-sash rounded-3xl p-8">
+        <p className="island-kicker mb-3">Route Error</p>
         <h1 className="display-title mb-3 text-2xl font-bold text-(--sea-ink) sm:text-3xl">
           Something went wrong
         </h1>

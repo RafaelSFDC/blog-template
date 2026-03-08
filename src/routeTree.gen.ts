@@ -9,13 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
+import { Route as DashboardNewRouteImport } from './routes/dashboard/new'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as DashboardPostIdEditRouteImport } from './routes/dashboard/$postId.edit'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -25,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
@@ -36,10 +50,20 @@ const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
   path: '/demo/better-auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardNewRoute = DashboardNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardPostIdEditRoute = DashboardPostIdEditRouteImport.update({
+  id: '/$postId/edit',
+  path: '/$postId/edit',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -50,58 +74,81 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard/new': typeof DashboardNewRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/blog/': typeof BlogIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard/new': typeof DashboardNewRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/blog': typeof BlogIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/dashboard/new': typeof DashboardNewRoute
   '/demo/better-auth': typeof DemoBetterAuthRoute
   '/blog/': typeof BlogIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard/$postId/edit': typeof DashboardPostIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/dashboard'
     | '/blog/$slug'
+    | '/dashboard/new'
     | '/demo/better-auth'
     | '/blog/'
+    | '/dashboard/'
     | '/api/auth/$'
+    | '/dashboard/$postId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/blog/$slug'
+    | '/dashboard/new'
     | '/demo/better-auth'
     | '/blog'
+    | '/dashboard'
     | '/api/auth/$'
+    | '/dashboard/$postId/edit'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/dashboard'
     | '/blog/$slug'
+    | '/dashboard/new'
     | '/demo/better-auth'
     | '/blog/'
+    | '/dashboard/'
     | '/api/auth/$'
+    | '/dashboard/$postId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   BlogSlugRoute: typeof BlogSlugRoute
   DemoBetterAuthRoute: typeof DemoBetterAuthRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -110,6 +157,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -123,6 +177,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/blog/': {
       id: '/blog/'
@@ -138,12 +199,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoBetterAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/new': {
+      id: '/dashboard/new'
+      path: '/new'
+      fullPath: '/dashboard/new'
+      preLoaderRoute: typeof DashboardNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/$postId/edit': {
+      id: '/dashboard/$postId/edit'
+      path: '/$postId/edit'
+      fullPath: '/dashboard/$postId/edit'
+      preLoaderRoute: typeof DashboardPostIdEditRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -155,9 +230,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardNewRoute: typeof DashboardNewRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardPostIdEditRoute: typeof DashboardPostIdEditRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardNewRoute: DashboardNewRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardPostIdEditRoute: DashboardPostIdEditRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   BlogSlugRoute: BlogSlugRoute,
   DemoBetterAuthRoute: DemoBetterAuthRoute,
   BlogIndexRoute: BlogIndexRoute,

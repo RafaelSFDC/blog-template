@@ -4,45 +4,66 @@ import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-(--line) bg-(--header-bg)/80 px-4 backdrop-blur-lg">
-      <nav className="page-wrap flex items-center justify-between gap-x-3 py-3 sm:py-4">
-        <h2 className="m-0 flex-shrink-0 text-base font-semibold tracking-tight">
+    <header className="sticky top-0 z-50 px-4 py-4 backdrop-blur-xl">
+      <nav className="page-wrap island-shell rounded-[2rem] px-4 py-4 sm:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-(--chip-line) bg-(--chip-bg) px-3 py-1.5 text-sm text-(--sea-ink) no-underline shadow-sm sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-3 self-start no-underline"
           >
-            <span className="h-2 w-2 rounded-full bg-[linear-gradient(90deg,#56c6be,#7ed3bf)]" />
-            BlogTemplate
+            <span className="flex h-12 w-12 -rotate-3 items-center justify-center rounded-2xl border-4 border-white bg-coral text-2xl font-black text-white shadow-toy">
+              P.
+            </span>
+            <span className="display-title text-3xl text-ink">
+              Playful<span className="text-coral">Pulse</span>
+            </span>
           </Link>
-        </h2>
 
-        <div className="flex items-center gap-4 text-sm font-semibold text-(--sea-ink)">
-          <Link
-            to="/"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
-          >
-            Home
-          </Link>
-          <Link
-            to="/blog"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
-          >
-            Posts
-          </Link>
-          <Link
-            to="/about"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
-          >
-            About
-          </Link>
-        </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="relative w-full sm:w-72">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sky">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M21 21l-4.4-4.4m1.4-5.1a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="3"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search for magic..."
+                className="h-12 w-full rounded-full border-4 border-white bg-white/80 pl-11 pr-4 text-sm font-semibold text-(--sea-ink) shadow-inner-soft outline-none focus-visible:ring-4 focus-visible:ring-mint"
+              />
+            </label>
 
-        <div className="flex items-center gap-2">
-          <BetterAuthHeader />
-          <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <Link
+                to="/demo/better-auth"
+                className="toy-button inline-flex h-11 items-center rounded-2xl border-4 border-white bg-mint px-5 text-sm font-black text-ink shadow-toy no-underline"
+              >
+                Login
+              </Link>
+              <ThemeToggle />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Link to="/" className="nav-link" activeProps={{ className: 'nav-link is-active' }}>
+              Home
+            </Link>
+            <Link to="/blog" className="nav-link" activeProps={{ className: 'nav-link is-active' }}>
+              Stories
+            </Link>
+            <Link to="/about" className="nav-link" activeProps={{ className: 'nav-link is-active' }}>
+              About
+            </Link>
+            <Link to="/dashboard" className="nav-link" activeProps={{ className: 'nav-link is-active' }}>
+              Dashboard
+            </Link>
+            <BetterAuthHeader />
+          </div>
         </div>
       </nav>
     </header>
