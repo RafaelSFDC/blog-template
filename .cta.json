@@ -1,0 +1,32 @@
+{
+  "projectName": "blog-template",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "pnpm",
+  "includeExamples": true,
+  "tailwind": true,
+  "addOnOptions": {
+    "drizzle": {
+      "database": "sqlite"
+    }
+  },
+  "envVarValues": {},
+  "git": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "cloudflare",
+    "neon",
+    "tanstack-query",
+    "better-auth",
+    "table",
+    "shadcn",
+    "paraglide",
+    "form",
+    "drizzle",
+    "db",
+    "strapi",
+    "compiler"
+  ]
+}
