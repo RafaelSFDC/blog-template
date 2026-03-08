@@ -2,7 +2,6 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
 import { Menu, X, Search as SearchIcon } from 'lucide-react'
-import { authClient } from '#/lib/auth-client'
 import {
   CommandDialog,
   CommandInput,
@@ -15,7 +14,6 @@ import { Button } from '#/components/ui/button'
 
 export default function Header() {
   const navigate = useNavigate()
-  const { data: session } = authClient.useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
@@ -115,13 +113,6 @@ export default function Header() {
                   About
                 </Link>
               </Button>
-              {session && (
-                <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
-                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                    Dashboard
-                  </Link>
-                </Button>
-              )}
             </div>
 
             <div className="flex items-center gap-2 border-t border-border pt-4 lg:border-none lg:pt-0">

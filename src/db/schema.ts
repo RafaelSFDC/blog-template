@@ -1,15 +1,89 @@
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core'
-import { sql } from 'drizzle-orm'
+import { sqliteTable, integer, text, index } from 'drizzle-orm/sqlite-core'
+import { relations, sql } from 'drizzle-orm'
 
 export const users = sqliteTable('users', {
   id: text().primaryKey(),
   name: text().notNull(),
   email: text().notNull().unique(),
+  emailVerified: integer('email_verified', { mode: 'boolean' })
+    .default(false)
+    .notNull(),
   image: text(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,
   ),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
 })
+
+export const sessions = sqliteTable(
+  'sessions',
+  {
+    id: text().primaryKey(),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    token: text().notNull().unique(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [index('sessions_userId_idx').on(table.userId)],
+)
+
+export const accounts = sqliteTable(
+  'accounts',
+  {
+    id: text().primaryKey(),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: integer('access_token_expires_at', {
+      mode: 'timestamp',
+    }),
+    refreshTokenExpiresAt: integer('refresh_token_expires_at', {
+      mode: 'timestamp',
+    }),
+    scope: text(),
+    password: text(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+  },
+  (table) => [index('accounts_userId_idx').on(table.userId)],
+)
+
+export const verifications = sqliteTable(
+  'verifications',
+  {
+    id: text().primaryKey(),
+    identifier: text().notNull(),
+    value: text().notNull(),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(unixepoch())`,
+    ),
+  },
+  (table) => [index('verifications_identifier_idx').on(table.identifier)],
+)
 
 export const posts = sqliteTable('posts', {
   id: integer({ mode: 'number' }).primaryKey({

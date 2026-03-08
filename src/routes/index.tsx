@@ -6,6 +6,7 @@ import { desc } from "drizzle-orm";
 import { PostCard } from "#/components/blog/PostCard";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
 import { Newsletter } from "#/components/blog/newsletter";
 
 function MarqueeTicker() {
@@ -74,19 +75,23 @@ function Home() {
 
       <section className="editorial-grid rise-in gap-8">
         <div className="island-shell col-span-12 overflow-hidden rounded-lg p-8 sm:p-10 lg:p-12 relative">
-
-
-          <p className="inline-block tracking-widest uppercase font-extrabold text-xs text-primary-foreground bg-primary px-2.5 py-1 border-2 border-border mb-2 -skew-x-12">Issue #01 / Spring 2026</p>
+          <Badge variant="zine">
+            Issue #01 / Spring 2026
+          </Badge>
           <h1 className="display-title text-[clamp(2.3rem,9vw,5.2rem)] font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground">
             Stories With A <br />
-            <span className="text-primary italic">Visual Signature.</span>
+            <span className="text-primary">Visual Signature.</span>
           </h1>
           <p className="text-[clamp(1rem,2vw,1.35rem)] max-w-2xl text-muted-foreground font-black">
             A bold editorial system with sharp edges, fast rendering, and a
             layout that actually has a soul.
           </p>
 
-          <Newsletter variant="compact" placeholder="Join the newsletter..." className="mt-12" />
+          <Newsletter
+            variant="compact"
+            placeholder="Join the newsletter..."
+            className="mt-12"
+          />
 
           <div className="mt-8 flex flex-wrap gap-4 border-t-2 border-border/10 pt-8">
             <Link
@@ -111,7 +116,11 @@ function Home() {
             Featured Articles
           </h2>
           <Button asChild variant="zine-outline" size="sm">
-            <Link to="/blog" search={{ q: "", category: "" }} className="flex items-center gap-2">
+            <Link
+              to="/blog"
+              search={{ q: "", category: "" }}
+              className="flex items-center gap-2"
+            >
               Ver Todos
               <ArrowRight size={16} />
             </Link>

@@ -13,26 +13,21 @@ export default function BetterAuthHeader() {
 
   if (session?.user) {
     return (
-      <div className="flex items-center gap-2">
+      <Link to="/dashboard" className="transition-transform hover:scale-105 active:scale-95">
         {session.user.image ? (
-          <img src={session.user.image} alt="" className="h-9 w-9 rounded-full border-2 border-border" />
+          <img
+            src={session.user.image}
+            alt=""
+            className="h-9 w-9 rounded-full border-2 border-border shadow-zine-sm ring-primary/20 ring-offset-2 hover:ring-2"
+          />
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-accent">
-            <span className="text-xs font-black text-foreground">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-primary shadow-zine-sm ring-primary/20 ring-offset-2 hover:ring-2">
+            <span className="text-xs font-black text-white">
               {session.user.name?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
         )}
-        <Button
-          variant="zine"
-          size="sm"
-          onClick={() => {
-            void authClient.signOut()
-          }}
-        >
-          Sign out
-        </Button>
-      </div>
+      </Link>
     )
   }
 

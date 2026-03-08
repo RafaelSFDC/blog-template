@@ -8,6 +8,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
 import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
 import { cn } from "#/lib/utils";
 
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
@@ -100,7 +101,7 @@ function BlogIndex() {
     <main className="pb-20 pt-10">
       <div className="page-wrap flex flex-col gap-8 sm:gap-12">
         <header className="island-shell rounded-2xl p-8 sm:p-12 bg-card">
-          <p className="inline-block tracking-widest uppercase font-extrabold text-xs text-primary-foreground bg-primary px-2.5 py-1 border-2 border-border mb-3 -skew-x-12">Vibe Archive</p>
+          <Badge variant="zine">Vibe Archive</Badge>
           <h1 className="font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-4 text-5xl text-foreground sm:text-6xl uppercase">
             All Stories
           </h1>
