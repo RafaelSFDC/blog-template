@@ -4,7 +4,7 @@ import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { desc } from "drizzle-orm";
 import { PostCard } from "#/components/blog/PostCard";
-import { Zap, ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Newsletter } from "#/components/blog/newsletter";
 
@@ -73,17 +73,15 @@ function Home() {
       <MarqueeTicker />
 
       <section className="editorial-grid rise-in gap-8">
-        <div className="island-shell col-span-12 overflow-hidden rounded-lg p-8 sm:p-10 lg:col-span-8 lg:p-12 relative">
-          <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
-            <Zap size={180} strokeWidth={3} className="text-primary" />
-          </div>
+        <div className="island-shell col-span-12 overflow-hidden rounded-lg p-8 sm:p-10 lg:p-12 relative">
 
-          <p className="island-kicker">Issue #01 / Spring 2026</p>
-          <h1 className="display-title headline-fluid mb-6 max-w-4xl text-foreground">
+
+          <p className="inline-block tracking-widest uppercase font-extrabold text-xs text-primary-foreground bg-primary px-2.5 py-1 border-2 border-border mb-2 -skew-x-12">Issue #01 / Spring 2026</p>
+          <h1 className="display-title text-[clamp(2.3rem,9vw,5.2rem)] font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground">
             Stories With A <br />
             <span className="text-primary italic">Visual Signature.</span>
           </h1>
-          <p className="subhead-fluid max-w-2xl text-muted-foreground font-black">
+          <p className="text-[clamp(1rem,2vw,1.35rem)] max-w-2xl text-muted-foreground font-black">
             A bold editorial system with sharp edges, fast rendering, and a
             layout that actually has a soul.
           </p>
@@ -105,83 +103,20 @@ function Home() {
             </Link>
           </div>
         </div>
-
-        <aside className="island-shell reveal-card col-span-12 rounded-lg p-8 lg:col-span-4 bg-secondary/5 border-secondary/20">
-          <p className="island-kicker bg-secondary! text-secondary-foreground!">
-            The Specs
-          </p>
-          <dl className="mt-6 space-y-8">
-            <div className="group">
-              <dt className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-black group-hover:text-primary transition-colors">
-                Framework
-              </dt>
-              <dd className="display-title mt-1 text-3xl text-foreground">
-                TanStack Start
-              </dd>
-              <div className="h-1 w-12 bg-primary mt-2 group-hover:w-20 transition-all duration-300"></div>
-            </div>
-            <div className="group">
-              <dt className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-black group-hover:text-secondary transition-colors">
-                Persistence
-              </dt>
-              <dd className="display-title mt-1 text-3xl text-foreground">
-                Drizzle + SQLite
-              </dd>
-              <div className="h-1 w-8 bg-secondary mt-2 group-hover:w-16 transition-all duration-300"></div>
-            </div>
-            <div className="group">
-              <dt className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-black group-hover:text-accent transition-colors">
-                Library Size
-              </dt>
-              <dd className="display-title mt-1 text-4xl text-foreground font-black">
-                {latestPosts.length}{" "}
-                <span className="text-xl opacity-40">Posts</span>
-              </dd>
-            </div>
-          </dl>
-
-          <div className="mt-10">
-            <Button
-              asChild
-              variant="zine"
-              size="lg"
-              className="w-full text-white"
-            >
-              <Link to="/blog" search={{ q: "", category: "" }} className="text-white">
-                Start Reading
-              </Link>
-            </Button>
-          </div>
-        </aside>
       </section>
 
       <section className="mt-20">
-        <div className="mb-10 flex items-end justify-between gap-4">
-          <div>
-            <p className="island-kicker">Editorial</p>
-            <h2 className="display-title mt-3 text-4xl font-extrabold text-foreground sm:text-5xl uppercase tracking-tighter">
-              Featured Articles
-            </h2>
-          </div>
-          <Link
-            to="/blog"
-            search={{ q: "", category: "" }}
-            className="group flex items-center gap-1.5 text-sm font-black text-primary no-underline uppercase tracking-widest"
-          >
-            Full Archive
-            <svg
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4 transition-[transform,opacity] group-hover:translate-x-1"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Link>
-        </div>
+        <header className="island-shell flex items-center justify-between rounded-2xl bg-card p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
+          <h2 className="display-title mb-0 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
+            Featured Articles
+          </h2>
+          <Button asChild variant="zine-outline" size="sm">
+            <Link to="/blog" search={{ q: "", category: "" }} className="flex items-center gap-2">
+              Ver Todos
+              <ArrowRight size={16} />
+            </Link>
+          </Button>
+        </header>
 
         {latestPosts.length > 0 ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

@@ -45,7 +45,7 @@ export function BlogHero({ post }: BlogHeroProps) {
         )}
       </div>
 
-      <h1 className="display-title mb-6 text-4xl font-bold leading-[1.1] text-foreground sm:text-5xl lg:text-7xl">
+      <h1 className="font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-6 text-4xl text-foreground sm:text-5xl lg:text-7xl">
         {post.title}
       </h1>
 

@@ -47,10 +47,10 @@ export default function Header() {
           <div className="flex items-center justify-between w-full lg:w-auto">
             <Link to="/" className="inline-flex items-center gap-2 no-underline shrink-0">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-border bg-primary text-xl font-black text-white shadow-zine-sm sm:h-12 sm:w-12 sm:border-3 sm:text-2xl">
-                V.
+                v.
               </span>
-              <span className="display-title text-2xl text-foreground whitespace-nowrap sm:text-3xl">
-                Vibe<span className="text-primary italic">Zine</span>
+              <span className="display-title text-2xl font-bold text-foreground whitespace-nowrap sm:text-3xl">
+                VibeZine
               </span>
             </Link>
 
@@ -78,7 +78,7 @@ export default function Header() {
             >
               <SearchIcon size={18} strokeWidth={3} className="text-primary/60" />
               <span className="text-muted-foreground font-bold">Search...</span>
-              <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>

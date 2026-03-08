@@ -1,28 +1,38 @@
-import { Link } from '@tanstack/react-router'
-import { Button } from '#/components/ui/button'
+import { Link } from "@tanstack/react-router";
+import { Button } from "#/components/ui/button";
 
 export default function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
 
   return (
     <footer className="site-footer mt-16 px-4 pb-12 pt-10 text-center text-muted-foreground">
       <div className="page-wrap">
-        <hr className="deco-rule mb-6" />
         <div className="mb-8 flex flex-wrap justify-center gap-4 text-sm font-bold">
-          <Button asChild variant="ghost" size="sm" className="hover:text-primary transition-colors font-bold">
-            <Link to="/blog" search={{ q: '', category: '' }}>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hover:text-primary transition-colors font-bold"
+          >
+            <Link to="/blog" search={{ q: "", category: "" }}>
               Stories
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="hover:text-secondary transition-colors font-bold">
-            <Link to="/about">
-              About
-            </Link>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hover:text-secondary transition-colors font-bold"
+          >
+            <Link to="/about">About</Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="hover:text-accent transition-colors font-bold">
-            <Link to="/dashboard">
-              Dashboard
-            </Link>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hover:text-accent transition-colors font-bold"
+          >
+            <Link to="/dashboard">Dashboard</Link>
           </Button>
         </div>
         <p className="m-0 text-sm text-muted-foreground">
@@ -30,7 +40,12 @@ export default function Footer() {
         </p>
       </div>
       <div className="mt-8 flex justify-center gap-4">
-        <Button asChild variant="zine-outline" size="icon" className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover">
+        <Button
+          asChild
+          variant="zine-outline"
+          size="icon"
+          className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+        >
           <a
             href="https://x.com/tan_stack"
             target="_blank"
@@ -45,7 +60,12 @@ export default function Footer() {
             </svg>
           </a>
         </Button>
-        <Button asChild variant="zine-outline" size="icon" className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover">
+        <Button
+          asChild
+          variant="zine-outline"
+          size="icon"
+          className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+        >
           <a
             href="https://github.com/TanStack"
             target="_blank"
@@ -62,5 +82,5 @@ export default function Footer() {
         </Button>
       </div>
     </footer>
-  )
+  );
 }

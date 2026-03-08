@@ -53,7 +53,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
                 />
               </div>
             )}
-            <div className="mb-4 inline-block rounded-full border-2 border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+            <div className="mb-4 inline-block rounded-full border-2 border-primary/20 bg-primary/5 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary">
               {post.category || 'General'}
             </div>
             <h3 className="mb-3 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary">

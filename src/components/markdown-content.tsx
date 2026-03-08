@@ -7,8 +7,8 @@ interface MarkdownContentProps {
 }
 
 const styles = {
-  h1: 'display-title mb-6 text-4xl font-bold text-foreground',
-  h2: 'display-title mb-4 text-3xl font-bold text-foreground',
+  h1: 'font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-6 text-4xl text-foreground',
+  h2: 'font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-4 text-3xl text-foreground',
   h3: 'mb-3 text-xl font-bold text-foreground',
   p: 'mb-4 leading-relaxed text-muted-foreground',
   a: 'text-primary underline-offset-4 hover:underline',
