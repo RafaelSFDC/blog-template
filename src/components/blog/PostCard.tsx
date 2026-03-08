@@ -15,11 +15,11 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 })
 
 const cardThemes = [
-  { cover: 'bg-mint', badge: 'Design', action: 'text-coral', avatar: 'bg-coral' },
-  { cover: 'bg-lemon', badge: 'Theory', action: 'text-sky', avatar: 'bg-sky' },
-  { cover: 'bg-sky', badge: 'Tech', action: 'text-mint', avatar: 'bg-mint' },
-  { cover: 'bg-coral', badge: 'Toys', action: 'text-lemon', avatar: 'bg-lemon' },
-  { cover: 'bg-grape', badge: 'Lifestyle', action: 'text-lemon', avatar: 'bg-lemon' },
+  { cover: 'bg-secondary', badge: 'Design', action: 'text-primary', avatar: 'bg-primary' },
+  { cover: 'bg-accent', badge: 'Culture', action: 'text-primary', avatar: 'bg-primary' },
+  { cover: 'bg-sky', badge: 'Tech', action: 'text-secondary', avatar: 'bg-secondary' },
+  { cover: 'bg-primary', badge: 'Edgy', action: 'text-accent', avatar: 'bg-accent' },
+  { cover: 'bg-grape', badge: 'Vibe', action: 'text-accent', avatar: 'bg-accent' },
 ]
 
 export function PostCard({ post }: { post: Post }) {
@@ -29,33 +29,33 @@ export function PostCard({ post }: { post: Post }) {
     <Link
       to="/blog/$slug"
       params={{ slug: post.slug }}
-      className="toy-button glass-card group block overflow-hidden rounded-[2.2rem] p-5 no-underline shadow-toy hover:shadow-toy-hover"
+      className="toy-button group block overflow-hidden rounded-lg p-5 no-underline shadow-zine hover:shadow-zine-hover border-3 border-border bg-card"
     >
-      <div className={`relative mb-5 h-52 overflow-hidden rounded-[1.6rem] border-4 border-white ${theme.cover}`}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgb(255_255_255_/_55%),transparent_58%)]" />
-        <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-ink">
+      <div className={`relative mb-5 h-52 overflow-hidden rounded-md border-3 border-border ${theme.cover}`}>
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,rgb(0_0_0/10%)_25%,transparent_25%,transparent_50%,rgb(0_0_0/10%)_50%,rgb(0_0_0/10%)_75%,transparent_75%,transparent)] bg-size-[20px_20px]" />
+        <div className="absolute left-4 top-4 rounded-md border-2 border-border bg-background px-3 py-1 text-[10px] font-black uppercase tracking-widest text-foreground">
           {theme.badge}
         </div>
-        <div className="absolute bottom-3 right-4 text-4xl opacity-75">✨</div>
+        <div className="absolute bottom-3 right-4 text-4xl opacity-90 drop-shadow-md">⚡</div>
       </div>
 
-      <div className="mb-3 flex items-center gap-2 text-xs font-bold text-(--sea-ink-soft)">
+      <div className="mb-3 flex items-center gap-2 text-xs font-black text-muted-foreground uppercase tracking-widest">
         <span>{post.publishedAt ? dateFormatter.format(new Date(post.publishedAt)) : 'Draft'}</span>
       </div>
 
-      <h3 className="display-title mb-2 text-2xl leading-tight text-(--sea-ink) transition-[transform,opacity] group-hover:text-coral">
+      <h3 className="display-title mb-2 text-2xl leading-none text-foreground font-extrabold transition-colors group-hover:text-primary uppercase tracking-tighter">
         {post.title}
       </h3>
-      <p className="m-0 line-clamp-3 text-sm leading-relaxed text-(--sea-ink-soft)">
+      <p className="m-0 line-clamp-3 text-sm font-bold leading-tight text-muted-foreground">
         {post.excerpt}
       </p>
 
       <div className="mt-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`h-9 w-9 rounded-full border-2 border-white ${theme.avatar}`} />
-          <span className="text-xs font-bold text-(--sea-ink-soft)">Playful Author</span>
+          <span className={`h-8 w-8 rounded-md border-2 border-border shadow-zine-sm ${theme.avatar}`} />
+          <span className="text-xs font-black text-foreground uppercase tracking-tighter">Vibe Studio</span>
         </div>
-        <div className={`flex items-center gap-1 text-sm font-black ${theme.action} transition-[transform,opacity] group-hover:translate-x-1`}>
+        <div className={`flex items-center gap-1 text-sm font-black ${theme.action} transition-transform group-hover:translate-x-1`}>
           Read!
           <svg
             viewBox="0 0 20 20"

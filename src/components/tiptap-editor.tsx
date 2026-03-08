@@ -1,0 +1,139 @@
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { Markdown } from 'tiptap-markdown'
+import { 
+  Bold, 
+  Italic, 
+  Heading1, 
+  Heading2, 
+  List, 
+  ListOrdered, 
+  Quote, 
+  Undo, 
+  Redo 
+} from 'lucide-react'
+
+interface TiptapEditorProps {
+  content: string
+  onChange: (markdown: string) => void
+  placeholder?: string
+}
+
+const MenuBar = ({ editor }: { editor: any }) => {
+  if (!editor) {
+    return null
+  }
+
+  const buttons = [
+    {
+      icon: <Heading1 className="h-4 w-4" />,
+      title: 'Heading 1',
+      action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      isActive: () => editor.isActive('heading', { level: 1 }),
+    },
+    {
+      icon: <Heading2 className="h-4 w-4" />,
+      title: 'Heading 2',
+      action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      isActive: () => editor.isActive('heading', { level: 2 }),
+    },
+    {
+      icon: <Bold className="h-4 w-4" />,
+      title: 'Bold',
+      action: () => editor.chain().focus().toggleBold().run(),
+      isActive: () => editor.isActive('bold'),
+    },
+    {
+      icon: <Italic className="h-4 w-4" />,
+      title: 'Italic',
+      action: () => editor.chain().focus().toggleItalic().run(),
+      isActive: () => editor.isActive('italic'),
+    },
+    {
+      icon: <List className="h-4 w-4" />,
+      title: 'Bullet List',
+      action: () => editor.chain().focus().toggleBulletList().run(),
+      isActive: () => editor.isActive('bulletList'),
+    },
+    {
+      icon: <ListOrdered className="h-4 w-4" />,
+      title: 'Ordered List',
+      action: () => editor.chain().focus().toggleOrderedList().run(),
+      isActive: () => editor.isActive('orderedList'),
+    },
+    {
+      icon: <Quote className="h-4 w-4" />,
+      title: 'Blockquote',
+      action: () => editor.chain().focus().toggleBlockquote().run(),
+      isActive: () => editor.isActive('blockquote'),
+    },
+  ]
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 border-b border-(--line) p-2 bg-(--chip-bg)">
+      {buttons.map((btn, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={btn.action}
+          title={btn.title}
+          className={`rounded-md p-2 transition-colors hover:bg-(--line) ${
+            btn.isActive() ? 'bg-(--line) text-(--lagoon-deep)' : 'text-(--sea-ink-soft)'
+          }`}
+        >
+          {btn.icon}
+        </button>
+      ))}
+      <div className="mx-1 h-6 w-px bg-(--line)" />
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        className="rounded-md p-2 text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+      >
+        <Undo className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        className="rounded-md p-2 text-(--sea-ink-soft) transition-colors hover:bg-(--line) disabled:opacity-30"
+      >
+        <Redo className="h-4 w-4" />
+      </button>
+    </div>
+  )
+}
+
+export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      Markdown.configure({
+        html: false,
+        transformPastedText: true,
+      }),
+    ],
+    content: content,
+    onUpdate: ({ editor }) => {
+      // @ts-ignore - getMarkdown exists on editor with the extension
+      onChange(editor.storage.markdown.getMarkdown())
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm focus:outline-none max-w-none min-h-[300px] p-4 text-(--sea-ink)',
+      },
+    },
+  })
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-input bg-(--chip-bg) transition-shadow focus-within:ring-2 focus-within:ring-(--lagoon-deep)/20">
+      <MenuBar editor={editor} />
+      <EditorContent editor={editor} />
+    </div>
+  )
+}

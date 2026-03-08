@@ -73,7 +73,7 @@ export default function ThemeToggle() {
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="toy-button rounded-2xl border-4 border-white bg-lemon px-4 py-2 text-sm font-black text-[var(--sea-ink)] shadow-toy"
+      className="toy-button flex h-11 items-center justify-center rounded-lg border-3 border-border bg-accent px-4 text-sm font-black text-foreground shadow-zine-sm"
     >
       {mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
     </button>

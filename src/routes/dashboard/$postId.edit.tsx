@@ -5,6 +5,7 @@ import { posts } from '#/db/schema'
 import { eq } from 'drizzle-orm'
 import { useState, type FormEvent } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
+import { TiptapEditor } from '#/components/tiptap-editor'
 
 interface PostFormInput {
   id: number
@@ -171,16 +172,11 @@ function EditPostPage() {
 
         <div>
           <label htmlFor="content" className="mb-2 block text-sm font-semibold text-(--sea-ink)">
-            Content (Markdown)
+            Content
           </label>
-          <textarea
-            id="content"
-            name="content"
-            required
-            value={content}
-            onChange={(event) => setContent(event.currentTarget.value)}
-            placeholder="# Main Idea…"
-            className="min-h-72 w-full rounded-xl border border-(--input) bg-(--chip-bg) px-4 py-3 font-mono text-sm text-(--sea-ink)"
+          <TiptapEditor 
+            content={content} 
+            onChange={setContent} 
           />
         </div>
 

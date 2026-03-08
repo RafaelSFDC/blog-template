@@ -5,6 +5,7 @@ import { posts } from '#/db/schema'
 import { desc } from 'drizzle-orm'
 import { PostCard } from '#/components/blog/PostCard'
 import { useMemo, useState, type FormEvent } from 'react'
+import { Search } from 'lucide-react'
 
 const getLatestPosts = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -16,20 +17,21 @@ export const Route = createFileRoute('/blog/')({
     q: typeof search.q === 'string' ? search.q : '',
   }),
   loader: () => getLatestPosts(),
-  head: ({ search }) => {
+  head: (ctx: any) => {
+    const search = ctx.search as { q: string }
     const hasQuery = search.q.trim().length > 0
     return {
       meta: [
         {
           title: hasQuery
-            ? `Search "${search.q}" | PlayfulPulse`
-            : 'All Stories | PlayfulPulse Blog',
+            ? `Search "${search.q}" | VibeZine`
+            : 'All Stories | VibeZine Blog',
         },
         {
           name: 'description',
           content: hasQuery
-            ? `Search results for "${search.q}" in PlayfulPulse stories.`
-            : 'Browse all articles on design, tech, and creative experiments.',
+            ? `Search results for "${search.q}" in VibeZine stories.`
+            : 'Browse all articles on design, tech, and cultural experiments.',
         },
       ],
     }
@@ -76,13 +78,13 @@ function BlogIndex() {
 
   return (
     <main className="page-wrap px-4 pb-12 pt-8">
-      <header className="island-shell mb-8 rounded-[2.4rem] p-8 sm:p-10">
-        <p className="island-kicker mb-3">Playful Archive</p>
-        <h1 className="display-title mb-4 text-5xl text-(--sea-ink) sm:text-6xl">
+      <header className="island-shell mb-8 rounded-lg p-8 sm:p-10">
+        <p className="island-kicker mb-3">Vibe Archive</p>
+        <h1 className="display-title mb-4 text-5xl text-foreground sm:text-6xl uppercase tracking-tighter font-extrabold">
           All Stories
         </h1>
-        <p className="max-w-2xl text-lg text-(--sea-ink-soft)">
-          Fun notes on design, tech, and creative experiments in a tactile, toy-like interface.
+        <p className="max-w-2xl text-lg text-muted-foreground font-bold leading-tight">
+          Bold notes on design, cultural code, and aesthetic experiments.
         </p>
       </header>
 
@@ -93,19 +95,19 @@ function BlogIndex() {
           </p>
         ) : null}
         <div className="flex flex-wrap gap-3">
-          <button className="toy-button rounded-full border-4 border-white bg-lemon px-6 py-2 font-bold text-ink shadow-toy">
+          <button className="toy-button rounded-lg border-2 border-border bg-accent px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
             ✨ All Stories
           </button>
-          <button className="toy-button rounded-full border-4 border-white bg-mint px-6 py-2 font-bold text-ink shadow-toy">
+          <button className="toy-button rounded-lg border-2 border-border bg-secondary px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
             🎨 Design
           </button>
-          <button className="toy-button rounded-full border-4 border-white bg-sky px-6 py-2 font-bold text-ink shadow-toy">
+          <button className="toy-button rounded-lg border-2 border-border bg-sky px-6 py-2 font-black text-foreground shadow-zine-sm sm:border-3">
             🚀 Tech
           </button>
-          <button className="toy-button rounded-full border-4 border-white bg-coral px-6 py-2 font-bold text-white shadow-toy">
-            🧸 Toys
+          <button className="toy-button rounded-lg border-2 border-border bg-primary px-6 py-2 font-black text-white shadow-zine-sm sm:border-3">
+            🧸 Culture
           </button>
-          <button className="toy-button rounded-full border-4 border-white bg-grape px-6 py-2 font-bold text-white shadow-toy">
+          <button className="toy-button rounded-lg border-2 border-border bg-grape px-6 py-2 font-black text-white shadow-zine-sm sm:border-3">
             🍦 Lifestyle
           </button>
         </div>
@@ -118,53 +120,39 @@ function BlogIndex() {
           ))}
         </div>
       ) : (
-        <div className="island-shell flex flex-col items-center justify-center rounded-[2rem] py-20 text-center">
-          <div className="mb-4 rounded-full bg-(--line) p-4">
-            <svg
-              className="h-8 w-8 text-(--sea-ink-soft)"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM3 17h18"
-              />
-            </svg>
+        <div className="island-shell flex flex-col items-center justify-center rounded-lg py-20 text-center">
+          <div className="mb-4 rounded-lg bg-muted p-4 border-2 border-border">
+            <Search className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-(--sea-ink)">
-            {query ? 'No matching posts' : 'No posts found'}
+          <h2 className="text-xl font-black text-foreground uppercase tracking-tight">
+            {query ? `Search for "${q}" failed` : 'No stories found'}
           </h2>
-          <p className="mt-2 text-(--sea-ink-soft)">
+          <p className="mt-2 text-muted-foreground font-bold">
             {query
-              ? 'Try a different keyword or browse the full archive.'
-              : 'Check back later for new content!'}
+              ? 'Try different keywords or check your spelling.'
+              : 'The archive is currently empty.'}
           </p>
         </div>
       )}
 
-      <section className="relative mt-12 overflow-hidden rounded-[2.8rem] border-8 border-white bg-grape p-8 text-center shadow-toy sm:p-12">
-        <div className="absolute -left-8 -top-8 h-28 w-28 rounded-full bg-white/10" />
-        <div className="absolute -bottom-8 -right-8 h-36 w-36 rounded-full bg-white/10" />
-        <h2 className="display-title relative z-10 mb-4 text-4xl text-white sm:text-5xl">
-          Get the Fun in your Inbox!
+      <section className="relative mt-12 overflow-hidden rounded-lg border-4 border-border bg-primary p-8 text-center shadow-zine sm:p-12">
+        <h2 className="display-title relative z-10 mb-4 text-4xl text-white sm:text-5xl font-extrabold uppercase tracking-tighter">
+          Join the Tribe!
         </h2>
-        <p className="relative z-10 mx-auto mb-7 max-w-xl text-white/85">
-          No boring emails, just playful UI inspiration and practical notes every week.
+        <p className="relative z-10 mx-auto mb-7 max-w-xl text-white/90 font-bold">
+          No noise. Just high-energy design drops and creative insights every Sunday.
         </p>
         <form onSubmit={onSubscribe} className="relative z-10 mx-auto flex max-w-xl flex-col gap-4 sm:flex-row">
           <input
             type="email"
             value={email}
             onChange={(event) => setEmail(event.currentTarget.value)}
-            placeholder="your@happy.email"
+            placeholder="your@edgy.email"
             required
-            className="h-14 flex-1 rounded-3xl border-4 border-white bg-white/90 px-6 font-bold text-ink shadow-inner-soft outline-none focus-visible:ring-4 focus-visible:ring-lemon"
+            className="h-14 flex-1 rounded-lg border-2 border-border bg-white/95 px-6 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-accent sm:border-3"
           />
-          <button type="submit" className="toy-button rounded-3xl border-4 border-white bg-lemon px-8 py-4 font-black text-ink shadow-toy">
-            Join the Club!
+          <button type="submit" className="toy-button rounded-lg border-2 border-border bg-accent px-8 py-4 font-black text-foreground shadow-zine-sm sm:border-3">
+            Subscribe!
           </button>
         </form>
         {newsletterMessage ? (

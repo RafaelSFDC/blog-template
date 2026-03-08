@@ -44,16 +44,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'PlayfulPulse Blog',
+        title: 'VibeZine | Bold Stories',
       },
       {
         name: 'description',
         content:
-          'PlayfulPulse is a modern publication about design systems, web performance, and creative product thinking.',
+          'VibeZine is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.',
       },
       {
         property: 'og:site_name',
-        content: 'PlayfulPulse',
+        content: 'VibeZine',
       },
       {
         property: 'og:type',
@@ -61,12 +61,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: 'og:title',
-        content: 'PlayfulPulse Blog',
+        content: 'VibeZine Blog',
       },
       {
         property: 'og:description',
         content:
-          'A high-performance blog template with editorial pages, markdown posts, and admin publishing tools.',
+          'A vibrant zine-style blog for the next generation of creators.',
       },
       {
         name: 'twitter:card',
@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'theme-color',
-        content: '#2d7d8e',
+        content: '#ff5c00', /* Deep Orange */
       },
     ],
     links: [
@@ -101,7 +101,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body
         suppressHydrationWarning
-        className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-primary/25"
+        className="font-sans antialiased wrap-anywhere selection:bg-primary/25"
       >
         <TanStackQueryProvider>
           <Header />
