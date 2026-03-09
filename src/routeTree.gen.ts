@@ -17,6 +17,7 @@ import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
+import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
@@ -36,6 +37,7 @@ import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/check
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
+import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
@@ -79,6 +81,11 @@ const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
   getParentRoute: () => DashboardRoute,
+} as any)
+const ApiCommentsRoute = ApiCommentsRouteImport.update({
+  id: '/api/comments',
+  path: '/api/comments',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PublicContactRoute = PublicContactRouteImport.update({
   id: '/contact',
@@ -179,6 +186,11 @@ const ApiCronPublishRoute = ApiCronPublishRouteImport.update({
   path: '/api/cron/publish',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCommentsIdRoute = ApiCommentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiCommentsRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -206,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
+  '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -214,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -236,6 +250,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
+  '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -245,6 +260,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -270,6 +286,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
+  '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -279,6 +296,7 @@ export interface FileRoutesById {
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -305,6 +323,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/about'
     | '/contact'
+    | '/api/comments'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -313,6 +332,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
@@ -335,6 +355,7 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/contact'
+    | '/api/comments'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -344,6 +365,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
@@ -368,6 +390,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/_public/about'
     | '/_public/contact'
+    | '/api/comments'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -377,6 +400,7 @@ export interface FileRouteTypes {
     | '/_public/blog/$slug'
     | '/_public/demo/better-auth'
     | '/api/auth/$'
+    | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
@@ -400,6 +424,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
+  ApiCommentsRoute: typeof ApiCommentsRouteWithChildren
   RssXmlRoute: typeof RssXmlRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -467,6 +492,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/messages'
       preLoaderRoute: typeof DashboardMessagesRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/api/comments': {
+      id: '/api/comments'
+      path: '/api/comments'
+      fullPath: '/api/comments'
+      preLoaderRoute: typeof ApiCommentsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_public/contact': {
       id: '/_public/contact'
@@ -601,6 +633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/comments/$id': {
+      id: '/api/comments/$id'
+      path: '/$id'
+      fullPath: '/api/comments/$id'
+      preLoaderRoute: typeof ApiCommentsIdRouteImport
+      parentRoute: typeof ApiCommentsRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -693,9 +732,22 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface ApiCommentsRouteChildren {
+  ApiCommentsIdRoute: typeof ApiCommentsIdRoute
+}
+
+const ApiCommentsRouteChildren: ApiCommentsRouteChildren = {
+  ApiCommentsIdRoute: ApiCommentsIdRoute,
+}
+
+const ApiCommentsRouteWithChildren = ApiCommentsRoute._addFileChildren(
+  ApiCommentsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
+  ApiCommentsRoute: ApiCommentsRouteWithChildren,
   RssXmlRoute: RssXmlRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
