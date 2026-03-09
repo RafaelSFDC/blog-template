@@ -1,32 +1,24 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "blog-template",
-	"compatibility_date": "2025-09-02",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"main": "@tanstack/react-start/server-entry",
-	"assets": {
-		"directory": ".output/public"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "blog-db",
-			"database_id": "4b5ad0b3-fea9-46fe-8b32-aed3d396f217",
-			"migrations_dir": "./drizzle"
-		}
-	],
-	"r2_buckets": [
-		{
-			"binding": "STORAGE",
-			"bucket_name": "blog-media"
-		}
-	],
-	"triggers": {
-		"crons": ["*/5 * * * *"]
-	}
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blog-template",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true,
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blog-db",
+      "database_id": "4b5ad0b3-fea9-46fe-8b32-aed3d396f217",
+      "migrations_dir": "./drizzle",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "blog-media",
+    },
+  ],
 }
