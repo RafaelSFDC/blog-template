@@ -1,4 +1,3 @@
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3'
 import * as schema from './schema'
 import { createRequire } from 'module'
 
@@ -60,8 +59,9 @@ export const db = new Proxy({} as any, {
       return (_db as any)[prop]
     }
 
-    // 4. Default / SQLite (better-sqlite3)
+    // 4. Default / SQLite (better-sqlite3) — only for local dev, NOT Workers
     if (!_db) {
+      const { drizzle: drizzleSqlite } = requireInstance('drizzle-orm/better-sqlite3')
       const Database = requireInstance('better-sqlite3')
       const sqlite = new Database(dbUrl || 'blog.db')
       _db = drizzleSqlite(sqlite, { schema })
