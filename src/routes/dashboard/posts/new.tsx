@@ -8,6 +8,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { TiptapEditor } from '#/components/tiptap-editor'
 
+import { triggerWebhook } from '#/lib/webhooks'
+
 interface PostFormInput {
   title: string
   slug: string
@@ -43,6 +45,15 @@ const createPost = createServerFn({ method: 'POST' })
         updatedAt: new Date(),
       })
       .returning({ id: posts.id })
+
+    if (data.status === 'published') {
+      await triggerWebhook('post.published', {
+        id: created[0].id,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt,
+      })
+    }
 
     return created[0]
   })

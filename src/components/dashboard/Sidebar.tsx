@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree, MessageSquare, Mail, Inbox } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree, MessageSquare, Mail, Inbox, Webhook } from 'lucide-react'
 import { authClient } from '#/lib/auth-client'
 import { Button } from '#/components/ui/button'
 
@@ -53,6 +53,11 @@ const sidebarLinks = [
     label: 'Users',
     icon: Users,
     to: '/dashboard/users',
+  },
+  {
+    label: 'Webhooks',
+    icon: Webhook,
+    to: '/dashboard/webhooks',
   },
   {
     label: 'Settings',

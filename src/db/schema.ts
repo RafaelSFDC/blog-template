@@ -232,3 +232,33 @@ export const contactMessages = sqliteTable('contact_messages', {
     sql`(unixepoch())`,
   ),
 })
+
+export const webhooks = sqliteTable('webhooks', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  url: text().notNull(),
+  event: text().notNull().default('post.published'), // post.published, post.created, etc.
+  secret: text(), // For HMAC signature validation
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})
+
+export const webhookDeliveries = sqliteTable('webhook_deliveries', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  webhookId: integer('webhook_id')
+    .notNull()
+    .references(() => webhooks.id, { onDelete: 'cascade' }),
+  status: integer('status'), // HTTP status code
+  success: integer('success', { mode: 'boolean' }).notNull(),
+  payload: text().notNull(),
+  response: text(),
+  error: text(),
+  duration: integer(), // ms
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+}, (table) => [
+  index('webhook_deliveries_webhook_id_idx').on(table.webhookId)
+])

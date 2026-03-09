@@ -20,6 +20,7 @@ import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messag
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as DashboardWebhooksIndexRouteImport } from './routes/dashboard/webhooks/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
 import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/index'
 import { Route as DashboardPostsIndexRouteImport } from './routes/dashboard/posts/index'
@@ -29,6 +30,7 @@ import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/medi
 import { Route as DashboardCommentsIndexRouteImport } from './routes/dashboard/comments/index'
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
+import { Route as DashboardWebhooksNewRouteImport } from './routes/dashboard/webhooks/new'
 import { Route as DashboardUsersSubscribersRouteImport } from './routes/dashboard/users/subscribers'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
@@ -36,6 +38,7 @@ import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhoo
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
+import { Route as ApiExportPostsRouteImport } from './routes/api/export/posts'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -97,6 +100,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => PublicRoute,
 } as any)
+const DashboardWebhooksIndexRoute = DashboardWebhooksIndexRouteImport.update({
+  id: '/webhooks/',
+  path: '/webhooks/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -144,6 +152,11 @@ const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => PublicRoute,
 } as any)
+const DashboardWebhooksNewRoute = DashboardWebhooksNewRouteImport.update({
+  id: '/webhooks/new',
+  path: '/webhooks/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardUsersSubscribersRoute =
   DashboardUsersSubscribersRouteImport.update({
     id: '/users/subscribers',
@@ -179,6 +192,11 @@ const ApiNewsletterUnsubscribeRoute =
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   id: '/api/media/$',
   path: '/api/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExportPostsRoute = ApiExportPostsRouteImport.update({
+  id: '/api/export/posts',
+  path: '/api/export/posts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronPublishRoute = ApiCronPublishRouteImport.update({
@@ -229,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
+  '/api/export/posts': typeof ApiExportPostsRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -236,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
+  '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
@@ -245,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
+  '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -262,6 +283,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
+  '/api/export/posts': typeof ApiExportPostsRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -269,6 +291,7 @@ export interface FileRoutesByTo {
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
+  '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments': typeof DashboardCommentsIndexRoute
@@ -278,6 +301,7 @@ export interface FileRoutesByTo {
   '/dashboard/posts': typeof DashboardPostsIndexRoute
   '/dashboard/tags': typeof DashboardTagsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
+  '/dashboard/webhooks': typeof DashboardWebhooksIndexRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesById {
@@ -298,6 +322,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
+  '/api/export/posts': typeof ApiExportPostsRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -305,6 +330,7 @@ export interface FileRoutesById {
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
+  '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
@@ -314,6 +340,7 @@ export interface FileRoutesById {
   '/dashboard/posts/': typeof DashboardPostsIndexRoute
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
+  '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRouteTypes {
@@ -334,6 +361,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
+    | '/api/export/posts'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -341,6 +369,7 @@ export interface FileRouteTypes {
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
+    | '/dashboard/webhooks/new'
     | '/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
@@ -350,6 +379,7 @@ export interface FileRouteTypes {
     | '/dashboard/posts/'
     | '/dashboard/tags/'
     | '/dashboard/users/'
+    | '/dashboard/webhooks/'
     | '/dashboard/posts/$postId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -367,6 +397,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
+    | '/api/export/posts'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -374,6 +405,7 @@ export interface FileRouteTypes {
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
+    | '/dashboard/webhooks/new'
     | '/blog'
     | '/dashboard/categories'
     | '/dashboard/comments'
@@ -383,6 +415,7 @@ export interface FileRouteTypes {
     | '/dashboard/posts'
     | '/dashboard/tags'
     | '/dashboard/users'
+    | '/dashboard/webhooks'
     | '/dashboard/posts/$postId/edit'
   id:
     | '__root__'
@@ -402,6 +435,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
+    | '/api/export/posts'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -409,6 +443,7 @@ export interface FileRouteTypes {
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
+    | '/dashboard/webhooks/new'
     | '/_public/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
@@ -418,6 +453,7 @@ export interface FileRouteTypes {
     | '/dashboard/posts/'
     | '/dashboard/tags/'
     | '/dashboard/users/'
+    | '/dashboard/webhooks/'
     | '/dashboard/posts/$postId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -429,6 +465,7 @@ export interface RootRouteChildren {
   SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPublishRoute: typeof ApiCronPublishRoute
+  ApiExportPostsRoute: typeof ApiExportPostsRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
@@ -514,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAboutRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/dashboard/webhooks/': {
+      id: '/dashboard/webhooks/'
+      path: '/webhooks'
+      fullPath: '/dashboard/webhooks/'
+      preLoaderRoute: typeof DashboardWebhooksIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/users/': {
       id: '/dashboard/users/'
       path: '/users'
@@ -577,6 +621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/dashboard/webhooks/new': {
+      id: '/dashboard/webhooks/new'
+      path: '/webhooks/new'
+      fullPath: '/dashboard/webhooks/new'
+      preLoaderRoute: typeof DashboardWebhooksNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/users/subscribers': {
       id: '/dashboard/users/subscribers'
       path: '/users/subscribers'
@@ -624,6 +675,13 @@ declare module '@tanstack/react-router' {
       path: '/api/media/$'
       fullPath: '/api/media/$'
       preLoaderRoute: typeof ApiMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/export/posts': {
+      id: '/api/export/posts'
+      path: '/api/export/posts'
+      fullPath: '/api/export/posts'
+      preLoaderRoute: typeof ApiExportPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/publish': {
@@ -699,6 +757,7 @@ interface DashboardRouteChildren {
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
   DashboardUsersSubscribersRoute: typeof DashboardUsersSubscribersRoute
+  DashboardWebhooksNewRoute: typeof DashboardWebhooksNewRoute
   DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
   DashboardCommentsIndexRoute: typeof DashboardCommentsIndexRoute
   DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
@@ -707,6 +766,7 @@ interface DashboardRouteChildren {
   DashboardPostsIndexRoute: typeof DashboardPostsIndexRoute
   DashboardTagsIndexRoute: typeof DashboardTagsIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
+  DashboardWebhooksIndexRoute: typeof DashboardWebhooksIndexRoute
   DashboardPostsPostIdEditRoute: typeof DashboardPostsPostIdEditRoute
 }
 
@@ -717,6 +777,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
   DashboardUsersSubscribersRoute: DashboardUsersSubscribersRoute,
+  DashboardWebhooksNewRoute: DashboardWebhooksNewRoute,
   DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
   DashboardCommentsIndexRoute: DashboardCommentsIndexRoute,
   DashboardMediaIndexRoute: DashboardMediaIndexRoute,
@@ -725,6 +786,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardPostsIndexRoute: DashboardPostsIndexRoute,
   DashboardTagsIndexRoute: DashboardTagsIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
+  DashboardWebhooksIndexRoute: DashboardWebhooksIndexRoute,
   DashboardPostsPostIdEditRoute: DashboardPostsPostIdEditRoute,
 }
 
@@ -752,6 +814,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPublishRoute: ApiCronPublishRoute,
+  ApiExportPostsRoute: ApiExportPostsRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,

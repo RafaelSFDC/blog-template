@@ -8,6 +8,8 @@ import { useState, type FormEvent } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { TiptapEditor } from '#/components/tiptap-editor'
 
+import { triggerWebhook } from '#/lib/webhooks'
+
 interface PostFormInput {
   id: number
   title: string
@@ -59,6 +61,15 @@ const updatePost = createServerFn({ method: 'POST' })
         updatedAt: new Date(),
       })
       .where(eq(posts.id, data.id))
+
+    if (data.status === 'published') {
+      await triggerWebhook('post.published', {
+        id: data.id,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt,
+      })
+    }
 
     return { ok: true as const }
   })

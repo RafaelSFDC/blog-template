@@ -5,6 +5,8 @@ import { eq, and, lte } from 'drizzle-orm'
 // @ts-ignore
 import { getEvent } from 'vinxi/http'
 
+import { triggerWebhook } from '#/lib/webhooks'
+
 export const Route = createFileRoute('/api/cron/publish')({
   server: {
     handlers: {
@@ -47,6 +49,14 @@ export const Route = createFileRoute('/api/cron/publish')({
                 updatedAt: new Date()
               })
               .where(eq(posts.id, post.id))
+            
+            await triggerWebhook('post.published', {
+              id: post.id,
+              title: post.title,
+              slug: post.slug,
+              excerpt: post.excerpt,
+            })
+            
             publishedCount++
           }
 
