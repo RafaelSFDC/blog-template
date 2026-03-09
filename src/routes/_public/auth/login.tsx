@@ -1,11 +1,23 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { authClient } from '#/lib/auth-client'
 import { Button } from '#/components/ui/button'
 import { Mail } from 'lucide-react'
 import { SocialLogin } from '#/components/auth/social-login'
+import { createServerFn } from '@tanstack/react-start'
+
+const getSession = createServerFn({ method: 'GET' }).handler(async () => {
+  const { getAuthSession } = await import('#/lib/admin-auth')
+  return await getAuthSession()
+})
 
 export const Route = createFileRoute('/_public/auth/login')({
+  beforeLoad: async () => {
+    const session = await getSession()
+    if (session) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
   component: LoginPage,
 })
 

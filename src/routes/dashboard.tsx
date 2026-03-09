@@ -1,10 +1,10 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { requireDashboardAccess } from '#/lib/admin-auth'
-
-const ensureDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireDashboardAccess()
-  return { ok: true as const }
+// Returns {ok: false, reason} instead of throwing, so the outer catch
+// doesn't swallow legitimate redirect errors causing an infinite loop.
+const checkDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
+  const { getDashboardSession } = await import('#/lib/admin-auth')
+  return getDashboardSession()
 })
 
 export const Route = createFileRoute('/dashboard')({
@@ -14,11 +14,10 @@ export const Route = createFileRoute('/dashboard')({
     ],
   }),
   beforeLoad: async () => {
-    try {
-      await ensureDashboardAccess()
-    } catch {
+    const result = await checkDashboardAccess()
+    if (!result.ok) {
       throw redirect({
-        to: '/dashboard/login',
+        to: result.reason === 'unauthenticated' ? '/auth/login' : '/',
       })
     }
   },

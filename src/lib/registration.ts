@@ -1,23 +1,22 @@
-import { db } from '#/db/index'
-import { appSettings } from '#/db/schema'
-import { eq } from 'drizzle-orm'
 
 const REGISTRATION_LOCK_KEY = 'registration_locked'
 
 export async function isRegistrationLocked() {
-  const [row, existingUser] = await Promise.all([
-    db.query.appSettings.findFirst({
-      where: eq(appSettings.key, REGISTRATION_LOCK_KEY),
-    }),
-    db.query.user.findFirst({
-      columns: { id: true },
-    }),
-  ])
+  const { db } = await import('#/db/index')
+  const { appSettings } = await import('#/db/schema')
+  const { eq } = await import('drizzle-orm')
 
-  return row?.value === '1' || Boolean(existingUser)
+  const row = await db.query.appSettings.findFirst({
+    where: eq(appSettings.key, REGISTRATION_LOCK_KEY),
+  })
+
+  return row?.value === '1'
 }
 
 export async function lockRegistration() {
+  const { db } = await import('#/db/index')
+  const { appSettings } = await import('#/db/schema')
+
   await db
     .insert(appSettings)
     .values({

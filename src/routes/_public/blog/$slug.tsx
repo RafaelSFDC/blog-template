@@ -172,7 +172,7 @@ function PostDetail() {
 
         if (response.status === 401) {
             // Redirect to login if not authenticated
-            window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.href)}`
+            window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`
             return
         }
 

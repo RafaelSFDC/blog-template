@@ -17,9 +17,7 @@ import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
-import { Route as DashboardLoginRouteImport } from './routes/dashboard/login'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
-import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAuthRouteImport } from './routes/_public/auth'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
@@ -91,20 +89,10 @@ const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardLoginRoute = DashboardLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const ApiCommentsRoute = ApiCommentsRouteImport.update({
   id: '/api/comments',
   path: '/api/comments',
   getParentRoute: () => rootRouteImport,
-} as any)
-const PublicLoginRoute = PublicLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => PublicRoute,
 } as any)
 const PublicContactRoute = PublicContactRouteImport.update({
   id: '/contact',
@@ -274,9 +262,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof PublicAboutRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
-  '/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -315,9 +301,7 @@ export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
-  '/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -360,9 +344,7 @@ export interface FileRoutesById {
   '/_public/about': typeof PublicAboutRoute
   '/_public/auth': typeof PublicAuthRouteWithChildren
   '/_public/contact': typeof PublicContactRoute
-  '/_public/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
-  '/dashboard/login': typeof DashboardLoginRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -406,9 +388,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
-    | '/login'
     | '/api/comments'
-    | '/dashboard/login'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -447,9 +427,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
-    | '/login'
     | '/api/comments'
-    | '/dashboard/login'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -491,9 +469,7 @@ export interface FileRouteTypes {
     | '/_public/about'
     | '/_public/auth'
     | '/_public/contact'
-    | '/_public/login'
     | '/api/comments'
-    | '/dashboard/login'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -603,26 +579,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMessagesRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/login': {
-      id: '/dashboard/login'
-      path: '/login'
-      fullPath: '/dashboard/login'
-      preLoaderRoute: typeof DashboardLoginRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/api/comments': {
       id: '/api/comments'
       path: '/api/comments'
       fullPath: '/api/comments'
       preLoaderRoute: typeof ApiCommentsRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_public/login': {
-      id: '/_public/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof PublicLoginRouteImport
-      parentRoute: typeof PublicRoute
     }
     '/_public/contact': {
       id: '/_public/contact'
@@ -866,7 +828,6 @@ interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicAuthRoute: typeof PublicAuthRouteWithChildren
   PublicContactRoute: typeof PublicContactRoute
-  PublicLoginRoute: typeof PublicLoginRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
@@ -876,7 +837,6 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
   PublicAuthRoute: PublicAuthRouteWithChildren,
   PublicContactRoute: PublicContactRoute,
-  PublicLoginRoute: PublicLoginRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
@@ -886,7 +846,6 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface DashboardRouteChildren {
-  DashboardLoginRoute: typeof DashboardLoginRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -907,7 +866,6 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardLoginRoute: DashboardLoginRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,

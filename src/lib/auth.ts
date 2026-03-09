@@ -11,9 +11,22 @@ export const auth = betterAuth({
     provider: 'sqlite',
     schema,
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user: any) => {
+          const users = await db.query.user.findFirst();
+          return {
+            ...user,
+            role: users ? 'reader' : 'admin',
+          } as any;
+        },
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
-    async sendResetPassword({ user, url }) {
+    async sendResetPassword({ user, url }: { user: any; url: string }) {
       const { resend: defaultResend } = await import('./resend');
       const { Resend } = await import('resend');
       const { appSettings } = await import('../db/schema');

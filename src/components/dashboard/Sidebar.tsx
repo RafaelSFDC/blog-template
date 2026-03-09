@@ -162,7 +162,7 @@ export function DashboardSidebar() {
         <Button
           onClick={() => {
               void authClient.signOut().then(() => {
-                  window.location.href = '/dashboard/login';
+                  window.location.href = '/auth/login';
               });
           }}
           variant="destructive"

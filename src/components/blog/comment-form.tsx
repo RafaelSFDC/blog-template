@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
-import { Button } from '#/components/ui/button';
-import { Input } from '#/components/ui/input';
-import { Textarea } from '#/components/ui/textarea';
-import { toast } from 'sonner';
-
-interface CommentFormProps {
-  postId: number;
-  onSubmit: (data: { authorName: string; authorEmail: string | undefined; content: string }) => Promise<void>;
-}
-
 import { authClient } from '#/lib/auth-client';
 import { LogIn } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+
+import React, { useState } from 'react';
+import { Button } from '#/components/ui/button';
+import { Textarea } from '#/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface CommentFormProps {
   postId: number;
@@ -60,11 +54,11 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
 
   if (!session) {
     return (
-      <div className="bg-muted/30 border-2 border-dashed border-border/60 rounded-[2rem] p-10 text-center space-y-4">
+      <div className="bg-muted/30 border-2 border-dashed border-border/60 rounded-4xl p-10 text-center space-y-4">
         <h3 className="text-xl font-bold uppercase tracking-tight">Vant to join the discussion?</h3>
         <p className="text-muted-foreground text-sm font-medium">Please sign in to post a comment and connect with the community.</p>
         <Button asChild variant="zine" size="lg" className="rounded-xl h-12 px-8">
-          <Link to="/login" className="flex items-center gap-2 no-underline">
+          <Link to="/auth/login" className="flex items-center gap-2 no-underline">
             <LogIn size={18} /> Sign In to Comment
           </Link>
         </Button>

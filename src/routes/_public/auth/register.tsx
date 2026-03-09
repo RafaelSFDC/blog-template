@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useState, type FormEvent } from 'react'
 import { authClient } from '#/lib/auth-client'
@@ -13,7 +13,18 @@ const getRegistrationStatus = createServerFn({ method: 'GET' }).handler(async ()
   }
 })
 
+const getSession = createServerFn({ method: 'GET' }).handler(async () => {
+  const { getAuthSession } = await import('#/lib/admin-auth')
+  return await getAuthSession()
+})
+
 export const Route = createFileRoute('/_public/auth/register')({
+  beforeLoad: async () => {
+    const session = await getSession()
+    if (session) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
   loader: () => getRegistrationStatus(),
   component: RegisterPage,
 })
