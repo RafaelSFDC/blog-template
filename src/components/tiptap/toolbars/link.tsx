@@ -1,7 +1,4 @@
-"use client";
-/* eslint-disable */
-// @ts-nocheck
-import { PopoverClose } from "@radix-ui/react-popover";
+import { PopoverClose } from "#/components/ui/popover";
 import { Trash2, X } from "lucide-react";
 
 import React, { type FormEvent } from "react";

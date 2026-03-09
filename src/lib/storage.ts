@@ -1,6 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-// @ts-ignore
-import { getEvent } from 'vinxi/http'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -11,6 +9,7 @@ export const uploadMedia = createServerFn({ method: 'POST' })
     return { file }
   })
   .handler(async ({ data }: { data: { file: File } }) => {
+    const { getEvent } = await import('vinxi/http')
     const event = getEvent()
     const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
 

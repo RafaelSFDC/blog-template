@@ -16,16 +16,11 @@ import {
 } from "#/components/ui/tooltip";
 import { cn } from "#/lib/utils";
 import { useToolbar } from "./toolbar-provider";
-import type { Extension } from "@tiptap/core";
-import type { ColorOptions } from "@tiptap/extension-color";
-import type { HighlightOptions } from "@tiptap/extension-highlight";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useMediaQuery } from "#/hooks/use-media-querry";
 import { MobileToolbarGroup, MobileToolbarItem } from "./mobile-toolbar-group";
 
-type TextStylingExtensions =
-	| Extension<ColorOptions, any>
-	| Extension<HighlightOptions, any>;
+
 
 const TEXT_COLORS = [
 	{ name: "Default", color: "var(--editor-text-default)" },

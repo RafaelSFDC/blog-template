@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import { BubbleMenu, type Editor } from "@tiptap/react";
 import { BoldToolbar } from "../toolbars/bold";
 import { ItalicToolbar } from "../toolbars/italic";
@@ -24,13 +25,13 @@ export function FloatingToolbar({ editor }: { editor: Editor | null }) {
 
   // Prevent default context menu on mobile
   useEffect(() => {
-    if (!editor?.options.element || !isMobile) return;
+    const el = editor?.options.element;
+    if (!(el instanceof HTMLElement) || !isMobile) return;
 
     const handleContextMenu = (e: Event) => {
       e.preventDefault();
     };
 
-    const el = editor.options.element;
     el.addEventListener("contextmenu", handleContextMenu);
 
     return () => el.removeEventListener("contextmenu", handleContextMenu);

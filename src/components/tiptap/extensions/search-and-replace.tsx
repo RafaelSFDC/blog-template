@@ -36,6 +36,10 @@ declare module "@tiptap/core" {
       setCaseSensitive: (caseSensitive: boolean) => ReturnType;
     };
   }
+
+  interface Storage {
+    searchAndReplace: SearchAndReplaceStorage;
+  }
 }
 
 interface TextNodeWithPosition {

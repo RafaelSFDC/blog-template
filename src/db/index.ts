@@ -2,8 +2,6 @@ import { drizzle as drizzleD1 } from 'drizzle-orm/d1'
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3'
 import Database from 'better-sqlite3'
 import * as schema from './schema'
-// @ts-ignore
-import { getEvent } from 'vinxi/http'
 
 let _db: any = null
 
@@ -24,11 +22,21 @@ export const db = new Proxy({} as any, {
 
     let d1: any | undefined
 
+    // For TanStack Start / Vinxi on the server
     try {
-      const event = getEvent()
-      d1 = event?.context?.cloudflare?.env?.DB || event?.context?.env?.DB
+      // Use dynamic import to prevent bundling vinxi/http into the client
+      // @ts-ignore
+      import('vinxi/http').then(({ getEvent }) => {
+        const event = getEvent()
+        const foundD1 = event?.context?.cloudflare?.env?.DB || event?.context?.env?.DB
+        if (foundD1 && !_db) {
+           _db = drizzleD1(foundD1, { schema })
+        }
+      }).catch(() => {
+        // Not in an environment where vinxi/http is available (e.g. client)
+      })
     } catch (e) {
-      // Not in a request context
+      // Silent catch for environment detection
     }
 
     if (d1) {

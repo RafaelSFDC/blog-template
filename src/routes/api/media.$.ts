@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-// @ts-ignore
-import { getEvent } from 'vinxi/http'
 
 export const Route = createFileRoute('/api/media/$')({
   server: {
@@ -13,6 +11,7 @@ export const Route = createFileRoute('/api/media/$')({
           return new Response('File not found', { status: 404 })
         }
 
+        const { getEvent } = await import('vinxi/http')
         const event = getEvent()
         const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
 
