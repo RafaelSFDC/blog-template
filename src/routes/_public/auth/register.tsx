@@ -73,7 +73,7 @@ function RegisterPage() {
           New registrations are currently disabled by the administrator. 
           If you already have an account, please sign in.
         </p>
-        <Button asChild variant="zine" className="w-full h-12 rounded-xl mt-4">
+        <Button asChild variant="default" className="w-full h-12 rounded-xl mt-4">
           <Link to="/auth/login" className="no-underline">Sign In Instead</Link>
         </Button>
       </div>
@@ -90,7 +90,7 @@ function RegisterPage() {
         <p className="text-muted-foreground">
           Your account has been successfully created. Redirecting you to the dashboard...
         </p>
-        <Button asChild variant="zine" className="w-full h-12 rounded-xl mt-4">
+        <Button asChild variant="default" className="w-full h-12 rounded-xl mt-4">
           <Link to="/dashboard" className="no-underline">Go to Dashboard</Link>
         </Button>
       </div>
@@ -123,7 +123,7 @@ function RegisterPage() {
             <input
               type="text"
               placeholder="John Doe"
-              className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+              className="w-full bg-muted/30 border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -138,7 +138,7 @@ function RegisterPage() {
             <input
               type="email"
               placeholder="name@example.com"
-              className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+              className="w-full bg-muted/30 border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -151,7 +151,7 @@ function RegisterPage() {
           <input
             type="password"
             placeholder="Min. 8 characters"
-            className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+            className="w-full bg-muted/30 border border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -167,8 +167,8 @@ function RegisterPage() {
 
         <Button 
           type="submit" 
-          variant="zine" 
-          className="w-full h-12 rounded-xl text-lg font-black shadow-zine-sm hover:shadow-zine active:shadow-none transition-all mt-2"
+          variant="default" 
+          className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all mt-2"
           disabled={isPending}
         >
           {isPending ? 'Creating Account...' : 'Create Account'}

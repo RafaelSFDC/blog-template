@@ -21,7 +21,7 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
     blogName: settingsObj['blogName'] || 'VibeZine',
     blogDescription: settingsObj['blogDescription'] || 'A vibrant zine-style blog for creators.',
     blogLogo: settingsObj['blogLogo'] || '',
-    accentColor: settingsObj['accentColor'] || '#ff5c00',
+    accentColor: settingsObj['accentColor'] || 'var(--primary)',
     fontFamily: settingsObj['fontFamily'] || 'Inter',
     gaMeasurementId: settingsObj['gaMeasurementId'] || '',
     plausibleDomain: settingsObj['plausibleDomain'] || '',
@@ -146,7 +146,7 @@ function SettingsPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={onSubmit} className="island-shell rounded-3xl p-6 sm:p-10 bg-card border-3 border-border/50 space-y-8">
+          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-3xl p-6 sm:p-10 bg-card border border-border/50 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="blogName" className="text-xs font-black uppercase tracking-widest text-foreground">
@@ -156,7 +156,7 @@ function SettingsPage() {
                   id="blogName"
                   value={blogName}
                   onChange={(e) => setBlogName(e.target.value)}
-                  className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                  className="w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                   placeholder="e.g. VibeZine"
                 />
               </div>
@@ -169,7 +169,7 @@ function SettingsPage() {
                   id="blogDescription"
                   value={blogDescription}
                   onChange={(e) => setBlogDescription(e.target.value)}
-                  className="min-h-32 w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                  className="min-h-32 w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                   placeholder="Tell your readers what this blog is about..."
                 />
               </div>
@@ -186,7 +186,7 @@ function SettingsPage() {
                       id="blogLogo"
                       value={blogLogo}
                       onChange={(e) => setBlogLogo(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="https://exemplo.com/logo.png"
                     />
                   </div>
@@ -200,13 +200,13 @@ function SettingsPage() {
                         type="color"
                         value={accentColor}
                         onChange={(e) => setAccentColor(e.target.value)}
-                        className="h-11 w-20 rounded-lg border-2 border-border bg-background p-1 outline-none pointer cursor-pointer"
+                        className="h-11 w-20 rounded-lg border border-border bg-background p-1 outline-none pointer cursor-pointer"
                       />
                       <input
                         type="text"
                         value={accentColor}
                         onChange={(e) => setAccentColor(e.target.value)}
-                        className="flex-1 rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono uppercase"
+                        className="flex-1 rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono uppercase"
                       />
                     </div>
                   </div>
@@ -218,7 +218,7 @@ function SettingsPage() {
                       id="fontFamily"
                       value={fontFamily}
                       onChange={(e) => setFontFamily(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                     >
                       <option value="Inter">Modern (Inter)</option>
                       <option value="Outfit">Creative (Outfit)</option>
@@ -242,7 +242,7 @@ function SettingsPage() {
                       id="gaMeasurementId"
                       value={gaMeasurementId}
                       onChange={(e) => setGaMeasurementId(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="G-XXXXXXXXXX"
                     />
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Requires a "G-" prefix</p>
@@ -256,7 +256,7 @@ function SettingsPage() {
                       id="plausibleDomain"
                       value={plausibleDomain}
                       onChange={(e) => setPlausibleDomain(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="yourdomain.com"
                     />
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Leaves out "https://"</p>
@@ -274,7 +274,7 @@ function SettingsPage() {
                     id="stripePriceId"
                     value={stripePriceId}
                     onChange={(e) => setStripePriceId(e.target.value)}
-                    className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                    className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
                     placeholder="price_H5v..."
                   />
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Obtido no dashboard do Stripe</p>
@@ -293,7 +293,7 @@ function SettingsPage() {
                       type="password"
                       value={resendApiKey}
                       onChange={(e) => setResendApiKey(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
                       placeholder="re_XXXXXXXXXXXX"
                     />
                   </div>
@@ -305,7 +305,7 @@ function SettingsPage() {
                       id="newsletterSenderEmail"
                       value={newsletterSenderEmail}
                       onChange={(e) => setNewsletterSenderEmail(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="newsletter@seudominio.com"
                     />
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Must be verified in Resend</p>
@@ -324,7 +324,7 @@ function SettingsPage() {
                       id="twitterProfile"
                       value={twitterProfile}
                       onChange={(e) => setTwitterProfile(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="https://twitter.com/seuperfil"
                     />
                   </div>
@@ -336,7 +336,7 @@ function SettingsPage() {
                       id="githubProfile"
                       value={githubProfile}
                       onChange={(e) => setGithubProfile(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="https://github.com/seuperfil"
                     />
                   </div>
@@ -348,7 +348,7 @@ function SettingsPage() {
                       id="linkedinProfile"
                       value={linkedinProfile}
                       onChange={(e) => setLinkedinProfile(e.target.value)}
-                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                       placeholder="https://linkedin.com/in/seuperfil"
                     />
                   </div>
@@ -356,7 +356,7 @@ function SettingsPage() {
                     <label className="text-xs font-black uppercase tracking-widest text-foreground">
                       RSS Feed URL
                     </label>
-                    <div className="flex h-11 items-center rounded-xl border-2 border-border bg-muted/20 px-5 text-sm font-mono font-bold text-muted-foreground">
+                    <div className="flex h-11 items-center rounded-xl border border-border bg-muted/20 px-5 text-sm font-mono font-bold text-muted-foreground">
                       /rss.xml
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Auto-generated for your readers</p>
@@ -366,7 +366,7 @@ function SettingsPage() {
             </div>
 
             {message && (
-              <div className={`rounded-xl border-2 px-6 py-4 text-sm font-bold flex items-center gap-3 ${
+              <div className={`rounded-xl border px-6 py-4 text-sm font-bold flex items-center gap-3 ${
                 message.includes('successfully') 
                   ? 'border-green-500/20 bg-green-500/5 text-green-600' 
                   : 'border-destructive/20 bg-destructive/5 text-destructive'
@@ -380,9 +380,9 @@ function SettingsPage() {
               <Button
                 type="submit"
                 disabled={saving}
-                variant="zine"
+                variant="default"
                 size="lg"
-                className="rounded-xl h-14 px-10 shadow-zine-sm"
+                className="rounded-xl h-14 px-10 shadow-sm"
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
                 <span className="uppercase tracking-widest font-black">
@@ -394,7 +394,7 @@ function SettingsPage() {
         </div>
 
         <aside className="space-y-6">
-           <div className="island-shell rounded-2xl bg-muted/50 p-6 border-3 border-border/30">
+           <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
               <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
                  <Info size={18} className="text-primary" />
                  Metadata Tip

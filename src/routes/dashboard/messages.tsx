@@ -70,8 +70,8 @@ function MessagesPage() {
           messages.map((msg: any) => (
             <div 
               key={msg.id} 
-              className={`island-shell rounded-3xl bg-card p-6 border-3 transition-all group ${
-                msg.status === 'new' ? 'border-primary/30 shadow-zine-sm' : 'border-border/50 opacity-80 hover:opacity-100'
+              className={`bg-card border shadow-sm rounded-3xl bg-card p-6 border transition-all group ${
+                msg.status === 'new' ? 'border-primary/30 shadow-sm' : 'border-border/50 opacity-80 hover:opacity-100'
               }`}
             >
               <div className="flex flex-col sm:flex-row justify-between gap-6">
@@ -97,7 +97,7 @@ function MessagesPage() {
                     "{msg.message}"
                   </p>
                   
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground pt-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2">
                     Received on {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : 'N/A'}
                   </p>
                 </div>
@@ -106,7 +106,7 @@ function MessagesPage() {
                   {msg.status !== 'read' && (
                     <Button 
                       size="sm" 
-                      variant="zine" 
+                      variant="default" 
                       onClick={() => handleStatus(msg.id, 'read')}
                       title="Mark as Read"
                       className="rounded-full"
@@ -117,7 +117,7 @@ function MessagesPage() {
                   {msg.status !== 'archived' && (
                     <Button 
                       size="sm" 
-                      variant="zine-outline" 
+                      variant="outline" 
                       onClick={() => handleStatus(msg.id, 'archived')}
                       title="Archive"
                       className="rounded-full"
@@ -129,7 +129,7 @@ function MessagesPage() {
                     size="sm" 
                     variant="destructive" 
                     onClick={() => handleDelete(msg.id)}
-                    className="rounded-full border-2 border-destructive/20"
+                    className="rounded-full border border-destructive/20"
                     title="Delete"
                   >
                     <Trash2 size={16} />
@@ -139,7 +139,7 @@ function MessagesPage() {
             </div>
           ))
         ) : (
-          <div className="island-shell rounded-4xl p-20 text-center border-3 border-dashed border-border/20">
+          <div className="bg-card border shadow-sm rounded-4xl p-20 text-center border border-dashed border-border/20">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted text-muted-foreground/50">
                 <Inbox size={40} />
             </div>

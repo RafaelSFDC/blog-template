@@ -80,7 +80,7 @@ function SubscribersPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+      <header className="bg-card border shadow-sm rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>
           <div className="mb-4 flex items-center gap-2 text-primary">
             <Users size={20} strokeWidth={3} />
@@ -102,7 +102,7 @@ function SubscribersPage() {
         </button>
       </header>
 
-      <div className="island-shell overflow-hidden rounded-3xl bg-card border-3 border-border/50">
+      <div className="bg-card border shadow-sm overflow-hidden rounded-3xl bg-card border border-border/50">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-muted/50 text-xs font-black uppercase tracking-widest text-muted-foreground">

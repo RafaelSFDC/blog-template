@@ -45,14 +45,14 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 px-2 py-4 sm:px-4">
-      <nav className="page-wrap island-shell rounded-2xl px-4 py-3 sm:px-6">
+      <nav className="page-wrap bg-card border shadow-sm rounded-2xl px-4 py-3 sm:px-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-between w-full lg:w-auto">
             <Link to="/" className="inline-flex items-center gap-2 no-underline shrink-0">
               {blogLogo ? (
                 <img src={blogLogo} alt={blogName} className="h-10 w-auto object-contain sm:h-12" />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-border bg-primary text-xl font-black text-white shadow-zine-sm sm:h-12 sm:w-12 sm:border-3 sm:text-2xl">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-primary text-xl font-black text-white shadow-sm sm:h-12 sm:w-12 sm:border sm:text-2xl">
                   {blogName.charAt(0).toLowerCase()}.
                 </span>
               )}
@@ -62,7 +62,7 @@ export default function Header() {
             </Link>
 
             <Button
-              variant="zine-outline"
+              variant="outline"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="lg:hidden"
@@ -78,10 +78,10 @@ export default function Header() {
             }`}
           >
             <Button
-              variant="zine-outline"
+              variant="outline"
               size="lg"
               onClick={() => setIsSearchOpen(true)}
-              className="w-full justify-start gap-2 h-11 border-2 sm:border-3 lg:w-48 xl:w-64"
+              className="w-full justify-start gap-2 h-11 border sm:border lg:w-48 xl:w-64"
             >
               <SearchIcon size={18} strokeWidth={3} className="text-primary/60" />
               <span className="text-muted-foreground font-bold">Search...</span>
@@ -107,22 +107,22 @@ export default function Header() {
             </CommandDialog>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+              <Button asChild variant="outline" size="sm" className="h-auto py-2 px-4 shadow-sm">
                 <Link to="/" onClick={() => setIsMenuOpen(false)}>
                   Home
                 </Link>
               </Button>
-              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+              <Button asChild variant="outline" size="sm" className="h-auto py-2 px-4 shadow-sm">
                 <Link to="/blog" search={{ q: '', category: '' }} onClick={() => setIsMenuOpen(false)}>
                   Stories
                 </Link>
               </Button>
-              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+              <Button asChild variant="outline" size="sm" className="h-auto py-2 px-4 shadow-sm">
                 <Link to="/about" onClick={() => setIsMenuOpen(false)}>
                   About
                 </Link>
               </Button>
-              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+              <Button asChild variant="outline" size="sm" className="h-auto py-2 px-4 shadow-sm">
                 <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
                   Contact
                 </Link>

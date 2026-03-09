@@ -243,7 +243,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
       }),
       ImageExtension.configure({
         HTMLAttributes: {
-          class: 'rounded-lg max-w-full h-auto border-2 border-border shadow-md my-4',
+          class: 'rounded-lg max-w-full h-auto border border-border shadow-md my-4',
         },
       }),
       LinkExtension.configure({

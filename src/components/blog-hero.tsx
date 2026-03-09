@@ -16,7 +16,7 @@ interface BlogHeroProps {
 
 export function BlogHero({ post }: BlogHeroProps) {
   return (
-    <header className="island-shell rounded-2xl px-4 py-3 sm:px-6 text-center sm:text-left bg-card">
+    <header className="bg-card border shadow-sm rounded-2xl px-4 py-3 sm:px-6 text-center sm:text-left bg-card">
       <Breadcrumbs />
 
       {/* Metadata Bar */}
@@ -55,7 +55,7 @@ export function BlogHero({ post }: BlogHeroProps) {
 
       {/* Hero Image */}
       {post.coverImage && (
-        <div className="relative mb-16 aspect-video overflow-hidden rounded-4xl border-4 border-border shadow-2xl">
+        <div className="relative mb-16 aspect-video overflow-hidden rounded-4xl border border-border shadow-2xl">
           <img
             src={post.coverImage}
             alt={post.title}

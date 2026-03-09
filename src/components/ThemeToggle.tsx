@@ -71,12 +71,12 @@ export default function ThemeToggle() {
   return (
     <Button
       type="button"
-      variant="zine-outline"
+      variant="outline"
       size="sm"
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="toy-button flex h-11 items-center justify-center rounded-lg border-3 border-border bg-accent px-4 text-sm font-black text-foreground shadow-zine-sm"
+      className="toy-button flex h-11 items-center justify-center rounded-lg border border-border bg-accent px-4 text-sm font-black text-foreground shadow-sm"
     >
       {mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
     </Button>

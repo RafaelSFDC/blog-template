@@ -128,14 +128,14 @@ function CategoriesPage() {
         iconLabel="Taxonomies"
       >
         {!isAdding && !editingId && (
-          <Button onClick={() => setIsAdding(true)} variant="zine" className="rounded-full">
+          <Button onClick={() => setIsAdding(true)} variant="default" className="rounded-full">
             <Plus className="mr-2 h-4 w-4" /> New Category
           </Button>
         )}
       </DashboardHeader>
 
       {(isAdding || editingId) && (
-        <section className="island-shell rounded-3xl p-8 space-y-6">
+        <section className="bg-card border shadow-sm rounded-3xl p-8 space-y-6">
           <h2 className="text-2xl font-bold">{editingId ? 'Edit Category' : 'Add New Category'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <FieldGroup>
@@ -212,7 +212,7 @@ function CategoriesPage() {
               />
             </FieldGroup>
             <div className="flex gap-2">
-              <Button type="submit" variant="zine" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" variant="default" disabled={createMutation.isPending || updateMutation.isPending}>
                 {editingId ? 'Update' : 'Create'}
               </Button>
               <Button type="button" variant="outline" onClick={() => {
@@ -227,7 +227,7 @@ function CategoriesPage() {
         </section>
       )}
 
-      <section className="island-shell rounded-3xl overflow-hidden">
+      <section className="bg-card border shadow-sm rounded-3xl overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground font-medium italic">Loading categories...</div>
         ) : categories.length === 0 ? (

@@ -198,7 +198,7 @@ function NewPostPage() {
 
   return (
     <DashboardPageContainer>
-      <section className="island-shell rounded-4xl p-8 sm:p-10">
+      <section className="bg-card border shadow-sm rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <h1 className="display-title text-5xl text-foreground sm:text-6xl">Write New Post</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
@@ -206,7 +206,7 @@ function NewPostPage() {
         </p>
       </section>
 
-      <form onSubmit={handleSubmit} className="island-shell mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8">
+      <form onSubmit={handleSubmit} className="bg-card border shadow-sm mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8">
         <FieldGroup>
           <form.Field
             name="title"
@@ -496,7 +496,7 @@ function NewPostPage() {
           <Button
             type="submit"
             disabled={saving}
-            variant="zine"
+            variant="default"
             size="lg"
             className="rounded-full"
           >
@@ -504,7 +504,7 @@ function NewPostPage() {
           </Button>
           <Button
             type="button"
-            variant="zine-outline"
+            variant="outline"
             size="lg"
             onClick={() => void navigate({ to: '/dashboard' })}
             className="rounded-full"

@@ -27,7 +27,7 @@ export function SocialLogin({ callbackURL = '/dashboard', className }: SocialLog
     <div className={cn("space-y-4", className)}>
       <div className="grid grid-cols-2 gap-4">
         <Button 
-          variant="zine-outline" 
+          variant="outline" 
           onClick={() => handleSocialLogin('github')}
           className="rounded-xl h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
         >
@@ -35,7 +35,7 @@ export function SocialLogin({ callbackURL = '/dashboard', className }: SocialLog
           <span className="font-bold">GitHub</span>
         </Button>
         <Button 
-          variant="zine-outline" 
+          variant="outline" 
           onClick={() => handleSocialLogin('google')}
           className="rounded-xl h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
         >

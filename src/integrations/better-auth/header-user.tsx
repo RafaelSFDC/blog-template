@@ -28,7 +28,7 @@ export default function BetterAuthHeader() {
 
   if (isPending) {
     return (
-      <div className="h-9 w-9 animate-pulse rounded-full border-2 border-border bg-muted" />
+      <div className="h-9 w-9 animate-pulse rounded-full border border-border bg-muted" />
     )
   }
 
@@ -43,10 +43,10 @@ export default function BetterAuthHeader() {
               <img
                 src={session.user.image}
                 alt=""
-                className="h-9 w-9 rounded-full border-2 border-border shadow-zine-sm ring-primary/20 ring-offset-2 hover:ring-2"
+                className="h-9 w-9 rounded-full border border-border shadow-sm ring-primary/20 ring-offset-2 hover:ring-2"
               />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-primary shadow-zine-sm ring-primary/20 ring-offset-2 hover:ring-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-primary shadow-sm ring-primary/20 ring-offset-2 hover:ring-2">
                 <span className="text-xs font-black text-white">
                   {session.user.name?.charAt(0).toUpperCase() || 'U'}
                 </span>
@@ -54,7 +54,7 @@ export default function BetterAuthHeader() {
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 mt-2 island-shell border-2">
+        <DropdownMenuContent align="end" className="w-56 mt-2 bg-card border shadow-sm border">
           <DropdownMenuLabel className="font-black uppercase tracking-widest text-xs px-3 py-2">
             My Account
           </DropdownMenuLabel>
@@ -100,7 +100,7 @@ export default function BetterAuthHeader() {
   }
 
   return (
-    <Button asChild variant="zine-secondary" size="sm">
+    <Button asChild variant="secondary" size="sm">
       <Link to="/auth/login" className="no-underline">
         Sign in
       </Link>

@@ -54,10 +54,10 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
 
   if (!session) {
     return (
-      <div className="bg-muted/30 border-2 border-dashed border-border/60 rounded-4xl p-10 text-center space-y-4">
+      <div className="bg-muted/30 border border-dashed border-border/60 rounded-4xl p-10 text-center space-y-4">
         <h3 className="text-xl font-bold uppercase tracking-tight">Vant to join the discussion?</h3>
         <p className="text-muted-foreground text-sm font-medium">Please sign in to post a comment and connect with the community.</p>
-        <Button asChild variant="zine" size="lg" className="rounded-xl h-12 px-8">
+        <Button asChild variant="default" size="lg" className="rounded-xl h-12 px-8">
           <Link to="/auth/login" className="flex items-center gap-2 no-underline">
             <LogIn size={18} /> Sign In to Comment
           </Link>
@@ -94,15 +94,15 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="What do you think about this story?"
           required
-          className="min-h-[120px] rounded-2xl border-2 border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
+          className="min-h-[120px] rounded-2xl border border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
         />
       </div>
       <Button
         type="submit"
         disabled={isSubmitting}
-        variant="zine"
+        variant="default"
         size="lg"
-        className="w-full sm:w-auto h-14 px-10 rounded-2xl text-lg font-black shadow-zine-sm"
+        className="w-full sm:w-auto h-14 px-10 rounded-2xl text-lg font-black shadow-sm"
       >
         {isSubmitting ? 'Posting...' : 'Post Comment'}
       </Button>

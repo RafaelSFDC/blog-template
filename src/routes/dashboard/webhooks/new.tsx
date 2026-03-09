@@ -56,7 +56,7 @@ function NewWebhookPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10">
+      <header className="bg-card border shadow-sm rounded-3xl p-8 sm:p-10">
         <Button asChild variant="ghost" size="sm" className="-ml-3 mb-6 rounded-full text-muted-foreground hover:text-foreground">
            <a href="/dashboard/webhooks" className="flex items-center gap-1">
              <ChevronLeft className="h-4 w-4" />
@@ -72,7 +72,7 @@ function NewWebhookPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={onSubmit} className="island-shell rounded-3xl p-6 sm:p-10 bg-card border-3 border-border/50 space-y-8">
+          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-3xl p-6 sm:p-10 bg-card border border-border/50 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-foreground">
@@ -82,7 +82,7 @@ function NewWebhookPage() {
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                  className="w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                   placeholder="e.g. My Zapier Integration"
                 />
               </div>
@@ -96,7 +96,7 @@ function NewWebhookPage() {
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                  className="w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
                   placeholder="https://hooks.zapier.com/..."
                 />
               </div>
@@ -110,7 +110,7 @@ function NewWebhookPage() {
                     id="event"
                     value={event}
                     onChange={(e) => setEvent(e.target.value)}
-                    className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                    className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
                   >
                     <option value="post.published">Post Published</option>
                   </select>
@@ -123,7 +123,7 @@ function NewWebhookPage() {
                     id="secret"
                     value={secret}
                     onChange={(e) => setSecret(e.target.value)}
-                    className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                    className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
                     placeholder="shhh-secret-key"
                   />
                 </div>
@@ -131,7 +131,7 @@ function NewWebhookPage() {
             </div>
 
             {errorMessage && (
-              <div className="rounded-xl border-2 border-destructive/20 bg-destructive/5 px-6 py-4 text-sm font-bold text-destructive">
+              <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-4 text-sm font-bold text-destructive">
                 {errorMessage}
               </div>
             )}
@@ -140,9 +140,9 @@ function NewWebhookPage() {
               <Button
                 type="submit"
                 disabled={saving}
-                variant="zine"
+                variant="default"
                 size="lg"
-                className="rounded-xl h-14 px-10 shadow-zine-sm"
+                className="rounded-xl h-14 px-10 shadow-sm"
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
                 <span className="uppercase tracking-widest font-black">
@@ -154,7 +154,7 @@ function NewWebhookPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="island-shell rounded-2xl bg-muted/50 p-6 border-3 border-border/30">
+          <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
               <Info size={18} className="text-primary" />
               Webhook Security

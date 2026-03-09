@@ -22,7 +22,7 @@ export function DashboardHeader({
   return (
     <header 
       className={cn(
-        "island-shell flex flex-wrap items-end justify-between gap-6 rounded-3xl p-8 sm:p-10 bg-card border-4 border-border shadow-zine mb-8",
+        "bg-card border shadow-sm flex flex-wrap items-end justify-between gap-6 rounded-3xl p-8 sm:p-10 bg-card border border-border shadow-md mb-8",
         className
       )}
     >

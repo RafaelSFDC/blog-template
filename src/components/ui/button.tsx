@@ -9,18 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        zine: "toy-button bg-primary text-primary-foreground rounded-lg",
-        "zine-secondary":
-          "toy-button bg-secondary text-secondary-foreground rounded-lg",
-        "zine-outline": "toy-button bg-background text-foreground rounded-lg",
-        "zine-destructive": "toy-button bg-destructive text-white rounded-lg",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 shadow-sm",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
         ghost: "bg-transparent text-foreground hover:bg-accent",
         link: "bg-transparent text-primary underline-offset-4 hover:underline",
       },
@@ -33,7 +29,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "zine",
+      variant: "default",
       size: "default",
     },
   },

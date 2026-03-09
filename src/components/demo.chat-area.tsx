@@ -55,7 +55,7 @@ export default function ChatArea() {
           </div>
 
           <Button
-            variant="zine"
+            variant="default"
             onClick={postMessage}
             disabled={message.trim() === ''}
             className="px-6 py-2 rounded-lg"

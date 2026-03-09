@@ -6,6 +6,7 @@ import { authClient } from '#/lib/auth-client'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { Shield, User as UserIcon, MoreVertical, Trash2, Ban, CheckCircle2, ChevronRight } from 'lucide-react'
 import { Button } from '#/components/ui/button'
+import { StatusBadge } from '#/components/ui/status-badge'
 import { toast } from 'sonner'
 import { useState, useEffect } from 'react'
 import {
@@ -98,19 +99,19 @@ function UsersManagementPage() {
       <div className="grid gap-6">
         {loading ? (
           <div className="py-20 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border border-primary border-t-transparent mb-4"></div>
             <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Accessing User Directory...</p>
           </div>
         ) : (
-          <Card className="w-full border-[3px] border-border/50 shadow-zine rounded-4xl overflow-hidden bg-card/50 backdrop-blur-sm">
+          <Card className="w-full border-[3px] border-border/50 shadow-md rounded-4xl overflow-hidden bg-card/50 backdrop-blur-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b-2 border-border/10 bg-muted/20">
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Identity</th>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Access Level</th>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Join Date</th>
+                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Identity</th>
+                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Access Level</th>
+                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Join Date</th>
                     <th className="p-6 text-right"></th>
                   </tr>
                 </thead>
@@ -119,7 +120,7 @@ function UsersManagementPage() {
                     <tr key={user.id} className="hover:bg-muted/30 transition-colors group">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-2xl overflow-hidden border-2 border-border shrink-0 bg-background">
+                          <div className="h-12 w-12 rounded-2xl overflow-hidden border border-border shrink-0 bg-background">
                             {user.image ? (
                               <img src={user.image} alt={user.name} className="h-full w-full object-cover" />
                             ) : (
@@ -130,25 +131,25 @@ function UsersManagementPage() {
                           </div>
                           <div className="min-w-0">
                             <p className="font-bold text-foreground truncate">{user.name}</p>
-                            <p className="text-[10px] text-muted-foreground font-bold truncate">{user.email}</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">{user.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="p-6">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="rounded-xl border-2 font-black uppercase tracking-widest text-[10px] gap-2 h-9">
+                            <Button variant="outline" size="sm" className="rounded-xl border text-xs font-semibold uppercase tracking-wider gap-2 h-9">
                               {user.role}
                               <ChevronRight className="rotate-90" size={12} />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-48 rounded-2xl border-2 bg-card p-2 shadow-zine border-border">
-                            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-400 p-2">Change Level</DropdownMenuLabel>
+                          <DropdownMenuContent align="start" className="w-48 rounded-2xl border bg-card p-2 shadow-md border-border">
+                            <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground p-2">Change Level</DropdownMenuLabel>
                             {ROLES.map((r) => (
                               <DropdownMenuItem 
                                 key={r} 
                                 onClick={() => handleRoleChange(user.id, r)}
-                                className={`rounded-xl p-3 font-black uppercase tracking-widest text-[10px] cursor-pointer ${user.role === r ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+                                className={`rounded-xl p-3 text-xs font-semibold uppercase tracking-wider cursor-pointer ${user.role === r ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
                               >
                                 {r}
                                 {user.role === r && <CheckCircle2 className="ml-auto" size={14} />}
@@ -158,9 +159,9 @@ function UsersManagementPage() {
                         </DropdownMenu>
                       </td>
                       <td className="p-6">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 text-green-600 border border-green-500/20 text-[9px] font-black uppercase tracking-widest">
+                        <StatusBadge variant="success" className="rounded-full">
                           Active
-                        </span>
+                        </StatusBadge>
                       </td>
                       <td className="p-6 text-xs font-bold text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString()}
@@ -172,8 +173,8 @@ function UsersManagementPage() {
                                     <MoreVertical size={20} />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-2xl border-2 shadow-zine border-border bg-card">
-                                <DropdownMenuItem onClick={() => handleBanUser(user.id)} className="text-amber-600 font-bold flex items-center gap-2 p-3 rounded-xl cursor-pointer hover:bg-amber-50">
+                            <DropdownMenuContent align="end" className="w-48 rounded-2xl border shadow-md border-border bg-card">
+                                <DropdownMenuItem onClick={() => handleBanUser(user.id)} className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-xl cursor-pointer hover:bg-warning/10">
                                     <Ban size={16} /> Ban User
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />

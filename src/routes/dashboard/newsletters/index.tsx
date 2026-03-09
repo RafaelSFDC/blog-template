@@ -76,7 +76,7 @@ function NewsletterIndexPage() {
       >
         <div className="flex flex-wrap gap-3">
           <Button 
-            variant="zine-outline" 
+            variant="outline" 
             size="lg" 
             className="rounded-full"
             onClick={async () => {
@@ -92,7 +92,7 @@ function NewsletterIndexPage() {
             <Download className="mr-2 h-5 w-5" />
             Export CSV
           </Button>
-          <Button asChild variant="zine" size="lg" className="rounded-full shadow-lg shadow-primary/20">
+          <Button asChild variant="default" size="lg" className="rounded-full shadow-lg shadow-primary/20">
             <Link to="/dashboard/newsletters/new" className="flex items-center gap-2" search={{ fromId: undefined } as any}>
               <Plus className="h-5 w-5" />
               New Campaign
@@ -103,13 +103,13 @@ function NewsletterIndexPage() {
 
       <div className="mt-0 space-y-4">
         {data.length === 0 ? (
-          <div className="island-shell flex flex-col items-center justify-center rounded-3xl py-20 text-center">
+          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-3xl py-20 text-center">
             <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Mail className="h-10 w-10" />
             </div>
             <h3 className="text-2xl font-bold">No campaigns yet</h3>
             <p className="mt-2 text-muted-foreground">Start your first newsletter campaign to engage your subscribers.</p>
-            <Button asChild variant="zine-outline" className="mt-8 rounded-full">
+            <Button asChild variant="outline" className="mt-8 rounded-full">
               <Link to="/dashboard/newsletters/new" search={{ fromId: undefined } as any}>Create First Campaign</Link>
             </Button>
           </div>
@@ -117,7 +117,7 @@ function NewsletterIndexPage() {
           data.map((item: any) => (
             <div
               key={item.id}
-              className="island-shell group flex flex-col items-start justify-between gap-4 rounded-[1.6rem] p-6 transition-all hover:bg-muted/50 sm:flex-row sm:items-center sm:p-8"
+              className="bg-card border shadow-sm group flex flex-col items-start justify-between gap-4 rounded-[1.6rem] p-6 transition-all hover:bg-muted/50 sm:flex-row sm:items-center sm:p-8"
             >
               <div className="flex items-center gap-5">
                 <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
@@ -144,7 +144,7 @@ function NewsletterIndexPage() {
               </div>
               <div className="flex shrink-0 gap-2">
                 {item.status === 'draft' && (
-                   <Button variant="zine-outline" size="sm" className="rounded-full" asChild>
+                   <Button variant="outline" size="sm" className="rounded-full" asChild>
                      <Link to={`/dashboard/newsletters/new`} search={{ fromId: item.id } as any}>
                         Edit
                      </Link>
@@ -153,14 +153,14 @@ function NewsletterIndexPage() {
                 <Button 
                    variant="destructive" 
                    size="icon" 
-                   className="rounded-full h-9 w-9 border-2 border-destructive/20"
+                   className="rounded-full h-9 w-9 border border-destructive/20"
                    onClick={() => handleDelete(item.id)}
                    disabled={deleting === item.id}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
                 {(item.status === 'sent' || item.status === 'failed') && (
-                  <Button variant="zine" size="sm" className="rounded-full">
+                  <Button variant="default" size="sm" className="rounded-full">
                     View Results
                   </Button>
                 )}

@@ -25,7 +25,7 @@ export default function ParaglideLocaleSwitcher() {
         {locales.map((locale) => (
           <Button
             key={locale}
-            variant={locale === currentLocale ? "zine" : "ghost"}
+            variant={locale === currentLocale ? "default" : "ghost"}
             size="sm"
             onClick={() => setLocale(locale)}
             aria-pressed={locale === currentLocale}

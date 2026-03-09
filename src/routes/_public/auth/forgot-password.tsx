@@ -43,7 +43,7 @@ function ForgotPasswordPage() {
           We have sent a password reset link to <span className="font-bold text-foreground">{email}</span>.
           Please check your inbox and spam folder.
         </p>
-        <Button asChild variant="zine-outline" className="w-full h-12 rounded-xl mt-4">
+        <Button asChild variant="outline" className="w-full h-12 rounded-xl mt-4">
           <Link to="/auth/login" className="no-underline">Return to Sign In</Link>
         </Button>
       </div>
@@ -68,7 +68,7 @@ function ForgotPasswordPage() {
             <input
               type="email"
               placeholder="name@example.com"
-              className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+              className="w-full bg-muted/30 border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -84,8 +84,8 @@ function ForgotPasswordPage() {
 
         <Button 
           type="submit" 
-          variant="zine" 
-          className="w-full h-12 rounded-xl text-lg font-black shadow-zine-sm hover:shadow-zine active:shadow-none transition-all mt-2"
+          variant="default" 
+          className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all mt-2"
           disabled={isPending}
         >
           {isPending ? 'Sending...' : 'Reset Password'}

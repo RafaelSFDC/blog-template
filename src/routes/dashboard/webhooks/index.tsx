@@ -62,7 +62,7 @@ function WebhooksPage() {
         icon={Webhook}
         iconLabel="Integrations"
       >
-        <Button asChild variant="zine" size="lg" className="rounded-2xl shadow-zine-sm">
+        <Button asChild variant="default" size="lg" className="rounded-2xl shadow-sm">
           <a href="/dashboard/webhooks/new">
             <Plus size={20} className="mr-2" strokeWidth={3} />
             New Webhook
@@ -70,16 +70,16 @@ function WebhooksPage() {
         </Button>
       </DashboardHeader>
 
-      <section className="island-shell rounded-3xl p-6 sm:p-10 bg-card border-3 border-border/50">
+      <section className="bg-card border shadow-sm rounded-3xl p-6 sm:p-10">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-border">
-                <th className="pb-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Name</th>
-                <th className="pb-4 text-xs font-black uppercase tracking-widest text-muted-foreground">URL</th>
-                <th className="pb-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Event</th>
-                <th className="pb-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                <th className="pb-4 text-right text-xs font-black uppercase tracking-widest text-muted-foreground">Actions</th>
+                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
+                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL</th>
+                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Event</th>
+                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="pb-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -94,7 +94,7 @@ function WebhooksPage() {
                   <tr key={webhook.id} className="group hover:bg-muted/30 transition-colors">
                     <td className="py-5 font-bold text-foreground">
                       <div className="flex items-center gap-3">
-                         <div className={`w-3 h-3 rounded-full ${webhook.isActive ? `bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]` : `bg-muted-foreground/30`}`} />
+                         <div className={`w-3 h-3 rounded-full ${webhook.isActive ? `bg-success shadow-[0_0_8px_oklch(0.72_0.19_150/0.5)]` : `bg-muted-foreground/30`}`} />
                          {webhook.name}
                       </div>
                     </td>
@@ -102,14 +102,14 @@ function WebhooksPage() {
                       {webhook.url}
                     </td>
                     <td className="py-5">
-                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-wider">
+                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold uppercase tracking-wider">
                         {webhook.event}
                       </span>
                     </td>
                     <td className="py-5">
                       <button 
                         onClick={() => handleToggle(webhook.id, !webhook.isActive)}
-                        className={`text-xs font-black uppercase tracking-widest transition-colors ${webhook.isActive ? `text-green-600 hover:text-green-700` : `text-muted-foreground hover:text-foreground`}`}
+                        className={`text-xs font-semibold uppercase tracking-wider transition-colors ${webhook.isActive ? `text-success hover:text-success/80` : `text-muted-foreground hover:text-foreground`}`}
                       >
                         {webhook.isActive ? 'Active' : 'Disabled'}
                       </button>
@@ -130,7 +130,7 @@ function WebhooksPage() {
       </section>
 
       <div className="grid gap-6 sm:grid-cols-2">
-         <div className="island-shell rounded-2xl bg-muted/50 p-6 border-3 border-border/30">
+         <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
                <Globe size={18} className="text-primary" />
                External Integrations
@@ -139,7 +139,7 @@ function WebhooksPage() {
                Use webhooks to connect with services like Zapier, Make.com, n8n, or your own custom notification bots.
             </p>
          </div>
-         <div className="island-shell rounded-2xl bg-muted/50 p-6 border-3 border-border/30">
+         <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
                <Activity size={18} className="text-primary" />
                Verification

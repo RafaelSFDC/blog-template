@@ -101,8 +101,8 @@ function BlogIndex() {
   return (
     <main className="pb-20 pt-10">
       <div className="page-wrap flex flex-col gap-8 sm:gap-12">
-        <header className="island-shell rounded-2xl p-8 sm:p-12 bg-card">
-          <Badge variant="zine">Vibe Archive</Badge>
+        <header className="bg-card border shadow-sm rounded-2xl p-8 sm:p-12">
+          <Badge variant="default">Vibe Archive</Badge>
           <h1 className="font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-4 text-5xl text-foreground sm:text-6xl uppercase">
             All Stories
           </h1>
@@ -111,7 +111,7 @@ function BlogIndex() {
           </p>
         </header>
 
-        <section className="island-shell flex flex-col gap-8 rounded-2xl p-6 sm:p-8 bg-card">
+        <section className="bg-card border shadow-sm flex flex-col gap-8 rounded-2xl p-6 sm:p-8">
           <div className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -119,7 +119,7 @@ function BlogIndex() {
               value={localSearch}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="Search stories..."
-              className="h-14 w-full rounded-lg border-3 border-border bg-background/50 pl-12 pr-12 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-primary/20 shadow-zine-sm"
+              className="h-14 w-full rounded-lg border border-border bg-background/50 pl-12 pr-12 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-primary/20 shadow-sm"
             />
             {localSearch && (
               <Button
@@ -136,9 +136,9 @@ function BlogIndex() {
           <div className="flex flex-wrap gap-3">
             <Button
               onClick={() => handleCategory("")}
-              variant={!category ? "zine" : "zine-outline"}
+              variant={!category ? "default" : "outline"}
               className={cn(
-                "toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all",
+                "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
                 !category && "scale-105 z-10"
               )}
             >
@@ -151,9 +151,9 @@ function BlogIndex() {
                 <Button
                   key={theme.badge}
                   onClick={() => handleCategory(theme.badge)}
-                  variant={isActive ? "zine" : "zine-outline"}
+                  variant={isActive ? "default" : "outline"}
                   className={cn(
-                    "toy-button rounded-lg border-2 border-border px-6 py-2 font-black shadow-zine-sm sm:border-3 transition-all",
+                    "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
                     isActive && `${theme.cover} scale-105 z-10`
                   )}
                 >
@@ -171,8 +171,8 @@ function BlogIndex() {
             ))}
           </div>
         ) : (
-          <div className="island-shell flex flex-col items-center justify-center rounded-2xl py-20 text-center bg-card">
-            <div className="mb-4 rounded-lg bg-muted p-4 border-2 border-border">
+          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-2xl py-20 text-center">
+            <div className="mb-4 rounded-lg bg-muted p-4 border border-border">
               <Search className="h-8 w-8 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-black text-foreground uppercase tracking-tight">

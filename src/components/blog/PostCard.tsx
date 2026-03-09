@@ -26,9 +26,9 @@ export function PostCard({ post }: { post: Post }) {
     <Link
       to="/blog/$slug"
       params={{ slug: post.slug }}
-      className="toy-button group block overflow-hidden rounded-[32px] p-6 no-underline shadow-zine hover:shadow-zine-hover border-4 border-border bg-card transition-all"
+      className="group block overflow-hidden rounded-xl p-6 no-underline shadow-md hover:shadow-lg border border-border bg-card transition-all"
     >
-      <div className={`relative mb-6 aspect-16/10 w-full overflow-hidden rounded-[24px] border-[3px] border-border ${theme.cover}`}>
+      <div className={`relative mb-6 aspect-16/10 w-full overflow-hidden rounded-lg border ${theme.cover}`}>
         {post.coverImage ? (
           <img 
             src={post.coverImage} 
@@ -41,7 +41,7 @@ export function PostCard({ post }: { post: Post }) {
       </div>
 
       <div className="mb-4">
-        <span className="inline-block rounded-full border-2 border-primary/20 bg-primary/10 px-4 py-1 text-xs font-black uppercase tracking-wider text-primary">
+        <span className="inline-block rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-xs font-black uppercase tracking-wider text-primary">
           {post.category || theme.badge}
         </span>
       </div>

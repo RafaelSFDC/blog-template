@@ -80,8 +80,8 @@ function MediaLibraryPage() {
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            variant="zine"
-            className="rounded-full shadow-zine-sm"
+            variant="default"
+            className="rounded-full shadow-sm"
           >
             {uploading ? (
               'Uploading...'
@@ -100,7 +100,7 @@ function MediaLibraryPage() {
           {mediaItems.map((item: any) => (
             <div
               key={item.id}
-              className="group island-shell relative aspect-square overflow-hidden rounded-2xl p-0 hover:border-primary/50"
+              className="group bg-card border shadow-sm relative aspect-square overflow-hidden rounded-2xl p-0 hover:border-primary/50"
             >
               <img
                 src={item.url}
@@ -111,7 +111,7 @@ function MediaLibraryPage() {
                 <div className="flex gap-1">
                   <Button
                     size="icon"
-                    variant="zine-outline"
+                    variant="outline"
                     className="h-9 w-9 rounded-full bg-background"
                     onClick={() => copyToClipboard(item.url, item.id)}
                     title="Copy URL"
@@ -120,7 +120,7 @@ function MediaLibraryPage() {
                   </Button>
                   <Button
                     size="icon"
-                    variant="zine-outline"
+                    variant="outline"
                     className="h-9 w-9 rounded-full bg-background text-destructive hover:bg-destructive hover:text-destructive-foreground"
                     onClick={() => onDelete(item.id, item.filename)}
                     title="Delete"
@@ -136,7 +136,7 @@ function MediaLibraryPage() {
           ))}
         </div>
       ) : (
-        <div className="island-shell flex flex-col items-center justify-center rounded-3xl py-20 text-center">
+        <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-3xl py-20 text-center">
           <div className="mb-6 rounded-full bg-muted p-6">
             <Image size={40} className="text-muted-foreground opacity-20" />
           </div>

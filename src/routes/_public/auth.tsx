@@ -26,7 +26,7 @@ function AuthLayout() {
           </Button>
         </div>
 
-        <div className="island-shell rounded-4xl p-8 sm:p-10 shadow-zine-xl border-3 border-border bg-card relative overflow-hidden">
+        <div className="bg-card border shadow-sm rounded-4xl p-8 sm:p-10 shadow-md-xl border border-border bg-card relative overflow-hidden">
           {/* Decorative background elements */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-secondary/10 rounded-full blur-3xl" />

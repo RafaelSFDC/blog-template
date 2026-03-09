@@ -159,7 +159,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
 					<div
 						onClick={() => setIsExpanded(true)}
 						className={cn(
-							"group relative flex cursor-pointer flex-col items-center gap-4 rounded-lg border-2 border-dashed p-8 transition-all hover:bg-accent",
+							"group relative flex cursor-pointer flex-col items-center gap-4 rounded-lg border border-dashed p-8 transition-all hover:bg-accent",
 							selected && "border-primary bg-primary/5",
 							isDragActive && "border-primary bg-primary/5",
 							error && "border-destructive bg-destructive/5"
@@ -207,7 +207,7 @@ function ImagePlaceholderComponent(props: NodeViewProps) {
 									onDragOver={handleDragOver}
 									onDrop={handleDrop}
 									className={cn(
-										"my-4 rounded-lg border-2 border-dashed p-8 text-center transition-colors",
+										"my-4 rounded-lg border border-dashed p-8 text-center transition-colors",
 										isDragActive && "border-primary bg-primary/10",
 										error && "border-destructive bg-destructive/10"
 									)}

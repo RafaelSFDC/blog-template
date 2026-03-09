@@ -230,7 +230,7 @@ function TiptapImage(props: NodeViewProps) {
     <NodeViewWrapper
       ref={nodeRef}
       className={cn(
-        "relative flex flex-col rounded-md border-2 border-transparent transition-all duration-200",
+        "relative flex flex-col rounded-md border border-transparent transition-all duration-200",
         selected ? "border-blue-300" : "",
         node.attrs.align === "left" && "left-0 translate-x-0",
         node.attrs.align === "center" && "left-1/2 -translate-x-1/2",
@@ -376,7 +376,7 @@ function TiptapImage(props: NodeViewProps) {
                         />
                         <label
                           htmlFor="replace-image-upload"
-                          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed p-4 hover:bg-accent"
+                          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed p-4 hover:bg-accent"
                         >
                           {uploading ? (
                             <>

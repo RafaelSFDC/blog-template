@@ -58,7 +58,7 @@ export const auth = betterAuth({
             <p>We received a request to reset your password for your <strong>${blogName}</strong> account.</p>
             <p>Click the button below to set a new password:</p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${url}" style="background-color: #ff5c00; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+              <a href="${url}" style="background-color: var(--primary); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
             </div>
             <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
             <p style="color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px;">

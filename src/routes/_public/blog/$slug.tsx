@@ -197,7 +197,7 @@ function PostDetail() {
         <BlogHero post={post} />
 
         {/* Social Sharing */}
-        <div className="island-shell rounded-2xl bg-card p-4 sm:p-6">
+        <div className="bg-card border shadow-sm rounded-2xl bg-card p-4 sm:p-6">
           <SocialSharing url={currentUrl} title={post.title} />
         </div>
 
@@ -205,7 +205,7 @@ function PostDetail() {
         <TableOfContents content={post.content} />
 
         {/* Main Article Content */}
-        <article className="island-shell prose-lg bg-card p-6 sm:p-12 rounded-2xl relative overflow-hidden">
+        <article className="bg-card border shadow-sm prose-lg bg-card p-6 sm:p-12 rounded-2xl relative overflow-hidden">
           <MarkdownContent content={post.content} />
           {!hasAccess && (
             <Paywall onSubscribe={handleSubscribe} isLoading={subscribing} />
@@ -217,7 +217,7 @@ function PostDetail() {
         <AuthorBio />
 
         {/* Comments Section */}
-        <section className="island-shell rounded-2xl bg-card p-6 sm:p-12">
+        <section className="bg-card border shadow-sm rounded-2xl bg-card p-6 sm:p-12">
           <h3 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-tight">
             Leave a Comment
           </h3>

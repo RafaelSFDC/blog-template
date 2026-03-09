@@ -25,7 +25,7 @@ interface MyRouterContext {
 
 const DEFAULT_SETTINGS = {
   blogName: "VibeZine",
-  accentColor: "#ff5c00",
+  accentColor: "var(--primary)",
   fontFamily: "Inter",
   gaMeasurementId: "",
   plausibleDomain: "",
@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: ({ loaderData }) => {
     const settings = loaderData as any
     const blogName = settings?.blogName || 'VibeZine'
-    const accentColor = settings?.accentColor || '#ff5c00'
+    const accentColor = settings?.accentColor || 'var(--primary)'
     
     return {
       meta: [
@@ -217,7 +217,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootErrorComponent({ error }: { error: unknown }) {
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell clip-sash rounded-3xl p-8">
+      <section className="bg-card border shadow-sm clip-sash rounded-3xl p-8">
         <p className="island-kicker mb-3">Route Error</p>
         <h1 className="display-title mb-3 text-2xl font-bold text-foreground sm:text-3xl">
           Something went wrong
@@ -234,7 +234,7 @@ function RootErrorComponent({ error }: { error: unknown }) {
 function RootNotFoundComponent() {
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell clip-sash rounded-3xl p-8 text-center">
+      <section className="bg-card border shadow-sm clip-sash rounded-3xl p-8 text-center">
         <p className="island-kicker mb-3">404 - Not Found</p>
         <h1 className="display-title mb-3 text-4xl font-bold text-foreground sm:text-6xl">
           Lost in the Vibe?

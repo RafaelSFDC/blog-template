@@ -75,15 +75,15 @@ function Home() {
       <MarqueeTicker />
 
       <section className="editorial-grid rise-in gap-8">
-        <div className="island-shell col-span-12 overflow-hidden rounded-lg p-8 sm:p-10 lg:p-12 relative">
-          <Badge variant="zine">
+        <div className="bg-card border shadow-sm col-span-12 overflow-hidden rounded-xl p-8 sm:p-10 lg:p-12 relative">
+          <Badge variant="default">
             Issue #01 / Spring 2026
           </Badge>
-          <h1 className="display-title text-[clamp(2.3rem,9vw,5.2rem)] font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground">
+          <h1 className="display-title font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground text-4xl sm:text-5xl lg:text-7xl">
             Stories With A <br />
             <span className="text-primary">Visual Signature.</span>
           </h1>
-          <p className="text-[clamp(1rem,2vw,1.35rem)] max-w-2xl text-muted-foreground font-black">
+          <p className="max-w-2xl text-muted-foreground font-black text-lg md:text-xl">
             A bold editorial system with sharp edges, fast rendering, and a
             layout that actually has a soul.
           </p>
@@ -94,7 +94,7 @@ function Home() {
             className="mt-12"
           />
 
-          <div className="mt-8 flex flex-wrap gap-4 border-t-2 border-border/10 pt-8">
+          <div className="mt-8 flex flex-wrap gap-4 border-t pt-8 border-border">
             <Link
               to="/blog"
               search={{ q: "", category: "" }}
@@ -112,11 +112,11 @@ function Home() {
       </section>
 
       <section className="mt-20">
-        <header className="island-shell flex items-center justify-between rounded-2xl bg-card p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
+        <header className="bg-card border shadow-sm flex items-center justify-between rounded-xl p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
           <h2 className="display-title mb-0 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
             Featured Articles
           </h2>
-          <Button asChild variant="zine-outline" size="sm">
+          <Button asChild variant="outline" size="sm">
             <Link
               to="/blog"
               search={{ q: "", category: "" }}
@@ -135,7 +135,7 @@ function Home() {
             ))}
           </div>
         ) : (
-          <div className="island-shell rounded-3xl p-12 text-center">
+          <div className="bg-card border shadow-sm rounded-xl p-12 text-center">
             <p className="text-muted-foreground">
               No posts yet. Run the seed command to create your first 5
               articles.

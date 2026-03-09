@@ -79,7 +79,7 @@ function CommentsPage() {
           commentsList.map((comment: any) => (
             <div 
               key={comment.id} 
-              className="island-shell rounded-2xl bg-card p-6 border-2 border-border/10 hover:border-border transition-colors group"
+              className="bg-card border shadow-sm rounded-2xl bg-card p-6 border border-border/10 hover:border-border transition-colors group"
             >
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="space-y-2">
@@ -103,7 +103,7 @@ function CommentsPage() {
                   {comment.status !== 'approved' && (
                     <Button 
                       size="sm" 
-                      variant="zine" 
+                      variant="default" 
                       onClick={() => handleStatus(comment.id, 'approved')}
                       title="Approve"
                     >
@@ -113,7 +113,7 @@ function CommentsPage() {
                   {comment.status !== 'spam' && (
                     <Button 
                       size="sm" 
-                      variant="zine-outline" 
+                      variant="outline" 
                       onClick={() => handleStatus(comment.id, 'spam')}
                       title="Mark as Spam"
                     >
@@ -124,7 +124,7 @@ function CommentsPage() {
                     size="sm" 
                     variant="destructive" 
                     onClick={() => handleDelete(comment.id)}
-                    className="border-2 border-destructive/20"
+                    className="border border-destructive/20"
                     title="Delete"
                   >
                     <Trash2 size={16} />
@@ -134,7 +134,7 @@ function CommentsPage() {
             </div>
           ))
         ) : (
-          <div className="island-shell rounded-3xl p-20 text-center border-3 border-dashed border-border/20">
+          <div className="bg-card border shadow-sm rounded-3xl p-20 text-center border border-dashed border-border/20">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                 <MessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>

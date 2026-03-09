@@ -8,6 +8,7 @@ const dbUrl = process.env.DATABASE_URL;
 // Perform top-level initialization based on environment
 if (dbType === "d1") {
   try {
+    // @ts-ignore
     const { env } = await import("cloudflare:workers");
     const foundD1 = env?.DB;
     if (foundD1) {

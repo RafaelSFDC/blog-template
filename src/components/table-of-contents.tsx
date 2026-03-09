@@ -37,7 +37,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   if (headings.length === 0) return null
 
   return (
-    <nav className="island-shell rounded-2xl px-4 py-3 sm:px-6 bg-card">
+    <nav className="bg-card border shadow-sm rounded-2xl px-4 py-3 sm:px-6 bg-card">
       <div className="mb-6 flex items-center gap-3 border-b border-border pb-4 text-foreground">
         <ListIcon className="h-5 w-5" />
         <h2 className="display-title text-xl font-bold tracking-tight">Neste artigo</h2>

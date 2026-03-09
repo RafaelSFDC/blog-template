@@ -40,7 +40,7 @@ const FormLabel = ({ children, className, htmlFor }: { children: React.ReactNode
 
 const FormMessage = ({ errors }: { errors?: any[] }) => {
   if (!errors || errors.length === 0) return null
-  return <p className="text-[10px] font-bold uppercase tracking-widest text-destructive animate-in fade-in slide-in-from-top-1 px-1">{errors.join(", ")}</p>
+  return <p className="text-xs font-bold text-destructive animate-in fade-in slide-in-from-top-1 px-1">{errors.join(", ")}</p>
 }
 
 const FormControl = ({ children }: { children: React.ReactNode }) => <>{children}</>
@@ -69,15 +69,15 @@ function ContactPage() {
   if (submitted) {
     return (
       <main className="page-wrap px-4 py-20 text-center">
-        <section className="island-shell mx-auto max-w-2xl rounded-4xl p-12 overflow-hidden relative">
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-primary/10 text-primary border-4 border-primary/20 rotate-3 transition-all hover:rotate-12">
+        <section className="bg-card border shadow-sm mx-auto max-w-2xl rounded-xl p-12 overflow-hidden relative">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 rotate-3 transition-all hover:rotate-12">
             <CheckCircle2 size={48} strokeWidth={2.5} />
           </div>
           <h1 className="display-title text-5xl mb-6 uppercase tracking-tighter">Message Received!</h1>
           <p className="text-muted-foreground text-xl mb-10 font-medium leading-relaxed">
             Thank you for reaching out. Your message is in our inbox, and we'll get back to you sooner than you think.
           </p>
-          <Button asChild variant="zine" size="lg" className="h-16 px-12 rounded-2xl text-lg">
+          <Button asChild variant="default" size="lg" className="px-12 rounded-lg text-base">
             <a href="/">BACK TO FEED</a>
           </Button>
         </section>
@@ -87,7 +87,7 @@ function ContactPage() {
 
   return (
     <main className="page-wrap px-4 pb-20 pt-10">
-      <section className="island-shell mx-auto max-w-5xl rounded-4xl p-8 sm:p-12">
+      <section className="bg-card border shadow-sm mx-auto max-w-5xl rounded-xl p-8 sm:p-12">
         <div className="grid gap-16 lg:grid-cols-2">
           <div className="py-4">
             <p className="island-kicker mb-6 inline-block">Support & Feedback</p>
@@ -98,7 +98,7 @@ function ContactPage() {
 
             <div className="space-y-8">
               <div className="flex items-center gap-6 group">
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary border-4 border-primary/20 group-hover:rotate-6 transition-transform">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 group-hover:rotate-6 transition-transform">
                   <Mail size={32} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -115,7 +115,7 @@ function ContactPage() {
               e.stopPropagation()
               form.handleSubmit()
             }} 
-            className="island-shell space-y-6 rounded-3xl bg-muted/20 p-6 sm:p-10 border-3 border-border/40 shadow-xl"
+            className="bg-card border shadow-md space-y-6 rounded-xl p-6 sm:p-10"
           >
             <div className="grid gap-6 sm:grid-cols-2">
               <form.Field
@@ -134,7 +134,6 @@ function ContactPage() {
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="John Doe"
-                        className="h-14 rounded-xl border-3 border-border bg-background px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                       />
                     </FormControl>
                     <FormMessage errors={field.state.meta.errors} />
@@ -158,7 +157,6 @@ function ContactPage() {
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="john@example.com"
-                        className="h-14 rounded-xl border-3 border-border bg-background px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                       />
                     </FormControl>
                     <FormMessage errors={field.state.meta.errors} />
@@ -182,7 +180,6 @@ function ContactPage() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="How can we help?"
-                      className="h-14 rounded-xl border-3 border-border bg-background px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                     />
                   </FormControl>
                   <FormMessage errors={field.state.meta.errors} />
@@ -206,7 +203,7 @@ function ContactPage() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Your message here..."
-                      className="rounded-xl border-3 border-border bg-background px-6 py-4 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40 min-h-[160px] resize-none"
+                      className="resize-none"
                     />
                   </FormControl>
                   <FormMessage errors={field.state.meta.errors} />
@@ -220,9 +217,8 @@ function ContactPage() {
                 children={([canSubmit, isSubmitting]) => (
                   <Button 
                     type="submit" 
-                    variant="zine" 
-                    size="lg" 
-                    className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-2xl shadow-xl hover:translate-y-[-2px] active:translate-y-[1px] transition-all" 
+                    variant="default" 
+                    className="w-full text-base font-black uppercase tracking-widest rounded-lg transition-all" 
                     disabled={!canSubmit || isSubmitting}
                   >
                     <Send size={22} className="mr-3" strokeWidth={3} />

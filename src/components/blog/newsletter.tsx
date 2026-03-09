@@ -60,12 +60,12 @@ export function Newsletter({
             onChange={(e) => setEmail(e.target.value)}
             placeholder={placeholder}
             required
-            className="h-12 w-full rounded-lg border-2 border-input bg-background pl-11 pr-4 text-sm font-bold shadow-zine-sm outline-none focus:ring-4 focus:ring-primary/20"
+            className="pl-11 pr-4"
           />
         </div>
         <Button 
           type="submit" 
-          variant="zine" 
+          variant="default" 
           size="lg" 
           className="sm:w-auto"
         >
@@ -76,7 +76,7 @@ export function Newsletter({
   }
 
   return (
-    <section className={cn("island-shell rounded-2xl bg-card px-4 py-8 sm:px-6 text-center border-border", className)}>
+    <section className={cn("bg-card border shadow-sm rounded-2xl px-4 py-8 sm:px-6 text-center border-border", className)}>
       <div className="mx-auto max-w-2xl text-foreground">
         <h3 className="display-title mb-6 text-4xl font-extrabold uppercase italic tracking-tighter sm:text-6xl text-foreground">
           {title}
@@ -92,13 +92,12 @@ export function Newsletter({
             onChange={(e) => setEmail(e.target.value)}
             placeholder={placeholder}
             required
-            className="h-14 flex-1 rounded-2xl border-border bg-background px-6 text-lg font-bold text-foreground placeholder:text-muted-foreground focus-visible:ring-4 focus-visible:ring-primary/20"
+            className="flex-1"
           />
           <Button 
             type="submit"
-            variant="zine"
-            size="lg"
-            className="h-14 rounded-2xl bg-accent px-8 text-xl font-black text-accent-foreground hover:scale-105 active:scale-95 border-border shadow-zine-sm"
+            variant="default"
+            size="default"
           >
             {buttonText}
           </Button>

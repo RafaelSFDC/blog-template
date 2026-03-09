@@ -123,14 +123,14 @@ function NewNewsletterPage() {
         </Button>
       </div>
 
-      <section className="island-shell rounded-4xl p-8 sm:p-10">
+      <section className="bg-card border shadow-sm rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Composer</p>
         <h1 className="display-title text-5xl text-foreground sm:text-6xl">New Campaign</h1>
       </section>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form className="island-shell space-y-6 rounded-[1.6rem] p-6 sm:p-8">
+          <form className="bg-card border shadow-sm space-y-6 rounded-[1.6rem] p-6 sm:p-8">
             <div>
               <label className="mb-2 block text-sm font-semibold text-foreground">Email Subject</label>
               <input
@@ -158,7 +158,7 @@ function NewNewsletterPage() {
               <Button
                 type="button"
                 disabled={saving}
-                variant="zine"
+                variant="default"
                 size="lg"
                 className="rounded-full"
                 onClick={(e) => onSubmit(e as any, true)}
@@ -169,7 +169,7 @@ function NewNewsletterPage() {
               <Button
                 type="button"
                 disabled={saving}
-                variant="zine-outline"
+                variant="outline"
                 size="lg"
                 className="rounded-full"
                 onClick={(e) => onSubmit(e as any, false)}
@@ -181,7 +181,7 @@ function NewNewsletterPage() {
         </div>
 
         <div className="space-y-6">
-          <section className="island-shell rounded-3xl p-6">
+          <section className="bg-card border shadow-sm rounded-3xl p-6">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold">
               <Info className="h-5 w-5 text-primary" />
               Use Post as Template
@@ -200,7 +200,7 @@ function NewNewsletterPage() {
             </div>
           </section>
 
-          <section className="island-shell rounded-3xl border-primary/20 bg-primary/5 p-6">
+          <section className="bg-card border shadow-sm rounded-3xl border-primary/20 bg-primary/5 p-6">
             <h3 className="text-lg font-bold">Ready to send?</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Once sent, we will email all your active subscribers. This action cannot be undone.

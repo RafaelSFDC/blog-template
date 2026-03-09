@@ -31,7 +31,7 @@ export const Route = createFileRoute('/api/newsletter/unsubscribe')({
                 <div class="card">
                   <h1>You're unsubscribed</h1>
                   <p>We've removed <strong>${email}</strong> from our mailing list. You won't receive any more newsletters from us.</p>
-                  <p><a href="/" style="color: #ff5c00; font-weight: bold; text-decoration: none;">Back to blog</a></p>
+                  <p><a href="/" style="color: var(--primary); font-weight: bold; text-decoration: none;">Back to blog</a></p>
                 </div>
               </body>
             </html>

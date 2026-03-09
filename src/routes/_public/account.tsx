@@ -39,7 +39,7 @@ const FormLabel = ({ children, className, htmlFor }: { children: React.ReactNode
 
 const FormMessage = ({ errors }: { errors?: any[] }) => {
   if (!errors || errors.length === 0) return null
-  return <p className="text-xs font-bold uppercase tracking-widest text-destructive animate-in fade-in slide-in-from-top-1">{errors.join(", ")}</p>
+  return <p className="text-xs font-bold text-destructive animate-in fade-in slide-in-from-top-1">{errors.join(", ")}</p>
 }
 
 const FormControl = ({ children }: { children: React.ReactNode }) => <>{children}</>
@@ -96,7 +96,7 @@ function AccountPage() {
 
   return (
     <div className="page-wrap space-y-10 py-10 pb-20">
-      <header className="island-shell rounded-3xl p-8 sm:p-12">
+      <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-12">
         <div className="mb-4 flex items-center gap-2 text-primary">
           <User size={20} strokeWidth={3} />
           <p className="island-kicker mb-0 font-black uppercase tracking-widest text-primary/80">Account</p>
@@ -110,7 +110,7 @@ function AccountPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-8">
           {/* Profile Section */}
-          <section className="island-shell rounded-3xl p-6 sm:p-10">
+          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
             <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
               <User size={20} className="text-primary" strokeWidth={3} />
               Personal Info
@@ -140,7 +140,6 @@ function AccountPage() {
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="Your full name"
-                        className="h-14 rounded-xl border-3 border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                       />
                     </FormControl>
                     <FormMessage errors={field.state.meta.errors} />
@@ -153,17 +152,16 @@ function AccountPage() {
                 <Input
                   value={session?.user?.email || ''}
                   disabled
-                  className="h-14 rounded-xl border-3 border-border bg-muted/10 px-6 text-base font-bold text-muted-foreground/60 cursor-not-allowed italic"
                 />
-                <p className="text-[10px] uppercase font-bold tracking-widest text-primary/60">Note: Email updates are handled via security verification</p>
+                <p className="text-xs text-muted-foreground">Note: Email updates are handled via security verification</p>
               </div>
 
               <div className="pt-4">
                 <profileForm.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
                   children={([canSubmit, isSubmitting]) => (
-                    <Button type="submit" variant="zine" size="lg" disabled={!canSubmit || isSubmitting} className="h-14 px-10">
-                      <Save size={20} className="mr-2" strokeWidth={3} />
+                    <Button type="submit" variant="default" disabled={!canSubmit || isSubmitting}>
+                      <Save size={20} className="mr-2" />
                       {isSubmitting ? 'SAVING...' : 'SAVE CHANGES'}
                     </Button>
                   )}
@@ -173,7 +171,7 @@ function AccountPage() {
           </section>
 
           {/* Security / Password Section */}
-          <section className="island-shell rounded-3xl p-6 sm:p-10">
+          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
             <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Security
@@ -204,7 +202,6 @@ function AccountPage() {
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="••••••••"
-                        className="h-14 rounded-xl border-3 border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                       />
                     </FormControl>
                     <FormMessage errors={field.state.meta.errors} />
@@ -232,7 +229,7 @@ function AccountPage() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
-                          className="h-14 rounded-xl border-3 border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
+                          className="h-14 rounded-xl border border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                         />
                       </FormControl>
                       <FormMessage errors={field.state.meta.errors} />
@@ -260,7 +257,7 @@ function AccountPage() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
-                          className="h-14 rounded-xl border-3 border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
+                          className="h-14 rounded-xl border border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                         />
                       </FormControl>
                       <FormMessage errors={field.state.meta.errors} />
@@ -275,12 +272,10 @@ function AccountPage() {
                   children={([canSubmit, isSubmitting]) => (
                     <Button 
                       type="submit" 
-                      variant="zine" 
-                      size="lg" 
-                      disabled={!canSubmit || isSubmitting} 
-                      className="h-14 px-10"
+                      variant="default" 
+                      disabled={!canSubmit || isSubmitting}
                     >
-                      <Save size={20} className="mr-2" strokeWidth={3} />
+                      <Save size={20} className="mr-2" />
                       {isSubmitting ? 'UPDATING...' : 'UPDATE PASSWORD'}
                     </Button>
                   )}
@@ -290,18 +285,18 @@ function AccountPage() {
           </section>
 
           {/* Security / Role Section */}
-          <section className="island-shell rounded-3xl p-6 sm:p-10">
+          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
             <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Access Level
             </h2>
-            <div className="flex items-center justify-between p-6 rounded-2xl border-3 border-border bg-muted/20">
+            <div className="flex items-center justify-between p-6 rounded-2xl border border-border bg-muted/20">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">Authenticated As</p>
                 <p className="text-2xl font-black uppercase text-foreground tracking-tight">{session?.user?.role || 'Reader'}</p>
               </div>
-              <div className="h-14 w-14 rounded-xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary">
-                <Shield size={32} strokeWidth={2.5} />
+              <div className="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <Shield size={24} />
               </div>
             </div>
           </section>
@@ -309,7 +304,7 @@ function AccountPage() {
 
         <aside className="space-y-8">
           {/* Subscription Section */}
-          <section className="island-shell rounded-3xl p-8 bg-secondary/5 border-secondary/20">
+          <section className="border shadow-sm rounded-xl p-8 bg-secondary/10 border-secondary/20">
             <h3 className="font-black uppercase tracking-widest text-foreground mb-6 flex items-center gap-2 text-sm">
               <CreditCard size={18} className="text-primary" strokeWidth={3} />
               Subscription
@@ -321,22 +316,22 @@ function AccountPage() {
             <p className="text-sm font-medium text-muted-foreground/80 mb-8 leading-relaxed">
               Unlock exclusive deep-dives, early access stories, and a premium ad-free experience.
             </p>
-            <Button variant="zine-outline" className="w-full h-14 text-base font-black uppercase tracking-widest">
+            <Button variant="outline" className="w-full">
               Upgrade Now
             </Button>
           </section>
 
           {/* Danger Zone */}
-          <section className="island-shell rounded-3xl p-8 border-destructive/30 bg-destructive/5">
+          <section className="border shadow-sm rounded-xl p-8 border-destructive/30 bg-destructive/10">
             <h3 className="font-black uppercase tracking-widest text-destructive mb-6 text-sm">
               Session Management
             </h3>
             <Button 
-              variant="zine-destructive" 
-              className="w-full justify-center gap-3 h-14 text-base font-black uppercase tracking-widest"
+              variant="destructive" 
+              className="w-full justify-center gap-3"
               onClick={handleLogout}
             >
-              <LogOut size={20} strokeWidth={3} />
+              <LogOut size={20} />
               Sign Out
             </Button>
           </section>

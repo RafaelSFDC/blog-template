@@ -73,7 +73,7 @@ function LoginPage() {
             <input
               type="email"
               placeholder="name@example.com"
-              className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+              className="w-full bg-muted/30 border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -94,7 +94,7 @@ function LoginPage() {
           <input
             type="password"
             placeholder="••••••••"
-            className="w-full bg-muted/30 border-2 border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+            className="w-full bg-muted/30 border border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -109,8 +109,8 @@ function LoginPage() {
 
         <Button 
           type="submit" 
-          variant="zine" 
-          className="w-full h-12 rounded-xl text-lg font-black shadow-zine-sm hover:shadow-zine active:shadow-none transition-all"
+          variant="default" 
+          className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all"
           disabled={isPending}
         >
           {isPending ? 'Signing in...' : 'Sign In'}

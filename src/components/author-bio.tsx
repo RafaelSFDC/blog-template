@@ -15,8 +15,8 @@ export function AuthorBio({ author }: AuthorBioProps) {
   const role = author?.role || 'Content Strategist'
 
   return (
-    <section className="island-shell shadow-zine flex flex-col items-center gap-6 rounded-2xl bg-card px-4 py-3 sm:px-6 sm:flex-row sm:text-left">
-      <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-border bg-muted shadow-xl transition-transform hover:scale-105">
+    <section className="bg-card border shadow-sm shadow-md flex flex-col items-center gap-6 rounded-2xl bg-card px-4 py-3 sm:px-6 sm:flex-row sm:text-left">
+      <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted shadow-xl transition-transform hover:scale-105">
         {author?.image ? (
           <img src={author.image} alt={name} className="h-full w-full object-cover" />
         ) : (

@@ -46,9 +46,9 @@ export default function Footer() {
         {settings?.twitterProfile && (
           <Button
             asChild
-            variant="zine-outline"
+            variant="outline"
             size="icon"
-            className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
           >
             <a
               href={settings.twitterProfile}
@@ -64,9 +64,9 @@ export default function Footer() {
         {settings?.githubProfile && (
           <Button
             asChild
-            variant="zine-outline"
+            variant="outline"
             size="icon"
-            className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
           >
             <a
               href={settings.githubProfile}
@@ -82,9 +82,9 @@ export default function Footer() {
         {settings?.linkedinProfile && (
           <Button
             asChild
-            variant="zine-outline"
+            variant="outline"
             size="icon"
-            className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
           >
             <a
               href={settings.linkedinProfile}
@@ -99,9 +99,9 @@ export default function Footer() {
 
         <Button
           asChild
-          variant="zine-outline"
+          variant="outline"
           size="icon"
-          className="size-12 rounded-2xl shadow-zine-sm hover:shadow-zine-hover"
+          className="size-12 rounded-2xl shadow-sm hover:shadow-md"
         >
           <a
             href="/rss.xml"
