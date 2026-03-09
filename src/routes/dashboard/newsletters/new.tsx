@@ -3,6 +3,7 @@ import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { newsletters } from '#/db/schema'
+import { eq } from 'drizzle-orm'
 import { useState, type FormEvent } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { TiptapEditor } from '#/components/tiptap-editor'
@@ -48,17 +49,30 @@ const getPostsForTemplate = createServerFn({ method: 'GET' })
   })
 
 export const Route = createFileRoute('/dashboard/newsletters/new')({
-  loader: () => getPostsForTemplate(),
+  validateSearch: (search: Record<string, unknown>) => ({
+    fromId: search.fromId ? Number(search.fromId) : undefined,
+  }),
+  loader: async (ctx: any) => {
+    const { search } = ctx
+    const posts = await getPostsForTemplate()
+    let existing = null
+    if (search.fromId) {
+       existing = await db.query.newsletters.findFirst({
+         where: eq(newsletters.id, search.fromId)
+       })
+    }
+    return { posts, existing }
+  },
   component: NewNewsletterPage,
 })
 
 function NewNewsletterPage() {
-  const recentPosts = Route.useLoaderData()
+  const { posts: recentPosts, existing } = Route.useLoaderData()
   const navigate = useNavigate()
-  const [subject, setSubject] = useState('')
-  const [content, setContent] = useState('')
+  const [subject, setSubject] = useState(existing?.subject || '')
+  const [content, setContent] = useState(existing?.content || '')
   const [saving, setSaving] = useState(false)
-  const [postId, setPostId] = useState<number | undefined>(undefined)
+  const [postId, setPostId] = useState<number | undefined>(existing?.postId || undefined)
   const [errorMessage, setErrorMessage] = useState('')
 
   const handlePostTemplate = (pId: number) => {

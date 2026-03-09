@@ -220,3 +220,15 @@ export const newsletterLogs = sqliteTable('newsletter_logs', {
     sql`(unixepoch())`,
   ),
 })
+
+export const contactMessages = sqliteTable('contact_messages', {
+  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  email: text().notNull(),
+  subject: text(),
+  message: text().notNull(),
+  status: text().notNull().default('new'), // new, read, archived
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`,
+  ),
+})

@@ -2,11 +2,13 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { newsletters } from '#/db/schema'
-import { desc } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { Button } from '#/components/ui/button'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { format } from 'date-fns'
-import { Mail, Plus } from 'lucide-react'
+import { Mail, Plus, Trash2, Download } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 
 const getNewsletters = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -16,6 +18,27 @@ const getNewsletters = createServerFn({ method: 'GET' })
     })
   })
 
+const deleteNewsletter = createServerFn({ method: "POST" })
+  .inputValidator((id: number) => id)
+  .handler(async ({ data: id }) => {
+    await requireAdminSession()
+    await db.delete(newsletters).where(eq(newsletters.id, id))
+    return { success: true }
+  })
+
+const exportSubscribers = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    await requireAdminSession()
+    const allSubscribers = await db.query.subscribers.findMany()
+    
+    const header = 'ID,Email,Status,CreatedAt\n'
+    const rows = allSubscribers.map((s: { id: number; email: string; status: string; createdAt: Date | null }) => 
+      `${s.id},"${s.email}",${s.status},${s.createdAt ? s.createdAt.toISOString() : ''}`
+    ).join('\n')
+    
+    return header + rows
+  })
+
 export const Route = createFileRoute('/dashboard/newsletters/')({
   loader: () => getNewsletters(),
   component: NewsletterIndexPage,
@@ -23,6 +46,21 @@ export const Route = createFileRoute('/dashboard/newsletters/')({
 
 function NewsletterIndexPage() {
   const data = Route.useLoaderData()
+  const navigate = useNavigate()
+  const [deleting, setDeleting] = useState<number | null>(null)
+
+  async function handleDelete(id: number) {
+    if (!confirm('Are you sure you want to delete this campaign?')) return
+    try {
+      setDeleting(id)
+      await deleteNewsletter({ data: id })
+      navigate({ to: '.' }) // Refresh
+    } catch (err) {
+      alert('Failed to delete newsletter.')
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
@@ -34,12 +72,31 @@ function NewsletterIndexPage() {
             Connect directly with your audience through curated email campaigns.
           </p>
         </div>
-        <Button asChild variant="zine" size="lg" className="rounded-full shadow-lg shadow-primary/20">
-          <Link to="/dashboard/newsletters/new" className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            New Campaign
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button 
+            variant="zine-outline" 
+            size="lg" 
+            className="rounded-full"
+            onClick={async () => {
+              const csv = await exportSubscribers()
+              const blob = new Blob([csv], { type: 'text/csv' })
+              const url = window.URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `subscribers-${new Date().toISOString().split('T')[0]}.csv`
+              a.click()
+            }}
+          >
+            <Download className="mr-2 h-5 w-5" />
+            Export CSV
+          </Button>
+          <Button asChild variant="zine" size="lg" className="rounded-full shadow-lg shadow-primary/20">
+            <Link to="/dashboard/newsletters/new" className="flex items-center gap-2" search={{ fromId: undefined } as any}>
+              <Plus className="h-5 w-5" />
+              New Campaign
+            </Link>
+          </Button>
+        </div>
       </section>
 
       <div className="mt-8 space-y-4">
@@ -51,7 +108,7 @@ function NewsletterIndexPage() {
             <h3 className="text-2xl font-bold">No campaigns yet</h3>
             <p className="mt-2 text-muted-foreground">Start your first newsletter campaign to engage your subscribers.</p>
             <Button asChild variant="zine-outline" className="mt-8 rounded-full">
-              <Link to="/dashboard/newsletters/new">Create First Campaign</Link>
+              <Link to="/dashboard/newsletters/new" search={{ fromId: undefined } as any}>Create First Campaign</Link>
             </Button>
           </div>
         ) : (
@@ -83,15 +140,28 @@ function NewsletterIndexPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 gap-2">
                 {item.status === 'draft' && (
-                   <Button variant="zine-outline" size="sm" className="rounded-full">
-                     Edit
+                   <Button variant="zine-outline" size="sm" className="rounded-full" asChild>
+                     <Link to={`/dashboard/newsletters/new`} search={{ fromId: item.id } as any}>
+                        Edit
+                     </Link>
                    </Button>
                 )}
-                <Button variant="zine" size="sm" className="rounded-full">
-                  View Results
+                <Button 
+                  variant="destructive" 
+                  size="icon" 
+                  className="rounded-full h-9 w-9 border-2 border-destructive/20"
+                  onClick={() => handleDelete(item.id)}
+                  disabled={deleting === item.id}
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
+                {(item.status === 'sent' || item.status === 'failed') && (
+                  <Button variant="zine" size="sm" className="rounded-full">
+                    View Results
+                  </Button>
+                )}
               </div>
             </div>
           ))

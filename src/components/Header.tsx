@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
 import { Menu, X, Search as SearchIcon } from 'lucide-react'
@@ -13,6 +13,11 @@ import {
 import { Button } from '#/components/ui/button'
 
 export default function Header() {
+  const router = useRouter()
+  const settings = (router.state.matches.find(m => m.routeId === '__root__')?.loaderData) as any
+  const blogName = settings?.blogName || 'VibeZine'
+  const blogLogo = settings?.blogLogo || ''
+  
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -44,11 +49,15 @@ export default function Header() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-between w-full lg:w-auto">
             <Link to="/" className="inline-flex items-center gap-2 no-underline shrink-0">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-border bg-primary text-xl font-black text-white shadow-zine-sm sm:h-12 sm:w-12 sm:border-3 sm:text-2xl">
-                v.
-              </span>
+              {blogLogo ? (
+                <img src={blogLogo} alt={blogName} className="h-10 w-auto object-contain sm:h-12" />
+              ) : (
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-border bg-primary text-xl font-black text-white shadow-zine-sm sm:h-12 sm:w-12 sm:border-3 sm:text-2xl">
+                  {blogName.charAt(0).toLowerCase()}.
+                </span>
+              )}
               <span className="display-title text-2xl font-bold text-foreground whitespace-nowrap sm:text-3xl">
-                VibeZine
+                {blogName}
               </span>
             </Link>
 
@@ -111,6 +120,11 @@ export default function Header() {
               <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
                 <Link to="/about" onClick={() => setIsMenuOpen(false)}>
                   About
+                </Link>
+              </Button>
+              <Button asChild variant="zine-outline" size="sm" className="h-auto py-2 px-4 shadow-zine-sm">
+                <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
+                  Contact
                 </Link>
               </Button>
             </div>

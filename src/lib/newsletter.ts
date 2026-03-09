@@ -35,7 +35,16 @@ export async function sendNewsletter(newsletterId: number) {
         from: 'Blog <newsletter@resend.dev>', // Default testing domain or change to verified domain
         to: subscriber.email,
         subject: newsletter.subject,
-        html: newsletter.content, // Assuming content is HTML for now
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            ${newsletter.content}
+            <hr style="margin-top: 40px; border: 0; border-top: 1px solid #eee;" />
+            <p style="font-size: 12px; color: #666; text-align: center;">
+              You received this because you are subscribed to our newsletter. 
+              <a href="${process.env.APP_URL}/api/newsletter/unsubscribe?email=${encodeURIComponent(subscriber.email)}&token=${subscriber.id}">Unsubscribe</a>
+            </p>
+          </div>
+        `,
       });
 
       await db.insert(newsletterLogs).values({
@@ -65,4 +74,21 @@ export async function sendNewsletter(newsletterId: number) {
     .where(eq(newsletters.id, newsletterId));
 
   return { successCount, failCount };
+}
+
+export async function unsubscribeSubscriber(email: string, token: string) {
+  // Simple verification: token is the subscriber ID for now
+  const subscriber = await db.query.subscribers.findFirst({
+    where: eq(subscribers.email, email),
+  });
+
+  if (!subscriber || String(subscriber.id) !== token) {
+    throw new Error('Invalid unsubscribe request');
+  }
+
+  await db.update(subscribers)
+    .set({ status: 'unsubscribed' })
+    .where(eq(subscribers.id, subscriber.id));
+
+  return { success: true };
 }

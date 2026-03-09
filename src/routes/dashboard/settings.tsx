@@ -25,6 +25,7 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
     fontFamily: settingsObj['fontFamily'] || 'Inter',
     gaMeasurementId: settingsObj['gaMeasurementId'] || '',
     plausibleDomain: settingsObj['plausibleDomain'] || '',
+    stripePriceId: settingsObj['stripePriceId'] || '',
   }
 })
 
@@ -37,6 +38,7 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     fontFamily: string;
     gaMeasurementId: string;
     plausibleDomain: string;
+    stripePriceId: string;
   }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
@@ -57,6 +59,7 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     await upsert('fontFamily', data.fontFamily)
     await upsert('gaMeasurementId', data.gaMeasurementId)
     await upsert('plausibleDomain', data.plausibleDomain)
+    await upsert('stripePriceId', data.stripePriceId)
 
     return { ok: true as const }
   })
@@ -75,6 +78,7 @@ function SettingsPage() {
   const [fontFamily, setFontFamily] = useState(initialSettings.fontFamily)
   const [gaMeasurementId, setGaMeasurementId] = useState(initialSettings.gaMeasurementId)
   const [plausibleDomain, setPlausibleDomain] = useState(initialSettings.plausibleDomain)
+  const [stripePriceId, setStripePriceId] = useState(initialSettings.stripePriceId)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -91,7 +95,8 @@ function SettingsPage() {
         accentColor, 
         fontFamily,
         gaMeasurementId: gaMeasurementId.trim(),
-        plausibleDomain: plausibleDomain.trim()
+        plausibleDomain: plausibleDomain.trim(),
+        stripePriceId: stripePriceId.trim()
       } })
       setMessage('Settings saved successfully!')
     } catch {
@@ -231,6 +236,23 @@ function SettingsPage() {
                     />
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Leaves out "https://"</p>
                   </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Monetization (Stripe)</h3>
+                <div className="space-y-2">
+                  <label htmlFor="stripePriceId" className="text-xs font-black uppercase tracking-widest text-foreground">
+                    Premium Plan Price ID
+                  </label>
+                  <input
+                    id="stripePriceId"
+                    value={stripePriceId}
+                    onChange={(e) => setStripePriceId(e.target.value)}
+                    className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                    placeholder="price_H5v..."
+                  />
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Obtido no dashboard do Stripe</p>
                 </div>
               </div>
             </div>

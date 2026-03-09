@@ -4,9 +4,10 @@ import { Lock } from 'lucide-react'
 
 interface PaywallProps {
   onSubscribe?: () => void
+  isLoading?: boolean
 }
 
-export function Paywall({ onSubscribe }: PaywallProps) {
+export function Paywall({ onSubscribe, isLoading }: PaywallProps) {
   return (
     <div className="relative mt-8">
       {/* Content blur effect */}
@@ -27,8 +28,8 @@ export function Paywall({ onSubscribe }: PaywallProps) {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <Button size="lg" className="text-lg px-8 font-semibold" onClick={onSubscribe}>
-            Assinar agora
+          <Button size="lg" className="text-lg px-8 font-semibold" onClick={onSubscribe} disabled={isLoading}>
+            {isLoading ? 'Aguarde...' : 'Assinar agora'}
           </Button>
           <Button variant="outline" size="lg" asChild>
             <Link to="/">Entrar na minha conta</Link>

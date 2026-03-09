@@ -16,6 +16,7 @@ interface PostFormInput {
   metaTitle?: string
   metaDescription?: string
   ogImage?: string
+  isPremium: boolean
   status: 'draft' | 'published' | 'scheduled' | 'private'
   publishedAt?: Date
 }
@@ -36,6 +37,7 @@ const createPost = createServerFn({ method: 'POST' })
         metaDescription: data.metaDescription,
         ogImage: data.ogImage,
         authorId: session.user.id,
+        isPremium: data.isPremium,
         status: data.status,
         publishedAt: data.publishedAt || new Date(),
         updatedAt: new Date(),
@@ -67,6 +69,7 @@ function NewPostPage() {
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDescription, setMetaDescription] = useState('')
   const [ogImage, setOgImage] = useState('')
+  const [isPremium, setIsPremium] = useState(false)
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'private'>('published')
   const [publishedAt, setPublishedAt] = useState<string>(new Date().toISOString().slice(0, 16))
   const [saving, setSaving] = useState(false)
@@ -94,6 +97,7 @@ function NewPostPage() {
           metaTitle: metaTitle.trim() || undefined,
           metaDescription: metaDescription.trim() || undefined,
           ogImage: ogImage.trim() || undefined,
+          isPremium,
           status,
           publishedAt: status === 'scheduled' ? new Date(publishedAt) : (status === 'published' ? new Date() : undefined),
         },
@@ -237,6 +241,20 @@ function NewPostPage() {
           )}
         </div>
         
+        <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <input
+            id="isPremium"
+            type="checkbox"
+            checked={isPremium}
+            onChange={(e) => setIsPremium(e.target.checked)}
+            className="h-5 w-5 rounded border-primary bg-background text-primary focus:ring-primary"
+          />
+          <label htmlFor="isPremium" className="flex flex-col cursor-pointer">
+            <span className="text-sm font-bold text-foreground">Post Premium</span>
+            <span className="text-xs text-muted-foreground">Somente assinantes pagos poderão ler o conteúdo completo.</span>
+          </label>
+        </div>
+
         <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
           <div>
             <label htmlFor="status" className="mb-2 block text-sm font-semibold text-foreground">

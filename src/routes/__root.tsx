@@ -35,6 +35,7 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => 
     fontFamily: settingsObj["fontFamily"] || "Inter",
     gaMeasurementId: settingsObj["gaMeasurementId"] || "",
     plausibleDomain: settingsObj["plausibleDomain"] || "",
+    blogLogo: settingsObj["blogLogo"] || "",
   };
 });
 
@@ -50,72 +51,78 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   },
   loader: () => getGlobalSettings(),
 
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'VibeZine | Bold Stories',
-      },
-      {
-        name: 'description',
-        content:
-          'VibeZine is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.',
-      },
-      {
-        property: 'og:site_name',
-        content: 'VibeZine',
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        property: 'og:title',
-        content: 'VibeZine Blog',
-      },
-      {
-        property: 'og:description',
-        content:
-          'A vibrant zine-style blog for the next generation of creators.',
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'theme-color',
-        content: '#ff5c00', /* Deep Orange */
-      },
-    ],
-    links: [
-      {
-        rel: 'icon',
-        href: '/favicon.ico',
-      },
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-      {
-        rel: 'alternate',
-        type: 'application/rss+xml',
-        title: 'RSS Feed',
-        href: '/rss.xml',
-      },
-      {
-        rel: 'sitemap',
-        type: 'application/xml',
-        title: 'Sitemap',
-        href: '/sitemap.xml',
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const settings = loaderData as any
+    const blogName = settings?.blogName || 'VibeZine'
+    const accentColor = settings?.accentColor || '#ff5c00'
+    
+    return {
+      meta: [
+        {
+          charSet: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1',
+        },
+        {
+          title: `${blogName} | Bold Stories`,
+        },
+        {
+          name: 'description',
+          content:
+            `${blogName} is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.`,
+        },
+        {
+          property: 'og:site_name',
+          content: blogName,
+        },
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          property: 'og:title',
+          content: `${blogName} Blog`,
+        },
+        {
+          property: 'og:description',
+          content:
+            'A vibrant zine-style blog for the next generation of creators.',
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        {
+          name: 'theme-color',
+          content: accentColor,
+        },
+      ],
+      links: [
+        {
+          rel: 'icon',
+          href: '/favicon.ico',
+        },
+        {
+          rel: 'stylesheet',
+          href: appCss,
+        },
+        {
+          rel: 'alternate',
+          type: 'application/rss+xml',
+          title: 'RSS Feed',
+          href: '/rss.xml',
+        },
+        {
+          rel: 'sitemap',
+          type: 'application/xml',
+          title: 'Sitemap',
+          href: '/sitemap.xml',
+        },
+      ],
+    }
+  },
   shellComponent: RootDocument,
   errorComponent: RootErrorComponent,
   notFoundComponent: RootNotFoundComponent,

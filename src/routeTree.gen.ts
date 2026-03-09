@@ -16,6 +16,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
@@ -32,6 +33,7 @@ import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
+import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -71,6 +73,11 @@ const RssXmlRoute = RssXmlRouteImport.update({
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
 const PublicContactRoute = PublicContactRouteImport.update({
@@ -156,6 +163,12 @@ const ApiStripeCheckoutRoute = ApiStripeCheckoutRouteImport.update({
   path: '/api/stripe/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterUnsubscribeRoute =
+  ApiNewsletterUnsubscribeRouteImport.update({
+    id: '/api/newsletter/unsubscribe',
+    path: '/api/newsletter/unsubscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   id: '/api/media/$',
   path: '/api/media/$',
@@ -193,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -202,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -221,6 +236,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -231,6 +247,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -253,6 +270,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -263,6 +281,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -286,6 +305,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/about'
     | '/contact'
+    | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -295,6 +315,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/cron/publish'
     | '/api/media/$'
+    | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -314,6 +335,7 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/contact'
+    | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -324,6 +346,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/cron/publish'
     | '/api/media/$'
+    | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -345,6 +368,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/_public/about'
     | '/_public/contact'
+    | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -355,6 +379,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/cron/publish'
     | '/api/media/$'
+    | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -380,6 +405,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPublishRoute: typeof ApiCronPublishRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
+  ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
@@ -433,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_public/contact': {
@@ -547,6 +580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStripeCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/unsubscribe': {
+      id: '/api/newsletter/unsubscribe'
+      path: '/api/newsletter/unsubscribe'
+      fullPath: '/api/newsletter/unsubscribe'
+      preLoaderRoute: typeof ApiNewsletterUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/$': {
       id: '/api/media/$'
       path: '/api/media/$'
@@ -614,6 +654,7 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface DashboardRouteChildren {
+  DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
@@ -631,6 +672,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
@@ -659,6 +701,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPublishRoute: ApiCronPublishRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
+  ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }

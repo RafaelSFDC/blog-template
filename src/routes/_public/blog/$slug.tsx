@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
-import { posts, comments } from "#/db/schema";
+import { posts, comments, appSettings } from "#/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
 import { MarkdownContent } from "#/components/markdown-content";
 import { BlogHero } from "#/components/blog-hero";
@@ -14,6 +14,7 @@ import { CommentForm } from "#/components/blog/comment-form";
 import { Paywall } from "#/components/blog/paywall";
 import { auth } from "#/lib/auth";
 import { user } from "#/db/schema";
+import { useState } from "react";
 
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -50,6 +51,14 @@ const getPostBySlug = createServerFn({ method: "GET" })
         post.content = post.content.substring(0, 500) + '...'
     }
 
+    // Fetch blog settings for SEO
+    const settings = await db.select().from(appSettings);
+    const settingsObj: Record<string, string> = {};
+    settings.forEach((s: any) => {
+      settingsObj[s.key] = s.value;
+    });
+    const blogName = settingsObj["blogName"] || "VibeZine";
+
     // Increment view count
     await db
       .update(posts)
@@ -68,11 +77,18 @@ const getPostBySlug = createServerFn({ method: "GET" })
       limit: 3,
     });
 
+    // Fetch Stripe Price ID from settings
+    const stripePriceId = await db.query.appSettings.findFirst({
+        where: eq(appSettings.key, 'stripePriceId')
+    }).then((s: { key: string; value: string; updatedAt: Date | null } | undefined) => s?.value)
+
     return {
       post,
       comments: commentsList,
       recommended: (recommended as any[]) || [],
       hasAccess,
+      stripePriceId,
+      blogName,
     };
   });
 
@@ -100,38 +116,32 @@ const addComment = createServerFn({ method: "POST" })
 export const Route = createFileRoute("/_public/blog/$slug")({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
   head: ({ loaderData }) => {
-    const post = loaderData?.post
+    const data = loaderData as any
+    const post = data?.post
+    const blogName = data?.blogName || 'VibeZine'
+    
     if (!post) {
       return {
-        meta: [{ title: 'Post Not Found | VibeZine' }],
+        meta: [{ title: `Post Not Found | ${blogName}` }],
       }
     }
 
+    const title = `${post.metaTitle || post.title} | ${blogName}`
+    const description = post.metaDescription || post.excerpt
+    const image = post.ogImage || post.coverImage || undefined
+
     return {
       meta: [
-        {
-          title: `${post.metaTitle || post.title} | VibeZine`,
-        },
-        {
-          name: 'description',
-          content: post.metaDescription || post.excerpt,
-        },
-        {
-          property: 'og:title',
-          content: post.metaTitle || post.title,
-        },
-        {
-          property: 'og:description',
-          content: post.metaDescription || post.excerpt,
-        },
-        {
-          property: 'og:image',
-          content: post.ogImage || post.coverImage || undefined,
-        },
-        {
-          property: 'og:type',
-          content: 'article',
-        },
+        { title },
+        { name: 'description', content: description },
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: image },
+        { property: 'og:type', content: 'article' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: image },
       ],
     }
   },
@@ -139,8 +149,45 @@ export const Route = createFileRoute("/_public/blog/$slug")({
 });
 
 function PostDetail() {
-  const { post, comments, recommended, hasAccess }: any = Route.useLoaderData();
+  const { post, comments, recommended, hasAccess, stripePriceId }: any = Route.useLoaderData();
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const [subscribing, setSubscribing] = useState(false)
+
+  async function handleSubscribe() {
+    if (!stripePriceId) {
+        alert('O checkout do Stripe ainda não foi configurado pelo administrador.')
+        return
+    }
+
+    try {
+        setSubscribing(true)
+        const response = await fetch('/api/stripe/checkout', {
+            method: 'POST',
+            body: JSON.stringify({ priceId: stripePriceId }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        if (response.status === 401) {
+            // Redirect to login if not authenticated
+            window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.href)}`
+            return
+        }
+
+        const data = await response.json()
+        if (data.url) {
+            window.location.href = data.url
+        } else {
+            throw new Error('No checkout URL received')
+        }
+    } catch (error) {
+        console.error('Checkout error:', error)
+        alert('Ocorreu um erro ao iniciar o checkout. Tente novamente.')
+    } finally {
+        setSubscribing(false)
+    }
+  }
 
   return (
     <main className="pb-20 pt-10">
@@ -160,11 +207,7 @@ function PostDetail() {
         <article className="island-shell prose-lg bg-card p-6 sm:p-12 rounded-2xl relative overflow-hidden">
           <MarkdownContent content={post.content} />
           {!hasAccess && (
-            <Paywall onSubscribe={() => {
-                // Redirect to checkout API or open pricing
-                window.location.href = '/api/stripe/checkout' 
-                // Note: Simplified for now, usually you'd POST with a priceId
-            }} />
+            <Paywall onSubscribe={handleSubscribe} isLoading={subscribing} />
           )}
         </article>
 
