@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { createServerFn } from '@tanstack/react-start'
 import { webhooks } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -55,25 +56,19 @@ function WebhooksPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-        <div>
-          <div className="mb-4 flex items-center gap-2 text-primary">
-            <Webhook size={20} strokeWidth={3} />
-            <p className="island-kicker mb-0">Integrations</p>
-          </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">Webhooks</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-            Notify external services when posts are published.
-          </p>
-        </div>
-        
+      <DashboardHeader
+        title="Webhooks"
+        description="Notify external services when posts are published."
+        icon={Webhook}
+        iconLabel="Integrations"
+      >
         <Button asChild variant="zine" size="lg" className="rounded-2xl shadow-zine-sm">
           <a href="/dashboard/webhooks/new">
             <Plus size={20} className="mr-2" strokeWidth={3} />
             New Webhook
           </a>
         </Button>
-      </header>
+      </DashboardHeader>
 
       <section className="island-shell rounded-3xl p-6 sm:p-10 bg-card border-3 border-border/50">
         <div className="overflow-x-auto">

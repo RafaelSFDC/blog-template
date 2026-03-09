@@ -35,6 +35,8 @@ export const Route = createFileRoute('/dashboard/posts/')({
   component: PostsManagementPage,
 })
 
+import { DashboardHeader } from '#/components/dashboard/Header'
+
 function PostsManagementPage() {
   const postList = useLoaderData({ from: '/dashboard/posts/' })
   const router = useRouter()
@@ -61,24 +63,19 @@ function PostsManagementPage() {
 
   return (
     <div className="space-y-8">
-      <header className="island-shell flex flex-wrap items-end justify-between gap-6 rounded-3xl p-8 sm:p-10">
-        <div>
-          <div className="mb-4 flex items-center gap-2 text-primary">
-            <FileText size={20} strokeWidth={3} />
-            <p className="island-kicker mb-0">Content Library</p>
-          </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl">Manage Posts</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-            Create drafts, edit published articles, and maintain your blog archive.
-          </p>
-        </div>
+      <DashboardHeader
+        title="Manage Posts"
+        description="Create drafts, edit published articles, and maintain your blog archive."
+        icon={FileText}
+        iconLabel="Content Library"
+      >
         <Button asChild variant="zine" size="lg" className="rounded-xl h-14 px-8 shadow-zine-sm">
           <Link to="/dashboard/posts/new" className="flex items-center gap-2 no-underline">
             <Plus size={20} strokeWidth={3} />
             <span className="uppercase tracking-widest font-black">New Post</span>
           </Link>
         </Button>
-      </header>
+      </DashboardHeader>
 
       {errorMessage ? (
         <div className="rounded-xl border-3 border-destructive/20 bg-destructive/5 px-6 py-4 text-sm font-bold text-destructive flex items-center gap-3">

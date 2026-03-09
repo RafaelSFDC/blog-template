@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { createServerFn } from '@tanstack/react-start'
 import { contactMessages } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -56,15 +57,12 @@ function MessagesPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-4xl p-8 sm:p-10">
-        <p className="island-kicker mb-4">Communication</p>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase tracking-tighter">
-          Inbox
-        </h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground font-bold">
-          Manage inquiries and messages from your site's contact form.
-        </p>
-      </header>
+      <DashboardHeader
+        title="Inbox"
+        description="Manage inquiries and messages from your site's contact form."
+        icon={Inbox}
+        iconLabel="Communication"
+      />
 
       <div className="grid gap-6">
         {messages.length > 0 ? (

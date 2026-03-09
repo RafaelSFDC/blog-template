@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { comments, posts } from '#/db/schema'
@@ -65,15 +66,12 @@ function CommentsPage() {
 
   return (
     <div className="space-y-8">
-      <section className="island-shell rounded-4xl p-8 sm:p-10">
-        <p className="island-kicker mb-4">Community Management</p>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase tracking-tighter">
-          Comments
-        </h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground font-bold">
-          Moderate discussions and manage feedback across your publication.
-        </p>
-      </section>
+      <DashboardHeader
+        title="Comments"
+        description="Moderate discussions and manage feedback across your publication."
+        icon={MessageSquare}
+        iconLabel="Community Management"
+      />
 
       <div className="grid gap-6">
         {commentsList.length > 0 ? (

@@ -33,6 +33,8 @@ export const Route = createFileRoute('/dashboard/')({
   component: DashboardOverview,
 })
 
+import { DashboardHeader } from '#/components/dashboard/Header'
+
 function DashboardOverview() {
   const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } = Route.useLoaderData()
 
@@ -45,13 +47,12 @@ function DashboardOverview() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10">
-        <p className="island-kicker mb-4 text-primary font-black uppercase tracking-widest">Overview</p>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase tracking-tighter">Editorial Dashboard</h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-          Welcome back. Here is a snapshot of your publication's current performance and status.
-        </p>
-      </header>
+      <DashboardHeader 
+        title="Editorial Dashboard"
+        description="Welcome back. Here is a snapshot of your publication's current performance and status."
+        icon={TrendingUp}
+        iconLabel="Overview"
+      />
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (

@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { createServerFn } from '@tanstack/react-start'
 import { authClient } from '#/lib/auth-client'
 import { requireSuperAdminSession } from '#/lib/admin-auth'
@@ -86,18 +87,12 @@ function UsersManagementPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10 flex flex-wrap items-center justify-between gap-6">
-        <div>
-          <div className="mb-4 flex items-center gap-2 text-primary">
-            <Shield size={20} strokeWidth={3} />
-            <p className="island-kicker mb-0 uppercase tracking-widest font-black text-[10px]">Security & Access</p>
-          </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase tracking-tighter">Identity Control</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-            Manage your editorial team and community members. Audit access levels and identities.
-          </p>
-        </div>
-      </header>
+      <DashboardHeader
+        title="Identity Control"
+        description="Manage your editorial team and community members. Audit access levels and identities."
+        icon={Shield}
+        iconLabel="Security & Access"
+      />
 
       <div className="grid gap-6">
         {loading ? (

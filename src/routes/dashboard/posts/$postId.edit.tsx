@@ -3,11 +3,42 @@ import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
 import { posts } from '#/db/schema'
 import { eq } from 'drizzle-orm'
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { TiptapEditor } from '#/components/tiptap-editor'
+import { postCategories, postTags } from '#/db/schema'
+import { getCategories, getTags } from '#/server/taxonomy-actions'
+import { useQuery } from '@tanstack/react-query'
 
 import { triggerWebhook } from '#/lib/webhooks'
+import { useForm } from '@tanstack/react-form'
+import { z } from 'zod'
+import { 
+  Field, 
+  FieldError, 
+  FieldGroup, 
+  FieldLabel 
+} from '#/components/ui/field'
+import { Input } from '#/components/ui/input'
+import { Textarea } from '#/components/ui/textarea'
+import { Checkbox } from '#/components/ui/checkbox'
+import { Switch } from '#/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '#/components/ui/select'
+
+const postSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  excerpt: z.string().min(1, 'Excerpt is required'),
+  content: z.string().min(1, 'Content is required'),
+  metaTitle: z.string(),
+  metaDescription: z.string(),
+  ogImage: z.string(),
+  isPremium: z.boolean(),
+  status: z.enum(['draft', 'published', 'scheduled', 'private']),
+  publishedAt: z.string(),
+  categoryIds: z.array(z.number()),
+  tagIds: z.array(z.number()),
+})
 
 interface PostFormInput {
   id: number
@@ -21,6 +52,8 @@ interface PostFormInput {
   isPremium: boolean
   status: 'draft' | 'published' | 'scheduled' | 'private'
   publishedAt?: Date
+  categoryIds: number[]
+  tagIds: number[]
 }
 
 const getPostForEdit = createServerFn({ method: 'GET' })
@@ -30,6 +63,10 @@ const getPostForEdit = createServerFn({ method: 'GET' })
     const { db } = await import('#/db/index');
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, data.id),
+      with: {
+        postCategories: true,
+        postTags: true
+      }
     })
 
     if (!post) {
@@ -60,6 +97,22 @@ const updatePost = createServerFn({ method: 'POST' })
         updatedAt: new Date(),
       })
       .where(eq(posts.id, data.id))
+
+    // Sync categories
+    await db.delete(postCategories).where(eq(postCategories.postId, data.id))
+    if (data.categoryIds.length > 0) {
+      await db.insert(postCategories).values(
+        data.categoryIds.map(categoryId => ({ postId: data.id, categoryId }))
+      )
+    }
+
+    // Sync tags
+    await db.delete(postTags).where(eq(postTags.postId, data.id))
+    if (data.tagIds.length > 0) {
+      await db.insert(postTags).values(
+        data.tagIds.map(tagId => ({ postId: data.id, tagId }))
+      )
+    }
 
     if (data.status === 'published') {
       await triggerWebhook('post.published', {
@@ -96,56 +149,80 @@ function slugify(value: string) {
 function EditPostPage() {
   const post = Route.useLoaderData()
   const navigate = useNavigate()
-  const [title, setTitle] = useState(post.title)
-  const [slug, setSlug] = useState(post.slug)
-  const [excerpt, setExcerpt] = useState(post.excerpt)
-  const [content, setContent] = useState(post.content)
-  const [metaTitle, setMetaTitle] = useState(post.metaTitle || '')
-  const [metaDescription, setMetaDescription] = useState(post.metaDescription || '')
-  const [ogImage, setOgImage] = useState(post.ogImage || '')
-  const [isPremium, setIsPremium] = useState(post.isPremium || false)
-  const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'private'>(post.status as any)
-  const [publishedAt, setPublishedAt] = useState<string>(
-    post.publishedAt ? new Date(post.publishedAt).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16)
-  )
-  const [saving, setSaving] = useState(false)
+  const form = useForm({
+    defaultValues: {
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      metaTitle: post.metaTitle || '',
+      metaDescription: post.metaDescription || '',
+      ogImage: post.ogImage || '',
+      isPremium: post.isPremium || false,
+      status: post.status as 'draft' | 'published' | 'scheduled' | 'private',
+      publishedAt: post.publishedAt ? new Date(post.publishedAt).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+      categoryIds: post.postCategories?.map((pc: any) => pc.categoryId) || [] as number[],
+      tagIds: post.postTags?.map((pt: any) => pt.tagId) || [] as number[],
+    },
+    validators: {
+      onChange: postSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const normalizedSlug = value.slug || slugify(value.title)
+      if (!normalizedSlug) {
+        setErrorMessage('Add a title or slug so the post URL can be generated.')
+        return
+      }
+
+      try {
+        setSaving(true)
+        setErrorMessage('')
+        await updatePost({
+          data: {
+            id: post.id,
+            title: value.title.trim(),
+            slug: normalizedSlug,
+            excerpt: value.excerpt.trim(),
+            content: value.content.trim(),
+            metaTitle: value.metaTitle?.trim() || undefined,
+            metaDescription: value.metaDescription?.trim() || undefined,
+            ogImage: value.ogImage?.trim() || undefined,
+            isPremium: value.isPremium,
+            status: value.status,
+            publishedAt: value.status === 'scheduled' ? new Date(value.publishedAt || '') : (value.status === 'published' ? new Date() : undefined),
+            categoryIds: value.categoryIds,
+            tagIds: value.tagIds,
+          },
+        })
+        await navigate({ to: '/dashboard' })
+      } catch (e) {
+        console.error(e)
+        setErrorMessage('Could not update this post. Check the slug and try again.')
+      } finally {
+        setSaving(false)
+      }
+    },
+  })
+
+  // UI-only states
   const [errorMessage, setErrorMessage] = useState('')
   const [showSEO, setShowSEO] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => getCategories()
+  })
+
+  const { data: tags = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: () => getTags()
+  })
+
+  async function handleSubmit(event: any) {
     event.preventDefault()
-
-    const normalizedSlug = slugify(slug || title)
-    if (!normalizedSlug) {
-      setErrorMessage('Add a title or slug so the post URL can be generated.')
-      return
-    }
-
-    try {
-      setSaving(true)
-      setErrorMessage('')
-      await updatePost({
-        data: {
-          id: post.id,
-          title: title.trim(),
-          slug: normalizedSlug,
-          excerpt: excerpt.trim(),
-          content: content.trim(),
-          metaTitle: metaTitle.trim() || undefined,
-          metaDescription: metaDescription.trim() || undefined,
-          ogImage: ogImage.trim() || undefined,
-          isPremium,
-          status,
-          publishedAt: status === 'scheduled' ? new Date(publishedAt) : (status === 'published' ? new Date() : undefined),
-        },
-      })
-      await navigate({ to: '/dashboard' })
-    } catch (e) {
-      console.error(e)
-      setErrorMessage('Could not update this post. Check the slug and try again.')
-    } finally {
-      setSaving(false)
-    }
+    event.stopPropagation()
+    form.handleSubmit()
   }
 
   return (
@@ -158,66 +235,153 @@ function EditPostPage() {
         </p>
       </section>
 
-      <form onSubmit={onSubmit} className="island-shell mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8">
-        <div>
-          <label htmlFor="title" className="mb-2 block text-sm font-semibold text-foreground">
-            Title
-          </label>
-          <input
-            id="title"
+      <form onSubmit={handleSubmit} className="island-shell mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8">
+        <FieldGroup>
+          <form.Field
             name="title"
-            type="text"
-            required
-            autoComplete="off"
-            value={title}
-            onChange={(event) => setTitle(event.currentTarget.value)}
-            placeholder="Designing A Better Publishing Workflow…"
-            className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+            children={(field) => {
+              const isInvalid = !!field.state.meta.errors.length
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      field.handleChange(e.target.value)
+                      const currentSlug = form.getFieldValue('slug')
+                      if (!currentSlug || currentSlug === slugify(field.state.value)) {
+                        form.setFieldValue('slug', slugify(e.target.value))
+                      }
+                    }}
+                    placeholder="Designing A Better Publishing Workflow…"
+                    className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
+                </Field>
+              )
+            }}
           />
-        </div>
 
-        <div>
-          <label htmlFor="slug" className="mb-2 block text-sm font-semibold text-foreground">
-            Slug
-          </label>
-          <input
-            id="slug"
+          <form.Field
             name="slug"
-            type="text"
-            required
-            autoComplete="off"
-            spellCheck={false}
-            value={slug}
-            onChange={(event) => setSlug(slugify(event.currentTarget.value))}
-            placeholder="designing-a-better-publishing-workflow…"
-            className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+            children={(field) => {
+              const isInvalid = !!field.state.meta.errors.length
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Slug</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(slugify(e.target.value))}
+                    placeholder="designing-a-better-publishing-workflow…"
+                    className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
+                </Field>
+              )
+            }}
           />
-        </div>
 
-        <div>
-          <label htmlFor="excerpt" className="mb-2 block text-sm font-semibold text-foreground">
-            Excerpt
-          </label>
-          <textarea
-            id="excerpt"
+          <form.Field
             name="excerpt"
-            required
-            value={excerpt}
-            onChange={(event) => setExcerpt(event.currentTarget.value)}
-            placeholder="Summarize the key argument of this post in 1 short paragraph…"
-            className="min-h-28 w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+            children={(field) => {
+              const isInvalid = !!field.state.meta.errors.length
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Excerpt</FieldLabel>
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Summarize the key argument of this post in 1 short paragraph…"
+                    className="min-h-28 w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
+                </Field>
+              )
+            }}
           />
-        </div>
 
-        <div>
-          <label htmlFor="content" className="mb-2 block text-sm font-semibold text-foreground">
-            Content
-          </label>
-          <TiptapEditor 
-            content={content} 
-            onChange={setContent} 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
+            <form.Field
+              name="categoryIds"
+              children={(field) => (
+                <Field>
+                  <FieldLabel>Categories</FieldLabel>
+                  <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
+                    {categories.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">No categories available.</p>
+                    ) : (
+                      categories.map((cat: any) => (
+                        <label key={cat.id} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors">
+                          <Checkbox
+                            checked={field.state.value.includes(cat.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) field.handleChange([...field.state.value, cat.id])
+                              else field.handleChange(field.state.value.filter((id: number) => id !== cat.id))
+                            }}
+                          />
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </Field>
+              )}
+            />
+
+            <form.Field
+              name="tagIds"
+              children={(field) => (
+                <Field>
+                  <FieldLabel>Tags</FieldLabel>
+                  <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
+                    {tags.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">No tags available.</p>
+                    ) : (
+                      tags.map((tag: any) => (
+                        <label key={tag.id} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors">
+                          <Checkbox
+                            checked={field.state.value.includes(tag.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) field.handleChange([...field.state.value, tag.id])
+                              else field.handleChange(field.state.value.filter((id: number) => id !== tag.id))
+                            }}
+                          />
+                          <span className="text-sm font-medium">#{tag.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </Field>
+              )}
+            />
+          </div>
+
+          <form.Field
+            name="content"
+            children={(field) => {
+              const isInvalid = !!field.state.meta.errors.length
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>Content</FieldLabel>
+                  <TiptapEditor 
+                    content={field.state.value} 
+                    onChange={field.handleChange} 
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
+                </Field>
+              )
+            }}
           />
-        </div>
+        </FieldGroup>
 
         <div className="border-t border-border pt-6">
           <button
@@ -230,95 +394,126 @@ function EditPostPage() {
           
           {showSEO && (
             <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
-              <div>
-                <label htmlFor="metaTitle" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Meta Title (Google Title)
-                </label>
-                <input
-                  id="metaTitle"
-                  type="text"
-                  value={metaTitle}
-                  onChange={(e) => setMetaTitle(e.target.value)}
-                  placeholder="Se ometido, usará o título do post"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="metaDescription" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Meta Description
-                </label>
-                <textarea
-                  id="metaDescription"
-                  value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
-                  placeholder="Descrição curta para os resultados de busca..."
-                  className="min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="ogImage" className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  OG Image URL
-                </label>
-                <input
-                  id="ogImage"
-                  type="text"
-                  value={ogImage}
-                  onChange={(e) => setOgImage(e.target.value)}
-                  placeholder="https://exemplo.com/imagem.jpg"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
-          <div>
-            <label htmlFor="status" className="mb-2 block text-sm font-semibold text-foreground">
-              Status
-            </label>
-            <select
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as any)}
-              className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
-            >
-              <option value="published">Published</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="draft">Draft</option>
-              <option value="private">Private</option>
-            </select>
-          </div>
-
-          {status === 'scheduled' && (
-            <div>
-              <label htmlFor="publishedAt" className="mb-2 block text-sm font-semibold text-foreground">
-                Publication Date
-              </label>
-              <input
-                id="publishedAt"
-                type="datetime-local"
-                value={publishedAt}
-                onChange={(e) => setPublishedAt(e.target.value)}
-                className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+              <form.Field
+                name="metaTitle"
+                children={(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Meta Title (Google Title)</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Se ometido, usará o título do post"
+                      className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </Field>
+                )}
+              />
+              <form.Field
+                name="metaDescription"
+                children={(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Meta Description</FieldLabel>
+                    <Textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Descrição curta para os resultados de busca..."
+                      className="min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </Field>
+                )}
+              />
+              <form.Field
+                name="ogImage"
+                children={(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>OG Image URL</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="https://exemplo.com/imagem.jpg"
+                      className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </Field>
+                )}
               />
             </div>
           )}
         </div>
 
-        <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <input
-            id="isPremium"
-            type="checkbox"
-            checked={isPremium}
-            onChange={(e) => setIsPremium(e.target.checked)}
-            className="h-5 w-5 rounded border-primary bg-background text-primary focus:ring-primary"
+        <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
+          <form.Field
+            name="status"
+            children={(field) => (
+              <Field>
+                <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                <Select
+                  value={field.state.value}
+                  onValueChange={(val) => field.handleChange(val as any)}
+                >
+                  <SelectTrigger id={field.name} className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
           />
-          <label htmlFor="isPremium" className="flex flex-col cursor-pointer">
-            <span className="text-sm font-bold text-foreground">Post Premium</span>
-            <span className="text-xs text-muted-foreground">Somente assinantes pagos poderão ler o conteúdo completo.</span>
-          </label>
+
+          <form.Subscribe
+            selector={(state) => state.values.status}
+            children={(status: any) => {
+              if (status !== ('scheduled' as any)) return null
+              return (
+                <form.Field
+                  name="publishedAt"
+                  children={(field) => (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Publication Date</FieldLabel>
+                      <Input
+                        id={field.name}
+                        type="datetime-local"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+                      />
+                    </Field>
+                  )}
+                />
+              )
+            }}
+          />
         </div>
+
+        <form.Field
+          name="isPremium"
+          children={(field) => (
+            <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <Switch
+                id={field.name}
+                checked={field.state.value}
+                onCheckedChange={(val) => field.handleChange(val as any)}
+              />
+              <label htmlFor={field.name} className="flex flex-col cursor-pointer">
+                <span className="text-sm font-bold text-foreground">Post Premium</span>
+                <span className="text-xs text-muted-foreground">Somente assinantes pagos poderão ler o conteúdo completo.</span>
+              </label>
+            </div>
+          )}
+        />
 
         {errorMessage ? (
           <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">

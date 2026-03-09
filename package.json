@@ -45,6 +45,7 @@
     "@tanstack/react-start": "latest",
     "@tanstack/react-table": "latest",
     "@tanstack/router-plugin": "^1.132.0",
+    "@tanstack/zod-form-adapter": "^0.42.1",
     "@tiptap/core": "^3.20.1",
     "@tiptap/extension-color": "^3.20.1",
     "@tiptap/extension-heading": "^3.20.1",

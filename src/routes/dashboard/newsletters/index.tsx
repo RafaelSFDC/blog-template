@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { createServerFn } from '@tanstack/react-start'
-import { newsletters, subscribers } from '#/db/schema'
+import { newsletters } from '#/db/schema'
 import { desc, eq } from 'drizzle-orm'
 import { Button } from '#/components/ui/button'
 import { requireAdminSession } from '#/lib/admin-auth'
@@ -66,14 +67,12 @@ function NewsletterIndexPage() {
 
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
-      <section className="island-shell flex flex-col items-start justify-between gap-6 rounded-4xl p-8 sm:p-10 md:flex-row md:items-center">
-        <div>
-          <p className="island-kicker mb-4">Marketing & Growth</p>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl">Newsletters</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            Connect directly with your audience through curated email campaigns.
-          </p>
-        </div>
+      <DashboardHeader
+        title="Newsletters"
+        description="Connect directly with your audience through curated email campaigns."
+        icon={Mail}
+        iconLabel="Marketing & Growth"
+      >
         <div className="flex flex-wrap gap-3">
           <Button 
             variant="zine-outline" 
@@ -99,7 +98,7 @@ function NewsletterIndexPage() {
             </Link>
           </Button>
         </div>
-      </section>
+      </DashboardHeader>
 
       <div className="mt-8 space-y-4">
         {data.length === 0 ? (

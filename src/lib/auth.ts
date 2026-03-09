@@ -15,10 +15,13 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user: any) => {
-          const users = await db.query.user.findFirst();
+          // Check if any user already exists
+          const existingUser = await db.select({ id: schema.user.id }).from(schema.user).limit(1);
+          const isFirstUser = existingUser.length === 0;
+          
           return {
             ...user,
-            role: users ? 'reader' : 'admin',
+            role: isFirstUser ? 'admin' : 'reader',
           } as any;
         },
       },

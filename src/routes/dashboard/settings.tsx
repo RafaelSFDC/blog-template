@@ -85,6 +85,8 @@ export const Route = createFileRoute('/dashboard/settings')({
   component: SettingsPage,
 })
 
+import { DashboardHeader } from '#/components/dashboard/Header'
+
 function SettingsPage() {
   const initialSettings = Route.useLoaderData()
   const [blogName, setBlogName] = useState(initialSettings.blogName)
@@ -134,16 +136,12 @@ function SettingsPage() {
 
   return (
     <div className="space-y-10">
-      <header className="island-shell rounded-3xl p-8 sm:p-10">
-        <div className="mb-4 flex items-center gap-2 text-primary">
-          <SettingsIcon size={20} strokeWidth={3} />
-          <p className="island-kicker mb-0">Configuration</p>
-        </div>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">Blog Settings</h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-          Manage your publication's identity and global configuration.
-        </p>
-      </header>
+      <DashboardHeader
+        title="Blog Settings"
+        description="Manage your publication's identity and global configuration."
+        icon={SettingsIcon}
+        iconLabel="Configuration"
+      />
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">

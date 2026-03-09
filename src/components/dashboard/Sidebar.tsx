@@ -1,7 +1,18 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree, MessageSquare, Mail, Inbox, Webhook } from 'lucide-react'
 import { authClient } from '#/lib/auth-client'
 import { Button } from '#/components/ui/button'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarGroup,
+} from '#/components/ui/sidebar'
+import { cn } from '#/lib/utils'
 
 const sidebarLinks = [
   {
@@ -69,6 +80,7 @@ const sidebarLinks = [
 export function DashboardSidebar() {
   const { data: session } = authClient.useSession()
   const role = session?.user.role
+  const location = useLocation()
 
   const filteredLinks = sidebarLinks.filter(link => {
     if (!role) return false;
@@ -96,8 +108,8 @@ export function DashboardSidebar() {
   });
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r-4 border-border bg-card shadow-zine-sm transition-transform lg:static lg:translate-x-0">
-      <div className="flex h-20 items-center border-b-4 border-border px-8">
+    <Sidebar className="border-r-4 border-border bg-card shadow-zine-sm">
+      <SidebarHeader className="h-20 border-b-4 border-border px-6 flex items-center justify-start">
         <Link to="/" className="flex items-center gap-3 no-underline">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xl shadow-zine-sm">
             V
@@ -106,36 +118,46 @@ export function DashboardSidebar() {
             Vibe<span className="text-primary">Zine</span>
           </span>
         </Link>
-      </div>
+      </SidebarHeader>
 
-      <nav className="flex-1 overflow-y-auto p-6 space-y-2">
-        <p className="px-2 pb-4 text-[0.65rem] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-70">
-          Management
-        </p>
-        {filteredLinks.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            activeProps={{
-              className: 'bg-primary text-primary-foreground border-primary shadow-zine-sm translate-x-1',
-            }}
-            inactiveProps={{
-              className: 'text-foreground hover:bg-muted hover:border-border hover:translate-x-1',
-            }}
-            className="group flex items-center justify-between rounded-xl border-3 border-transparent px-4 py-3.5 text-sm font-black transition-all no-underline"
-          >
-            <div className="flex items-center gap-3">
-              <link.icon size={20} className="shrink-0" />
-              <span className="uppercase tracking-wider">{link.label}</span>
-            </div>
-            <ChevronRight size={16} className="opacity-0 transition-opacity group-hover:opacity-100 group-[.bg-primary]:opacity-100" />
-          </Link>
-        ))}
-      </nav>
+      <SidebarContent className="p-4">
+        <SidebarGroup>
+          <div className="px-2 pb-4 text-[0.65rem] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-70">
+            Management
+          </div>
+          <SidebarMenu className="space-y-1">
+            {filteredLinks.map((link) => {
+              const isActive = location.pathname === link.to;
+              return (
+                <SidebarMenuItem key={link.to}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive}
+                    className={cn(
+                      "group flex items-center justify-between rounded-xl border-3 border-transparent px-4 py-6 text-sm font-black transition-all no-underline h-auto",
+                      isActive 
+                        ? "bg-primary text-primary-foreground border-primary shadow-zine-sm translate-x-1 hover:bg-primary/95 hover:text-primary-foreground" 
+                        : "text-foreground hover:bg-muted hover:border-border hover:translate-x-1"
+                    )}
+                  >
+                    <Link to={link.to}>
+                      <div className="flex items-center gap-3">
+                        <link.icon size={20} className="shrink-0" />
+                        <span className="uppercase tracking-wider">{link.label}</span>
+                      </div>
+                      <ChevronRight size={16} className={cn("opacity-0 transition-opacity group-hover:opacity-100", isActive && "opacity-100")} />
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
 
-      <div className="border-t-4 border-border bg-muted/30 p-6">
-        <div className="mb-6 flex items-center gap-4 px-2">
-          <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-background relative">
+      <SidebarFooter className="border-t-4 border-border bg-muted/30 p-6 flex flex-col gap-4">
+        <div className="flex items-center gap-4 px-2">
+          <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-background relative shrink-0">
              {session?.user.image ? (
                <img src={session.user.image} alt={session.user.name} className="h-full w-full object-cover" />
              ) : (
@@ -166,13 +188,13 @@ export function DashboardSidebar() {
               });
           }}
           variant="destructive"
-          className="w-full justify-start gap-3 rounded-xl border-3 border-destructive/20 bg-destructive/5 px-4 py-6 font-black text-destructive hover:bg-destructive hover:text-white transition-all shadow-zine-sm active:scale-95"
+          className="w-full justify-start gap-3 rounded-xl border-3 border-destructive/20 bg-destructive/5 px-4 py-6 font-black text-destructive hover:bg-destructive hover:text-white transition-all shadow-zine-sm active:scale-95 h-auto"
         >
           <LogOut size={20} />
           <span className="uppercase tracking-widest text-xs">Sign Out</span>
         </Button>
-      </div>
-    </aside>
+      </SidebarFooter>
+    </Sidebar>
   )
 }
 

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardHeader } from '#/components/dashboard/Header'
 import { Image, Upload, Trash2, Copy, Check } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Button } from '#/components/ui/button'
@@ -61,17 +62,12 @@ function MediaLibraryPage() {
 
   return (
     <div className="space-y-8">
-      <header className="island-shell flex flex-wrap items-end justify-between gap-6 rounded-3xl p-8 sm:p-10">
-        <div>
-          <div className="mb-4 flex items-center gap-2 text-primary">
-            <Image size={20} strokeWidth={3} />
-            <p className="island-kicker mb-0">Assets</p>
-          </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl">Media Library</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-            Manage your uploaded images and files.
-          </p>
-        </div>
+      <DashboardHeader
+        title="Media Library"
+        description="Manage your uploaded images and files."
+        icon={Image}
+        iconLabel="Assets"
+      >
         <div className="flex items-center gap-3">
           <input
             type="file"
@@ -96,7 +92,7 @@ function MediaLibraryPage() {
             )}
           </Button>
         </div>
-      </header>
+      </DashboardHeader>
 
       {mediaItems.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
