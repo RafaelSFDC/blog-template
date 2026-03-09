@@ -20,6 +20,7 @@ import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messag
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAuthRouteImport } from './routes/_public/auth'
+import { Route as PublicAccountRouteImport } from './routes/_public/account'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardWebhooksIndexRouteImport } from './routes/dashboard/webhooks/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
@@ -102,6 +103,11 @@ const PublicContactRoute = PublicContactRouteImport.update({
 const PublicAuthRoute = PublicAuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAccountRoute = PublicAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
+  '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -299,6 +306,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
+  '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -342,6 +350,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
+  '/_public/account': typeof PublicAccountRoute
   '/_public/auth': typeof PublicAuthRouteWithChildren
   '/_public/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/account'
     | '/auth'
     | '/contact'
     | '/api/comments'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
+    | '/account'
     | '/auth'
     | '/contact'
     | '/api/comments'
@@ -467,6 +478,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/dashboard'
     | '/_public/about'
+    | '/_public/account'
     | '/_public/auth'
     | '/_public/contact'
     | '/api/comments'
@@ -598,6 +610,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof PublicAuthRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/account': {
+      id: '/_public/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof PublicAccountRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/about': {
@@ -826,6 +845,7 @@ const PublicAuthRouteWithChildren = PublicAuthRoute._addFileChildren(
 
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
+  PublicAccountRoute: typeof PublicAccountRoute
   PublicAuthRoute: typeof PublicAuthRouteWithChildren
   PublicContactRoute: typeof PublicContactRoute
   PublicIndexRoute: typeof PublicIndexRoute
@@ -835,6 +855,7 @@ interface PublicRouteChildren {
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
+  PublicAccountRoute: PublicAccountRoute,
   PublicAuthRoute: PublicAuthRouteWithChildren,
   PublicContactRoute: PublicContactRoute,
   PublicIndexRoute: PublicIndexRoute,
