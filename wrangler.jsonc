@@ -5,6 +5,10 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"main": "@tanstack/react-start/server-entry",
+	"assets": {
+		"directory": ".output/public"
+	},
 	"observability": {
 		"enabled": true
 	},
