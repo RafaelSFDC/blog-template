@@ -3,7 +3,7 @@ import { db } from '#/db/index'
 import { posts } from '#/db/schema'
 import { eq, and, lte } from 'drizzle-orm'
 // @ts-ignore
-import { getEvent } from 'vinxi/http'
+import { getBinding } from '#/lib/cf-env'
 
 import { triggerWebhook } from '#/lib/webhooks'
 
@@ -14,8 +14,7 @@ export const Route = createFileRoute('/api/cron/publish')({
         const url = new URL(request.url)
         const secret = url.searchParams.get('secret')
         
-        const event = getEvent()
-        const expectedSecret = event.context.cloudflare?.env?.CRON_SECRET || event.context.env?.CRON_SECRET || 'dev-secret'
+        const expectedSecret = getBinding('CRON_SECRET') || 'dev-secret'
 
         if (secret !== expectedSecret) {
           return new Response('Unauthorized', { status: 401 })

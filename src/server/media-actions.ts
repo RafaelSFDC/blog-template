@@ -3,8 +3,7 @@ import { db } from '#/db/index'
 import { media as mediaTable } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdminSession } from '#/lib/admin-auth'
-// @ts-ignore
-import { getEvent } from 'vinxi/http'
+import { getBinding } from '#/lib/cf-env'
 
 export const getMediaItems = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -16,8 +15,7 @@ export const uploadMedia = createServerFn({ method: 'POST' })
   .inputValidator((data: any) => data)
   .handler(async ({ data }: { data: FormData }) => {
     await requireAdminSession()
-    const event = getEvent()
-    const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
+    const storage = getBinding('STORAGE')
 
     if (!storage) {
       throw new Error('Storage not configured')
@@ -57,8 +55,7 @@ export const deleteMediaItem = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: number, filename: string }) => data)
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const event = getEvent()
-    const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
+    const storage = getBinding('STORAGE')
 
     if (!storage) {
       throw new Error('Storage not configured')

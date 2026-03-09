@@ -24,22 +24,21 @@ export const db = new Proxy({} as any, {
     const dbType = process.env.DB_TYPE || 'sqlite'
     const dbUrl = process.env.DATABASE_URL
 
-    // 1. Cloudflare D1 Detection (Native or Local Simulation)
+    // 1. Cloudflare D1 Detection
     if (dbType === 'd1') {
       try {
-        // Try to get the D1 binding from Vinxi context
-        // @ts-ignore
-        const { getEvent } = requireInstance('vinxi/http')
-        const event = getEvent()
-        const foundD1 = event?.context?.cloudflare?.env?.DB || event?.context?.env?.DB || process.env.DB
+        const { env } = requireInstance('cloudflare:workers')
+        const foundD1 = env?.DB
         
         if (foundD1) {
           const { drizzle: drizzleD1 } = requireInstance('drizzle-orm/d1')
           _db = drizzleD1(foundD1, { schema })
           return (_db as any)[prop]
+        } else {
+          console.error('❌ D1 Binding "DB" not found!')
         }
       } catch (e) {
-        // Fallback if vinxi is not available
+        console.error('Error initializing D1:', e)
       }
     }
 

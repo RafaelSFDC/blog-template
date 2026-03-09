@@ -12,11 +12,10 @@ export const Route = createFileRoute('/api/media/$')({
           return new Response('File not found', { status: 404 })
         }
 
-        const { getEvent } = await import('vinxi/http')
-        const event = getEvent()
+        const { getBinding } = await import('#/lib/cf-env')
         
         // 1. Try Worker Bindings
-        const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
+        const storage = getBinding('STORAGE')
 
         if (storage) {
           const object = await storage.get(filename)

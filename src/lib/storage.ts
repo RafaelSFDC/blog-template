@@ -10,11 +10,10 @@ export const uploadMedia = createServerFn({ method: 'POST' })
     return { file }
   })
   .handler(async ({ data }: { data: { file: File } }) => {
-    const { getEvent } = await import('vinxi/http')
-    const event = getEvent()
+    const { getBinding } = await import('#/lib/cf-env')
     
     // 1. Check for Worker Bindings (Inside Cloudflare)
-    const storage = event.context.cloudflare?.env?.STORAGE || event.context.env?.STORAGE
+    const storage = getBinding('STORAGE')
 
     // 2. Check for S3-compatible R2 API (Outside Cloudflare)
     const r2Config = {
