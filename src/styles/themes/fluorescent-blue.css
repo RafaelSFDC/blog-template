@@ -1,0 +1,136 @@
+/* Fluorescent Blue Theme - Modern blue theme with vibrant accents */
+.theme-fluorescent-blue,
+.theme-fluorescent-blue-scaled {
+    --background: #FFFFFF;
+    --foreground: #1B1F22;
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --popover: #ffffff;
+    --popover-foreground: #000000;
+    --primary: #0063a5;
+    --primary-foreground: #ffffff;
+    --secondary: #007bb8;
+    --secondary-foreground: #ffffff;
+    --muted: #d7ebff;
+    --muted-foreground: #53789d;
+    --accent: #7fade8;
+    --accent-foreground: #000000;
+    --destructive: #0076db;
+    --destructive-foreground: #000000;
+    --border: #bddaf7;
+    --input: #9ebad6;
+    --ring: #3081c6;
+    --chart-1: #007dc5;
+    --chart-2: #3779c8;
+    --chart-3: #59b1f2;
+    --chart-4: #004694;
+    --chart-5: #004b85;
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #0063a5;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ffffff;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #bddaf7;
+    --sidebar-ring: #3081c6;
+    --radius: 10px;
+}
+
+.dark .theme-fluorescent-blue,
+.dark .theme-fluorescent-blue-scaled {
+    --background: #0E141C;
+    --foreground: #E3F2FD;
+    --card: #080d15;
+    --card-foreground: #ffffff;
+    --popover: #080d15;
+    --popover-foreground: #ffffff;
+    --primary: #6ab7db;
+    --primary-foreground: #000000;
+    --secondary: #00a3e0;
+    --secondary-foreground: #000000;
+    --muted: #001b46;
+    --muted-foreground: #82aee3;
+    --accent: #004a7b;
+    --accent-foreground: #ffffff;
+    --destructive: #5682b9;
+    --destructive-foreground: #000000;
+    --border: #003264;
+    --input: #204e82;
+    --ring: #4a98ba;
+    --chart-1: #4f97b8;
+    --chart-2: #007bb8;
+    --chart-3: #85d8ff;
+    --chart-4: #004a7b;
+    --chart-5: #195b76;
+    --sidebar: #0E141C;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #6ab7db;
+    --sidebar-primary-foreground: #000000;
+    --sidebar-accent: #060b13;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #003264;
+    --sidebar-ring: #4a98ba;
+    --radius: 10px;
+}
+
+/* Fluorescent Blue Custom Gradient Classes */
+.bg-fluorescent-blue-gradient {
+    background: linear-gradient(135deg,
+            #0063a5 0%,
+            #007bb8 50%,
+            #0063a5 100%);
+}
+
+.bg-fluorescent-blue-card-gradient {
+    background: linear-gradient(135deg,
+            rgba(0, 99, 165, 0.1) 0%,
+            rgba(0, 123, 184, 0.1) 100%);
+}
+
+.bg-fluorescent-blue-primary-gradient {
+    background: linear-gradient(135deg,
+            #0063a5 0%,
+            #7fade8 100%);
+}
+
+.text-fluorescent-blue-gradient {
+    background: linear-gradient(135deg,
+            #0063a5 0%,
+            #7fade8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Product Card Enhancements for Fluorescent Blue */
+.product-card-fluorescent-blue {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(215, 235, 255, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid #bddaf7;
+}
+
+.product-card-fluorescent-blue:hover {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(215, 235, 255, 1) 100%);
+    border-color: #0063a5;
+    box-shadow: 0 4px 12px rgba(0, 99, 165, 0.15);
+}
+
+/* Dark mode product card */
+.dark .product-card-fluorescent-blue {
+    background: linear-gradient(135deg,
+            rgba(8, 13, 21, 0.95) 0%,
+            rgba(0, 27, 70, 0.95) 100%);
+    border: 1px solid #003264;
+}
+
+.dark .product-card-fluorescent-blue:hover {
+    background: linear-gradient(135deg,
+            rgba(8, 13, 21, 1) 0%,
+            rgba(0, 27, 70, 1) 100%);
+    border-color: #6ab7db;
+    box-shadow: 0 4px 12px rgba(106, 183, 219, 0.2);
+}

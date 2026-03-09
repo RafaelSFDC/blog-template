@@ -1,0 +1,96 @@
+/* E-commerce Modern Theme - Dark with Teal Accents */
+.theme-ecommerce,
+.theme-ecommerce-scaled {
+    --primary: oklch(0.7 0.15 180);
+    /* Teal 500 */
+    --primary-foreground: oklch(0.98 0.02 180);
+    /* Teal 50 */
+    --secondary: oklch(0.25 0.02 240);
+    /* Dark Blue Gray */
+    --secondary-foreground: oklch(0.98 0.02 180);
+    --accent: oklch(0.75 0.18 195);
+    /* Cyan 400 */
+    --accent-foreground: oklch(0.15 0.02 240);
+    --background: oklch(0.98 0.005 240);
+    /* Very light blue-gray */
+    --foreground: oklch(0.15 0.02 240);
+    /* Dark blue-gray */
+    --card: oklch(1 0 0);
+    /* Pure white */
+    --card-foreground: oklch(0.15 0.02 240);
+    --muted: oklch(0.96 0.01 240);
+    /* Light gray with blue tint */
+    --muted-foreground: oklch(0.45 0.02 240);
+    --border: oklch(0.92 0.01 240);
+    --input: oklch(0.96 0.01 240);
+    --ring: oklch(0.7 0.15 180);
+
+    @variant dark {
+        --primary: oklch(0.65 0.15 180);
+        /* Teal 400 */
+        --primary-foreground: oklch(0.98 0.02 180);
+        --secondary: oklch(0.2 0.02 240);
+        /* Darker blue-gray */
+        --secondary-foreground: oklch(0.98 0.02 180);
+        --accent: oklch(0.7 0.18 195);
+        /* Cyan 500 */
+        --accent-foreground: oklch(0.98 0.02 180);
+        --background: oklch(0.12 0.02 240);
+        /* Very dark blue-gray */
+        --foreground: oklch(0.98 0.02 180);
+        /* Light teal */
+        --card: oklch(0.15 0.02 240);
+        /* Dark card background */
+        --card-foreground: oklch(0.98 0.02 180);
+        --muted: oklch(0.18 0.02 240);
+        --muted-foreground: oklch(0.65 0.02 240);
+        --border: oklch(0.25 0.02 240);
+        --input: oklch(0.18 0.02 240);
+        --ring: oklch(0.65 0.15 180);
+    }
+}
+
+/* E-commerce Custom Gradient Classes */
+.bg-ecommerce-gradient {
+    background: linear-gradient(135deg,
+            oklch(0.12 0.02 240) 0%,
+            oklch(0.15 0.02 240) 50%,
+            oklch(0.12 0.02 240) 100%);
+}
+
+.bg-ecommerce-card-gradient {
+    background: linear-gradient(135deg,
+            oklch(0.15 0.02 240 / 0.8) 0%,
+            oklch(0.18 0.02 240 / 0.8) 100%);
+}
+
+.bg-ecommerce-primary-gradient {
+    background: linear-gradient(135deg,
+            oklch(0.7 0.15 180) 0%,
+            oklch(0.75 0.18 195) 100%);
+}
+
+.text-ecommerce-gradient {
+    background: linear-gradient(135deg,
+            oklch(0.7 0.15 180) 0%,
+            oklch(0.75 0.18 195) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Product Card Enhancements */
+.product-card-modern {
+    background: linear-gradient(135deg,
+            oklch(0.15 0.02 240 / 0.9) 0%,
+            oklch(0.18 0.02 240 / 0.9) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid oklch(0.25 0.02 240 / 0.5);
+}
+
+.product-card-modern:hover {
+    background: linear-gradient(135deg,
+            oklch(0.18 0.02 240 / 0.95) 0%,
+            oklch(0.2 0.02 240 / 0.95) 100%);
+    border-color: oklch(0.65 0.15 180 / 0.5);
+}

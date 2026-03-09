@@ -1,0 +1,11 @@
+/* Amber Theme - Warm amber theme */
+.theme-amber,
+.theme-amber-scaled {
+    --primary: var(--color-amber-600);
+    --primary-foreground: var(--color-amber-50);
+
+    @variant dark {
+        --primary: var(--color-amber-500);
+        --primary-foreground: var(--color-amber-50);
+    }
+}

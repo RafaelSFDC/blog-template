@@ -33,6 +33,7 @@ const DEFAULT_SETTINGS = {
   twitterProfile: "",
   githubProfile: "",
   linkedinProfile: "",
+  themeVariant: "default",
 };
 
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
@@ -54,6 +55,7 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => 
       twitterProfile: settingsObj["twitterProfile"] || DEFAULT_SETTINGS.twitterProfile,
       githubProfile: settingsObj["githubProfile"] || DEFAULT_SETTINGS.githubProfile,
       linkedinProfile: settingsObj["linkedinProfile"] || DEFAULT_SETTINGS.linkedinProfile,
+      themeVariant: settingsObj["themeVariant"] || DEFAULT_SETTINGS.themeVariant,
     };
   } catch (error) {
     console.error("Failed to fetch settings from DB, using defaults:", error);
@@ -61,7 +63,9 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => 
   }
 });
 
-const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
+const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='system')?stored:'system';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='system'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);root.style.colorScheme=resolved;}catch(e){}})();`
+
+import { ThemeProvider } from 'next-themes'
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
@@ -191,23 +195,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
       <body
         suppressHydrationWarning
-        className="font-sans antialiased wrap-anywhere selection:bg-primary/25"
+        className={`font-sans antialiased wrap-anywhere selection:bg-primary/25 ${settings.themeVariant || ''}`}
       >
-        <TanStackQueryProvider>
-          {children}
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-              TanStackQueryDevtools,
-            ]}
-          />
-        </TanStackQueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TanStackQueryProvider>
+            {children}
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+                TanStackQueryDevtools,
+              ]}
+            />
+          </TanStackQueryProvider>
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

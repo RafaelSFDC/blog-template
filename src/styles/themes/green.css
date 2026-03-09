@@ -1,0 +1,11 @@
+/* Green Theme - Natural green theme */
+.theme-green,
+.theme-green-scaled {
+    --primary: var(--color-lime-600);
+    --primary-foreground: var(--color-lime-50);
+
+    @variant dark {
+        --primary: var(--color-lime-600);
+        --primary-foreground: var(--color-lime-50);
+    }
+}

@@ -1,0 +1,71 @@
+/* Mint Store Theme - Fresh mint and teal tones */
+.theme-mintstore,
+.theme-mintstore-scaled {
+    --background: #E0F7F7;
+    --foreground: #2E2E2E;
+    --card: #eaffff;
+    --card-foreground: #000000;
+    --popover: #eaffff;
+    --popover-foreground: #000000;
+    --primary: #007a7b;
+    --primary-foreground: #ffffff;
+    --secondary: #079698;
+    --secondary-foreground: #000000;
+    --muted: #d9f2f1;
+    --muted-foreground: #537a7a;
+    --accent: #a0dbd9;
+    --accent-foreground: #000000;
+    --destructive: #009799;
+    --destructive-foreground: #000000;
+    --border: #c1e6e6;
+    --input: #a1c5c5;
+    --ring: #369899;
+    --chart-1: #009799;
+    --chart-2: #679a98;
+    --chart-3: #67c9c9;
+    --chart-4: #325d5c;
+    --chart-5: #005d5f;
+    --sidebar: #E0F7F7;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #007a7b;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #edffff;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #c1e6e6;
+    --sidebar-ring: #369899;
+
+    @variant dark {
+        --background: #1C2D2D;
+        --foreground: #E1F7F7;
+        --card: #152626;
+        --card-foreground: #ffffff;
+        --popover: #152626;
+        --popover-foreground: #ffffff;
+        --primary: #23a6a7;
+        --primary-foreground: #000000;
+        --secondary: #4db6b7;
+        --secondary-foreground: #000000;
+        --muted: #002122;
+        --muted-foreground: #86acac;
+        --accent: #1d5d5e;
+        --accent-foreground: #ffffff;
+        --destructive: #1ab0b1;
+        --destructive-foreground: #000000;
+        --border: #003536;
+        --input: #215051;
+        --ring: #008788;
+        --chart-1: #008a8b;
+        --chart-2: #519999;
+        --chart-3: #63bcbd;
+        --chart-4: #1d5d5e;
+        --chart-5: #005657;
+        --sidebar: #1C2D2D;
+        --sidebar-foreground: #ffffff;
+        --sidebar-primary: #23a6a7;
+        --sidebar-primary-foreground: #000000;
+        --sidebar-accent: #122323;
+        --sidebar-accent-foreground: #ffffff;
+        --sidebar-border: #003536;
+        --sidebar-ring: #008788;
+    }
+}

@@ -1,0 +1,71 @@
+/* Vitrine Pro Theme - Professional business theme */
+.theme-vitrine-pro,
+.theme-vitrine-pro-scaled {
+    --background: #F6F8FB;
+    --foreground: #212A3E;
+    --card: #fdffff;
+    --card-foreground: #000000;
+    --popover: #fdffff;
+    --popover-foreground: #000000;
+    --primary: #184d91;
+    --primary-foreground: #ffffff;
+    --secondary: #008d55;
+    --secondary-foreground: #000000;
+    --muted: #ecf0f5;
+    --muted-foreground: #727882;
+    --accent: #f7c948;
+    --accent-foreground: #000000;
+    --destructive: #7a3ff2;
+    --destructive-foreground: #ffffff;
+    --border: #e1e5ed;
+    --input: #c1c5cc;
+    --ring: #366ab1;
+    --chart-1: #3c69a6;
+    --chart-2: #b18a00;
+    --chart-3: #81a2d0;
+    --chart-4: #704f00;
+    --chart-5: #093a76;
+    --sidebar: #F6F8FB;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #184d91;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fdffff;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #e1e5ed;
+    --sidebar-ring: #366ab1;
+
+    @variant dark {
+        --background: #10131A;
+        --foreground: #F6F8FB;
+        --card: #0a0c13;
+        --card-foreground: #ffffff;
+        --popover: #0a0c13;
+        --popover-foreground: #ffffff;
+        --primary: #4d9aff;
+        --primary-foreground: #000000;
+        --secondary: #00c989;
+        --secondary-foreground: #000000;
+        --muted: #141a27;
+        --muted-foreground: #a0a6b2;
+        --accent: #715600;
+        --accent-foreground: #ffffff;
+        --destructive: #b799ff;
+        --destructive-foreground: #000000;
+        --border: #232b3d;
+        --input: #3c4558;
+        --ring: #2c7add;
+        --chart-1: #377eda;
+        --chart-2: #b5952b;
+        --chart-3: #76b3ff;
+        --chart-4: #715600;
+        --chart-5: #064994;
+        --sidebar: #10131A;
+        --sidebar-foreground: #ffffff;
+        --sidebar-primary: #4d9aff;
+        --sidebar-primary-foreground: #000000;
+        --sidebar-accent: #080a11;
+        --sidebar-accent-foreground: #ffffff;
+        --sidebar-border: #232b3d;
+        --sidebar-ring: #2c7add;
+    }
+}

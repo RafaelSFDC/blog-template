@@ -5,6 +5,7 @@ import { useState, type FormEvent } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { Button } from '#/components/ui/button'
 import { Settings as SettingsIcon, Save, Info } from 'lucide-react'
+import { getAvailableThemes } from '#/lib/theme-utils'
 
 const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
@@ -31,6 +32,7 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
     twitterProfile: settingsObj['twitterProfile'] || '',
     githubProfile: settingsObj['githubProfile'] || '',
     linkedinProfile: settingsObj['linkedinProfile'] || '',
+    themeVariant: settingsObj['themeVariant'] || 'default',
   }
 })
 
@@ -49,6 +51,7 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     twitterProfile: string;
     githubProfile: string;
     linkedinProfile: string;
+    themeVariant: string;
   }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
@@ -76,6 +79,7 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     await upsert('twitterProfile', data.twitterProfile)
     await upsert('githubProfile', data.githubProfile)
     await upsert('linkedinProfile', data.linkedinProfile)
+    await upsert('themeVariant', data.themeVariant)
 
     return { ok: true as const }
   })
@@ -103,6 +107,7 @@ function SettingsPage() {
   const [twitterProfile, setTwitterProfile] = useState(initialSettings.twitterProfile)
   const [githubProfile, setGithubProfile] = useState(initialSettings.githubProfile)
   const [linkedinProfile, setLinkedinProfile] = useState(initialSettings.linkedinProfile)
+  const [themeVariant, setThemeVariant] = useState(initialSettings.themeVariant)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -126,6 +131,7 @@ function SettingsPage() {
         twitterProfile: twitterProfile.trim(),
         githubProfile: githubProfile.trim(),
         linkedinProfile: linkedinProfile.trim(),
+        themeVariant,
       } })
       setMessage('Settings saved successfully!')
     } catch {
@@ -225,6 +231,29 @@ function SettingsPage() {
                       <option value="Playfair Display">Elegant (Playfair Display)</option>
                       <option value="Space Grotesk">Tech (Space Grotesk)</option>
                       <option value="Bricolage Grotesque">Expressive (Bricolage Grotesque)</option>
+                    </select>
+                  </div>
+                   <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="themeVariant" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Theme Variant (Kataly Style)
+                    </label>
+                    <select
+                      id="themeVariant"
+                      value={themeVariant}
+                      onChange={(e) => setThemeVariant(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                    >
+                      {['standard', 'creative', 'compact', 'special'].map((group) => (
+                        <optgroup key={group} label={group.charAt(0).toUpperCase() + group.slice(1)} className="font-black uppercase tracking-widest text-[10px]">
+                          {getAvailableThemes()
+                            .filter((t) => t.group === group)
+                            .map((theme) => (
+                              <option key={theme.variant} value={`theme-${theme.variant}`} className="font-bold normal-case tracking-normal">
+                                {theme.name}
+                              </option>
+                            ))}
+                        </optgroup>
+                      ))}
                     </select>
                   </div>
                 </div>

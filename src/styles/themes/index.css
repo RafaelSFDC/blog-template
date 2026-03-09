@@ -1,0 +1,58 @@
+/**
+ * Themes Index
+ * Importa todos os temas disponíveis
+ * 
+ * Para adicionar um novo tema:
+ * 1. Crie um arquivo CSS na pasta themes/ (ex: meu-tema.css)
+ * 2. Adicione @import './meu-tema.css'; abaixo
+ * 3. Atualize lib/theme-utils.ts com o novo tema
+ */
+
+/* Standard Themes */
+@import './default.css';
+@import './blue.css';
+@import './green.css';
+@import './amber.css';
+@import './fluorescent-blue.css';
+
+/* E-commerce Theme */
+@import './ecommerce.css';
+
+/* Professional Theme */
+@import './vitrine-pro.css';
+
+/* Creative Themes */
+@import './candyland.css';
+@import './cyberpunk.css';
+@import './sunset.css';
+@import './ocean.css';
+@import './nature.css';
+@import './eco-natural.css';
+@import './bubblegum.css';
+@import './violet-bloom.css';
+@import './tangerine.css';
+@import './quantum-rose.css';
+@import './mochamousse.css';
+@import './graphite.css';
+@import './elegantluxury.css';
+@import './ice.css';
+@import './onedarkpro.css';
+@import './meadow.css';
+@import './sketchpad.css';
+@import './trigger.css';
+@import './kebo.css';
+@import './crafterstation.css';
+@import './linear.css';
+@import './mintstore.css';
+@import './industrial.css';
+@import './indigoblue.css';
+@import './caffeine.css';
+@import './claymorphism.css';
+@import './cappuccinobrutal.css';
+@import './darkmatter.css';
+@import './solardusk.css';
+@import './rosegarden.css';
+
+/* Special Themes */
+@import './mono.css';
+

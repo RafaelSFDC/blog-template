@@ -1,72 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
 import { Button } from '#/components/ui/button'
-
-type ThemeMode = 'light' | 'dark' | 'auto'
-
-function getInitialMode(): ThemeMode {
-  if (typeof window === 'undefined') {
-    return 'auto'
-  }
-
-  const stored = window.localStorage.getItem('theme')
-  if (stored === 'light' || stored === 'dark' || stored === 'auto') {
-    return stored
-  }
-
-  return 'auto'
-}
-
-function applyThemeMode(mode: ThemeMode) {
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const resolved = mode === 'auto' ? (prefersDark ? 'dark' : 'light') : mode
-
-  document.documentElement.classList.remove('light', 'dark')
-  document.documentElement.classList.add(resolved)
-
-  if (mode === 'auto') {
-    document.documentElement.removeAttribute('data-theme')
-  } else {
-    document.documentElement.setAttribute('data-theme', mode)
-  }
-
-  document.documentElement.style.colorScheme = resolved
-}
+import { Sun, Moon, Monitor } from 'lucide-react'
 
 export default function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>('auto')
-
-  useEffect(() => {
-    const initialMode = getInitialMode()
-    setMode(initialMode)
-    applyThemeMode(initialMode)
-  }, [])
-
-  useEffect(() => {
-    if (mode !== 'auto') {
-      return
-    }
-
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => applyThemeMode('auto')
-
-    media.addEventListener('change', onChange)
-    return () => {
-      media.removeEventListener('change', onChange)
-    }
-  }, [mode])
+  const { theme, setTheme } = useTheme()
 
   function toggleMode() {
-    const nextMode: ThemeMode =
-      mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light'
-    setMode(nextMode)
-    applyThemeMode(nextMode)
-    window.localStorage.setItem('theme', nextMode)
+    const modes = ['light', 'dark', 'system']
+    const currentIndex = modes.indexOf(theme || 'system')
+    const nextIndex = (currentIndex + 1) % modes.length
+    setTheme(modes[nextIndex])
   }
 
-  const label =
-    mode === 'auto'
-      ? 'Theme mode: auto (system). Click to switch to light mode.'
-      : `Theme mode: ${mode}. Click to switch mode.`
+  const label = `Theme mode: ${theme || 'system'}. Click to switch mode.`
 
   return (
     <Button
@@ -76,9 +22,24 @@ export default function ThemeToggle() {
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="toy-button flex h-11 items-center justify-center rounded-lg border border-border bg-accent px-4 text-sm font-black text-foreground shadow-sm"
+      className="toy-button flex h-11 items-center justify-center rounded-lg border border-border bg-accent px-4 text-sm font-black text-foreground shadow-sm gap-2"
     >
-      {mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
+      {theme === 'system' || !theme ? (
+        <>
+          <Monitor size={16} />
+          <span>Auto</span>
+        </>
+      ) : theme === 'dark' ? (
+        <>
+          <Moon size={16} />
+          <span>Dark</span>
+        </>
+      ) : (
+        <>
+          <Sun size={16} />
+          <span>Light</span>
+        </>
+      )}
     </Button>
   )
 }

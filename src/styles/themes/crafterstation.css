@@ -1,0 +1,71 @@
+/* Crafter Station Theme - Warm golden and blue tones */
+.theme-crafterstation,
+.theme-crafterstation-scaled {
+    --background: #F9F9F7;
+    --foreground: #18181A;
+    --card: #fffffd;
+    --card-foreground: #000000;
+    --popover: #fffffd;
+    --popover-foreground: #000000;
+    --primary: #9a6b00;
+    --primary-foreground: #ffffff;
+    --secondary: #94822b;
+    --secondary-foreground: #000000;
+    --muted: #eeece9;
+    --muted-foreground: #6d6a62;
+    --accent: #84a0df;
+    --accent-foreground: #000000;
+    --destructive: #d94346;
+    --destructive-foreground: #000000;
+    --border: #e1dfda;
+    --input: #c1bfba;
+    --ring: #ba8933;
+    --chart-1: #bd8900;
+    --chart-2: #4364b9;
+    --chart-3: #ebbd5f;
+    --chart-4: #183388;
+    --chart-5: #784e00;
+    --sidebar: #F9F9F7;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #9a6b00;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fffffd;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #e1dfda;
+    --sidebar-ring: #ba8933;
+
+    @variant dark {
+        --background: #0A0A0A;
+        --foreground: #F3F3F5;
+        --card: #050505;
+        --card-foreground: #ffffff;
+        --popover: #050505;
+        --popover-foreground: #ffffff;
+        --primary: #dab200;
+        --primary-foreground: #000000;
+        --secondary: #b3a97b;
+        --secondary-foreground: #000000;
+        --muted: #15151a;
+        --muted-foreground: #a1a1a3;
+        --accent: #1f5189;
+        --accent-foreground: #ffffff;
+        --destructive: #ff7c7c;
+        --destructive-foreground: #000000;
+        --border: #222223;
+        --input: #3b3b3c;
+        --ring: #ba9200;
+        --chart-1: #b69100;
+        --chart-2: #4e89ce;
+        --chart-3: #ffd400;
+        --chart-4: #1f5189;
+        --chart-5: #735300;
+        --sidebar: #0A0A0A;
+        --sidebar-foreground: #ffffff;
+        --sidebar-primary: #dab200;
+        --sidebar-primary-foreground: #000000;
+        --sidebar-accent: #040404;
+        --sidebar-accent-foreground: #ffffff;
+        --sidebar-border: #222223;
+        --sidebar-ring: #ba9200;
+    }
+}

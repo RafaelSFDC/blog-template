@@ -1,0 +1,71 @@
+/* Sketchpad Theme - Creative blue and gray tones */
+.theme-sketchpad,
+.theme-sketchpad-scaled {
+    --background: #f6f7eb;
+    --foreground: #3e43f0;
+    --card: #fffff4;
+    --card-foreground: #000000;
+    --popover: #fffff4;
+    --popover-foreground: #000000;
+    --primary: #302ecd;
+    --primary-foreground: #ffffff;
+    --secondary: #696869;
+    --secondary-foreground: #ffffff;
+    --muted: #c3d7ff;
+    --muted-foreground: #302ecd;
+    --accent: #d6d8ee;
+    --accent-foreground: #000000;
+    --destructive: #7d7678;
+    --destructive-foreground: #000000;
+    --border: #9db5ff;
+    --input: #7f96dd;
+    --ring: #4553f0;
+    --chart-1: #4658dd;
+    --chart-2: #9495a8;
+    --chart-3: #829afb;
+    --chart-4: #565867;
+    --chart-5: #2318a9;
+    --sidebar: #f6f7eb;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #302ecd;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fffff4;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #9db5ff;
+    --sidebar-ring: #4553f0;
+
+    @variant dark {
+        --background: #090912;
+        --foreground: #dddee4;
+        --card: #04040b;
+        --card-foreground: #ffffff;
+        --popover: #04040b;
+        --popover-foreground: #ffffff;
+        --primary: #5477e6;
+        --primary-foreground: #000000;
+        --secondary: #83a2dc;
+        --secondary-foreground: #000000;
+        --muted: #1b1c27;
+        --muted-foreground: #a7a8b1;
+        --accent: #1a3c96;
+        --accent-foreground: #ffffff;
+        --destructive: #7b79ff;
+        --destructive-foreground: #000000;
+        --border: #2f303d;
+        --input: #494a58;
+        --ring: #3a58c4;
+        --chart-1: #3454d6;
+        --chart-2: #3e6ad8;
+        --chart-3: #7799f5;
+        --chart-4: #1a3c96;
+        --chart-5: #192c96;
+        --sidebar: #090912;
+        --sidebar-foreground: #ffffff;
+        --sidebar-primary: #5477e6;
+        --sidebar-primary-foreground: #000000;
+        --sidebar-accent: #030309;
+        --sidebar-accent-foreground: #ffffff;
+        --sidebar-border: #2f303d;
+        --sidebar-ring: #3a58c4;
+    }
+}
