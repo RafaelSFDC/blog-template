@@ -9,7 +9,7 @@ export const user = sqliteTable('users', {
     .default(false)
     .notNull(),
   image: text(),
-  role: text('role').default('user'),
+  role: text('role').default('reader'),
   banned: integer('banned', { mode: 'boolean' }).default(false),
   banReason: text('ban_reason'),
   banExpires: integer('ban_expires', { mode: 'timestamp' }),
@@ -146,6 +146,7 @@ export const comments = sqliteTable('comments', {
   postId: integer('post_id')
     .notNull()
     .references(() => posts.id, { onDelete: 'cascade' }),
+  authorId: text('author_id').references(() => user.id), // Link to logged-in user
   authorName: text('author_name').notNull(),
   authorEmail: text('author_email'),
   content: text().notNull(),
@@ -154,8 +155,10 @@ export const comments = sqliteTable('comments', {
     sql`(unixepoch())`,
   ),
 }, (table) => [
-  index('comments_post_id_idx').on(table.postId)
+  index('comments_post_id_idx').on(table.postId),
+  index('comments_author_id_idx').on(table.authorId)
 ])
+
 
 export const postCategories = sqliteTable('post_categories', {
   postId: integer('post_id')

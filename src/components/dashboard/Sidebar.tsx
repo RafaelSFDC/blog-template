@@ -68,6 +68,32 @@ const sidebarLinks = [
 
 export function DashboardSidebar() {
   const { data: session } = authClient.useSession()
+  const role = session?.user.role
+
+  const filteredLinks = sidebarLinks.filter(link => {
+    if (!role) return false;
+    
+    // Super Admin and Admin see everything
+    if (role === 'super-admin' || role === 'admin') return true;
+
+    // Moderator specifics
+    if (role === 'moderator') {
+       return ['Overview', 'Comments', 'Users', 'Messages'].includes(link.label);
+    }
+
+    // Editor specifics
+    if (role === 'editor') {
+       return ['Overview', 'Posts', 'Categories', 'Tags', 'Comments', 'Newsletter', 'Media', 'Pages', 'Messages'].includes(link.label);
+    }
+
+    // Author specifics
+    if (role === 'author') {
+       return ['Overview', 'Posts', 'Media'].includes(link.label);
+    }
+
+    // Reader has no business here (already protected by route, but safety first)
+    return false;
+  });
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r-4 border-border bg-card shadow-zine-sm transition-transform lg:static lg:translate-x-0">
@@ -86,7 +112,7 @@ export function DashboardSidebar() {
         <p className="px-2 pb-4 text-[0.65rem] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-70">
           Management
         </p>
-        {sidebarLinks.map((link) => (
+        {filteredLinks.map((link) => (
           <Link
             key={link.to}
             to={link.to}
@@ -109,27 +135,36 @@ export function DashboardSidebar() {
 
       <div className="border-t-4 border-border bg-muted/30 p-6">
         <div className="mb-6 flex items-center gap-4 px-2">
-          <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-background">
+          <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-background relative">
              {session?.user.image ? (
                <img src={session.user.image} alt={session.user.name} className="h-full w-full object-cover" />
              ) : (
-               <div className="flex h-full w-full items-center justify-center font-bold text-muted-foreground uppercase">
-                 {session?.user.name.charAt(0)}
+               <div className="flex h-full w-full items-center justify-center font-bold text-muted-foreground uppercase text-xs">
+                 {session?.user.name ? session.user.name.charAt(0) : 'U'}
                </div>
              )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-black text-foreground uppercase tracking-tight">
-              {session?.user.name}
-            </p>
-            <p className="truncate text-[10px] font-bold text-muted-foreground">
+            <div className="flex items-center gap-2">
+                <p className="truncate text-[10px] font-black text-foreground uppercase tracking-tight">
+                   {session?.user.name}
+                </p>
+                <span className="text-[8px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 uppercase tracking-tighter shrink-0">
+                    {role}
+                </span>
+            </div>
+            <p className="truncate text-[9px] font-bold text-muted-foreground">
               {session?.user.email}
             </p>
           </div>
         </div>
 
         <Button
-          onClick={() => void authClient.signOut()}
+          onClick={() => {
+              void authClient.signOut().then(() => {
+                  window.location.href = '/dashboard/login';
+              });
+          }}
           variant="destructive"
           className="w-full justify-start gap-3 rounded-xl border-3 border-destructive/20 bg-destructive/5 px-4 py-6 font-black text-destructive hover:bg-destructive hover:text-white transition-all shadow-zine-sm active:scale-95"
         >
@@ -140,3 +175,4 @@ export function DashboardSidebar() {
     </aside>
   )
 }
+

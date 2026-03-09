@@ -1,9 +1,10 @@
 import { betterAuth } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { admin } from 'better-auth/plugins'
+import { admin as adminPlugin } from 'better-auth/plugins'
 import { db } from '../db/index'
 import * as schema from '../db/schema'
+import { ac, reader, author, editor, moderator, admin, superAdmin } from './permissions'
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -23,5 +24,18 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     },
   },
-  plugins: [tanstackStartCookies(), admin()],
+  plugins: [
+    tanstackStartCookies(),
+    adminPlugin({
+      ac,
+      roles: {
+        reader,
+        author,
+        editor,
+        moderator,
+        admin,
+        superAdmin,
+      },
+    }),
+  ],
 })

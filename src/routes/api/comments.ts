@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { db } from '#/db/index'
 import { comments } from '#/db/schema'
 
+import { getAuthSession } from '#/lib/admin-auth'
+
 export const Route = createFileRoute('/api/comments')({
   server: {
     handlers: {
@@ -9,8 +11,11 @@ export const Route = createFileRoute('/api/comments')({
         try {
           const body = await request.json()
           const { postId, authorName, authorEmail, content } = body
+          
+          const session = await getAuthSession()
+          const authorId = session?.user?.id
 
-          if (!postId || !authorName || !content) {
+          if (!postId || (!authorName && !authorId) || !content) {
             return new Response('Missing required fields', { status: 400 })
           }
 
@@ -18,8 +23,9 @@ export const Route = createFileRoute('/api/comments')({
             .insert(comments)
             .values({
               postId: Number(postId),
-              authorName,
-              authorEmail,
+              authorId,
+              authorName: authorName || session?.user?.name || 'Anonymous',
+              authorEmail: authorEmail || session?.user?.email,
               content,
               status: 'pending',
             })
@@ -34,3 +40,4 @@ export const Route = createFileRoute('/api/comments')({
     }
   }
 })
+

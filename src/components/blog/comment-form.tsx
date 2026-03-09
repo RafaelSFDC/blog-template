@@ -9,25 +9,45 @@ interface CommentFormProps {
   onSubmit: (data: { authorName: string; authorEmail: string | undefined; content: string }) => Promise<void>;
 }
 
+import { authClient } from '#/lib/auth-client';
+import { LogIn } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+
+interface CommentFormProps {
+  postId: number;
+  onSubmit: (data: { authorName: string; authorEmail: string | undefined; content: string }) => Promise<void>;
+}
+
 export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
+  const { data: session } = authClient.useSession();
   const [authorName, setAuthorName] = useState('');
   const [authorEmail, setAuthorEmail] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Effect to pre-fill if session exists
+  React.useEffect(() => {
+    if (session?.user) {
+      setAuthorName(session.user.name || '');
+      setAuthorEmail(session.user.email || '');
+    }
+  }, [session]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!authorName.trim() || !content.trim()) return;
+    
+    const finalName = session?.user?.name || authorName.trim();
+    const finalEmail = session?.user?.email || authorEmail.trim();
+
+    if (!finalName || !content.trim()) return;
 
     try {
       setIsSubmitting(true);
       await onSubmit({
-        authorName: authorName.trim(),
-        authorEmail: authorEmail.trim() || undefined,
+        authorName: finalName,
+        authorEmail: finalEmail || undefined,
         content: content.trim(),
       });
-      setAuthorName('');
-      setAuthorEmail('');
       setContent('');
       toast.success('Your comment is awaiting moderation!');
     } catch (err) {
@@ -38,36 +58,38 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
     }
   }
 
+  if (!session) {
+    return (
+      <div className="bg-muted/30 border-2 border-dashed border-border/60 rounded-[2rem] p-10 text-center space-y-4">
+        <h3 className="text-xl font-bold uppercase tracking-tight">Vant to join the discussion?</h3>
+        <p className="text-muted-foreground text-sm font-medium">Please sign in to post a comment and connect with the community.</p>
+        <Button asChild variant="zine" size="lg" className="rounded-xl h-12 px-8">
+          <Link to="/login" className="flex items-center gap-2 no-underline">
+            <LogIn size={18} /> Sign In to Comment
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="authorName" className="text-sm font-bold text-foreground">
-            Name *
-          </label>
-          <Input
-            id="authorName"
-            value={authorName}
-            onChange={(e) => setAuthorName(e.target.value)}
-            placeholder="John Doe"
-            required
-            className="rounded-xl border-2 border-input bg-background font-bold h-11"
-          />
+      {session ? (
+         <div className="flex items-center gap-3 mb-6 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black uppercase text-xs">
+              {session.user.name?.[0] || 'U'}
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary">Commenting as</p>
+              <p className="font-bold text-foreground leading-none">{session.user.name}</p>
+            </div>
+         </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Form fields for guest (though we currently block guests in the if(!session) above) */}
         </div>
-        <div className="space-y-2">
-          <label htmlFor="authorEmail" className="text-sm font-bold text-foreground">
-            Email (optional)
-          </label>
-          <Input
-            id="authorEmail"
-            type="email"
-            value={authorEmail}
-            onChange={(e) => setAuthorEmail(e.target.value)}
-            placeholder="john@example.com"
-            className="rounded-xl border-2 border-input bg-background font-bold h-11"
-          />
-        </div>
-      </div>
+      )}
+      
       <div className="space-y-2">
         <label htmlFor="content" className="text-sm font-bold text-foreground">
           Comment *
@@ -78,7 +100,7 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="What do you think about this story?"
           required
-          className="min-h-[120px] rounded-xl border-2 border-input bg-background font-bold"
+          className="min-h-[120px] rounded-2xl border-2 border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
         />
       </div>
       <Button
@@ -86,10 +108,11 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
         disabled={isSubmitting}
         variant="zine"
         size="lg"
-        className="w-full sm:w-auto h-12 rounded-xl text-lg font-black"
+        className="w-full sm:w-auto h-14 px-10 rounded-2xl text-lg font-black shadow-zine-sm"
       >
         {isSubmitting ? 'Posting...' : 'Post Comment'}
       </Button>
     </form>
   );
 }
+

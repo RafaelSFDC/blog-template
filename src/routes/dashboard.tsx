@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { requireAdminSession } from '#/lib/admin-auth'
+import { requireDashboardAccess } from '#/lib/admin-auth'
 
-const ensureAdminAccess = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireAdminSession()
+const ensureDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
+  await requireDashboardAccess()
   return { ok: true as const }
 })
 
@@ -15,15 +15,16 @@ export const Route = createFileRoute('/dashboard')({
   }),
   beforeLoad: async () => {
     try {
-      await ensureAdminAccess()
+      await ensureDashboardAccess()
     } catch {
       throw redirect({
-        to: '/demo/better-auth',
+        to: '/dashboard/login',
       })
     }
   },
   component: DashboardLayout,
 })
+
 
 import { DashboardSidebar } from '#/components/dashboard/Sidebar'
 
