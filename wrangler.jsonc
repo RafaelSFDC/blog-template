@@ -21,4 +21,7 @@
       "bucket_name": "blog-media",
     },
   ],
+  "vars": {
+    "DB_TYPE": "d1",
+  },
 }
