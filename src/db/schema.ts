@@ -1,55 +1,44 @@
-import { sqliteTable, integer, text, index } from 'drizzle-orm/sqlite-core'
-import { sql } from 'drizzle-orm'
+import { table, text, integer, boolean, timestamp, autoIncrementId, index, now } from './dialect'
 
-export const user = sqliteTable('users', {
-  id: text().primaryKey(),
-  name: text().notNull(),
-  email: text().notNull().unique(),
-  emailVerified: integer('email_verified', { mode: 'boolean' })
-    .default(false)
-    .notNull(),
-  image: text(),
+export const user = table('users', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  image: text('image'),
   role: text('role').default('reader'),
-  banned: integer('banned', { mode: 'boolean' }).default(false),
+  banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
-  banExpires: integer('ban_expires', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+  banExpires: timestamp('ban_expires'),
+  createdAt: timestamp('created_at').default(now),
+  updatedAt: timestamp('updated_at').default(now),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
   stripePriceId: text('stripe_price_id'),
-  stripeCurrentPeriodEnd: integer('stripe_current_period_end', { mode: 'timestamp' }),
+  stripeCurrentPeriodEnd: timestamp('stripe_current_period_end'),
 })
 
-export const session = sqliteTable(
+export const session = table(
   'sessions',
   {
-    id: text().primaryKey(),
-    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-    token: text().notNull().unique(),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
+    id: text('id').primaryKey(),
+    expiresAt: timestamp('expires_at').notNull(),
+    token: text('token').notNull().unique(),
+    createdAt: timestamp('created_at').default(now),
+    updatedAt: timestamp('updated_at').default(now),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
   },
-  (table) => [index('sessions_userId_idx').on(table.userId)],
+  (t: any) => [index('sessions_userId_idx').on(t.userId)],
 )
 
-export const account = sqliteTable(
+export const account = table(
   'accounts',
   {
-    id: text().primaryKey(),
+    id: text('id').primaryKey(),
     accountId: text('account_id').notNull(),
     providerId: text('provider_id').notNull(),
     userId: text('user_id')
@@ -58,210 +47,176 @@ export const account = sqliteTable(
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),
-    accessTokenExpiresAt: integer('access_token_expires_at', {
-      mode: 'timestamp',
-    }),
-    refreshTokenExpiresAt: integer('refresh_token_expires_at', {
-      mode: 'timestamp',
-    }),
-    scope: text(),
-    password: text(),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
+    accessTokenExpiresAt: timestamp('access_token_expires_at'),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+    scope: text('scope'),
+    password: text('password'),
+    createdAt: timestamp('created_at').default(now),
+    updatedAt: timestamp('updated_at').default(now),
   },
-  (table) => [index('accounts_userId_idx').on(table.userId)],
+  (t: any) => [index('accounts_userId_idx').on(t.userId)],
 )
 
-export const verification = sqliteTable(
+export const verification = table(
   'verifications',
   {
-    id: text().primaryKey(),
-    identifier: text().notNull(),
-    value: text().notNull(),
-    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(unixepoch())`,
-    ),
+    id: text('id').primaryKey(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').default(now),
+    updatedAt: timestamp('updated_at').default(now),
   },
-  (table) => [index('verifications_identifier_idx').on(table.identifier)],
+  (t: any) => [index('verifications_identifier_idx').on(t.identifier)],
 )
-export const categories = sqliteTable('categories', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  slug: text().notNull().unique(),
-  description: text(),
+
+export const categories = table('categories', {
+  id: autoIncrementId('id'),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
 })
 
-export const tags = sqliteTable('tags', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  slug: text().notNull().unique(),
+export const tags = table('tags', {
+  id: autoIncrementId('id'),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
 })
 
-export const media = sqliteTable('media', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  url: text().notNull(),
+export const media = table('media', {
+  id: autoIncrementId('id'),
+  url: text('url').notNull(),
   altText: text('alt_text'),
-  filename: text().notNull(),
+  filename: text('filename').notNull(),
   mimeType: text('mime_type'),
-  size: integer(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+  size: integer('size'),
+  createdAt: timestamp('created_at').default(now),
 })
 
-export const posts = sqliteTable('posts', {
-  id: integer({ mode: 'number' }).primaryKey({
-    autoIncrement: true,
-  }),
-  slug: text().notNull().unique(),
-  title: text().notNull(),
-  excerpt: text().notNull(),
-  content: text().notNull(), // Markdown or HTML content
+export const posts = table('posts', {
+  id: autoIncrementId('id'),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  excerpt: text('excerpt').notNull(),
+  content: text('content').notNull(),
   coverImage: text('cover_image'),
   featuredImageId: integer('featured_image_id').references(() => media.id),
-  status: text().notNull().default('draft'), // draft, published, scheduled, private
+  status: text('status').notNull().default('draft'),
   readingTime: integer('reading_time'),
   viewCount: integer('view_count').notNull().default(0),
   metaTitle: text('meta_title'),
   metaDescription: text('meta_description'),
   ogImage: text('og_image'),
   authorId: text('author_id').references(() => user.id),
-  isPremium: integer('is_premium', { mode: 'boolean' }).default(false),
-  publishedAt: integer('published_at', { mode: 'timestamp' }),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+  isPremium: boolean('is_premium').default(false),
+  publishedAt: timestamp('published_at'),
+  updatedAt: timestamp('updated_at').default(now),
 })
 
-export const comments = sqliteTable('comments', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+export const comments = table('comments', {
+  id: autoIncrementId('id'),
   postId: integer('post_id')
     .notNull()
     .references(() => posts.id, { onDelete: 'cascade' }),
-  authorId: text('author_id').references(() => user.id), // Link to logged-in user
+  authorId: text('author_id').references(() => user.id),
   authorName: text('author_name').notNull(),
   authorEmail: text('author_email'),
-  content: text().notNull(),
-  status: text().notNull().default('pending'), // pending, approved, spam
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
-}, (table) => [
-  index('comments_post_id_idx').on(table.postId),
-  index('comments_author_id_idx').on(table.authorId)
+  content: text('content').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at').default(now),
+}, (t: any) => [
+  index('comments_post_id_idx').on(t.postId),
+  index('comments_author_id_idx').on(t.authorId)
 ])
 
-
-export const postCategories = sqliteTable('post_categories', {
+export const postCategories = table('post_categories', {
   postId: integer('post_id')
     .notNull()
     .references(() => posts.id, { onDelete: 'cascade' }),
   categoryId: integer('category_id')
     .notNull()
     .references(() => categories.id, { onDelete: 'cascade' }),
-}, (table) => [
-  index('post_categories_idx').on(table.postId, table.categoryId)
+}, (t: any) => [
+  index('post_categories_idx').on(t.postId, t.categoryId)
 ])
 
-export const postTags = sqliteTable('post_tags', {
+export const postTags = table('post_tags', {
   postId: integer('post_id')
     .notNull()
     .references(() => posts.id, { onDelete: 'cascade' }),
   tagId: integer('tag_id')
     .notNull()
     .references(() => tags.id, { onDelete: 'cascade' }),
-}, (table) => [
-  index('post_tags_idx').on(table.postId, table.tagId)
+}, (t: any) => [
+  index('post_tags_idx').on(t.postId, t.tagId)
 ])
 
-export const appSettings = sqliteTable('app_settings', {
-  key: text().primaryKey(),
-  value: text().notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+export const appSettings = table('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at').default(now),
 })
 
-export const subscribers = sqliteTable('subscribers', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  email: text().notNull().unique(),
-  status: text().notNull().default('active'), // active, unsubscribed
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+export const subscribers = table('subscribers', {
+  id: autoIncrementId('id'),
+  email: text('email').notNull().unique(),
+  status: text('status').notNull().default('active'),
+  createdAt: timestamp('created_at').default(now),
 })
 
-export const newsletters = sqliteTable('newsletters', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  subject: text().notNull(),
-  content: text().notNull(), // HTML or Markdown
-  status: text().notNull().default('draft'), // draft, sending, sent, failed
-  sentAt: integer('sent_at', { mode: 'timestamp' }),
-  postId: integer('post_id').references(() => posts.id), // Optional: link to a post
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+export const newsletters = table('newsletters', {
+  id: autoIncrementId('id'),
+  subject: text('subject').notNull(),
+  content: text('content').notNull(),
+  status: text('status').notNull().default('draft'),
+  sentAt: timestamp('sent_at'),
+  postId: integer('post_id').references(() => posts.id),
+  createdAt: timestamp('created_at').default(now),
 })
 
-export const newsletterLogs = sqliteTable('newsletter_logs', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+export const newsletterLogs = table('newsletter_logs', {
+  id: autoIncrementId('id'),
   newsletterId: integer('newsletter_id')
     .notNull()
     .references(() => newsletters.id, { onDelete: 'cascade' }),
   subscriberEmail: text('subscriber_email').notNull(),
-  status: text().notNull().default('sent'), // sent, opened, clicked, failed
-  error: text(),
-  sentAt: integer('sent_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+  status: text('status').notNull().default('sent'),
+  error: text('error'),
+  sentAt: timestamp('sent_at').default(now),
 })
 
-export const contactMessages = sqliteTable('contact_messages', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  email: text().notNull(),
-  subject: text(),
-  message: text().notNull(),
-  status: text().notNull().default('new'), // new, read, archived
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+export const contactMessages = table('contact_messages', {
+  id: autoIncrementId('id'),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  subject: text('subject'),
+  message: text('message').notNull(),
+  status: text('status').notNull().default('new'),
+  createdAt: timestamp('created_at').default(now),
 })
 
-export const webhooks = sqliteTable('webhooks', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  url: text().notNull(),
-  event: text().notNull().default('post.published'), // post.published, post.created, etc.
-  secret: text(), // For HMAC signature validation
-  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
+export const webhooks = table('webhooks', {
+  id: autoIncrementId('id'),
+  name: text('name').notNull(),
+  url: text('url').notNull(),
+  event: text('event').notNull().default('post.published'),
+  secret: text('secret'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').default(now),
 })
 
-export const webhookDeliveries = sqliteTable('webhook_deliveries', {
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+export const webhookDeliveries = table('webhook_deliveries', {
+  id: autoIncrementId('id'),
   webhookId: integer('webhook_id')
     .notNull()
     .references(() => webhooks.id, { onDelete: 'cascade' }),
-  status: integer('status'), // HTTP status code
-  success: integer('success', { mode: 'boolean' }).notNull(),
-  payload: text().notNull(),
-  response: text(),
-  error: text(),
-  duration: integer(), // ms
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
-}, (table) => [
-  index('webhook_deliveries_webhook_id_idx').on(table.webhookId)
+  status: integer('status'),
+  success: boolean('success').notNull(),
+  payload: text('payload').notNull(),
+  response: text('response'),
+  error: text('error'),
+  duration: integer('duration'),
+  createdAt: timestamp('created_at').default(now),
+}, (t: any) => [
+  index('webhook_deliveries_webhook_id_idx').on(t.webhookId)
 ])
