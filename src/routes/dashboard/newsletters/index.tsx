@@ -103,7 +103,7 @@ function NewsletterIndexPage() {
 
       <div className="mt-0 space-y-4">
         {data.length === 0 ? (
-          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-3xl py-20 text-center">
+          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-xl py-12 text-center">
             <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Mail className="h-10 w-10" />
             </div>
@@ -120,7 +120,7 @@ function NewsletterIndexPage() {
               className="bg-card border shadow-sm group flex flex-col items-start justify-between gap-4 rounded-[1.6rem] p-6 transition-all hover:bg-muted/50 sm:flex-row sm:items-center sm:p-8"
             >
               <div className="flex items-center gap-5">
-                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${
                   item.status === 'sent' ? 'bg-green-500/10 text-green-500' : 
                   item.status === 'sending' ? 'bg-blue-500/10 text-blue-500 animate-pulse' :
                   'bg-primary/10 text-primary'

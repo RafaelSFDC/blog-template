@@ -80,7 +80,7 @@ function AnalyticsDashboard() {
               <TrendingUp className="text-primary" size={20} /> Traffic Over Time
             </h2>
           </div>
-          <div className="bg-card border shadow-sm rounded-3xl p-6 h-[400px]">
+          <div className="bg-card border shadow-sm rounded-xl p-6 h-[400px]">
              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.viewsPerDay}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -117,7 +117,7 @@ function AnalyticsDashboard() {
           <h2 className="display-title text-xl uppercase tracking-tight text-foreground px-2 flex items-center gap-2">
              <Smartphone className="text-primary" size={20} /> Devices
           </h2>
-          <div className="bg-card border shadow-sm rounded-3xl p-6 h-[400px] flex flex-col items-center justify-center">
+          <div className="bg-card border shadow-sm rounded-xl p-6 h-[400px] flex flex-col items-center justify-center">
              <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -153,7 +153,7 @@ function AnalyticsDashboard() {
            <h2 className="display-title text-xl uppercase tracking-tight text-foreground px-2 flex items-center gap-2">
               <MousePointer2 className="text-primary" size={20} /> Popular Destinations
            </h2>
-           <div className="bg-card border shadow-sm divide-y-2 divide-border/10 rounded-3xl overflow-hidden">
+           <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
              {data.topPages.map((page, idx: number) => (
                <div key={page.pathname} className="flex items-center justify-between p-5 hover:bg-muted/50 transition-colors group">
                   <div className="flex items-center gap-4 min-w-0 pr-4">
@@ -183,7 +183,7 @@ function AnalyticsDashboard() {
            <h2 className="display-title text-xl uppercase tracking-tight text-foreground px-2 flex items-center gap-2">
               <Globe className="text-primary" size={20} /> Key Browsers
            </h2>
-           <div className="bg-card border shadow-sm divide-y-2 divide-border/10 rounded-3xl overflow-hidden p-2">
+           <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden p-2">
               {data.browsers.map((browser) => (
                 <div key={browser.name} className="flex items-center justify-between p-4">
                    <span className="font-bold text-xs text-foreground">{browser.name || 'Unknown'}</span>

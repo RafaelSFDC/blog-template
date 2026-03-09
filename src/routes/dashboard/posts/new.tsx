@@ -198,7 +198,7 @@ function NewPostPage() {
 
   return (
     <DashboardPageContainer>
-      <section className="bg-card border shadow-sm rounded-4xl p-8 sm:p-10">
+      <section className="bg-card border shadow-sm rounded-xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <h1 className="display-title text-5xl text-foreground sm:text-6xl">Write New Post</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">

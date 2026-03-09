@@ -124,14 +124,14 @@ function TagsPage() {
         iconLabel="Taxonomies"
       >
         {!isAdding && !editingId && (
-          <Button onClick={() => setIsAdding(true)} variant="default" className="rounded-full">
+          <Button onClick={() => setIsAdding(true)} variant="default">
             <Plus className="mr-2 h-4 w-4" /> New Tag
           </Button>
         )}
       </DashboardHeader>
 
       {(isAdding || editingId) && (
-        <section className="bg-card border shadow-sm rounded-3xl p-8 space-y-6">
+        <section className="bg-card border shadow-sm rounded-xl p-8 space-y-6">
           <h2 className="text-2xl font-bold">{editingId ? 'Edit Tag' : 'Add New Tag'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <FieldGroup>
@@ -155,7 +155,6 @@ function TagsPage() {
                               form.setFieldValue('slug', slugify(e.target.value))
                             }
                           }}
-                          className="w-full rounded-xl border border-input bg-muted px-4 py-2 text-sm"
                           placeholder="e.g. React"
                         />
                         {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
@@ -176,7 +175,6 @@ function TagsPage() {
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(slugify(e.target.value))}
-                          className="w-full rounded-xl border border-input bg-muted px-4 py-2 text-sm"
                           placeholder="e.g. react"
                         />
                         {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
@@ -202,7 +200,7 @@ function TagsPage() {
         </section>
       )}
 
-      <section className="bg-card border shadow-sm rounded-3xl overflow-hidden">
+      <section className="bg-card border shadow-sm rounded-xl overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground font-medium italic">Loading tags...</div>
         ) : tags.length === 0 ? (

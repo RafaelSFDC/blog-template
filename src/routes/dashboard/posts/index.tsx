@@ -70,7 +70,7 @@ function PostsManagementPage() {
         icon={FileText}
         iconLabel="Content Library"
       >
-        <Button asChild variant="default" size="lg" className="rounded-xl h-14 px-8 shadow-sm">
+        <Button asChild variant="default" size="default">
           <Link to="/dashboard/posts/new" className="flex items-center gap-2 no-underline">
             <Plus size={20} strokeWidth={3} />
             <span className="uppercase tracking-widest font-black">New Post</span>
@@ -88,7 +88,7 @@ function PostsManagementPage() {
       <div className="grid gap-4">
         {postList.length > 0 ? (
           postList.map((post: DashboardPost) => (
-            <article key={post.id} className="bg-card border shadow-sm hover:border-primary/30 transition-all group overflow-hidden rounded-2xl p-5 sm:p-6 bg-card border border-border/50">
+            <article key={post.id} className="bg-card border shadow-sm hover:border-primary/30 transition-all group overflow-hidden rounded-xl p-5 sm:p-6 border-border/50">
               <div className="flex flex-wrap items-center justify-between gap-6">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -134,8 +134,8 @@ function PostsManagementPage() {
             </article>
           ))
         ) : (
-          <div className="bg-card border shadow-sm rounded-3xl p-20 text-center border border-dashed border-border/50">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+          <div className="bg-card border shadow-sm rounded-xl p-12 text-center border-dashed border-border/50">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <Plus size={32} />
             </div>
             <h2 className="display-title text-3xl text-foreground">No Stories Shared Yet</h2>

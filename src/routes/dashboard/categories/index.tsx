@@ -128,14 +128,14 @@ function CategoriesPage() {
         iconLabel="Taxonomies"
       >
         {!isAdding && !editingId && (
-          <Button onClick={() => setIsAdding(true)} variant="default" className="rounded-full">
+          <Button onClick={() => setIsAdding(true)} variant="default">
             <Plus className="mr-2 h-4 w-4" /> New Category
           </Button>
         )}
       </DashboardHeader>
 
       {(isAdding || editingId) && (
-        <section className="bg-card border shadow-sm rounded-3xl p-8 space-y-6">
+        <section className="bg-card border shadow-sm rounded-xl p-8 space-y-6">
           <h2 className="text-2xl font-bold">{editingId ? 'Edit Category' : 'Add New Category'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <FieldGroup>
@@ -159,7 +159,6 @@ function CategoriesPage() {
                               form.setFieldValue('slug', slugify(e.target.value))
                             }
                           }}
-                          className="w-full rounded-xl border border-input bg-muted px-4 py-2 text-sm"
                           placeholder="e.g. Technology"
                         />
                         {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
@@ -180,7 +179,6 @@ function CategoriesPage() {
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(slugify(e.target.value))}
-                          className="w-full rounded-xl border border-input bg-muted px-4 py-2 text-sm"
                           placeholder="e.g. technology"
                         />
                         {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
@@ -202,7 +200,7 @@ function CategoriesPage() {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        className="w-full rounded-xl border border-input bg-muted px-4 py-2 text-sm min-h-[100px]"
+                        className="min-h-[100px]"
                         placeholder="Optional description..."
                       />
                       {isInvalid && <FieldError errors={field.state.meta.errors as any} />}
@@ -227,7 +225,7 @@ function CategoriesPage() {
         </section>
       )}
 
-      <section className="bg-card border shadow-sm rounded-3xl overflow-hidden">
+      <section className="bg-card border shadow-sm rounded-xl overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-muted-foreground font-medium italic">Loading categories...</div>
         ) : categories.length === 0 ? (

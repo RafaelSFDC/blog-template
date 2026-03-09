@@ -79,7 +79,7 @@ function DashboardOverview() {
               </Link>
             </Button>
           </div>
-          <div className="bg-card border shadow-sm divide-y-2 divide-border/10 rounded-3xl overflow-hidden">
+          <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
             {latestPosts.map((post: PostRow) => (
               <div key={post.id} className="flex items-center justify-between p-6 hover:bg-muted/50 transition-colors group">
                 <div className="min-w-0 flex-1">
@@ -103,7 +103,7 @@ function DashboardOverview() {
 
         <section className="space-y-6">
             <h2 className="display-title text-2xl uppercase tracking-tight text-foreground px-2">Popular Posts</h2>
-            <div className="bg-card border shadow-sm divide-y-2 divide-border/10 rounded-3xl overflow-hidden">
+            <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
                {popularPosts.map((post: PostRow) => (
                  <div key={post.id} className="flex items-center justify-between p-4 group">
                     <div className="min-w-0 pr-4 flex-1">
@@ -117,7 +117,7 @@ function DashboardOverview() {
 
             <h2 className="display-title text-2xl uppercase tracking-tight text-foreground px-2 pt-4">Quick Actions</h2>
             <div className="grid gap-4">
-               <Link to="/dashboard/posts/new" className="bg-card border shadow-sm group flex items-center justify-between rounded-2xl bg-primary p-6 text-primary-foreground no-underline shadow-sm transition-all hover:scale-[1.02] active:scale-95">
+               <Link to="/dashboard/posts/new" className="bg-card border shadow-sm group flex items-center justify-between rounded-xl bg-primary p-6 text-primary-foreground no-underline shadow-sm transition-all hover:scale-[1.02] active:scale-95">
                   <div className="flex items-center gap-4">
                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
                         <Plus size={20} strokeWidth={3} />
@@ -130,7 +130,7 @@ function DashboardOverview() {
                   <ArrowRight size={20} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                </Link>
 
-               <Link to="/dashboard/messages" className="bg-card border shadow-sm group flex items-center justify-between rounded-2xl bg-card border border-border/50 p-6 text-foreground no-underline transition-all hover:border-rose-500/50 hover:bg-muted/50 shadow-sm">
+               <Link to="/dashboard/messages" className="bg-card border shadow-sm group flex items-center justify-between rounded-xl border-border/50 p-6 text-foreground no-underline transition-all hover:border-rose-500/50 hover:bg-muted/50 shadow-sm">
                   <div className="flex items-center gap-4">
                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-rose-500/10 group-hover:text-rose-500 transition-colors">
                         <Inbox size={20} strokeWidth={2.5} />
@@ -150,7 +150,7 @@ function DashboardOverview() {
                   </div>
                </Link>
 
-               <Link to="/dashboard/settings" className="bg-card border shadow-sm group flex items-center justify-between rounded-2xl bg-card border border-border/50 p-6 text-foreground no-underline transition-all hover:border-primary/50 hover:bg-muted/50">
+               <Link to="/dashboard/settings" className="bg-card border shadow-sm group flex items-center justify-between rounded-xl border-border/50 p-6 text-foreground no-underline transition-all hover:border-primary/50 hover:bg-muted/50">
                   <div className="flex items-center gap-4">
                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                         <Settings size={20} strokeWidth={2.5} />

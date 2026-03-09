@@ -79,7 +79,7 @@ function CommentsPage() {
           commentsList.map((comment: any) => (
             <div 
               key={comment.id} 
-              className="bg-card border shadow-sm rounded-2xl bg-card p-6 border border-border/10 hover:border-border transition-colors group"
+              className="bg-card border shadow-sm rounded-xl p-6 border-border/10 hover:border-border transition-colors group"
             >
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="space-y-2">
@@ -134,7 +134,7 @@ function CommentsPage() {
             </div>
           ))
         ) : (
-          <div className="bg-card border shadow-sm rounded-3xl p-20 text-center border border-dashed border-border/20">
+          <div className="bg-card border shadow-sm rounded-xl p-12 text-center border-dashed border-border/20">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                 <MessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>

@@ -103,11 +103,11 @@ function UsersManagementPage() {
             <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Accessing User Directory...</p>
           </div>
         ) : (
-          <Card className="w-full border-[3px] border-border/50 shadow-md rounded-4xl overflow-hidden bg-card/50 backdrop-blur-sm">
+          <Card className="w-full border border-border/50 shadow-md rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b-2 border-border/10 bg-muted/20">
+                  <tr className="border-b border-border/10 bg-muted/20">
                     <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Identity</th>
                     <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Access Level</th>
                     <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
@@ -115,12 +115,12 @@ function UsersManagementPage() {
                     <th className="p-6 text-right"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-border/10">
+                <tbody className="divide-y divide-border/10">
                   {users.map((user: any) => (
                     <tr key={user.id} className="hover:bg-muted/30 transition-colors group">
                       <td className="p-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-2xl overflow-hidden border border-border shrink-0 bg-background">
+                          <div className="h-12 w-12 rounded-xl overflow-hidden border border-border shrink-0 bg-background">
                             {user.image ? (
                               <img src={user.image} alt={user.name} className="h-full w-full object-cover" />
                             ) : (
@@ -138,18 +138,18 @@ function UsersManagementPage() {
                       <td className="p-6">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="rounded-xl border text-xs font-semibold uppercase tracking-wider gap-2 h-9">
+                            <Button variant="outline" size="sm" className="gap-2">
                               {user.role}
                               <ChevronRight className="rotate-90" size={12} />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-48 rounded-2xl border bg-card p-2 shadow-md border-border">
+                          <DropdownMenuContent align="start" className="w-48 rounded-xl border bg-card p-2 shadow-md border-border">
                             <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground p-2">Change Level</DropdownMenuLabel>
                             {ROLES.map((r) => (
                               <DropdownMenuItem 
                                 key={r} 
                                 onClick={() => handleRoleChange(user.id, r)}
-                                className={`rounded-xl p-3 text-xs font-semibold uppercase tracking-wider cursor-pointer ${user.role === r ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+                                className={`rounded-lg p-3 text-xs font-semibold uppercase tracking-wider cursor-pointer ${user.role === r ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
                               >
                                 {r}
                                 {user.role === r && <CheckCircle2 className="ml-auto" size={14} />}
@@ -159,7 +159,7 @@ function UsersManagementPage() {
                         </DropdownMenu>
                       </td>
                       <td className="p-6">
-                        <StatusBadge variant="success" className="rounded-full">
+                        <StatusBadge variant="default" className="rounded-full">
                           Active
                         </StatusBadge>
                       </td>
@@ -173,12 +173,12 @@ function UsersManagementPage() {
                                     <MoreVertical size={20} />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-2xl border shadow-md border-border bg-card">
-                                <DropdownMenuItem onClick={() => handleBanUser(user.id)} className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-xl cursor-pointer hover:bg-warning/10">
+                            <DropdownMenuContent align="end" className="w-48 rounded-xl border shadow-md border-border bg-card">
+                                <DropdownMenuItem onClick={() => handleBanUser(user.id)} className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-warning/10">
                                     <Ban size={16} /> Ban User
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive font-bold flex items-center gap-2 p-3 rounded-xl cursor-pointer hover:bg-destructive/5">
+                                <DropdownMenuItem className="text-destructive font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-destructive/5">
                                     <Trash2 size={16} /> Delete Account
                                 </DropdownMenuItem>
                             </DropdownMenuContent>

@@ -56,7 +56,7 @@ function NewWebhookPage() {
 
   return (
     <div className="space-y-10">
-      <header className="bg-card border shadow-sm rounded-3xl p-8 sm:p-10">
+      <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-10">
         <Button asChild variant="ghost" size="sm" className="-ml-3 mb-6 rounded-full text-muted-foreground hover:text-foreground">
            <a href="/dashboard/webhooks" className="flex items-center gap-1">
              <ChevronLeft className="h-4 w-4" />
@@ -72,7 +72,7 @@ function NewWebhookPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-3xl p-6 sm:p-10 bg-card border border-border/50 space-y-8">
+          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-foreground">
@@ -142,7 +142,7 @@ function NewWebhookPage() {
                 disabled={saving}
                 variant="default"
                 size="lg"
-                className="rounded-xl h-14 px-10 shadow-sm"
+                className="shadow-sm"
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
                 <span className="uppercase tracking-widest font-black">
@@ -154,7 +154,7 @@ function NewWebhookPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
+          <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
               <Info size={18} className="text-primary" />
               Webhook Security

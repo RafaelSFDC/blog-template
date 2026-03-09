@@ -62,7 +62,7 @@ function WebhooksPage() {
         icon={Webhook}
         iconLabel="Integrations"
       >
-        <Button asChild variant="default" size="lg" className="rounded-2xl shadow-sm">
+        <Button asChild variant="default" size="default">
           <a href="/dashboard/webhooks/new">
             <Plus size={20} className="mr-2" strokeWidth={3} />
             New Webhook
@@ -70,7 +70,7 @@ function WebhooksPage() {
         </Button>
       </DashboardHeader>
 
-      <section className="bg-card border shadow-sm rounded-3xl p-6 sm:p-10">
+      <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -130,7 +130,7 @@ function WebhooksPage() {
       </section>
 
       <div className="grid gap-6 sm:grid-cols-2">
-         <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
+         <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
                <Globe size={18} className="text-primary" />
                External Integrations
@@ -139,7 +139,7 @@ function WebhooksPage() {
                Use webhooks to connect with services like Zapier, Make.com, n8n, or your own custom notification bots.
             </p>
          </div>
-         <div className="bg-card border shadow-sm rounded-2xl bg-muted/50 p-6 border border-border/30">
+         <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
             <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
                <Activity size={18} className="text-primary" />
                Verification

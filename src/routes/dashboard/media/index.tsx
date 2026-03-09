@@ -100,7 +100,7 @@ function MediaLibraryPage() {
           {mediaItems.map((item: any) => (
             <div
               key={item.id}
-              className="group bg-card border shadow-sm relative aspect-square overflow-hidden rounded-2xl p-0 hover:border-primary/50"
+              className="group bg-card border shadow-sm relative aspect-square overflow-hidden rounded-xl p-0 hover:border-primary/50"
             >
               <img
                 src={item.url}
@@ -136,7 +136,7 @@ function MediaLibraryPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-3xl py-20 text-center">
+        <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-xl py-12 text-center">
           <div className="mb-6 rounded-full bg-muted p-6">
             <Image size={40} className="text-muted-foreground opacity-20" />
           </div>

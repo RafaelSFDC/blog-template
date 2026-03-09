@@ -76,9 +76,7 @@ function Home() {
 
       <section className="editorial-grid rise-in gap-8">
         <div className="bg-card border shadow-sm col-span-12 overflow-hidden rounded-xl p-8 sm:p-10 lg:p-12 relative">
-          <Badge variant="default">
-            Issue #01 / Spring 2026
-          </Badge>
+          <Badge variant="default">Issue #01 / Spring 2026</Badge>
           <h1 className="display-title font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground text-4xl sm:text-5xl lg:text-7xl">
             Stories With A <br />
             <span className="text-primary">Visual Signature.</span>

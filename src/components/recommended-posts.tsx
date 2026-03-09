@@ -1,18 +1,18 @@
-import { Link } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
-import { Button } from '#/components/ui/button'
+import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
+import { Button } from "#/components/ui/button";
 
 interface Post {
-  id: number
-  slug: string
-  title: string
-  excerpt: string
-  coverImage?: string | null
-  category?: string | null
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage?: string | null;
+  category?: string | null;
 }
 
 interface RecommendedPostsProps {
-  posts: Post[]
+  posts: Post[];
 }
 
 export function RecommendedPosts({ posts }: RecommendedPostsProps) {
@@ -27,8 +27,8 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
         <Button asChild variant="outline" size="sm" className="hidden sm:flex">
           <Link
             to="/blog"
-            search={{ q: '', category: '' }}
-            className="flex items-center gap-2 rounded-full border border-foreground bg-background px-5 py-2 text-xs font-black text-foreground transition-all hover:bg-foreground hover:text-background"
+            search={{ q: "", category: "" }}
+            className="flex items-center gap-2 "
           >
             Ver todos
             <ArrowRight className="h-4 w-4" />
@@ -54,7 +54,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
               </div>
             )}
             <div className="mb-4 inline-block rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary">
-              {post.category || 'General'}
+              {post.category || "General"}
             </div>
             <h3 className="mb-3 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
               {post.title}
@@ -66,5 +66,5 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
         ))}
       </div>
     </section>
-  )
+  );
 }

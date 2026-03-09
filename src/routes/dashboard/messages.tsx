@@ -70,7 +70,7 @@ function MessagesPage() {
           messages.map((msg: any) => (
             <div 
               key={msg.id} 
-              className={`bg-card border shadow-sm rounded-3xl bg-card p-6 border transition-all group ${
+              className={`bg-card border shadow-sm rounded-xl p-6 transition-all group ${
                 msg.status === 'new' ? 'border-primary/30 shadow-sm' : 'border-border/50 opacity-80 hover:opacity-100'
               }`}
             >
@@ -139,7 +139,7 @@ function MessagesPage() {
             </div>
           ))
         ) : (
-          <div className="bg-card border shadow-sm rounded-4xl p-20 text-center border border-dashed border-border/20">
+          <div className="bg-card border shadow-sm rounded-xl p-12 text-center border-dashed border-border/20">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted text-muted-foreground/50">
                 <Inbox size={40} />
             </div>
