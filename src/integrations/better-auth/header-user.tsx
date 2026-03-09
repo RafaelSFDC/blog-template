@@ -1,6 +1,7 @@
 import { authClient } from '#/lib/auth-client'
 import { Link } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,16 @@ import { LayoutDashboard, LogOut, Settings } from 'lucide-react'
 const DASHBOARD_ROLES = ['author', 'editor', 'moderator', 'admin', 'super-admin']
 
 export default function BetterAuthHeader() {
-  const { data: session, isPending } = authClient.useSession()
+  const queryClient = useQueryClient()
+  const { data: session, isPending } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const res = await authClient.getSession()
+      return res.data
+    },
+    retry: 3,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
 
   if (isPending) {
     return (
@@ -74,6 +84,7 @@ export default function BetterAuthHeader() {
               await authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: ['session'] })
                     window.location.href = '/'
                   },
                 },
