@@ -33,7 +33,7 @@ export default function BetterAuthHeader() {
 
   return (
     <Button asChild variant="zine-secondary" size="sm">
-      <Link to="/demo/better-auth" className="no-underline">
+      <Link to="/auth/login" className="no-underline">
         Sign in
       </Link>
     </Button>

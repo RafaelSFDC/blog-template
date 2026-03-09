@@ -13,6 +13,45 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    async sendResetPassword({ user, url }) {
+      const { resend: defaultResend } = await import('./resend');
+      const { Resend } = await import('resend');
+      const { appSettings } = await import('../db/schema');
+      
+      // Fetch settings for Resend
+      const settings = await db.select().from(appSettings);
+      const settingsObj: Record<string, string> = {};
+      settings.forEach((s: { key: string; value: string }) => {
+        settingsObj[s.key] = s.value;
+      });
+
+      const apiKey = settingsObj['resendApiKey'];
+      const senderEmail = settingsObj['newsletterSenderEmail'] || 'no-reply@resend.dev';
+      const blogName = settingsObj['blogName'] || 'VibeZine';
+      
+      const resendClient = apiKey ? new Resend(apiKey) : defaultResend;
+
+      await resendClient.emails.send({
+        from: `${blogName} <${senderEmail}>`,
+        to: user.email,
+        subject: `Reset your password for ${blogName}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 10px;">
+            <h2 style="color: #333;">Password Reset Request</h2>
+            <p>Hi ${user.name || 'there'},</p>
+            <p>We received a request to reset your password for your <strong>${blogName}</strong> account.</p>
+            <p>Click the button below to set a new password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${url}" style="background-color: #ff5c00; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+            <p style="color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px;">
+              ${blogName} Team
+            </p>
+          </div>
+        `,
+      });
+    },
   },
   socialProviders: {
     github: {

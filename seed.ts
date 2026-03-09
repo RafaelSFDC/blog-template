@@ -5,7 +5,7 @@ config({ path: ['.env.local', '.env'], override: true })
 
 async function seed() {
   const { db } = await import('./src/db/index')
-  const { posts } = await import('./src/db/schema')
+  const { posts, appSettings } = await import('./src/db/schema')
 
   console.log('Seeding blog posts...')
   
@@ -26,6 +26,16 @@ async function seed() {
   })
 
   await db.insert(posts).values(samplePosts).onConflictDoNothing()
+
+  console.log('Seeding app settings...')
+  const initialSettings = [
+    { key: 'blogName', value: 'VibeZine' },
+    { key: 'accentColor', value: '#ff5c00' },
+    { key: 'fontFamily', value: 'Inter' },
+    { key: 'gaMeasurementId', value: '' },
+    { key: 'plausibleDomain', value: '' },
+  ]
+  await db.insert(appSettings).values(initialSettings).onConflictDoNothing()
   
   console.log('Seed completed successfully!')
   process.exit(0)

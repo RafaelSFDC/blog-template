@@ -21,6 +21,7 @@ import { Route as DashboardLoginRouteImport } from './routes/dashboard/login'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
+import { Route as PublicAuthRouteImport } from './routes/_public/auth'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardWebhooksIndexRouteImport } from './routes/dashboard/webhooks/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
@@ -44,8 +45,11 @@ import { Route as ApiExportPostsRouteImport } from './routes/api/export/posts'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
+import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
+import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
+import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
+import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
 import { Route as DashboardPostsPostIdEditRouteImport } from './routes/dashboard/posts/$postId.edit'
 
 const DashboardRoute = DashboardRouteImport.update({
@@ -105,6 +109,11 @@ const PublicLoginRoute = PublicLoginRouteImport.update({
 const PublicContactRoute = PublicContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthRoute = PublicAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
@@ -226,16 +235,32 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicDemoBetterAuthRoute = PublicDemoBetterAuthRouteImport.update({
-  id: '/demo/better-auth',
-  path: '/demo/better-auth',
-  getParentRoute: () => PublicRoute,
-} as any)
 const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicAuthResetPasswordRoute = PublicAuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => PublicAuthRoute,
+} as any)
+const PublicAuthRegisterRoute = PublicAuthRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => PublicAuthRoute,
+} as any)
+const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PublicAuthRoute,
+} as any)
+const PublicAuthForgotPasswordRoute =
+  PublicAuthForgotPasswordRouteImport.update({
+    id: '/forgot-password',
+    path: '/forgot-password',
+    getParentRoute: () => PublicAuthRoute,
+  } as any)
 const DashboardPostsPostIdEditRoute =
   DashboardPostsPostIdEditRouteImport.update({
     id: '/posts/$postId/edit',
@@ -247,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
+  '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -256,8 +282,11 @@ export interface FileRoutesByFullPath {
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
+  '/auth/login': typeof PublicAuthLoginRoute
+  '/auth/register': typeof PublicAuthRegisterRoute
+  '/auth/reset-password': typeof PublicAuthResetPasswordRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
-  '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
@@ -284,6 +313,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
+  '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -294,8 +324,11 @@ export interface FileRoutesByTo {
   '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
+  '/auth/login': typeof PublicAuthLoginRoute
+  '/auth/register': typeof PublicAuthRegisterRoute
+  '/auth/reset-password': typeof PublicAuthResetPasswordRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
-  '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
@@ -325,6 +358,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
+  '/_public/auth': typeof PublicAuthRouteWithChildren
   '/_public/contact': typeof PublicContactRoute
   '/_public/login': typeof PublicLoginRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
@@ -335,8 +369,11 @@ export interface FileRoutesById {
   '/sitemap/xml': typeof SitemapXmlRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/_public/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
+  '/_public/auth/login': typeof PublicAuthLoginRoute
+  '/_public/auth/register': typeof PublicAuthRegisterRoute
+  '/_public/auth/reset-password': typeof PublicAuthResetPasswordRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
-  '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
@@ -367,6 +404,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/auth'
     | '/contact'
     | '/login'
     | '/api/comments'
@@ -376,8 +414,11 @@ export interface FileRouteTypes {
     | '/rss/xml'
     | '/sitemap/xml'
     | '/dashboard/'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/register'
+    | '/auth/reset-password'
     | '/blog/$slug'
-    | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
@@ -404,6 +445,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
+    | '/auth'
     | '/contact'
     | '/login'
     | '/api/comments'
@@ -414,8 +456,11 @@ export interface FileRouteTypes {
     | '/sitemap/xml'
     | '/'
     | '/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/register'
+    | '/auth/reset-password'
     | '/blog/$slug'
-    | '/demo/better-auth'
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
@@ -444,6 +489,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/dashboard'
     | '/_public/about'
+    | '/_public/auth'
     | '/_public/contact'
     | '/_public/login'
     | '/api/comments'
@@ -454,8 +500,11 @@ export interface FileRouteTypes {
     | '/sitemap/xml'
     | '/_public/'
     | '/dashboard/'
+    | '/_public/auth/forgot-password'
+    | '/_public/auth/login'
+    | '/_public/auth/register'
+    | '/_public/auth/reset-password'
     | '/_public/blog/$slug'
-    | '/_public/demo/better-auth'
     | '/api/auth/$'
     | '/api/comments/$id'
     | '/api/cron/publish'
@@ -580,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth': {
+      id: '/_public/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof PublicAuthRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/about': {
@@ -743,19 +799,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/demo/better-auth': {
-      id: '/_public/demo/better-auth'
-      path: '/demo/better-auth'
-      fullPath: '/demo/better-auth'
-      preLoaderRoute: typeof PublicDemoBetterAuthRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_public/blog/$slug': {
       id: '/_public/blog/$slug'
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof PublicBlogSlugRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/reset-password': {
+      id: '/_public/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof PublicAuthResetPasswordRouteImport
+      parentRoute: typeof PublicAuthRoute
+    }
+    '/_public/auth/register': {
+      id: '/_public/auth/register'
+      path: '/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof PublicAuthRegisterRouteImport
+      parentRoute: typeof PublicAuthRoute
+    }
+    '/_public/auth/login': {
+      id: '/_public/auth/login'
+      path: '/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof PublicAuthLoginRouteImport
+      parentRoute: typeof PublicAuthRoute
+    }
+    '/_public/auth/forgot-password': {
+      id: '/_public/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof PublicAuthForgotPasswordRouteImport
+      parentRoute: typeof PublicAuthRoute
     }
     '/dashboard/posts/$postId/edit': {
       id: '/dashboard/posts/$postId/edit'
@@ -767,23 +844,41 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PublicAuthRouteChildren {
+  PublicAuthForgotPasswordRoute: typeof PublicAuthForgotPasswordRoute
+  PublicAuthLoginRoute: typeof PublicAuthLoginRoute
+  PublicAuthRegisterRoute: typeof PublicAuthRegisterRoute
+  PublicAuthResetPasswordRoute: typeof PublicAuthResetPasswordRoute
+}
+
+const PublicAuthRouteChildren: PublicAuthRouteChildren = {
+  PublicAuthForgotPasswordRoute: PublicAuthForgotPasswordRoute,
+  PublicAuthLoginRoute: PublicAuthLoginRoute,
+  PublicAuthRegisterRoute: PublicAuthRegisterRoute,
+  PublicAuthResetPasswordRoute: PublicAuthResetPasswordRoute,
+}
+
+const PublicAuthRouteWithChildren = PublicAuthRoute._addFileChildren(
+  PublicAuthRouteChildren,
+)
+
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
+  PublicAuthRoute: typeof PublicAuthRouteWithChildren
   PublicContactRoute: typeof PublicContactRoute
   PublicLoginRoute: typeof PublicLoginRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
-  PublicDemoBetterAuthRoute: typeof PublicDemoBetterAuthRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
+  PublicAuthRoute: PublicAuthRouteWithChildren,
   PublicContactRoute: PublicContactRoute,
   PublicLoginRoute: PublicLoginRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
-  PublicDemoBetterAuthRoute: PublicDemoBetterAuthRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
 }
 

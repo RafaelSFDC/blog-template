@@ -22,24 +22,42 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
+const DEFAULT_SETTINGS = {
+  blogName: "VibeZine",
+  accentColor: "#ff5c00",
+  fontFamily: "Inter",
+  gaMeasurementId: "",
+  plausibleDomain: "",
+  blogLogo: "",
+  twitterProfile: "",
+  githubProfile: "",
+  linkedinProfile: "",
+};
+
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
-  const { db } = await import('#/db/index');
-  const settings = await db.select().from(appSettings);
-  const settingsObj: Record<string, string> = {};
-  settings.forEach((s: any) => {
-    settingsObj[s.key] = s.value;
-  });
-  return {
-    blogName: settingsObj["blogName"] || "VibeZine",
-    accentColor: settingsObj["accentColor"] || "#ff5c00",
-    fontFamily: settingsObj["fontFamily"] || "Inter",
-    gaMeasurementId: settingsObj["gaMeasurementId"] || "",
-    plausibleDomain: settingsObj["plausibleDomain"] || "",
-    blogLogo: settingsObj["blogLogo"] || "",
-    twitterProfile: settingsObj["twitterProfile"] || "",
-    githubProfile: settingsObj["githubProfile"] || "",
-    linkedinProfile: settingsObj["linkedinProfile"] || "",
-  };
+  try {
+    const { db } = await import('#/db/index');
+    const settings = await db.select().from(appSettings);
+    const settingsObj: Record<string, string> = {};
+    settings.forEach((s: any) => {
+      settingsObj[s.key] = s.value;
+    });
+
+    return {
+      blogName: settingsObj["blogName"] || DEFAULT_SETTINGS.blogName,
+      accentColor: settingsObj["accentColor"] || DEFAULT_SETTINGS.accentColor,
+      fontFamily: settingsObj["fontFamily"] || DEFAULT_SETTINGS.fontFamily,
+      gaMeasurementId: settingsObj["gaMeasurementId"] || DEFAULT_SETTINGS.gaMeasurementId,
+      plausibleDomain: settingsObj["plausibleDomain"] || DEFAULT_SETTINGS.plausibleDomain,
+      blogLogo: settingsObj["blogLogo"] || DEFAULT_SETTINGS.blogLogo,
+      twitterProfile: settingsObj["twitterProfile"] || DEFAULT_SETTINGS.twitterProfile,
+      githubProfile: settingsObj["githubProfile"] || DEFAULT_SETTINGS.githubProfile,
+      linkedinProfile: settingsObj["linkedinProfile"] || DEFAULT_SETTINGS.linkedinProfile,
+    };
+  } catch (error) {
+    console.error("Failed to fetch settings from DB, using defaults:", error);
+    return DEFAULT_SETTINGS;
+  }
 });
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
@@ -132,8 +150,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const settings = Route.useLoaderData();
-  const fontSlug = settings.fontFamily.replace(/\s+/g, '+');
+  const settings = Route.useLoaderData() || DEFAULT_SETTINGS;
+  const fontSlug = (settings.fontFamily || DEFAULT_SETTINGS.fontFamily).replace(/\s+/g, '+');
 
   return (
     <html lang={getLocale()} suppressHydrationWarning>

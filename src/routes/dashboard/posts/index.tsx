@@ -7,7 +7,7 @@ import { desc, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { useRouter, useLoaderData } from '@tanstack/react-router'
 import { requireAdminSession } from '#/lib/admin-auth'
-import { Plus, Eye, Pencil, Trash2, FileText, Download } from 'lucide-react'
+import { Plus, Eye, Pencil, Trash2, FileText } from 'lucide-react'
 
 type DashboardPost = typeof posts.$inferSelect
 
