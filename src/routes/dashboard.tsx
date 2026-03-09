@@ -24,7 +24,6 @@ export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
 })
 
-
 import { DashboardSidebar } from '#/components/dashboard/Sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '#/components/ui/sidebar'
 
@@ -33,7 +32,7 @@ function DashboardLayout() {
     <SidebarProvider>
       <DashboardSidebar />
       <SidebarInset className="flex flex-col min-h-svh bg-background text-foreground selection:bg-primary/25">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b-4 border-border px-4 lg:hidden">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4 lg:hidden">
           <SidebarTrigger />
           <div className="flex items-center gap-2 font-black uppercase text-xs tracking-widest">
             <span className="text-muted-foreground">Dashboard</span>

@@ -3,7 +3,7 @@ import { DashboardHeader } from '#/components/dashboard/Header'
 import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { createServerFn } from '@tanstack/react-start'
 import { authClient } from '#/lib/auth-client'
-import { requireSuperAdminSession } from '#/lib/admin-auth'
+import { requireAdminSession } from '#/lib/admin-auth'
 import { Shield, User as UserIcon, MoreVertical, Trash2, Ban, CheckCircle2, ChevronRight } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { toast } from 'sonner'
@@ -18,15 +18,15 @@ import {
 } from "#/components/ui/dropdown-menu"
 import { Card } from '#/components/ui/card'
 
-const ensureSuperAdmin = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireSuperAdminSession()
+const ensureAdmin = createServerFn({ method: 'GET' }).handler(async () => {
+  await requireAdminSession()
   return { ok: true }
 })
 
 export const Route = createFileRoute('/dashboard/users/')({
   beforeLoad: async () => {
     try {
-      await ensureSuperAdmin()
+      await ensureAdmin()
     } catch {
       throw redirect({ to: '/dashboard' })
     }

@@ -1,7 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { LayoutDashboard, FileText, Settings, LogOut, ChevronRight, Image, Tags, Library, Users, FolderTree, MessageSquare, Mail, Inbox, Webhook } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings, LogOut, Image, Tags, Library, Users, FolderTree, MessageSquare, Mail, Inbox, Webhook, BarChart3 } from 'lucide-react'
 import { authClient } from '#/lib/auth-client'
-import { Button } from '#/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import {
   Sidebar,
   SidebarContent,
@@ -11,14 +11,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroup,
+  SidebarGroupLabel
 } from '#/components/ui/sidebar'
-import { cn } from '#/lib/utils'
 
 const sidebarLinks = [
   {
     label: 'Overview',
     icon: LayoutDashboard,
     to: '/dashboard',
+  },
+  {
+    label: 'Analytics',
+    icon: BarChart3,
+    to: '/dashboard/analytics',
   },
   {
     label: 'Posts',
@@ -90,12 +95,12 @@ export function DashboardSidebar() {
 
     // Moderator specifics
     if (role === 'moderator') {
-       return ['Overview', 'Comments', 'Users', 'Messages'].includes(link.label);
+       return ['Overview', 'Analytics', 'Comments', 'Users', 'Messages'].includes(link.label);
     }
 
     // Editor specifics
     if (role === 'editor') {
-       return ['Overview', 'Posts', 'Categories', 'Tags', 'Comments', 'Newsletter', 'Media', 'Pages', 'Messages'].includes(link.label);
+       return ['Overview', 'Analytics', 'Posts', 'Categories', 'Tags', 'Comments', 'Newsletter', 'Media', 'Pages', 'Messages'].includes(link.label);
     }
 
     // Author specifics
@@ -108,24 +113,30 @@ export function DashboardSidebar() {
   });
 
   return (
-    <Sidebar className="border-r-4 border-border bg-card shadow-zine-sm">
-      <SidebarHeader className="h-20 border-b-4 border-border px-6 flex items-center justify-start">
-        <Link to="/" className="flex items-center gap-3 no-underline">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xl shadow-zine-sm">
-            V
-          </div>
-          <span className="display-title text-2xl font-black text-foreground uppercase tracking-tight">
-            Vibe<span className="text-primary">Zine</span>
-          </span>
-        </Link>
+    <Sidebar className="border-r-4 border-border">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link to="/">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black">
+                  V
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold uppercase tracking-tight">
+                    Vibe<span className="text-primary">Zine</span>
+                  </span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="p-4">
+      <SidebarContent>
         <SidebarGroup>
-          <div className="px-2 pb-4 text-[0.65rem] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-70">
-            Management
-          </div>
-          <SidebarMenu className="space-y-1">
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarMenu>
             {filteredLinks.map((link) => {
               const isActive = location.pathname === link.to;
               return (
@@ -133,19 +144,11 @@ export function DashboardSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive}
-                    className={cn(
-                      "group flex items-center justify-between rounded-xl border-3 border-transparent px-4 py-6 text-sm font-black transition-all no-underline h-auto",
-                      isActive 
-                        ? "bg-primary text-primary-foreground border-primary shadow-zine-sm translate-x-1 hover:bg-primary/95 hover:text-primary-foreground" 
-                        : "text-foreground hover:bg-muted hover:border-border hover:translate-x-1"
-                    )}
+                    tooltip={link.label}
                   >
                     <Link to={link.to}>
-                      <div className="flex items-center gap-3">
-                        <link.icon size={20} className="shrink-0" />
-                        <span className="uppercase tracking-wider">{link.label}</span>
-                      </div>
-                      <ChevronRight size={16} className={cn("opacity-0 transition-opacity group-hover:opacity-100", isActive && "opacity-100")} />
+                      <link.icon />
+                      <span>{link.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -155,44 +158,30 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t-4 border-border bg-muted/30 p-6 flex flex-col gap-4">
-        <div className="flex items-center gap-4 px-2">
-          <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-background relative shrink-0">
-             {session?.user.image ? (
-               <img src={session.user.image} alt={session.user.name} className="h-full w-full object-cover" />
-             ) : (
-               <div className="flex h-full w-full items-center justify-center font-bold text-muted-foreground uppercase text-xs">
-                 {session?.user.name ? session.user.name.charAt(0) : 'U'}
-               </div>
-             )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-                <p className="truncate text-[10px] font-black text-foreground uppercase tracking-tight">
-                   {session?.user.name}
-                </p>
-                <span className="text-[8px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 uppercase tracking-tighter shrink-0">
-                    {role}
-                </span>
-            </div>
-            <p className="truncate text-[9px] font-bold text-muted-foreground">
-              {session?.user.email}
-            </p>
-          </div>
-        </div>
-
-        <Button
-          onClick={() => {
-              void authClient.signOut().then(() => {
-                  window.location.href = '/auth/login';
-              });
-          }}
-          variant="destructive"
-          className="w-full justify-start gap-3 rounded-xl border-3 border-destructive/20 bg-destructive/5 px-4 py-6 font-black text-destructive hover:bg-destructive hover:text-white transition-all shadow-zine-sm active:scale-95 h-auto"
-        >
-          <LogOut size={20} />
-          <span className="uppercase tracking-widest text-xs">Sign Out</span>
-        </Button>
+      <SidebarFooter>
+         <SidebarMenu>
+          <SidebarMenuItem>
+             <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                onClick={() => {
+                  void authClient.signOut().then(() => {
+                      window.location.href = '/auth/login';
+                  });
+                }}
+              >
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={session?.user?.image ?? undefined} alt={session?.user?.name ?? ''} />
+                  <AvatarFallback className="rounded-lg">{session?.user?.name ? session.user.name.charAt(0) : 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{session?.user?.name}</span>
+                  <span className="truncate text-xs">{session?.user?.email}</span>
+                </div>
+                <LogOut className="ml-auto size-4" />
+              </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

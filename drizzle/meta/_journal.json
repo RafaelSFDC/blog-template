@@ -29,6 +29,13 @@
       "when": 1773031512985,
       "tag": "0003_perpetual_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1773059200428,
+      "tag": "0004_condemned_groot",
+      "breakpoints": true
     }
   ]
 }

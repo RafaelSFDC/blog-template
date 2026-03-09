@@ -31,6 +31,7 @@ import { Route as DashboardNewslettersIndexRouteImport } from './routes/dashboar
 import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/media/index'
 import { Route as DashboardCommentsIndexRouteImport } from './routes/dashboard/comments/index'
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
+import { Route as DashboardAnalyticsIndexRouteImport } from './routes/dashboard/analytics/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 import { Route as DashboardWebhooksNewRouteImport } from './routes/dashboard/webhooks/new'
 import { Route as DashboardUsersSubscribersRouteImport } from './routes/dashboard/users/subscribers'
@@ -162,6 +163,11 @@ const DashboardCategoriesIndexRoute =
     path: '/categories/',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardAnalyticsIndexRoute = DashboardAnalyticsIndexRouteImport.update({
+  id: '/analytics/',
+  path: '/analytics/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/blog/': typeof PublicBlogIndexRoute
+  '/dashboard/analytics/': typeof DashboardAnalyticsIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
@@ -334,6 +341,7 @@ export interface FileRoutesByTo {
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/blog': typeof PublicBlogIndexRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments': typeof DashboardCommentsIndexRoute
   '/dashboard/media': typeof DashboardMediaIndexRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
+  '/dashboard/analytics/': typeof DashboardAnalyticsIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
   '/dashboard/media/': typeof DashboardMediaIndexRoute
@@ -422,6 +431,7 @@ export interface FileRouteTypes {
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
     | '/blog/'
+    | '/dashboard/analytics/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
     | '/dashboard/media/'
@@ -463,6 +473,7 @@ export interface FileRouteTypes {
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
     | '/blog'
+    | '/dashboard/analytics'
     | '/dashboard/categories'
     | '/dashboard/comments'
     | '/dashboard/media'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
     | '/_public/blog/'
+    | '/dashboard/analytics/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
     | '/dashboard/media/'
@@ -687,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/dashboard/categories/'
       preLoaderRoute: typeof DashboardCategoriesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/analytics/': {
+      id: '/dashboard/analytics/'
+      path: '/analytics'
+      fullPath: '/dashboard/analytics/'
+      preLoaderRoute: typeof DashboardAnalyticsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_public/blog/': {
@@ -874,6 +893,7 @@ interface DashboardRouteChildren {
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
   DashboardUsersSubscribersRoute: typeof DashboardUsersSubscribersRoute
   DashboardWebhooksNewRoute: typeof DashboardWebhooksNewRoute
+  DashboardAnalyticsIndexRoute: typeof DashboardAnalyticsIndexRoute
   DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
   DashboardCommentsIndexRoute: typeof DashboardCommentsIndexRoute
   DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
@@ -894,6 +914,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardPostsNewRoute: DashboardPostsNewRoute,
   DashboardUsersSubscribersRoute: DashboardUsersSubscribersRoute,
   DashboardWebhooksNewRoute: DashboardWebhooksNewRoute,
+  DashboardAnalyticsIndexRoute: DashboardAnalyticsIndexRoute,
   DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
   DashboardCommentsIndexRoute: DashboardCommentsIndexRoute,
   DashboardMediaIndexRoute: DashboardMediaIndexRoute,

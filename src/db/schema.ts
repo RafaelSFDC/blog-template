@@ -220,3 +220,26 @@ export const webhookDeliveries = table('webhook_deliveries', {
 }, (t: any) => [
   index('webhook_deliveries_webhook_id_idx').on(t.webhookId)
 ])
+
+export const visitors = table('visitors', {
+  id: text('id').primaryKey(), // Hashed IP + User Agent or a UUID from cookie
+  lastSeenAt: timestamp('last_seen_at').default(now),
+  createdAt: timestamp('created_at').default(now),
+})
+
+export const pageViews = table('page_views', {
+  id: autoIncrementId('id'),
+  visitorId: text('visitor_id').references(() => visitors.id),
+  url: text('url').notNull(),
+  pathname: text('pathname').notNull(),
+  referrer: text('referrer'),
+  userAgent: text('user_agent'),
+  browser: text('browser'),
+  os: text('os'),
+  device: text('device'), // mobile, desktop, tablet
+  timestamp: timestamp('timestamp').default(now),
+}, (t: any) => [
+  index('page_views_visitor_id_idx').on(t.visitorId),
+  index('page_views_pathname_idx').on(t.pathname),
+  index('page_views_timestamp_idx').on(t.timestamp),
+])

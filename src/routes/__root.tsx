@@ -15,6 +15,7 @@ import { appSettings } from '#/db/schema'
 import { createServerFn } from '@tanstack/react-start'
 
 import appCss from '../styles.css?url'
+import { useTracking } from '#/hooks/use-tracking'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -152,6 +153,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const settings = Route.useLoaderData() || DEFAULT_SETTINGS;
   const fontSlug = (settings.fontFamily || DEFAULT_SETTINGS.fontFamily).replace(/\s+/g, '+');
+
+  useTracking(); // Call the custom tracking hook
 
   return (
     <html lang={getLocale()} suppressHydrationWarning>
