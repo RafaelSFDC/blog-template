@@ -1,7 +1,6 @@
 import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
 import { posts } from '#/db/schema'
 import { eq } from 'drizzle-orm'
 import { useState, type FormEvent } from 'react'
@@ -28,7 +27,7 @@ const getPostForEdit = createServerFn({ method: 'GET' })
   .inputValidator((input: { id: number }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
-
+    const { db } = await import('#/db/index');
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, data.id),
     })
@@ -44,7 +43,7 @@ const updatePost = createServerFn({ method: 'POST' })
   .inputValidator((input: PostFormInput) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
-
+    const { db } = await import('#/db/index');
     await db
       .update(posts)
       .set({

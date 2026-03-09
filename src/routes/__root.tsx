@@ -11,7 +11,6 @@ import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import { getLocale } from '#/paraglide/runtime'
-import { db } from '#/db/index'
 import { appSettings } from '#/db/schema'
 import { createServerFn } from '@tanstack/react-start'
 
@@ -24,6 +23,7 @@ interface MyRouterContext {
 }
 
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const { db } = await import('#/db/index');
   const settings = await db.select().from(appSettings);
   const settingsObj: Record<string, string> = {};
   settings.forEach((s: any) => {
@@ -36,6 +36,9 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => 
     gaMeasurementId: settingsObj["gaMeasurementId"] || "",
     plausibleDomain: settingsObj["plausibleDomain"] || "",
     blogLogo: settingsObj["blogLogo"] || "",
+    twitterProfile: settingsObj["twitterProfile"] || "",
+    githubProfile: settingsObj["githubProfile"] || "",
+    linkedinProfile: settingsObj["linkedinProfile"] || "",
   };
 });
 

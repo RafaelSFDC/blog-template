@@ -1,9 +1,10 @@
 import { db } from '#/db/index';
-import { subscribers, newsletters, newsletterLogs } from '#/db/schema';
-import { resend } from './resend';
+import { subscribers, newsletters, newsletterLogs, appSettings } from '#/db/schema';
+import { resend as defaultResend } from './resend';
 import { eq } from 'drizzle-orm';
 
 export async function sendNewsletter(newsletterId: number) {
+  const { Resend } = await import('resend');
   const newsletter = await db.query.newsletters.findFirst({
     where: eq(newsletters.id, newsletterId),
   });
@@ -14,6 +15,19 @@ export async function sendNewsletter(newsletterId: number) {
   const activeSubscribers = await db.query.subscribers.findMany({
     where: eq(subscribers.status, 'active'),
   });
+
+  // Fetch settings for Resend
+  const settings = await db.select().from(appSettings);
+  const settingsObj: Record<string, string> = {};
+  settings.forEach((s: { key: string; value: string }) => {
+    settingsObj[s.key] = s.value;
+  });
+
+  const apiKey = settingsObj['resendApiKey'];
+  const senderEmail = settingsObj['newsletterSenderEmail'] || 'newsletter@resend.dev';
+  
+  // Use dynamic resend client if API key is provided in settings, otherwise fallback to env-based one
+  const resendClient = apiKey ? new Resend(apiKey) : defaultResend;
 
   if (activeSubscribers.length === 0) {
     return { count: 0, message: 'No active subscribers found' };
@@ -31,8 +45,8 @@ export async function sendNewsletter(newsletterId: number) {
   // For now, simplicity:
   for (const subscriber of activeSubscribers) {
     try {
-      await resend.emails.send({
-        from: 'Blog <newsletter@resend.dev>', // Default testing domain or change to verified domain
+      await resendClient.emails.send({
+        from: `Blog <${senderEmail}>`, // Use configured sender email
         to: subscriber.email,
         subject: newsletter.subject,
         html: `

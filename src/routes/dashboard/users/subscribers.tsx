@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
 import { subscribers } from '#/db/schema'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { Users, Download, Info, CheckCircle2 } from 'lucide-react'
@@ -9,6 +8,7 @@ import { format } from 'date-fns'
 
 const getSubscribers = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
+  const { db } = await import('#/db/index');
   return db.query.subscribers.findMany({
     orderBy: [desc(subscribers.createdAt)],
   })
@@ -16,7 +16,7 @@ const getSubscribers = createServerFn({ method: 'GET' }).handler(async () => {
 
 const exportSubscribersCSV = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
-  
+  const { db } = await import('#/db/index');
   const allSubscribers = await db.query.subscribers.findMany({
     orderBy: [desc(subscribers.createdAt)],
   })

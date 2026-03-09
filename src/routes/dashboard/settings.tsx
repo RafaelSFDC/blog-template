@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
 import { appSettings } from '#/db/schema'
 import { useState, type FormEvent } from 'react'
 import { requireAdminSession } from '#/lib/admin-auth'
@@ -9,6 +8,7 @@ import { Settings as SettingsIcon, Save, Info } from 'lucide-react'
 
 const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
+  const { db } = await import('#/db/index');
   const settings = await db.select().from(appSettings)
   
   // Convert array to a more useful object
@@ -26,6 +26,11 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
     gaMeasurementId: settingsObj['gaMeasurementId'] || '',
     plausibleDomain: settingsObj['plausibleDomain'] || '',
     stripePriceId: settingsObj['stripePriceId'] || '',
+    resendApiKey: settingsObj['resendApiKey'] || '',
+    newsletterSenderEmail: settingsObj['newsletterSenderEmail'] || '',
+    twitterProfile: settingsObj['twitterProfile'] || '',
+    githubProfile: settingsObj['githubProfile'] || '',
+    linkedinProfile: settingsObj['linkedinProfile'] || '',
   }
 })
 
@@ -39,9 +44,15 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     gaMeasurementId: string;
     plausibleDomain: string;
     stripePriceId: string;
+    resendApiKey: string;
+    newsletterSenderEmail: string;
+    twitterProfile: string;
+    githubProfile: string;
+    linkedinProfile: string;
   }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
 
     const upsert = async (key: string, value: string) => {
        await db.insert(appSettings)
@@ -60,6 +71,11 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     await upsert('gaMeasurementId', data.gaMeasurementId)
     await upsert('plausibleDomain', data.plausibleDomain)
     await upsert('stripePriceId', data.stripePriceId)
+    await upsert('resendApiKey', data.resendApiKey)
+    await upsert('newsletterSenderEmail', data.newsletterSenderEmail)
+    await upsert('twitterProfile', data.twitterProfile)
+    await upsert('githubProfile', data.githubProfile)
+    await upsert('linkedinProfile', data.linkedinProfile)
 
     return { ok: true as const }
   })
@@ -79,6 +95,11 @@ function SettingsPage() {
   const [gaMeasurementId, setGaMeasurementId] = useState(initialSettings.gaMeasurementId)
   const [plausibleDomain, setPlausibleDomain] = useState(initialSettings.plausibleDomain)
   const [stripePriceId, setStripePriceId] = useState(initialSettings.stripePriceId)
+  const [resendApiKey, setResendApiKey] = useState(initialSettings.resendApiKey)
+  const [newsletterSenderEmail, setNewsletterSenderEmail] = useState(initialSettings.newsletterSenderEmail)
+  const [twitterProfile, setTwitterProfile] = useState(initialSettings.twitterProfile)
+  const [githubProfile, setGithubProfile] = useState(initialSettings.githubProfile)
+  const [linkedinProfile, setLinkedinProfile] = useState(initialSettings.linkedinProfile)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -96,7 +117,12 @@ function SettingsPage() {
         fontFamily,
         gaMeasurementId: gaMeasurementId.trim(),
         plausibleDomain: plausibleDomain.trim(),
-        stripePriceId: stripePriceId.trim()
+        stripePriceId: stripePriceId.trim(),
+        resendApiKey: resendApiKey.trim(),
+        newsletterSenderEmail: newsletterSenderEmail.trim(),
+        twitterProfile: twitterProfile.trim(),
+        githubProfile: githubProfile.trim(),
+        linkedinProfile: linkedinProfile.trim(),
       } })
       setMessage('Settings saved successfully!')
     } catch {
@@ -253,6 +279,89 @@ function SettingsPage() {
                     placeholder="price_H5v..."
                   />
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Obtido no dashboard do Stripe</p>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Email / Newsletter Configuration</h3>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="resendApiKey" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Resend API Key
+                    </label>
+                    <input
+                      id="resendApiKey"
+                      type="password"
+                      value={resendApiKey}
+                      onChange={(e) => setResendApiKey(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
+                      placeholder="re_XXXXXXXXXXXX"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="newsletterSenderEmail" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Sender Email
+                    </label>
+                    <input
+                      id="newsletterSenderEmail"
+                      value={newsletterSenderEmail}
+                      onChange={(e) => setNewsletterSenderEmail(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="newsletter@seudominio.com"
+                    />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Must be verified in Resend</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Social Links & Feeds</h3>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="twitterProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Twitter Profile URL
+                    </label>
+                    <input
+                      id="twitterProfile"
+                      value={twitterProfile}
+                      onChange={(e) => setTwitterProfile(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="https://twitter.com/seuperfil"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="githubProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      GitHub Profile URL
+                    </label>
+                    <input
+                      id="githubProfile"
+                      value={githubProfile}
+                      onChange={(e) => setGithubProfile(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="https://github.com/seuperfil"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="linkedinProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      LinkedIn Profile URL
+                    </label>
+                    <input
+                      id="linkedinProfile"
+                      value={linkedinProfile}
+                      onChange={(e) => setLinkedinProfile(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="https://linkedin.com/in/seuperfil"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground">
+                      RSS Feed URL
+                    </label>
+                    <div className="flex h-11 items-center rounded-xl border-2 border-border bg-muted/20 px-5 text-sm font-mono font-bold text-muted-foreground">
+                      /rss.xml
+                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Auto-generated for your readers</p>
+                  </div>
                 </div>
               </div>
             </div>

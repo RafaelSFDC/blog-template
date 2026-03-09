@@ -48,6 +48,15 @@ const getPostsForTemplate = createServerFn({ method: 'GET' })
     })
   })
 
+const getNewsletterById = createServerFn({ method: "GET" })
+  .inputValidator((id: number) => id)
+  .handler(async ({ data: id }) => {
+    await requireAdminSession();
+    return db.query.newsletters.findFirst({
+      where: eq(newsletters.id, id),
+    });
+  });
+
 export const Route = createFileRoute('/dashboard/newsletters/new')({
   validateSearch: (search: Record<string, unknown>) => ({
     fromId: search.fromId ? Number(search.fromId) : undefined,
@@ -57,9 +66,7 @@ export const Route = createFileRoute('/dashboard/newsletters/new')({
     const posts = await getPostsForTemplate()
     let existing = null
     if (search.fromId) {
-       existing = await db.query.newsletters.findFirst({
-         where: eq(newsletters.id, search.fromId)
-       })
+       existing = await getNewsletterById({ data: search.fromId })
     }
     return { posts, existing }
   },

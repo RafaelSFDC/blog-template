@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
-import { newsletters } from '#/db/schema'
+import { newsletters, subscribers } from '#/db/schema'
 import { desc, eq } from 'drizzle-orm'
 import { Button } from '#/components/ui/button'
 import { requireAdminSession } from '#/lib/admin-auth'
@@ -13,6 +12,7 @@ import { useState } from 'react'
 const getNewsletters = createServerFn({ method: 'GET' })
   .handler(async () => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     return db.query.newsletters.findMany({
       orderBy: desc(newsletters.createdAt),
     })
@@ -22,6 +22,7 @@ const deleteNewsletter = createServerFn({ method: "POST" })
   .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     await db.delete(newsletters).where(eq(newsletters.id, id))
     return { success: true }
   })
@@ -29,6 +30,7 @@ const deleteNewsletter = createServerFn({ method: "POST" })
 const exportSubscribers = createServerFn({ method: 'GET' })
   .handler(async () => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     const allSubscribers = await db.query.subscribers.findMany()
     
     const header = 'ID,Email,Status,CreatedAt\n'

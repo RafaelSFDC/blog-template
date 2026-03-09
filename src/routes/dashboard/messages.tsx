@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
 import { contactMessages } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { Button } from '#/components/ui/button'
@@ -11,6 +10,7 @@ import { requireAdminSession } from '#/lib/admin-auth'
 
 const getMessages = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession()
+  const { db } = await import('#/db/index');
   return await db.query.contactMessages.findMany({
     orderBy: desc(contactMessages.createdAt),
   })
@@ -20,6 +20,7 @@ const updateMessageStatus = createServerFn({ method: "POST" })
   .inputValidator((data: { id: number; status: "read" | "archived" | "new" }) => data)
   .handler(async ({ data }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     await db.update(contactMessages).set({ status: data.status }).where(eq(contactMessages.id, data.id))
     return { success: true }
   })
@@ -28,6 +29,7 @@ const deleteMessage = createServerFn({ method: "POST" })
   .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     await db.delete(contactMessages).where(eq(contactMessages.id, id))
     return { success: true }
   })

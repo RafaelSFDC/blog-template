@@ -1,11 +1,10 @@
-import { drizzle as drizzleD1 } from 'drizzle-orm/d1'
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3'
-import Database from 'better-sqlite3'
 import * as schema from './schema'
 
 let _db: any = null
 
-export function setDb(d1: any) {
+export async function setDb(d1: any) {
+  const { drizzle: drizzleD1 } = await import('drizzle-orm/d1')
   _db = drizzleD1(d1, { schema })
 }
 
@@ -30,7 +29,9 @@ export const db = new Proxy({} as any, {
         const event = getEvent()
         const foundD1 = event?.context?.cloudflare?.env?.DB || event?.context?.env?.DB
         if (foundD1 && !_db) {
-           _db = drizzleD1(foundD1, { schema })
+           import('drizzle-orm/d1').then(({ drizzle: drizzleD1 }) => {
+             _db = drizzleD1(foundD1, { schema })
+           })
         }
       }).catch(() => {
         // Not in an environment where vinxi/http is available (e.g. client)
@@ -40,13 +41,17 @@ export const db = new Proxy({} as any, {
     }
 
     if (d1) {
-      _db = drizzleD1(d1, { schema })
+      import('drizzle-orm/d1').then(({ drizzle: drizzleD1 }) => {
+        _db = drizzleD1(d1, { schema })
+      })
       return (_db as any)[prop]
     }
 
     // Fallback for local development/scripts
     if (process.env.NODE_ENV !== 'production' || !process.env.CF_PAGES) {
       if (!_db) {
+        // Use require for better-sqlite3 as it's a native module
+        const Database = require('better-sqlite3')
         const sqlite = new Database('blog.db')
         _db = drizzleSqlite(sqlite, { schema })
       }

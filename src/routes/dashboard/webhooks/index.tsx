@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
 import { webhooks } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdminSession } from '#/lib/admin-auth'
@@ -10,6 +9,7 @@ import { useState } from 'react'
 
 const getWebhooks = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
+  const { db } = await import('#/db/index');
   return db.query.webhooks.findMany({
     orderBy: [desc(webhooks.createdAt)],
   })
@@ -19,6 +19,7 @@ const deleteWebhook = createServerFn({ method: 'POST' })
   .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     await db.delete(webhooks).where(eq(webhooks.id, id))
     return { success: true }
   })
@@ -27,6 +28,7 @@ const toggleWebhook = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: number; isActive: boolean }) => data)
   .handler(async ({ data }) => {
     await requireAdminSession()
+    const { db } = await import('#/db/index');
     await db.update(webhooks).set({ isActive: data.isActive }).where(eq(webhooks.id, data.id))
     return { success: true }
   })
