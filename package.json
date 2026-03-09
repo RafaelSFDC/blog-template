@@ -11,11 +11,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "deploy": "pnpm run build && wrangler deploy",
+    "deploy": "pnpm run db:migrate:prod && pnpm run build && wrangler deploy",
+    "db:migrate": "tsx db/migrate.ts",
+    "db:migrate:prod": "tsx db/migrate.ts --prod",
     "seed": "tsx seed.ts",
     "seed:cf": "wrangler d1 execute blog-db --local --file=./drizzle/0000_mixed_the_professor.sql && tsx seed.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:legacy": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:studio": "drizzle-kit studio"
@@ -25,6 +27,7 @@
     "@cloudflare/vite-plugin": "^1.26.0",
     "@faker-js/faker": "^10.3.0",
     "@hookform/resolvers": "^5.2.2",
+    "@libsql/client": "^0.17.0",
     "@neondatabase/serverless": "^1.0.2",
     "@neondatabase/vite-plugin-postgres": "^0.7.0",
     "@strapi/client": "^1.6.1",
@@ -106,13 +109,13 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.3.1",
     "jsdom": "^28.1.0",
+    "nitro": "npm:nitro-nightly@latest",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5",
-    "wrangler": "^4.70.0",
-    "nitro": "npm:nitro-nightly@latest"
+    "wrangler": "^4.70.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

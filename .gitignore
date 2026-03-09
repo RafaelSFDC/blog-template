@@ -13,3 +13,5 @@ __unconfig*
 todos.json
 sqlite.db
 blog.db
+.env.appwrite
+.env.cloudflare
