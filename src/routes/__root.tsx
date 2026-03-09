@@ -33,6 +33,8 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => 
     blogName: settingsObj["blogName"] || "VibeZine",
     accentColor: settingsObj["accentColor"] || "#ff5c00",
     fontFamily: settingsObj["fontFamily"] || "Inter",
+    gaMeasurementId: settingsObj["gaMeasurementId"] || "",
+    plausibleDomain: settingsObj["plausibleDomain"] || "",
   };
 });
 
@@ -136,12 +138,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             --font-sans: "${settings.fontFamily}", ui-sans-serif, system-ui;
           }
         ` }} />
-        {/* Cloudflare Web Analytics */}
-        <script
-          defer
-          src='https://static.cloudflareinsights.com/beacon.min.js'
-          data-cf-beacon='{"token": "REPLACE_WITH_YOUR_ANALYTICS_TOKEN"}'
-        ></script>
+        
+        {settings.gaMeasurementId && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaMeasurementId}`} />
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${settings.gaMeasurementId}');
+            `}} />
+          </>
+        )}
+
+        {settings.plausibleDomain && (
+          <script defer data-domain={settings.plausibleDomain} src="https://plausible.io/js/script.js" />
+        )}
+
         <HeadContent />
       </head>
 

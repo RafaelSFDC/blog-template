@@ -23,6 +23,8 @@ const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
     blogLogo: settingsObj['blogLogo'] || '',
     accentColor: settingsObj['accentColor'] || '#ff5c00',
     fontFamily: settingsObj['fontFamily'] || 'Inter',
+    gaMeasurementId: settingsObj['gaMeasurementId'] || '',
+    plausibleDomain: settingsObj['plausibleDomain'] || '',
   }
 })
 
@@ -33,6 +35,8 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     blogLogo: string;
     accentColor: string;
     fontFamily: string;
+    gaMeasurementId: string;
+    plausibleDomain: string;
   }) => input)
   .handler(async ({ data }) => {
     await requireAdminSession()
@@ -51,6 +55,8 @@ const updateAppSettings = createServerFn({ method: 'POST' })
     await upsert('blogLogo', data.blogLogo)
     await upsert('accentColor', data.accentColor)
     await upsert('fontFamily', data.fontFamily)
+    await upsert('gaMeasurementId', data.gaMeasurementId)
+    await upsert('plausibleDomain', data.plausibleDomain)
 
     return { ok: true as const }
   })
@@ -67,6 +73,8 @@ function SettingsPage() {
   const [blogLogo, setBlogLogo] = useState(initialSettings.blogLogo)
   const [accentColor, setAccentColor] = useState(initialSettings.accentColor)
   const [fontFamily, setFontFamily] = useState(initialSettings.fontFamily)
+  const [gaMeasurementId, setGaMeasurementId] = useState(initialSettings.gaMeasurementId)
+  const [plausibleDomain, setPlausibleDomain] = useState(initialSettings.plausibleDomain)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -81,7 +89,9 @@ function SettingsPage() {
         blogDescription, 
         blogLogo, 
         accentColor, 
-        fontFamily 
+        fontFamily,
+        gaMeasurementId: gaMeasurementId.trim(),
+        plausibleDomain: plausibleDomain.trim()
       } })
       setMessage('Settings saved successfully!')
     } catch {
@@ -186,6 +196,40 @@ function SettingsPage() {
                       <option value="Space Grotesk">Tech (Space Grotesk)</option>
                       <option value="Bricolage Grotesque">Expressive (Bricolage Grotesque)</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Analytics Tracking</h3>
+                
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="gaMeasurementId" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Google Analytics Measurement ID
+                    </label>
+                    <input
+                      id="gaMeasurementId"
+                      value={gaMeasurementId}
+                      onChange={(e) => setGaMeasurementId(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="G-XXXXXXXXXX"
+                    />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Requires a "G-" prefix</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="plausibleDomain" className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Plausible Analytics Domain
+                    </label>
+                    <input
+                      id="plausibleDomain"
+                      value={plausibleDomain}
+                      onChange={(e) => setPlausibleDomain(e.target.value)}
+                      className="w-full rounded-xl border-2 border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      placeholder="yourdomain.com"
+                    />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Leaves out "https://"</p>
                   </div>
                 </div>
               </div>

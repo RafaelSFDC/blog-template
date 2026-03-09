@@ -16,6 +16,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
 import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/index'
@@ -26,6 +27,7 @@ import { Route as DashboardMediaIndexRouteImport } from './routes/dashboard/medi
 import { Route as DashboardCommentsIndexRouteImport } from './routes/dashboard/comments/index'
 import { Route as DashboardCategoriesIndexRouteImport } from './routes/dashboard/categories/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
+import { Route as DashboardUsersSubscribersRouteImport } from './routes/dashboard/users/subscribers'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
@@ -69,6 +71,11 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => DashboardRoute,
+} as any)
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
 } as any)
 const PublicAboutRoute = PublicAboutRouteImport.update({
   id: '/about',
@@ -122,6 +129,12 @@ const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => PublicRoute,
 } as any)
+const DashboardUsersSubscribersRoute =
+  DashboardUsersSubscribersRouteImport.update({
+    id: '/users/subscribers',
+    path: '/users/subscribers',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   id: '/posts/new',
   path: '/posts/new',
@@ -173,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -185,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
@@ -198,6 +213,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -211,6 +227,7 @@ export interface FileRoutesByTo {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/blog': typeof PublicBlogIndexRoute
   '/dashboard/categories': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments': typeof DashboardCommentsIndexRoute
@@ -227,6 +244,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
+  '/_public/contact': typeof PublicContactRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -240,6 +258,7 @@ export interface FileRoutesById {
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
+  '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/dashboard/categories/': typeof DashboardCategoriesIndexRoute
   '/dashboard/comments/': typeof DashboardCommentsIndexRoute
@@ -257,6 +276,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/about'
+    | '/contact'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -269,6 +289,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
+    | '/dashboard/users/subscribers'
     | '/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
@@ -282,6 +303,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/about'
+    | '/contact'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -295,6 +317,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
+    | '/dashboard/users/subscribers'
     | '/blog'
     | '/dashboard/categories'
     | '/dashboard/comments'
@@ -310,6 +333,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/dashboard'
     | '/_public/about'
+    | '/_public/contact'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -323,6 +347,7 @@ export interface FileRouteTypes {
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
     | '/dashboard/posts/new'
+    | '/dashboard/users/subscribers'
     | '/_public/blog/'
     | '/dashboard/categories/'
     | '/dashboard/comments/'
@@ -397,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/about': {
       id: '/_public/about'
       path: '/about'
@@ -467,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/dashboard/users/subscribers': {
+      id: '/dashboard/users/subscribers'
+      path: '/users/subscribers'
+      fullPath: '/dashboard/users/subscribers'
+      preLoaderRoute: typeof DashboardUsersSubscribersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/posts/new': {
       id: '/dashboard/posts/new'
       path: '/posts/new'
@@ -535,6 +574,7 @@ declare module '@tanstack/react-router' {
 
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
+  PublicContactRoute: typeof PublicContactRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicDemoBetterAuthRoute: typeof PublicDemoBetterAuthRoute
@@ -543,6 +583,7 @@ interface PublicRouteChildren {
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
+  PublicContactRoute: PublicContactRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicDemoBetterAuthRoute: PublicDemoBetterAuthRoute,
@@ -557,6 +598,7 @@ interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
+  DashboardUsersSubscribersRoute: typeof DashboardUsersSubscribersRoute
   DashboardCategoriesIndexRoute: typeof DashboardCategoriesIndexRoute
   DashboardCommentsIndexRoute: typeof DashboardCommentsIndexRoute
   DashboardMediaIndexRoute: typeof DashboardMediaIndexRoute
@@ -573,6 +615,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
+  DashboardUsersSubscribersRoute: DashboardUsersSubscribersRoute,
   DashboardCategoriesIndexRoute: DashboardCategoriesIndexRoute,
   DashboardCommentsIndexRoute: DashboardCommentsIndexRoute,
   DashboardMediaIndexRoute: DashboardMediaIndexRoute,
