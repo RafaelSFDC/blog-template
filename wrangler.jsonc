@@ -5,7 +5,7 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
-	"main": "./src/server.ts",
+	"main": "@tanstack/react-start/server-entry",
 	"d1_databases": [
 		{
 			"binding": "DB",
