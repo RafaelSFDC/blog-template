@@ -16,6 +16,8 @@ interface PostFormInput {
   metaTitle?: string
   metaDescription?: string
   ogImage?: string
+  status: 'draft' | 'published' | 'scheduled' | 'private'
+  publishedAt?: Date
 }
 
 const createPost = createServerFn({ method: 'POST' })
@@ -34,7 +36,8 @@ const createPost = createServerFn({ method: 'POST' })
         metaDescription: data.metaDescription,
         ogImage: data.ogImage,
         authorId: session.user.id,
-        publishedAt: new Date(),
+        status: data.status,
+        publishedAt: data.publishedAt || new Date(),
         updatedAt: new Date(),
       })
       .returning({ id: posts.id })
@@ -64,6 +67,8 @@ function NewPostPage() {
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDescription, setMetaDescription] = useState('')
   const [ogImage, setOgImage] = useState('')
+  const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'private'>('published')
+  const [publishedAt, setPublishedAt] = useState<string>(new Date().toISOString().slice(0, 16))
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [showSEO, setShowSEO] = useState(false)
@@ -89,10 +94,13 @@ function NewPostPage() {
           metaTitle: metaTitle.trim() || undefined,
           metaDescription: metaDescription.trim() || undefined,
           ogImage: ogImage.trim() || undefined,
+          status,
+          publishedAt: status === 'scheduled' ? new Date(publishedAt) : (status === 'published' ? new Date() : undefined),
         },
       })
       await navigate({ to: '/dashboard' })
-    } catch {
+    } catch (e) {
+      console.error(e)
       setErrorMessage('Could not create this post. Check the slug and try again.')
     } finally {
       setSaving(false)
@@ -225,6 +233,40 @@ function NewPostPage() {
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 />
               </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="status" className="mb-2 block text-sm font-semibold text-foreground">
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+              className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+            >
+              <option value="published">Published</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="draft">Draft</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          {status === 'scheduled' && (
+            <div>
+              <label htmlFor="publishedAt" className="mb-2 block text-sm font-semibold text-foreground">
+                Publication Date
+              </label>
+              <input
+                id="publishedAt"
+                type="datetime-local"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
+              />
             </div>
           )}
         </div>

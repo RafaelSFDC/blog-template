@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { PostCard, cardThemes } from "#/components/blog/PostCard";
 import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
@@ -15,6 +15,7 @@ const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
     .select()
     .from(posts)
+    .where(eq(posts.status, "published"))
     .orderBy(desc(posts.publishedAt))
     .limit(12);
 });

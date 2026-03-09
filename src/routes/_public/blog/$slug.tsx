@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { posts, comments } from "#/db/schema";
-import { eq, ne, desc } from "drizzle-orm";
+import { eq, ne, desc, and } from "drizzle-orm";
 import { MarkdownContent } from "#/components/markdown-content";
 import { BlogHero } from "#/components/blog-hero";
 import { RecommendedPosts } from "#/components/recommended-posts";
@@ -33,6 +33,11 @@ const getPostBySlug = createServerFn({ method: "GET" })
         headers: (request as Request).headers
     })
 
+    // If not published and not admin, hide it
+    if (post.status !== 'published' && session?.user?.role !== 'admin') {
+      throw notFound();
+    }
+
     const isSubscribed = session?.user?.id ? await db.query.user.findFirst({
         where: eq(user.id, session.user.id)
     }).then((u: any) => u?.stripeCurrentPeriodEnd && u.stripeCurrentPeriodEnd > new Date()) : false
@@ -59,7 +64,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
 
     // Fetch recommended posts (same category, different slug)
     const recommended = await db.query.posts.findMany({
-      where: ne(posts.slug, slug),
+      where: and(ne(posts.slug, slug), eq(posts.status, 'published')),
       limit: 3,
     });
 

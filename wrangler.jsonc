@@ -18,5 +18,8 @@
 			"binding": "STORAGE",
 			"bucket_name": "blog-media"
 		}
-	]
+	],
+	"triggers": {
+		"crons": ["*/5 * * * *"]
+	}
 }

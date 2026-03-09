@@ -33,6 +33,7 @@ import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
+import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicDemoBetterAuthRouteImport } from './routes/_public/demo/better-auth'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
@@ -160,6 +161,11 @@ const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   path: '/api/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronPublishRoute = ApiCronPublishRouteImport.update({
+  id: '/api/cron/publish',
+  path: '/api/cron/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/demo/better-auth': typeof PublicDemoBetterAuthRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
@@ -284,6 +293,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/cron/publish'
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/demo/better-auth'
     | '/api/auth/$'
+    | '/api/cron/publish'
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
@@ -342,6 +353,7 @@ export interface FileRouteTypes {
     | '/_public/blog/$slug'
     | '/_public/demo/better-auth'
     | '/api/auth/$'
+    | '/api/cron/publish'
     | '/api/media/$'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
@@ -366,6 +378,7 @@ export interface RootRouteChildren {
   RssXmlRoute: typeof RssXmlRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronPublishRoute: typeof ApiCronPublishRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
@@ -541,6 +554,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/publish': {
+      id: '/api/cron/publish'
+      path: '/api/cron/publish'
+      fullPath: '/api/cron/publish'
+      preLoaderRoute: typeof ApiCronPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -637,6 +657,7 @@ const rootRouteChildren: RootRouteChildren = {
   RssXmlRoute: RssXmlRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronPublishRoute: ApiCronPublishRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,

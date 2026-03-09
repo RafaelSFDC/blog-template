@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { PostCard } from "#/components/blog/PostCard";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "#/components/ui/button";
@@ -47,6 +47,7 @@ const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
     .select()
     .from(posts)
+    .where(eq(posts.status, "published"))
     .orderBy(desc(posts.publishedAt))
     .limit(3);
 });
