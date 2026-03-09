@@ -7,6 +7,8 @@ import { requireAdminSession } from '#/lib/admin-auth'
 import { FileText, Users, Eye, TrendingUp, Plus, ArrowRight } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 
+type PostRow = typeof posts.$inferSelect
+
 const getDashboardStats = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAdminSession()
   
@@ -71,7 +73,7 @@ function DashboardOverview() {
             </Button>
           </div>
           <div className="island-shell divide-y-2 divide-border/10 rounded-3xl bg-card border-3 border-border/50 overflow-hidden">
-            {latestPosts.map((post) => (
+            {latestPosts.map((post: PostRow) => (
               <div key={post.id} className="flex items-center justify-between p-6 hover:bg-muted/50 transition-colors group">
                 <div className="min-w-0 flex-1">
                   <h4 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">{post.title}</h4>

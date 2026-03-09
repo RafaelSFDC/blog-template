@@ -9,6 +9,8 @@ import { useRouter, useLoaderData } from '@tanstack/react-router'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { Plus, Eye, Pencil, Trash2, FileText } from 'lucide-react'
 
+type DashboardPost = typeof posts.$inferSelect
+
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: '2-digit',
@@ -87,7 +89,7 @@ function PostsManagementPage() {
 
       <div className="grid gap-4">
         {postList.length > 0 ? (
-          postList.map((post) => (
+          postList.map((post: DashboardPost) => (
             <article key={post.id} className="island-shell hover:border-primary/30 transition-all group overflow-hidden rounded-2xl p-5 sm:p-6 bg-card border-3 border-border/50">
               <div className="flex flex-wrap items-center justify-between gap-6">
                 <div className="min-w-0 flex-1">
