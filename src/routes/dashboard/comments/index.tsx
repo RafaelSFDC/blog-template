@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { comments, posts } from '#/db/schema'
@@ -65,7 +66,7 @@ function CommentsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Comments"
         description="Moderate discussions and manage feedback across your publication."
@@ -142,6 +143,6 @@ function CommentsPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

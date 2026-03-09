@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { FolderTree, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '#/components/ui/button'
@@ -119,7 +120,7 @@ function CategoriesPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Categories"
         description="Manage your blog categories to organize your content."
@@ -275,7 +276,7 @@ function CategoriesPage() {
           </table>
         )}
       </section>
-    </div>
+    </DashboardPageContainer>
   )
 }
 

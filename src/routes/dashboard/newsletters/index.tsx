@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { createServerFn } from '@tanstack/react-start'
 import { newsletters } from '#/db/schema'
 import { desc, eq } from 'drizzle-orm'
@@ -66,7 +67,7 @@ function NewsletterIndexPage() {
   }
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-14">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Newsletters"
         description="Connect directly with your audience through curated email campaigns."
@@ -100,7 +101,7 @@ function NewsletterIndexPage() {
         </div>
       </DashboardHeader>
 
-      <div className="mt-8 space-y-4">
+      <div className="mt-0 space-y-4">
         {data.length === 0 ? (
           <div className="island-shell flex flex-col items-center justify-center rounded-3xl py-20 text-center">
             <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -150,11 +151,11 @@ function NewsletterIndexPage() {
                    </Button>
                 )}
                 <Button 
-                  variant="destructive" 
-                  size="icon" 
-                  className="rounded-full h-9 w-9 border-2 border-destructive/20"
-                  onClick={() => handleDelete(item.id)}
-                  disabled={deleting === item.id}
+                   variant="destructive" 
+                   size="icon" 
+                   className="rounded-full h-9 w-9 border-2 border-destructive/20"
+                   onClick={() => handleDelete(item.id)}
+                   disabled={deleting === item.id}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -168,6 +169,6 @@ function NewsletterIndexPage() {
           ))
         )}
       </div>
-    </main>
+    </DashboardPageContainer>
   )
 }

@@ -34,6 +34,7 @@ export const Route = createFileRoute('/dashboard/')({
 })
 
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 
 function DashboardOverview() {
   const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } = Route.useLoaderData()
@@ -46,7 +47,7 @@ function DashboardOverview() {
   ]
 
   return (
-    <div className="space-y-10">
+    <DashboardPageContainer>
       <DashboardHeader 
         title="Editorial Dashboard"
         description="Welcome back. Here is a snapshot of your publication's current performance and status."
@@ -164,6 +165,6 @@ function DashboardOverview() {
             </div>
         </section>
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

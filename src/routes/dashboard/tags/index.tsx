@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { Tags, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '#/components/ui/button'
@@ -115,7 +116,7 @@ function TagsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Tags"
         description="Manage your blog tags to help users find related content."
@@ -252,7 +253,7 @@ function TagsPage() {
           </table>
         )}
       </section>
-    </div>
+    </DashboardPageContainer>
   )
 }
 

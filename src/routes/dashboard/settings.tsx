@@ -86,6 +86,7 @@ export const Route = createFileRoute('/dashboard/settings')({
 })
 
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 
 function SettingsPage() {
   const initialSettings = Route.useLoaderData()
@@ -135,7 +136,7 @@ function SettingsPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Blog Settings"
         description="Manage your publication's identity and global configuration."
@@ -405,6 +406,6 @@ function SettingsPage() {
            </div>
         </aside>
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

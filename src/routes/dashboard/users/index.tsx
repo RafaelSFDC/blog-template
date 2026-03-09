@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { createServerFn } from '@tanstack/react-start'
 import { authClient } from '#/lib/auth-client'
 import { requireSuperAdminSession } from '#/lib/admin-auth'
@@ -86,7 +87,7 @@ function UsersManagementPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Identity Control"
         description="Manage your editorial team and community members. Audit access levels and identities."
@@ -195,6 +196,6 @@ function UsersManagementPage() {
           </Card>
         )}
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

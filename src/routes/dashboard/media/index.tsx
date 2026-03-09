@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { Image, Upload, Trash2, Copy, Check } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Button } from '#/components/ui/button'
@@ -61,7 +62,7 @@ function MediaLibraryPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Media Library"
         description="Manage your uploaded images and files."
@@ -143,7 +144,7 @@ function MediaLibraryPage() {
           <p className="mt-2 text-muted-foreground font-bold">Start by uploading some images for your posts.</p>
         </div>
       )}
-    </div>
+    </DashboardPageContainer>
   )
 }
 

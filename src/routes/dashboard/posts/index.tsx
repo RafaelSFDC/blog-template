@@ -36,6 +36,7 @@ export const Route = createFileRoute('/dashboard/posts/')({
 })
 
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 
 function PostsManagementPage() {
   const postList = useLoaderData({ from: '/dashboard/posts/' })
@@ -62,7 +63,7 @@ function PostsManagementPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Manage Posts"
         description="Create drafts, edit published articles, and maintain your blog archive."
@@ -149,6 +150,6 @@ function PostsManagementPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

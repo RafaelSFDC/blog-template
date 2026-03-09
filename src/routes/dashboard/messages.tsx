@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardHeader } from '#/components/dashboard/Header'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { createServerFn } from '@tanstack/react-start'
 import { contactMessages } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -56,7 +57,7 @@ function MessagesPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Inbox"
         description="Manage inquiries and messages from your site's contact form."
@@ -147,6 +148,6 @@ function MessagesPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardPageContainer>
   )
 }

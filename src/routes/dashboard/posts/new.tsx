@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
 import { Button } from '#/components/ui/button'
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
@@ -196,7 +197,7 @@ function NewPostPage() {
   }
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-14">
+    <DashboardPageContainer>
       <section className="island-shell rounded-4xl p-8 sm:p-10">
         <p className="island-kicker mb-4">Editorial Dashboard</p>
         <h1 className="display-title text-5xl text-foreground sm:text-6xl">Write New Post</h1>
@@ -512,6 +513,6 @@ function NewPostPage() {
           </Button>
         </div>
       </form>
-    </main>
+    </DashboardPageContainer>
   )
 }
