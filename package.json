@@ -30,7 +30,6 @@
     "@libsql/client": "^0.17.0",
     "@neondatabase/serverless": "^1.0.2",
     "@neondatabase/vite-plugin-postgres": "^0.7.0",
-    "@strapi/client": "^1.6.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/match-sorter-utils": "latest",
     "@tanstack/query-db-collection": "latest",

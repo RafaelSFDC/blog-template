@@ -1,22 +1,18 @@
 import { RichText } from './rich-text'
 import { Quote } from './quote'
-import { Media } from './media'
-import { Slider } from './slider'
 
 import type { IRichText } from './rich-text'
 import type { IQuote } from './quote'
-import type { IMedia } from './media'
-import type { ISlider } from './slider'
 
 // Union type of all block types
-export type Block = IRichText | IQuote | IMedia | ISlider
+export type Block = IRichText | IQuote
 
 interface BlockRendererProps {
   blocks: Array<Block>
 }
 
 /**
- * BlockRenderer - Renders dynamic content blocks from Strapi
+ * BlockRenderer - Renders dynamic content blocks
  *
  * Usage:
  * ```tsx
@@ -32,10 +28,6 @@ export function BlockRenderer({ blocks }: Readonly<BlockRendererProps>) {
         return <RichText {...block} />
       case 'shared.quote':
         return <Quote {...block} />
-      case 'shared.media':
-        return <Media {...block} />
-      case 'shared.slider':
-        return <Slider {...block} />
       default:
         // Log unknown block types in development
         console.warn('Unknown block type:', (block as any).__component)
