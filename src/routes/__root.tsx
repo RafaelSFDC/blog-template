@@ -3,24 +3,26 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
-} from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
+} from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
-import { getLocale } from '#/paraglide/runtime'
-import { appSettings } from '#/db/schema'
-import { createServerFn } from '@tanstack/react-start'
+import { getLocale } from "#/paraglide/runtime";
+import { appSettings } from "#/db/schema";
+import { createServerFn } from "@tanstack/react-start";
 
-import appCss from '../styles.css?url'
-import { useTracking } from '#/hooks/use-tracking'
+import appCss from "../styles.css?url";
+import { useTracking } from "#/hooks/use-tracking";
+import { ThemeProvider } from "next-themes";
 
-import type { QueryClient } from '@tanstack/react-query'
+import type { QueryClient } from "@tanstack/react-query";
+import { Toaster } from "#/components/ui/sonner";
 
 interface MyRouterContext {
-  queryClient: QueryClient
+  queryClient: QueryClient;
 }
 
 const DEFAULT_SETTINGS = {
@@ -36,127 +38,135 @@ const DEFAULT_SETTINGS = {
   themeVariant: "default",
 };
 
-const getGlobalSettings = createServerFn({ method: "GET" }).handler(async () => {
-  try {
-    const { db } = await import('#/db/index');
-    const settings = await db.select().from(appSettings);
-    const settingsObj: Record<string, string> = {};
-    settings.forEach((s: any) => {
-      settingsObj[s.key] = s.value;
-    });
+const getGlobalSettings = createServerFn({ method: "GET" }).handler(
+  async () => {
+    try {
+      const { db } = await import("#/db/index");
+      const settings = await db.select().from(appSettings);
+      const settingsObj: Record<string, string> = {};
+      settings.forEach((s: any) => {
+        settingsObj[s.key] = s.value;
+      });
 
-    return {
-      blogName: settingsObj["blogName"] || DEFAULT_SETTINGS.blogName,
-      accentColor: settingsObj["accentColor"] || DEFAULT_SETTINGS.accentColor,
-      fontFamily: settingsObj["fontFamily"] || DEFAULT_SETTINGS.fontFamily,
-      gaMeasurementId: settingsObj["gaMeasurementId"] || DEFAULT_SETTINGS.gaMeasurementId,
-      plausibleDomain: settingsObj["plausibleDomain"] || DEFAULT_SETTINGS.plausibleDomain,
-      blogLogo: settingsObj["blogLogo"] || DEFAULT_SETTINGS.blogLogo,
-      twitterProfile: settingsObj["twitterProfile"] || DEFAULT_SETTINGS.twitterProfile,
-      githubProfile: settingsObj["githubProfile"] || DEFAULT_SETTINGS.githubProfile,
-      linkedinProfile: settingsObj["linkedinProfile"] || DEFAULT_SETTINGS.linkedinProfile,
-      themeVariant: settingsObj["themeVariant"] || DEFAULT_SETTINGS.themeVariant,
-    };
-  } catch (error) {
-    console.error("Failed to fetch settings from DB, using defaults:", error);
-    return DEFAULT_SETTINGS;
-  }
-});
+      return {
+        blogName: settingsObj["blogName"] || DEFAULT_SETTINGS.blogName,
+        accentColor: settingsObj["accentColor"] || DEFAULT_SETTINGS.accentColor,
+        fontFamily: settingsObj["fontFamily"] || DEFAULT_SETTINGS.fontFamily,
+        gaMeasurementId:
+          settingsObj["gaMeasurementId"] || DEFAULT_SETTINGS.gaMeasurementId,
+        plausibleDomain:
+          settingsObj["plausibleDomain"] || DEFAULT_SETTINGS.plausibleDomain,
+        blogLogo: settingsObj["blogLogo"] || DEFAULT_SETTINGS.blogLogo,
+        twitterProfile:
+          settingsObj["twitterProfile"] || DEFAULT_SETTINGS.twitterProfile,
+        githubProfile:
+          settingsObj["githubProfile"] || DEFAULT_SETTINGS.githubProfile,
+        linkedinProfile:
+          settingsObj["linkedinProfile"] || DEFAULT_SETTINGS.linkedinProfile,
+        themeVariant:
+          settingsObj["themeVariant"] || DEFAULT_SETTINGS.themeVariant,
+      };
+    } catch (error) {
+      console.error("Failed to fetch settings from DB, using defaults:", error);
+      return DEFAULT_SETTINGS;
+    }
+  },
+);
 
-const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='system')?stored:'system';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='system'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);root.style.colorScheme=resolved;}catch(e){}})();`
-
-import { ThemeProvider } from 'next-themes'
+const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='system')?stored:'system';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='system'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);root.style.colorScheme=resolved;}catch(e){}})();`;
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
     // Other redirect strategies are possible; see
     // https://github.com/TanStack/router/tree/main/examples/react/i18n-paraglide#offline-redirect
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('lang', getLocale())
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("lang", getLocale());
     }
   },
   loader: () => getGlobalSettings(),
 
   head: ({ loaderData }) => {
-    const settings = loaderData as any
-    const blogName = settings?.blogName || 'VibeZine'
-    const accentColor = settings?.accentColor || 'var(--primary)'
-    
+    const settings = loaderData as any;
+    const blogName = settings?.blogName || "VibeZine";
+    const accentColor = settings?.accentColor || "var(--primary)";
+
     return {
       meta: [
         {
-          charSet: 'utf-8',
+          charSet: "utf-8",
         },
         {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1',
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
         },
         {
           title: `${blogName} | Bold Stories`,
         },
         {
-          name: 'description',
-          content:
-            `${blogName} is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.`,
+          name: "description",
+          content: `${blogName} is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.`,
         },
         {
-          property: 'og:site_name',
+          property: "og:site_name",
           content: blogName,
         },
         {
-          property: 'og:type',
-          content: 'website',
+          property: "og:type",
+          content: "website",
         },
         {
-          property: 'og:title',
+          property: "og:title",
           content: `${blogName} Blog`,
         },
         {
-          property: 'og:description',
+          property: "og:description",
           content:
-            'A vibrant zine-style blog for the next generation of creators.',
+            "A vibrant zine-style blog for the next generation of creators.",
         },
         {
-          name: 'twitter:card',
-          content: 'summary_large_image',
+          name: "twitter:card",
+          content: "summary_large_image",
         },
         {
-          name: 'theme-color',
+          name: "theme-color",
           content: accentColor,
         },
       ],
       links: [
         {
-          rel: 'icon',
-          href: '/favicon.ico',
+          rel: "icon",
+          href: "/favicon.ico",
         },
         {
-          rel: 'stylesheet',
+          rel: "stylesheet",
           href: appCss,
         },
         {
-          rel: 'alternate',
-          type: 'application/rss+xml',
-          title: 'RSS Feed',
-          href: '/rss.xml',
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: "RSS Feed",
+          href: "/rss.xml",
         },
         {
-          rel: 'sitemap',
-          type: 'application/xml',
-          title: 'Sitemap',
-          href: '/sitemap.xml',
+          rel: "sitemap",
+          type: "application/xml",
+          title: "Sitemap",
+          href: "/sitemap.xml",
         },
       ],
-    }
+    };
   },
   shellComponent: RootDocument,
   errorComponent: RootErrorComponent,
   notFoundComponent: RootNotFoundComponent,
-})
+});
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const settings = Route.useLoaderData() || DEFAULT_SETTINGS;
-  const fontSlug = (settings.fontFamily || DEFAULT_SETTINGS.fontFamily).replace(/\s+/g, '+');
+  const fontSlug = (settings.fontFamily || DEFAULT_SETTINGS.fontFamily).replace(
+    /\s+/g,
+    "+",
+  );
 
   useTracking(); // Call the custom tracking hook
 
@@ -165,29 +175,51 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href={`https://fonts.googleapis.com/css2?family=${fontSlug}:wght@400;500;700;800;900&display=swap`} rel="stylesheet" />
-        <style dangerouslySetInnerHTML={{ __html: `
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href={`https://fonts.googleapis.com/css2?family=${fontSlug}:wght@400;500;700;800;900&display=swap`}
+          rel="stylesheet"
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           :root {
             --primary: ${settings.accentColor};
             --font-sans: "${settings.fontFamily}", ui-sans-serif, system-ui;
           }
-        ` }} />
-        
+        `,
+          }}
+        />
+
         {settings.gaMeasurementId && (
           <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaMeasurementId}`} />
-            <script dangerouslySetInnerHTML={{ __html: `
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaMeasurementId}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', '${settings.gaMeasurementId}');
-            `}} />
+            `,
+              }}
+            />
           </>
         )}
 
         {settings.plausibleDomain && (
-          <script defer data-domain={settings.plausibleDomain} src="https://plausible.io/js/script.js" />
+          <script
+            defer
+            data-domain={settings.plausibleDomain}
+            src="https://plausible.io/js/script.js"
+          />
         )}
 
         <HeadContent />
@@ -195,18 +227,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
       <body
         suppressHydrationWarning
-        className={`font-sans antialiased wrap-anywhere selection:bg-primary/25 ${settings.themeVariant || ''}`}
+        className={`font-sans antialiased wrap-anywhere selection:bg-primary/25 ${settings.themeVariant || ""}`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TanStackQueryProvider>
             {children}
+            <Toaster closeButton position="bottom-right" />
             <TanStackDevtools
               config={{
-                position: 'bottom-right',
+                position: "bottom-right",
               }}
               plugins={[
                 {
-                  name: 'Tanstack Router',
+                  name: "Tanstack Router",
                   render: <TanStackRouterDevtoolsPanel />,
                 },
                 TanStackQueryDevtools,
@@ -217,7 +250,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
 
 function RootErrorComponent({ error }: { error: unknown }) {
@@ -234,7 +267,7 @@ function RootErrorComponent({ error }: { error: unknown }) {
         <ErrorComponent error={error} />
       </section>
     </main>
-  )
+  );
 }
 
 function RootNotFoundComponent() {
@@ -246,7 +279,8 @@ function RootNotFoundComponent() {
           Lost in the Vibe?
         </h1>
         <p className="mx-auto mb-8 max-w-md text-lg text-muted-foreground">
-          The page you're looking for has drifted off the grid. Let's get you back to the signal.
+          The page you're looking for has drifted off the grid. Let's get you
+          back to the signal.
         </p>
         <div className="flex justify-center">
           <a
@@ -258,5 +292,5 @@ function RootNotFoundComponent() {
         </div>
       </section>
     </main>
-  )
+  );
 }

@@ -25,6 +25,7 @@ import {
   SelectValue,
   SelectGroup,
 } from "#/components/ui/select";
+import { toast } from "sonner";
 
 const settingsSchema = z.object({
   blogName: z.string().min(1, "Publication Name is required"),
@@ -118,7 +119,6 @@ import { DashboardPageContainer } from "#/components/dashboard/DashboardPageCont
 function SettingsPage() {
   const initialSettings = Route.useLoaderData();
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -141,7 +141,6 @@ function SettingsPage() {
     },
     onSubmit: async ({ value }) => {
       setSaving(true);
-      setMessage("");
 
       try {
         await updateAppSettings({
@@ -157,9 +156,9 @@ function SettingsPage() {
             linkedinProfile: value.linkedinProfile.trim(),
           },
         });
-        setMessage("Settings saved successfully!");
+        toast.success("Settings saved successfully!");
       } catch {
-        setMessage("Failed to save settings. Please try again.");
+        toast.error("Failed to save settings. Please try again.");
       } finally {
         setSaving(false);
       }
@@ -597,19 +596,6 @@ function SettingsPage() {
                 </div>
               </div>
             </FieldGroup>
-
-            {message && (
-              <div
-                className={`rounded-xl border px-6 py-4 text-sm font-bold flex items-center gap-3 ${
-                  message.includes("successfully")
-                    ? "border-green-500/20 bg-green-500/5 text-green-600"
-                    : "border-destructive/20 bg-destructive/5 text-destructive"
-                }`}
-              >
-                <Info size={18} />
-                {message}
-              </div>
-            )}
 
             <div className="pt-4 border-t-2 border-border/10">
               <Button

@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "#/components/ui/select";
+import { toast } from "sonner";
 
 const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -186,15 +187,12 @@ function EditPostPage() {
     onSubmit: async ({ value }) => {
       const normalizedSlug = value.slug || slugify(value.title);
       if (!normalizedSlug) {
-        setErrorMessage(
-          "Add a title or slug so the post URL can be generated.",
-        );
+        toast.error("Add a title or slug so the post URL can be generated.");
         return;
       }
 
       try {
         setSaving(true);
-        setErrorMessage("");
         await updatePost({
           data: {
             id: post.id,
@@ -217,10 +215,11 @@ function EditPostPage() {
             tagIds: value.tagIds,
           },
         });
+        toast.success("Post updated successfully!");
         await navigate({ to: "/dashboard" });
       } catch (e) {
         console.error(e);
-        setErrorMessage(
+        toast.error(
           "Could not update this post. Check the slug and try again.",
         );
       } finally {
@@ -230,7 +229,6 @@ function EditPostPage() {
   });
 
   // UI-only states
-  const [errorMessage, setErrorMessage] = useState("");
   const [showSEO, setShowSEO] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -453,13 +451,15 @@ function EditPostPage() {
         </FieldGroup>
 
         <div className="border-t border-border pt-6">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setShowSEO(!showSEO)}
-            className="flex items-center gap-2 text-sm font-bold text-foreground hover:opacity-80"
+            className="flex items-center gap-2 font-bold text-foreground hover:bg-muted"
           >
             {showSEO ? "▼" : "▶"} SEO Settings
-          </button>
+          </Button>
 
           {showSEO && (
             <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
@@ -595,12 +595,6 @@ function EditPostPage() {
             </div>
           )}
         />
-
-        {errorMessage ? (
-          <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {errorMessage}
-          </p>
-        ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={saving} variant="default" size="lg">

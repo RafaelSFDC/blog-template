@@ -1,14 +1,14 @@
-import type { LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
-import { cn } from '#/lib/utils'
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import { cn } from "#/lib/utils";
 
 interface DashboardHeaderProps {
-  title: string
-  description?: string
-  icon?: LucideIcon
-  iconLabel?: string
-  children?: ReactNode
-  className?: string
+  title: string;
+  description?: string;
+  icon?: LucideIcon;
+  iconLabel?: string;
+  children?: ReactNode;
+  className?: string;
 }
 
 export function DashboardHeader({
@@ -20,10 +20,10 @@ export function DashboardHeader({
   className,
 }: DashboardHeaderProps) {
   return (
-    <header 
+    <header
       className={cn(
         "bg-card border shadow-sm flex flex-wrap items-end justify-between gap-6 rounded-3xl p-8 sm:p-10 bg-card border border-border shadow-md mb-8",
-        className
+        className,
       )}
     >
       <div className="flex-1 min-w-[280px]">
@@ -37,7 +37,7 @@ export function DashboardHeader({
             )}
           </div>
         ) : null}
-        <h1 className="display-title text-4xl text-foreground sm:text-5xl md:text-6xl uppercase tracking-tighter leading-none">
+        <h1 className="text-4xl text-foreground sm:text-5xl md:text-6xl">
           {title}
         </h1>
         {description && (
@@ -47,10 +47,8 @@ export function DashboardHeader({
         )}
       </div>
       {children && (
-        <div className="flex shrink-0 items-center gap-4">
-          {children}
-        </div>
+        <div className="flex shrink-0 items-center gap-4">{children}</div>
       )}
     </header>
-  )
+  );
 }

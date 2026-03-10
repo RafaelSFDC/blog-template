@@ -1,16 +1,19 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
-import { webhooks } from '#/db/schema'
-import { requireAdminSession } from '#/lib/admin-auth'
-import { Button } from '#/components/ui/button'
-import { Webhook, Save, ChevronLeft, Info } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "#/db/index";
+import { webhooks } from "#/db/schema";
+import { requireAdminSession } from "#/lib/admin-auth";
+import { Button } from "#/components/ui/button";
+import { Webhook, Save, ChevronLeft, Info } from "lucide-react";
+import { useState, type FormEvent } from "react";
 
-const createWebhook = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string; url: string; event: string; secret?: string }) => data)
+const createWebhook = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { name: string; url: string; event: string; secret?: string }) =>
+      data,
+  )
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireAdminSession();
     await db.insert(webhooks).values({
       name: data.name,
       url: data.url,
@@ -18,64 +21,77 @@ const createWebhook = createServerFn({ method: 'POST' })
       secret: data.secret || null,
       isActive: true,
       createdAt: new Date(),
-    })
-    return { success: true }
-  })
+    });
+    return { success: true };
+  });
 
-export const Route = createFileRoute('/dashboard/webhooks/new')({
+export const Route = createFileRoute("/dashboard/webhooks/new")({
   component: NewWebhookPage,
-})
+});
 
 function NewWebhookPage() {
-  const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [url, setUrl] = useState('')
-  const [event, setEvent] = useState('post.published')
-  const [secret, setSecret] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [event, setEvent] = useState("post.published");
+  const [secret, setSecret] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+    e.preventDefault();
     if (!name || !url) {
-      setErrorMessage('Name and URL are required.')
-      return
+      setErrorMessage("Name and URL are required.");
+      return;
     }
 
     try {
-      setSaving(true)
-      setErrorMessage('')
-      await createWebhook({ data: { name, url, event, secret } })
-      await navigate({ to: '/dashboard/webhooks' })
+      setSaving(true);
+      setErrorMessage("");
+      await createWebhook({ data: { name, url, event, secret } });
+      await navigate({ to: "/dashboard/webhooks" });
     } catch {
-      setErrorMessage('Failed to create webhook. Please check the data.')
+      setErrorMessage("Failed to create webhook. Please check the data.");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   return (
     <div className="space-y-10">
       <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-10">
-        <Button asChild variant="ghost" size="sm" className="-ml-3 mb-6 rounded-full text-muted-foreground hover:text-foreground">
-           <a href="/dashboard/webhooks" className="flex items-center gap-1">
-             <ChevronLeft className="h-4 w-4" />
-             Back to Webhooks
-           </a>
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-3 mb-6 text-muted-foreground hover:text-foreground"
+        >
+          <a href="/dashboard/webhooks" className="flex items-center gap-1">
+            <ChevronLeft className="h-4 w-4" />
+            Back to Webhooks
+          </a>
         </Button>
         <div className="mb-4 flex items-center gap-2 text-primary">
           <Webhook size={20} strokeWidth={3} />
           <p className="island-kicker mb-0">Composer</p>
         </div>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">New Webhook</h1>
+        <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">
+          New Webhook
+        </h1>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8">
+          <form
+            onSubmit={onSubmit}
+            className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8"
+          >
             <div className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-foreground">
+                <label
+                  htmlFor="name"
+                  className="text-xs font-black uppercase tracking-widest text-foreground"
+                >
                   Friendly Name
                 </label>
                 <input
@@ -88,7 +104,10 @@ function NewWebhookPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="url" className="text-xs font-black uppercase tracking-widest text-foreground">
+                <label
+                  htmlFor="url"
+                  className="text-xs font-black uppercase tracking-widest text-foreground"
+                >
                   Destination URL
                 </label>
                 <input
@@ -103,7 +122,10 @@ function NewWebhookPage() {
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label htmlFor="event" className="text-xs font-black uppercase tracking-widest text-foreground">
+                  <label
+                    htmlFor="event"
+                    className="text-xs font-black uppercase tracking-widest text-foreground"
+                  >
                     Trigger Event
                   </label>
                   <select
@@ -116,7 +138,10 @@ function NewWebhookPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="secret" className="text-xs font-black uppercase tracking-widest text-foreground">
+                  <label
+                    htmlFor="secret"
+                    className="text-xs font-black uppercase tracking-widest text-foreground"
+                  >
                     Webhook Secret (Optional)
                   </label>
                   <input
@@ -142,11 +167,10 @@ function NewWebhookPage() {
                 disabled={saving}
                 variant="default"
                 size="lg"
-                className="shadow-sm"
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
                 <span className="uppercase tracking-widest font-black">
-                  {saving ? 'Creating...' : 'Create Webhook'}
+                  {saving ? "Creating..." : "Create Webhook"}
                 </span>
               </Button>
             </div>
@@ -160,11 +184,13 @@ function NewWebhookPage() {
               Webhook Security
             </h3>
             <p className="text-sm text-muted-foreground font-medium leading-relaxed">
-              When a secret is configured, VibeZine will send it in the <code>X-Webhook-Secret</code> header. Use this to verify that the request came from your blog.
+              When a secret is configured, VibeZine will send it in the{" "}
+              <code>X-Webhook-Secret</code> header. Use this to verify that the
+              request came from your blog.
             </p>
           </div>
         </aside>
       </div>
     </div>
-  )
+  );
 }

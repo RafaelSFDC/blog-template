@@ -1,82 +1,94 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { subscribers } from '#/db/schema'
-import { requireAdminSession } from '#/lib/admin-auth'
-import { Users, Download, Info, CheckCircle2 } from 'lucide-react'
-import { desc } from 'drizzle-orm'
-import { format } from 'date-fns'
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { subscribers } from "#/db/schema";
+import { requireAdminSession } from "#/lib/admin-auth";
+import { Users, Download, Info, CheckCircle2 } from "lucide-react";
+import { Button } from "#/components/ui/button";
+import { desc } from "drizzle-orm";
+import { format } from "date-fns";
 
-const getSubscribers = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireAdminSession()
-  const { db } = await import('#/db/index');
+const getSubscribers = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdminSession();
+  const { db } = await import("#/db/index");
   return db.query.subscribers.findMany({
     orderBy: [desc(subscribers.createdAt)],
-  })
-})
+  });
+});
 
-const exportSubscribersCSV = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireAdminSession()
-  const { db } = await import('#/db/index');
-  const allSubscribers = await db.query.subscribers.findMany({
-    orderBy: [desc(subscribers.createdAt)],
-  })
+const exportSubscribersCSV = createServerFn({ method: "GET" }).handler(
+  async () => {
+    await requireAdminSession();
+    const { db } = await import("#/db/index");
+    const allSubscribers = await db.query.subscribers.findMany({
+      orderBy: [desc(subscribers.createdAt)],
+    });
 
-  if (allSubscribers.length === 0) {
-    return { data: null, error: 'No subscribers found' }
-  }
+    if (allSubscribers.length === 0) {
+      return { data: null, error: "No subscribers found" };
+    }
 
-  // Generate CSV Header
-  const headers = ['Email', 'Status', 'Subscribed At']
-  
-  // Generate CSV Rows
-  const rows = allSubscribers.map((sub: any) => [
-    sub.email,
-    sub.status,
-    sub.createdAt.toISOString()
-  ])
+    // Generate CSV Header
+    const headers = ["Email", "Status", "Subscribed At"];
 
-  // Combine headers and rows, handle escaping for CSV format
-  const csvContent = [
-    headers.join(','),
-    ...rows.map((row: any[]) => row.map((value: any) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-  ].join('\n')
+    // Generate CSV Rows
+    const rows = allSubscribers.map((sub: any) => [
+      sub.email,
+      sub.status,
+      sub.createdAt.toISOString(),
+    ]);
 
-  return { data: csvContent, count: allSubscribers.length }
-})
+    // Combine headers and rows, handle escaping for CSV format
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row: any[]) =>
+        row
+          .map((value: any) => `"${String(value).replace(/"/g, '""')}"`)
+          .join(","),
+      ),
+    ].join("\n");
 
-export const Route = createFileRoute('/dashboard/users/subscribers')({
+    return { data: csvContent, count: allSubscribers.length };
+  },
+);
+
+export const Route = createFileRoute("/dashboard/users/subscribers")({
   loader: () => getSubscribers(),
   component: SubscribersPage,
-})
+});
 
 function SubscribersPage() {
-  const subs = Route.useLoaderData()
+  const subs = Route.useLoaderData();
 
   const handleExport = async () => {
     try {
-      const result = await exportSubscribersCSV()
-      
+      const result = await exportSubscribersCSV();
+
       if (result?.data) {
         // Create a Blob from the CSV String
-        const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        
+        const blob = new Blob([result.data], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+
         // Create an invisible link to trigger the download
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `vibe-subscribers-${format(new Date(), 'yyyy-MM-dd')}.csv`)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `vibe-subscribers-${format(new Date(), "yyyy-MM-dd")}.csv`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       } else {
-        alert(result?.error || 'Failed to export subscribers.')
+        alert(result?.error || "Failed to export subscribers.");
       }
     } catch (e) {
-      console.error('Export failed:', e)
-      alert('An error occurred during export.')
+      console.error("Export failed:", e);
+      alert("An error occurred during export.");
     }
-  }
+  };
 
   return (
     <div className="space-y-10">
@@ -86,20 +98,24 @@ function SubscribersPage() {
             <Users size={20} strokeWidth={3} />
             <p className="island-kicker mb-0">Audience</p>
           </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">Subscribers</h1>
+          <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">
+            Subscribers
+          </h1>
           <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
             Manage your newsletter audience and export your list.
           </p>
         </div>
-        
-        <button
+
+        <Button
           onClick={handleExport}
           disabled={subs.length === 0}
-          className="vibe-btn-primary flex items-center gap-2 whitespace-nowrap rounded-xl px-6 py-4 font-bold disabled:opacity-50"
+          variant="default"
+          size="lg"
+          className="whitespace-nowrap rounded-xl font-bold"
         >
           <Download size={18} />
           Export CSV ({subs.length})
-        </button>
+        </Button>
       </header>
 
       <div className="bg-card border shadow-sm overflow-hidden rounded-xl border-border/50">
@@ -115,32 +131,42 @@ function SubscribersPage() {
             <tbody className="divide-y-2 divide-border/10">
               {subs.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={3}
+                    className="px-6 py-12 text-center text-muted-foreground"
+                  >
                     <div className="flex flex-col items-center justify-center gap-2">
-                       <Info size={24} className="opacity-50" />
-                       <p className="font-bold">No subscribers yet.</p>
-                       <p className="text-sm">When users subscribe, they will appear here.</p>
+                      <Info size={24} className="opacity-50" />
+                      <p className="font-bold">No subscribers yet.</p>
+                      <p className="text-sm">
+                        When users subscribe, they will appear here.
+                      </p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 subs.map((sub: any) => (
-                  <tr key={sub.id} className="transition-colors hover:bg-muted/30">
+                  <tr
+                    key={sub.id}
+                    className="transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-6 py-5 font-bold text-foreground">
                       {sub.email}
                     </td>
                     <td className="px-6 py-5">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
-                        sub.status === 'active' 
-                          ? 'bg-green-500/10 text-green-600' 
-                          : 'bg-destructive/10 text-destructive'
-                      }`}>
-                        {sub.status === 'active' && <CheckCircle2 size={12} />}
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
+                          sub.status === "active"
+                            ? "bg-green-500/10 text-green-600"
+                            : "bg-destructive/10 text-destructive"
+                        }`}
+                      >
+                        {sub.status === "active" && <CheckCircle2 size={12} />}
                         {sub.status}
                       </span>
                     </td>
                     <td className="px-6 py-5 font-medium text-muted-foreground">
-                      {format(new Date(sub.createdAt), 'MMM d, yyyy h:mm a')}
+                      {format(new Date(sub.createdAt), "MMM d, yyyy h:mm a")}
                     </td>
                   </tr>
                 ))
@@ -150,5 +176,5 @@ function SubscribersPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

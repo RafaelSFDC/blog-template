@@ -1,64 +1,71 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { DashboardHeader } from '#/components/dashboard/Header'
-import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
-import { Image, Upload, Trash2, Copy, Check } from 'lucide-react'
-import { useState, useRef } from 'react'
-import { Button } from '#/components/ui/button'
-import { getMediaItems, uploadMedia, deleteMediaItem } from '#/server/media-actions'
-import { toast } from 'sonner'
+import { createFileRoute } from "@tanstack/react-router";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { Image, Upload, Trash2, Copy, Check } from "lucide-react";
+import { useState, useRef } from "react";
+import { Button } from "#/components/ui/button";
+import {
+  getMediaItems,
+  uploadMedia,
+  deleteMediaItem,
+} from "#/server/media-actions";
+import { toast } from "sonner";
 
-export const Route = createFileRoute('/dashboard/media/')({
+export const Route = createFileRoute("/dashboard/media/")({
   loader: () => getMediaItems(),
   component: MediaLibraryPage,
-})
+});
 
 function MediaLibraryPage() {
-  const mediaItems = Route.useLoaderData()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [uploading, setUploading] = useState(false)
-  const [copiedId, setCopiedId] = useState<number | null>(null)
+  const mediaItems = Route.useLoaderData();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     try {
-      setUploading(true)
+      setUploading(true);
       // Create a FormData object to send the file
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append("file", file);
 
-      await uploadMedia({ data: formData }) // Pass FormData to the server action
-      toast.success('File uploaded successfully')
+      await uploadMedia({ data: formData }); // Pass FormData to the server action
+      toast.success("File uploaded successfully");
       // Simple reload for now
-      window.location.reload()
+      window.location.reload();
     } catch (error: any) {
-      toast.error(error.message || 'Upload failed')
+      toast.error(error.message || "Upload failed");
     } finally {
-      setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
   async function onDelete(id: number, filename: string) {
-    if (!confirm('Are you sure you want to delete this file?')) return
+    if (!confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      await deleteMediaItem({ data: { id, filename } })
-      toast.success('File deleted')
-      window.location.reload()
+      await deleteMediaItem({ data: { id, filename } });
+      toast.success("File deleted");
+      window.location.reload();
     } catch (error: any) {
-      toast.error(error.message || 'Delete failed')
+      toast.error(error.message || "Delete failed");
     }
   }
 
   function copyToClipboard(text: string, id: number) {
     // Generate absolute URL if possible, otherwise keep relative
-    const absoluteUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}${text}` : text
-    navigator.clipboard.writeText(absoluteUrl)
-    setCopiedId(id)
-    setTimeout(() => setCopiedId(null), 2000)
-    toast.success('URL copied to clipboard')
+    const absoluteUrl =
+      typeof window !== "undefined"
+        ? `${window.location.protocol}//${window.location.host}${text}`
+        : text;
+    navigator.clipboard.writeText(absoluteUrl);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+    toast.success("URL copied to clipboard");
   }
 
   return (
@@ -81,10 +88,9 @@ function MediaLibraryPage() {
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             variant="default"
-            className="rounded-full shadow-sm"
           >
             {uploading ? (
-              'Uploading...'
+              "Uploading..."
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
@@ -112,16 +118,20 @@ function MediaLibraryPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    className="h-9 w-9 rounded-full bg-background"
+                    className="bg-background"
                     onClick={() => copyToClipboard(item.url, item.id)}
                     title="Copy URL"
                   >
-                    {copiedId === item.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    {copiedId === item.id ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     size="icon"
                     variant="outline"
-                    className="h-9 w-9 rounded-full bg-background text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    className="bg-background text-destructive hover:bg-destructive hover:text-destructive-foreground"
                     onClick={() => onDelete(item.id, item.filename)}
                     title="Delete"
                   >
@@ -140,11 +150,14 @@ function MediaLibraryPage() {
           <div className="mb-6 rounded-full bg-muted p-6">
             <Image size={40} className="text-muted-foreground opacity-20" />
           </div>
-          <p className="text-xl font-black text-foreground uppercase tracking-tight">No media found</p>
-          <p className="mt-2 text-muted-foreground font-bold">Start by uploading some images for your posts.</p>
+          <p className="text-xl font-black text-foreground uppercase tracking-tight">
+            No media found
+          </p>
+          <p className="mt-2 text-muted-foreground font-bold">
+            Start by uploading some images for your posts.
+          </p>
         </div>
       )}
     </DashboardPageContainer>
-  )
+  );
 }
-

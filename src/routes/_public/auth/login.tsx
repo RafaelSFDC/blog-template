@@ -1,57 +1,61 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { useState, type FormEvent } from 'react'
-import { authClient } from '#/lib/auth-client'
-import { Button } from '#/components/ui/button'
-import { Mail } from 'lucide-react'
-import { SocialLogin } from '#/components/auth/social-login'
-import { createServerFn } from '@tanstack/react-start'
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { authClient } from "#/lib/auth-client";
+import { Button } from "#/components/ui/button";
+import { Mail } from "lucide-react";
+import { SocialLogin } from "#/components/auth/social-login";
+import { toast } from "sonner";
+import { createServerFn } from "@tanstack/react-start";
 
-const getSession = createServerFn({ method: 'GET' }).handler(async () => {
-  const { getAuthSession } = await import('#/lib/admin-auth')
-  return await getAuthSession()
-})
+const getSession = createServerFn({ method: "GET" }).handler(async () => {
+  const { getAuthSession } = await import("#/lib/admin-auth");
+  return await getAuthSession();
+});
 
-export const Route = createFileRoute('/_public/auth/login')({
+export const Route = createFileRoute("/_public/auth/login")({
   beforeLoad: async () => {
-    const session = await getSession()
+    const session = await getSession();
     if (session) {
-      throw redirect({ to: '/dashboard' })
+      throw redirect({ to: "/dashboard" });
     }
   },
   component: LoginPage,
-})
+});
 
 function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isPending, setIsPending] = useState(false)
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
 
   const handleEmailLogin = async (e: FormEvent) => {
-    e.preventDefault()
-    setIsPending(true)
-    setError('')
-    
+    e.preventDefault();
+    setIsPending(true);
+    setError("");
+
     try {
       await authClient.signIn.email({
         email,
         password,
-        callbackURL: '/dashboard',
-      })
+        callbackURL: "/dashboard",
+      });
     } catch (err) {
-      setError('Invalid email or password. Please try again.')
+      toast.error("Invalid email or password. Please try again.");
+      setError("Invalid email or password. Please try again.");
     } finally {
-      setIsPending(false)
+      setIsPending(false);
     }
-  }
-
-
+  };
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-black tracking-tight text-foreground">Welcome Back</h2>
-        <p className="text-muted-foreground">Enter your credentials to access your account</p>
+        <h2 className="text-3xl font-black tracking-tight text-foreground">
+          Welcome Back
+        </h2>
+        <p className="text-muted-foreground">
+          Enter your credentials to access your account
+        </p>
       </div>
 
       <SocialLogin />
@@ -61,15 +65,22 @@ function LoginPage() {
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground font-bold tracking-widest">Or continue with</span>
+          <span className="bg-card px-2 text-muted-foreground font-bold tracking-widest">
+            Or continue with
+          </span>
         </div>
       </div>
 
       <form onSubmit={handleEmailLogin} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-black uppercase tracking-wider text-muted-foreground ml-1">Email</label>
+          <label className="text-sm font-black uppercase tracking-wider text-muted-foreground ml-1">
+            Email
+          </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={18} />
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50"
+              size={18}
+            />
             <input
               type="email"
               placeholder="name@example.com"
@@ -80,12 +91,14 @@ function LoginPage() {
             />
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex items-center justify-between ml-1">
-            <label className="text-sm font-black uppercase tracking-wider text-muted-foreground">Password</label>
-            <Link 
-              to="/auth/forgot-password" 
+            <label className="text-sm font-black uppercase tracking-wider text-muted-foreground">
+              Password
+            </label>
+            <Link
+              to="/auth/forgot-password"
               className="text-xs font-bold text-primary hover:underline decoration-2 underline-offset-4"
             >
               Forgot password?
@@ -107,21 +120,21 @@ function LoginPage() {
           </div>
         )}
 
-        <Button 
-          type="submit" 
-          variant="default" 
+        <Button
+          type="submit"
+          variant="default"
           className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all"
           disabled={isPending}
         >
-          {isPending ? 'Signing in...' : 'Sign In'}
+          {isPending ? "Signing in..." : "Sign In"}
         </Button>
       </form>
 
       <div className="text-center pt-2">
         <p className="text-sm text-muted-foreground font-medium">
-          Don&apos;t have an account?{' '}
-          <Link 
-            to="/auth/register" 
+          Don&apos;t have an account?{" "}
+          <Link
+            to="/auth/register"
             className="text-primary font-black hover:underline decoration-2 underline-offset-4"
           >
             Create one
@@ -129,5 +142,5 @@ function LoginPage() {
         </p>
       </div>
     </div>
-  )
+  );
 }

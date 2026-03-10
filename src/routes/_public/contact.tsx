@@ -1,70 +1,99 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
-import { createServerFn } from '@tanstack/react-start'
-import { db } from '#/db/index'
-import { contactMessages } from '#/db/schema'
-import { Mail, Send, CheckCircle2 } from 'lucide-react'
-import { useForm } from '@tanstack/react-form'
-import { cn } from '#/lib/utils'
-import { useState } from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Textarea } from "#/components/ui/textarea";
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "#/db/index";
+import { contactMessages } from "#/db/schema";
+import { Mail, Send, CheckCircle2 } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
+import { cn } from "#/lib/utils";
+import { useState } from "react";
+import { toast } from "sonner";
 
-const submitContactForm = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string; email: string; subject: string; message: string }) => data)
+const submitContactForm = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { name: string; email: string; subject: string; message: string }) =>
+      data,
+  )
   .handler(async ({ data }) => {
     await db.insert(contactMessages).values({
       name: data.name,
       email: data.email,
       subject: data.subject,
       message: data.message,
-      status: 'new',
-    })
-    return { success: true }
-  })
+      status: "new",
+    });
+    return { success: true };
+  });
 
-export const Route = createFileRoute('/_public/contact')({
+export const Route = createFileRoute("/_public/contact")({
   component: ContactPage,
-})
+});
 
 // Simple Form UI components for local use to match Shadcn pattern without RHF dependency
-const FormItem = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("grid gap-2", className)}>{children}</div>
-)
+const FormItem = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => <div className={cn("grid gap-2", className)}>{children}</div>;
 
-const FormLabel = ({ children, className, htmlFor }: { children: React.ReactNode; className?: string; htmlFor?: string }) => (
-  <label htmlFor={htmlFor} className={cn("text-xs font-black uppercase tracking-[0.2em] text-muted-foreground", className)}>
+const FormLabel = ({
+  children,
+  className,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  htmlFor?: string;
+}) => (
+  <label
+    htmlFor={htmlFor}
+    className={cn(
+      "text-xs font-black uppercase tracking-[0.2em] text-muted-foreground",
+      className,
+    )}
+  >
     {children}
   </label>
-)
+);
 
 const FormMessage = ({ errors }: { errors?: any[] }) => {
-  if (!errors || errors.length === 0) return null
-  return <p className="text-xs font-bold text-destructive animate-in fade-in slide-in-from-top-1 px-1">{errors.join(", ")}</p>
-}
+  if (!errors || errors.length === 0) return null;
+  return (
+    <p className="text-xs font-bold text-destructive animate-in fade-in slide-in-from-top-1 px-1">
+      {errors.join(", ")}
+    </p>
+  );
+};
 
-const FormControl = ({ children }: { children: React.ReactNode }) => <>{children}</>
+const FormControl = ({ children }: { children: React.ReactNode }) => (
+  <>{children}</>
+);
 
 function ContactPage() {
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
     },
     onSubmit: async ({ value }) => {
       try {
-        await submitContactForm({ data: value })
-        setSubmitted(true)
+        await submitContactForm({ data: value });
+        toast.success("Message sent successfully!");
+        setSubmitted(true);
       } catch (err) {
-        console.error(err)
-        alert('Falha ao enviar mensagem. Tente novamente.')
+        console.error(err);
+        toast.error("Failed to send message. Please try again.");
       }
     },
-  })
+  });
 
   if (submitted) {
     return (
@@ -73,16 +102,24 @@ function ContactPage() {
           <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 rotate-3 transition-all hover:rotate-12">
             <CheckCircle2 size={48} strokeWidth={2.5} />
           </div>
-          <h1 className="display-title text-5xl mb-6 uppercase tracking-tighter">Message Received!</h1>
+          <h1 className="display-title text-5xl mb-6 uppercase tracking-tighter">
+            Message Received!
+          </h1>
           <p className="text-muted-foreground text-xl mb-10 font-medium leading-relaxed">
-            Thank you for reaching out. Your message is in our inbox, and we'll get back to you sooner than you think.
+            Thank you for reaching out. Your message is in our inbox, and we'll
+            get back to you sooner than you think.
           </p>
-          <Button asChild variant="default" size="lg" className="px-12 rounded-lg text-base">
+          <Button
+            asChild
+            variant="default"
+            size="lg"
+            className="px-12 rounded-lg text-base"
+          >
             <a href="/">BACK TO FEED</a>
           </Button>
         </section>
       </main>
-    )
+    );
   }
 
   return (
@@ -90,10 +127,16 @@ function ContactPage() {
       <section className="bg-card border shadow-sm mx-auto max-w-5xl rounded-xl p-8 sm:p-12">
         <div className="grid gap-16 lg:grid-cols-2">
           <div className="py-4">
-            <p className="island-kicker mb-6 inline-block">Support & Feedback</p>
-            <h1 className="display-title text-6xl text-foreground sm:text-7xl mb-8 uppercase tracking-tighter leading-[0.9]">Get in <br className="hidden sm:block" />Touch</h1>
+            <p className="island-kicker mb-6 inline-block">
+              Support & Feedback
+            </p>
+            <h1 className="display-title text-6xl text-foreground sm:text-7xl mb-8 uppercase tracking-tighter leading-[0.9]">
+              Get in <br className="hidden sm:block" />
+              Touch
+            </h1>
             <p className="text-muted-foreground text-xl mb-12 font-medium leading-relaxed max-w-md">
-              Have a question, feedback, or just want to say hi? Fill out the form and our team will get back to you as soon as possible.
+              Have a question, feedback, or just want to say hi? Fill out the
+              form and our team will get back to you as soon as possible.
             </p>
 
             <div className="space-y-8">
@@ -102,26 +145,31 @@ function ContactPage() {
                   <Mail size={32} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Email us</p>
-                  <p className="font-black text-2xl uppercase tracking-tight text-foreground">hello@vibezine.com</p>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                    Email us
+                  </p>
+                  <p className="font-black text-2xl uppercase tracking-tight text-foreground">
+                    hello@vibezine.com
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <form 
+          <form
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
-            }} 
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
             className="bg-card border shadow-md space-y-6 rounded-xl p-6 sm:p-10"
           >
             <div className="grid gap-6 sm:grid-cols-2">
               <form.Field
                 name="name"
                 validators={{
-                  onChange: ({ value }) => !value ? 'Full name required' : undefined,
+                  onChange: ({ value }) =>
+                    !value ? "Full name required" : undefined,
                 }}
                 children={(field) => (
                   <FormItem>
@@ -143,7 +191,12 @@ function ContactPage() {
               <form.Field
                 name="email"
                 validators={{
-                  onChange: ({ value }) => !value ? 'Email required' : (!/^\S+@\S+$/.test(value) ? 'Invalid email' : undefined),
+                  onChange: ({ value }) =>
+                    !value
+                      ? "Email required"
+                      : !/^\S+@\S+$/.test(value)
+                        ? "Invalid email"
+                        : undefined,
                 }}
                 children={(field) => (
                   <FormItem>
@@ -167,7 +220,12 @@ function ContactPage() {
             <form.Field
               name="subject"
               validators={{
-                onChange: ({ value }) => !value ? 'Subject is required' : (value.length < 3 ? 'Subject too short' : undefined),
+                onChange: ({ value }) =>
+                  !value
+                    ? "Subject is required"
+                    : value.length < 3
+                      ? "Subject too short"
+                      : undefined,
               }}
               children={(field) => (
                 <FormItem>
@@ -189,7 +247,12 @@ function ContactPage() {
             <form.Field
               name="message"
               validators={{
-                onChange: ({ value }) => !value ? 'Message required' : (value.length < 10 ? 'Message too short' : undefined),
+                onChange: ({ value }) =>
+                  !value
+                    ? "Message required"
+                    : value.length < 10
+                      ? "Message too short"
+                      : undefined,
               }}
               children={(field) => (
                 <FormItem>
@@ -215,14 +278,14 @@ function ContactPage() {
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                 children={([canSubmit, isSubmitting]) => (
-                  <Button 
-                    type="submit" 
-                    variant="default" 
-                    className="w-full text-base font-black uppercase tracking-widest rounded-lg transition-all" 
+                  <Button
+                    type="submit"
+                    variant="default"
+                    className="w-full text-base font-black uppercase tracking-widest rounded-lg transition-all"
                     disabled={!canSubmit || isSubmitting}
                   >
                     <Send size={22} className="mr-3" strokeWidth={3} />
-                    {isSubmitting ? 'SENDING...' : 'SEND MESSAGE'}
+                    {isSubmitting ? "SENDING..." : "SEND MESSAGE"}
                   </Button>
                 )}
               />
@@ -231,5 +294,5 @@ function ContactPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }
