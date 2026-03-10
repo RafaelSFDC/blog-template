@@ -1,6 +1,15 @@
 import { Link, useLoaderData } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
-import { Twitter, Github, Linkedin, Rss } from "lucide-react";
+import {
+  Twitter,
+  Github,
+  Linkedin,
+  Rss,
+  Instagram,
+  Youtube,
+  Facebook,
+  Link as LinkIcon,
+} from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -43,59 +52,37 @@ export default function Footer() {
         </p>
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
-        {settings?.twitterProfile && (
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
-          >
-            <a
-              href={settings.twitterProfile}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="sr-only">Siga {blogName} no X</span>
-              <Twitter size={20} />
-            </a>
-          </Button>
-        )}
+        {settings?.socialLinks &&
+          JSON.parse(settings.socialLinks).map((link: any, i: number) => {
+            const platform = link.platform.toLowerCase();
+            const Icon =
+              (
+                {
+                  twitter: Twitter,
+                  x: Twitter,
+                  github: Github,
+                  linkedin: Linkedin,
+                  instagram: Instagram,
+                  youtube: Youtube,
+                  facebook: Facebook,
+                } as Record<string, any>
+              )[platform] || LinkIcon;
 
-        {settings?.githubProfile && (
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
-          >
-            <a
-              href={settings.githubProfile}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="sr-only">GitHub do {blogName}</span>
-              <Github size={20} />
-            </a>
-          </Button>
-        )}
-
-        {settings?.linkedinProfile && (
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="size-12 rounded-2xl shadow-sm hover:shadow-md"
-          >
-            <a
-              href={settings.linkedinProfile}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="sr-only">LinkedIn do {blogName}</span>
-              <Linkedin size={20} />
-            </a>
-          </Button>
-        )}
+            return (
+              <Button
+                key={i}
+                asChild
+                variant="outline"
+                size="icon"
+                className="size-12 rounded-2xl shadow-sm hover:shadow-md"
+              >
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  <span className="sr-only">{link.platform}</span>
+                  <Icon size={20} />
+                </a>
+              </Button>
+            );
+          })}
 
         <Button
           asChild

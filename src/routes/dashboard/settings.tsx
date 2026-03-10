@@ -4,7 +4,13 @@ import { appSettings } from "#/db/schema";
 import { useState, type FormEvent } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
-import { Settings as SettingsIcon, Save, Info } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  Save,
+  Info,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import { getAvailableThemes, applyThemeClasses } from "#/lib/theme-utils";
 import { useEffect } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
@@ -27,20 +33,18 @@ import {
 } from "#/components/ui/select";
 import { toast } from "sonner";
 
+const socialLinkSchema = z.object({
+  platform: z.string(),
+  url: z.string(),
+});
+
 const settingsSchema = z.object({
   blogName: z.string().min(1, "Publication Name is required"),
   blogDescription: z.string(),
   blogLogo: z.string(),
   fontFamily: z.string(),
-  gaMeasurementId: z.string(),
-  plausibleDomain: z.string(),
-  stripePriceId: z.string(),
-  resendApiKey: z.string(),
-  newsletterSenderEmail: z.string(),
-  twitterProfile: z.string(),
-  githubProfile: z.string(),
-  linkedinProfile: z.string(),
   themeVariant: z.string(),
+  socialLinks: z.array(socialLinkSchema),
 });
 
 type SettingsFormInput = z.infer<typeof settingsSchema>;
@@ -56,6 +60,34 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
     settingsObj[s.key] = s.value;
   });
 
+  let socialLinks: { platform: string; url: string }[] = [];
+  try {
+    socialLinks = settingsObj["socialLinks"]
+      ? JSON.parse(settingsObj["socialLinks"])
+      : [];
+  } catch (e) {
+    console.error("Failed to parse socialLinks", e);
+  }
+
+  // Backward compatibility migration
+  if (socialLinks.length === 0) {
+    if (settingsObj["twitterProfile"])
+      socialLinks.push({
+        platform: "x",
+        url: settingsObj["twitterProfile"],
+      });
+    if (settingsObj["githubProfile"])
+      socialLinks.push({
+        platform: "github",
+        url: settingsObj["githubProfile"],
+      });
+    if (settingsObj["linkedinProfile"])
+      socialLinks.push({
+        platform: "linkedin",
+        url: settingsObj["linkedinProfile"],
+      });
+  }
+
   return {
     blogName: settingsObj["blogName"] || "VibeZine",
     blogDescription:
@@ -63,15 +95,8 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
       "A vibrant zine-style blog for creators.",
     blogLogo: settingsObj["blogLogo"] || "",
     fontFamily: settingsObj["fontFamily"] || "Inter",
-    gaMeasurementId: settingsObj["gaMeasurementId"] || "",
-    plausibleDomain: settingsObj["plausibleDomain"] || "",
-    stripePriceId: settingsObj["stripePriceId"] || "",
-    resendApiKey: settingsObj["resendApiKey"] || "",
-    newsletterSenderEmail: settingsObj["newsletterSenderEmail"] || "",
-    twitterProfile: settingsObj["twitterProfile"] || "",
-    githubProfile: settingsObj["githubProfile"] || "",
-    linkedinProfile: settingsObj["linkedinProfile"] || "",
     themeVariant: settingsObj["themeVariant"] || "default",
+    socialLinks,
   };
 });
 
@@ -95,15 +120,8 @@ const updateAppSettings = createServerFn({ method: "POST" })
     await upsert("blogDescription", data.blogDescription);
     await upsert("blogLogo", data.blogLogo);
     await upsert("fontFamily", data.fontFamily);
-    await upsert("gaMeasurementId", data.gaMeasurementId);
-    await upsert("plausibleDomain", data.plausibleDomain);
-    await upsert("stripePriceId", data.stripePriceId);
-    await upsert("resendApiKey", data.resendApiKey);
-    await upsert("newsletterSenderEmail", data.newsletterSenderEmail);
-    await upsert("twitterProfile", data.twitterProfile);
-    await upsert("githubProfile", data.githubProfile);
-    await upsert("linkedinProfile", data.linkedinProfile);
     await upsert("themeVariant", data.themeVariant);
+    await upsert("socialLinks", JSON.stringify(data.socialLinks));
 
     return { ok: true as const };
   });
@@ -126,15 +144,8 @@ function SettingsPage() {
       blogDescription: initialSettings.blogDescription,
       blogLogo: initialSettings.blogLogo,
       fontFamily: initialSettings.fontFamily,
-      gaMeasurementId: initialSettings.gaMeasurementId,
-      plausibleDomain: initialSettings.plausibleDomain,
-      stripePriceId: initialSettings.stripePriceId,
-      resendApiKey: initialSettings.resendApiKey,
-      newsletterSenderEmail: initialSettings.newsletterSenderEmail,
-      twitterProfile: initialSettings.twitterProfile,
-      githubProfile: initialSettings.githubProfile,
-      linkedinProfile: initialSettings.linkedinProfile,
       themeVariant: initialSettings.themeVariant,
+      socialLinks: initialSettings.socialLinks,
     },
     validators: {
       onChange: settingsSchema,
@@ -146,14 +157,10 @@ function SettingsPage() {
         await updateAppSettings({
           data: {
             ...value,
-            gaMeasurementId: value.gaMeasurementId.trim(),
-            plausibleDomain: value.plausibleDomain.trim(),
-            stripePriceId: value.stripePriceId.trim(),
-            resendApiKey: value.resendApiKey.trim(),
-            newsletterSenderEmail: value.newsletterSenderEmail.trim(),
-            twitterProfile: value.twitterProfile.trim(),
-            githubProfile: value.githubProfile.trim(),
-            linkedinProfile: value.linkedinProfile.trim(),
+            socialLinks: value.socialLinks.map((link) => ({
+              ...link,
+              url: link.url.trim(),
+            })),
           },
         });
         toast.success("Settings saved successfully!");
@@ -196,6 +203,10 @@ function SettingsPage() {
             className="bg-card border shadow-sm rounded-md p-6 sm:p-10  space-y-8"
           >
             <FieldGroup>
+              <h3 className="text-sm font-black text-primary ">
+                Publication Identity
+              </h3>
+
               <form.Field
                 name="blogName"
                 children={(field) => {
@@ -368,231 +379,116 @@ function SettingsPage() {
 
               <div className="pt-6 border-t border-border/10">
                 <h3 className="text-sm font-black text-primary mb-6">
-                  Analytics Tracking
-                </h3>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <form.Field
-                    name="gaMeasurementId"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          Google Analytics Measurement ID
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="G-XXXXXXXXXX"
-                        />
-                        <p className="text-[10px] text-muted-foreground ">
-                          Requires a "G-" prefix
-                        </p>
-                      </Field>
-                    )}
-                  />
-
-                  <form.Field
-                    name="plausibleDomain"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          Plausible Analytics Domain
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="yourdomain.com"
-                        />
-                        <p className="text-[10px] text-muted-foreground ">
-                          Leaves out "https://"
-                        </p>
-                      </Field>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black text-primary mb-6">
-                  Monetization (Stripe)
-                </h3>
-                <form.Field
-                  name="stripePriceId"
-                  children={(field) => (
-                    <Field>
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="text-xs  text-foreground"
-                      >
-                        Premium Plan Price ID
-                      </FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        className="w-full font-mono"
-                        placeholder="price_H5v..."
-                      />
-                      <p className="text-[10px] text-muted-foreground ">
-                        Obtido no dashboard do Stripe
-                      </p>
-                    </Field>
-                  )}
-                />
-              </div>
-
-              <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black text-primary mb-6">
-                  Email / Newsletter Configuration
-                </h3>
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <form.Field
-                    name="resendApiKey"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          Resend API Key
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          type="password"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          className="w-full font-mono"
-                          placeholder="re_XXXXXXXXXXXX"
-                        />
-                      </Field>
-                    )}
-                  />
-
-                  <form.Field
-                    name="newsletterSenderEmail"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          Sender Email
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="newsletter@seudominio.com"
-                        />
-                        <p className="text-[10px] text-muted-foreground ">
-                          Must be verified in Resend
-                        </p>
-                      </Field>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black text-primary mb-6">
                   Social Links & Feeds
                 </h3>
-                <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-6">
                   <form.Field
-                    name="twitterProfile"
+                    name="socialLinks"
+                    mode="array"
                     children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
+                      <div className="space-y-4">
+                        {field.state.value.map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col sm:flex-row gap-4 p-4 border rounded-xl bg-muted/20 items-end"
+                          >
+                            <form.Field
+                              name={`socialLinks[${i}].platform`}
+                              children={(subField) => (
+                                <Field className="flex-1 w-full">
+                                  <FieldLabel className="text-xs text-foreground">
+                                    Platform
+                                  </FieldLabel>
+                                  <Select
+                                    value={subField.state.value}
+                                    onValueChange={(val) =>
+                                      subField.handleChange(val)
+                                    }
+                                  >
+                                    <SelectTrigger className="w-full h-auto">
+                                      <SelectValue placeholder="Social Media" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="twitter">
+                                        X (Twitter)
+                                      </SelectItem>
+                                      <SelectItem value="github">
+                                        GitHub
+                                      </SelectItem>
+                                      <SelectItem value="linkedin">
+                                        LinkedIn
+                                      </SelectItem>
+                                      <SelectItem value="instagram">
+                                        Instagram
+                                      </SelectItem>
+                                      <SelectItem value="youtube">
+                                        YouTube
+                                      </SelectItem>
+                                      <SelectItem value="threads">
+                                        Threads
+                                      </SelectItem>
+                                      <SelectItem value="facebook">
+                                        Facebook
+                                      </SelectItem>
+                                      <SelectItem value="tiktok">
+                                        TikTok
+                                      </SelectItem>
+                                      <SelectItem value="link">
+                                        Website Link
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </Field>
+                              )}
+                            />
+
+                            <form.Field
+                              name={`socialLinks[${i}].url`}
+                              children={(subField) => (
+                                <Field className="flex-2 w-full">
+                                  <FieldLabel className="text-xs text-foreground">
+                                    Profile URL
+                                  </FieldLabel>
+                                  <Input
+                                    value={subField.state.value}
+                                    onBlur={subField.handleBlur}
+                                    onChange={(e) =>
+                                      subField.handleChange(e.target.value)
+                                    }
+                                    placeholder="https://..."
+                                  />
+                                </Field>
+                              )}
+                            />
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:bg-destructive/10"
+                              onClick={() => field.removeValue(i)}
+                            >
+                              <span className="sr-only">Remove</span>
+                              <Trash2 size={20} />
+                            </Button>
+                          </div>
+                        ))}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full py-6 border-dashed border-2 hover:bg-primary/5 hover:border-primary/50 text-foreground transition-all"
+                          onClick={() =>
+                            field.pushValue({ platform: "link", url: "" })
+                          }
                         >
-                          Twitter Profile URL
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="https://twitter.com/seuperfil"
-                        />
-                      </Field>
+                          <Plus size={20} className="mr-2" />
+                          Add Social Media Link
+                        </Button>
+                      </div>
                     )}
                   />
-
-                  <form.Field
-                    name="githubProfile"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          GitHub Profile URL
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="https://github.com/seuperfil"
-                        />
-                      </Field>
-                    )}
-                  />
-
-                  <form.Field
-                    name="linkedinProfile"
-                    children={(field) => (
-                      <Field>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs  text-foreground"
-                        >
-                          LinkedIn Profile URL
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="https://linkedin.com/in/seuperfil"
-                        />
-                      </Field>
-                    )}
-                  />
-
-                  <div className="space-y-2">
-                    <label className="text-xs  text-foreground">
-                      RSS Feed URL
-                    </label>
-                    <div className="flex h-11 items-center rounded-xl border border-border bg-muted/20 px-5 text-sm font-mono font-bold text-muted-foreground">
-                      /rss.xml
-                    </div>
-                    <p className="text-[10px] text-muted-foreground ">
-                      Auto-generated for your readers
-                    </p>
-                  </div>
                 </div>
               </div>
             </FieldGroup>

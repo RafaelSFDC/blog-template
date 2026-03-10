@@ -144,7 +144,7 @@ function DashboardOverview() {
               asChild
               variant="ghost"
               size="sm"
-              className="font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary"
+              className="font-semibold  tracking-wider text-muted-foreground hover:text-primary"
             >
               <Link
                 to="/dashboard/posts"
