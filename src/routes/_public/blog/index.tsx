@@ -1,9 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
-import { posts } from "#/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { PostCard, cardThemes } from "#/components/blog/PostCard";
+import { PostCard } from "#/components/blog/PostCard";
 import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
@@ -13,23 +12,50 @@ import { SiteHeader } from "#/components/SiteHeader";
 import { Input } from "#/components/ui/input";
 import { IconBox } from "#/components/IconBox";
 
+import { posts, categories, postCategories } from "#/db/schema";
+
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
-  return await db
-    .select()
+  const data = await db
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      coverImage: posts.coverImage,
+      publishedAt: posts.publishedAt,
+      category: categories.name,
+    })
     .from(posts)
+    .leftJoin(postCategories, eq(posts.id, postCategories.postId))
+    .leftJoin(categories, eq(postCategories.categoryId, categories.id))
     .where(eq(posts.status, "published"))
     .orderBy(desc(posts.publishedAt))
     .limit(12);
+
+  return data;
+});
+
+const getCategories = createServerFn({ method: "GET" }).handler(async () => {
+  return await db.select().from(categories);
 });
 
 export const Route = createFileRoute("/_public/blog/")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : "",
-    category: typeof search.category === "string" ? search.category : "",
+    q: (search.q as string) || undefined,
+    category: (search.category as string) || undefined,
   }),
-  loader: () => getLatestPosts(),
+  loader: async () => {
+    const [posts, categories] = await Promise.all([
+      getLatestPosts(),
+      getCategories(),
+    ]);
+    return { posts, categories };
+  },
   head: (ctx: any) => {
-    const search = ctx.search as { q?: string; category?: string };
+    const search = (ctx.search || ctx.match?.search || {}) as {
+      q?: string;
+      category?: string;
+    };
     const q = search.q || "";
     const hasQuery = q.trim().length > 0;
     return {
@@ -52,7 +78,8 @@ export const Route = createFileRoute("/_public/blog/")({
 });
 
 function BlogIndex() {
-  const latestPosts = Route.useLoaderData();
+  const { posts: latestPosts, categories: dbCategories } =
+    Route.useLoaderData();
   const search = Route.useSearch();
   const q = typeof search.q === "string" ? search.q : "";
   const category = typeof search.category === "string" ? search.category : "";
@@ -76,10 +103,8 @@ function BlogIndex() {
           .toLowerCase()
           .includes(query);
 
-      const postId = Number(post.id) || 0;
-      const postCategory = cardThemes[postId % cardThemes.length]?.badge || "";
       const matchesCategory =
-        !category || postCategory.toLowerCase() === category.toLowerCase();
+        !category || post.category?.toLowerCase() === category.toLowerCase();
 
       return matchesQuery && matchesCategory;
     });
@@ -109,7 +134,7 @@ function BlogIndex() {
           description="Bold notes on design, cultural code, and aesthetic experiments."
         />
 
-        <section className="bg-card border shadow-sm flex flex-col gap-8 rounded-2xl p-6 sm:p-8">
+        <section className="bg-card border shadow-sm flex flex-col gap-8 rounded-md p-6 sm:p-8">
           <div className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -136,27 +161,24 @@ function BlogIndex() {
               onClick={() => handleCategory("")}
               variant={!category ? "default" : "outline"}
               className={cn(
-                "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
-                !category && "scale-105 z-10",
+                "rounded-md border border-border px-6 py-2 shadow-sm transition-all",
               )}
             >
-              ✨ All Stories
+              All Stories
             </Button>
-            {cardThemes.map((theme) => {
+            {dbCategories.map((cat: any) => {
               const isActive =
-                category &&
-                category.toLowerCase() === theme.badge.toLowerCase();
+                category && category.toLowerCase() === cat.name.toLowerCase();
               return (
                 <Button
-                  key={theme.badge}
-                  onClick={() => handleCategory(theme.badge)}
+                  key={cat.id}
+                  onClick={() => handleCategory(cat.name)}
                   variant={isActive ? "default" : "outline"}
                   className={cn(
-                    "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
-                    isActive && `${theme.cover} scale-105 z-10`,
+                    "rounded-md border border-border px-6 py-2 shadow-sm transition-all",
                   )}
                 >
-                  {theme.badge}
+                  {cat.name}
                 </Button>
               );
             })}
@@ -164,13 +186,13 @@ function BlogIndex() {
         </section>
 
         {filteredPosts.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
             {filteredPosts.map((post: any) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
-          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-2xl py-20 text-center">
+          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-md py-20 text-center">
             <IconBox icon={Search} className="mb-4" />
             <h2 className="text-xl font-black text-foreground uppercase tracking-tight">
               {query ? `Search for "${q}" failed` : "No stories found"}

@@ -76,7 +76,7 @@ export function Newsletter({
   return (
     <section
       className={cn(
-        "bg-card border shadow-sm rounded-2xl px-4 py-8 sm:px-6 text-center border-border",
+        "bg-card border shadow-sm rounded-md px-4 py-8 sm:px-6 text-center border-border",
         className,
       )}
     >

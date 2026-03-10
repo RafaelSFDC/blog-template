@@ -75,7 +75,7 @@ function Home() {
 
       <section className="mt-20">
         <header className="bg-card border shadow-sm flex items-center justify-between rounded-md p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
-          <h2 className=" mb-0 text-2xl font-medium text-foreground sm:text-3xl">
+          <h2 className="display-title text-2xl font-bold text-foreground sm:text-3xl">
             Featured Articles
           </h2>
           <Button asChild variant="outline" size="sm">

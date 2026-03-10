@@ -1,35 +1,39 @@
-import { authClient } from '#/lib/auth-client';
-import { LogIn } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import { authClient } from "#/lib/auth-client";
+import { LogIn } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
-import React, { useState } from 'react';
-import { Button } from '#/components/ui/button';
-import { Textarea } from '#/components/ui/textarea';
-import { toast } from 'sonner';
+import React, { useState } from "react";
+import { Button } from "#/components/ui/button";
+import { Textarea } from "#/components/ui/textarea";
+import { toast } from "sonner";
 
 interface CommentFormProps {
   postId: number;
-  onSubmit: (data: { authorName: string; authorEmail: string | undefined; content: string }) => Promise<void>;
+  onSubmit: (data: {
+    authorName: string;
+    authorEmail: string | undefined;
+    content: string;
+  }) => Promise<void>;
 }
 
-export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
+export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
   const { data: session } = authClient.useSession();
-  const [authorName, setAuthorName] = useState('');
-  const [authorEmail, setAuthorEmail] = useState('');
-  const [content, setContent] = useState('');
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
+  const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Effect to pre-fill if session exists
   React.useEffect(() => {
     if (session?.user) {
-      setAuthorName(session.user.name || '');
-      setAuthorEmail(session.user.email || '');
+      setAuthorName(session.user.name || "");
+      setAuthorEmail(session.user.email || "");
     }
   }, [session]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
+
     const finalName = session?.user?.name || authorName.trim();
     const finalEmail = session?.user?.email || authorEmail.trim();
 
@@ -42,11 +46,11 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
         authorEmail: finalEmail || undefined,
         content: content.trim(),
       });
-      setContent('');
-      toast.success('Your comment is awaiting moderation!');
+      setContent("");
+      toast.success("Your comment is awaiting moderation!");
     } catch (err) {
       console.error(err);
-      toast.error('Failed to submit comment. Please try again.');
+      toast.error("Failed to submit comment. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -55,10 +59,17 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
   if (!session) {
     return (
       <div className="bg-muted/30 border border-dashed border-border/60 rounded-4xl p-10 text-center space-y-4">
-        <h3 className="text-xl font-bold uppercase tracking-tight">Vant to join the discussion?</h3>
-        <p className="text-muted-foreground text-sm font-medium">Please sign in to post a comment and connect with the community.</p>
-        <Button asChild variant="default" size="lg" className="rounded-xl h-12 px-8">
-          <Link to="/auth/login" className="flex items-center gap-2 no-underline">
+        <h3 className="text-xl font-bold tracking-tight">
+          Want to join the discussion?
+        </h3>
+        <p className="text-muted-foreground text-sm font-medium">
+          Please sign in to post a comment and connect with the community.
+        </p>
+        <Button asChild variant="default" size="lg" className="h-12 px-8">
+          <Link
+            to="/auth/login"
+            className="flex items-center gap-2 no-underline"
+          >
             <LogIn size={18} /> Sign In to Comment
           </Link>
         </Button>
@@ -69,21 +80,25 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {session ? (
-         <div className="flex items-center gap-3 mb-6 bg-primary/5 p-4 rounded-2xl border border-primary/10">
-            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black uppercase text-xs">
-              {session.user.name?.[0] || 'U'}
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary">Commenting as</p>
-              <p className="font-bold text-foreground leading-none">{session.user.name}</p>
-            </div>
-         </div>
+        <div className="flex items-center gap-3 mb-6 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+          <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black  text-xs">
+            {session.user.name?.[0] || "U"}
+          </div>
+          <div>
+            <p className="text-[10px] font-black  tracking-widest text-primary">
+              Commenting as
+            </p>
+            <p className="font-bold text-foreground leading-none">
+              {session.user.name}
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Form fields for guest (though we currently block guests in the if(!session) above) */}
         </div>
       )}
-      
+
       <div className="space-y-2">
         <label htmlFor="content" className="text-sm font-bold text-foreground">
           Comment *
@@ -94,19 +109,12 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, 'postId'>) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="What do you think about this story?"
           required
-          className="min-h-[120px] rounded-2xl border border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
+          className="min-h-[120px]  border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
         />
       </div>
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        variant="default"
-        size="lg"
-        className="w-full sm:w-auto h-14 px-10 rounded-2xl text-lg font-black shadow-sm"
-      >
-        {isSubmitting ? 'Posting...' : 'Post Comment'}
+      <Button type="submit" disabled={isSubmitting} variant="default" size="lg">
+        {isSubmitting ? "Posting..." : "Post Comment"}
       </Button>
     </form>
   );
 }
-

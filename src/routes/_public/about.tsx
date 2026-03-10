@@ -126,48 +126,6 @@ function About() {
             </Button>
           </div>
         </section>
-
-        <section className="grid gap-8 sm:grid-cols-3">
-          <div className="text-center group">
-            <IconBox
-              icon={Users}
-              variant="outline"
-              size="sm"
-              rounded="full"
-              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
-            />
-            <h4 className="font-black text-2xl mb-1">2.4k+</h4>
-            <p className="text-muted-foreground font-bold text-sm uppercase">
-              Readers
-            </p>
-          </div>
-          <div className="text-center group">
-            <IconBox
-              icon={MessageSquare}
-              variant="outline"
-              size="sm"
-              rounded="full"
-              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
-            />
-            <h4 className="font-black text-2xl mb-1">150+</h4>
-            <p className="text-muted-foreground font-bold text-sm uppercase">
-              Stories
-            </p>
-          </div>
-          <div className="text-center group">
-            <IconBox
-              icon={Heart}
-              variant="outline"
-              size="sm"
-              rounded="full"
-              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
-            />
-            <h4 className="font-black text-2xl mb-1">100%</h4>
-            <p className="text-muted-foreground font-bold text-sm uppercase">
-              Independent
-            </p>
-          </div>
-        </section>
       </div>
     </main>
   );

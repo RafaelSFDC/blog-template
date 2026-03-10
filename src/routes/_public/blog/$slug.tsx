@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { posts, comments, appSettings } from "#/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
@@ -20,8 +21,7 @@ import { useState } from "react";
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
   .handler(async ({ data: slug }) => {
-    // @ts-ignore - access the request from context if available in current start version
-    const request = (globalThis as any).getRequest?.() 
+    const request = getRequest();
 
     const post = await db.query.posts.findFirst({
       where: eq(posts.slug, slug),
@@ -31,25 +31,36 @@ const getPostBySlug = createServerFn({ method: "GET" })
       throw notFound();
     }
 
-    const session = await auth.api.getSession({
-        headers: (request as Request).headers
-    })
+    const session = request
+      ? await auth.api.getSession({
+          headers: request.headers,
+        })
+      : null;
 
     // If not published and not admin, hide it
-    if (post.status !== 'published' && session?.user?.role !== 'admin') {
+    if (post.status !== "published" && session?.user?.role !== "admin") {
       throw notFound();
     }
 
-    const isSubscribed = session?.user?.id ? await db.query.user.findFirst({
-        where: eq(user.id, session.user.id)
-    }).then((u: any) => u?.stripeCurrentPeriodEnd && u.stripeCurrentPeriodEnd > new Date()) : false
+    const isSubscribed = session?.user?.id
+      ? await db.query.user
+          .findFirst({
+            where: eq(user.id, session.user.id),
+          })
+          .then(
+            (u: any) =>
+              u?.stripeCurrentPeriodEnd &&
+              u.stripeCurrentPeriodEnd > new Date(),
+          )
+      : false;
 
-    const hasAccess = !post.isPremium || isSubscribed || session?.user?.role === 'admin'
+    const hasAccess =
+      !post.isPremium || isSubscribed || session?.user?.role === "admin";
 
     // Truncate content if no access
     if (post.isPremium && !hasAccess) {
-        // Keep first 500 characters or so for the preview
-        post.content = post.content.substring(0, 500) + '...'
+      // Keep first 500 characters or so for the preview
+      post.content = post.content.substring(0, 500) + "...";
     }
 
     // Fetch blog settings for SEO
@@ -67,21 +78,32 @@ const getPostBySlug = createServerFn({ method: "GET" })
       .where(eq(posts.id, post.id));
 
     // Fetch comments
-    const commentsList = await db.query.comments.findMany({
-      where: and(eq(comments.postId, post.id), eq(comments.status, 'approved')),
-      orderBy: [desc(comments.createdAt)],
-    }).catch(() => []);
+    const commentsList = await db.query.comments
+      .findMany({
+        where: and(
+          eq(comments.postId, post.id),
+          eq(comments.status, "approved"),
+        ),
+        orderBy: [desc(comments.createdAt)],
+      })
+      .catch(() => []);
 
     // Fetch recommended posts (same category, different slug)
     const recommended = await db.query.posts.findMany({
-      where: and(ne(posts.slug, slug), eq(posts.status, 'published')),
+      where: and(ne(posts.slug, slug), eq(posts.status, "published")),
       limit: 3,
     });
 
     // Fetch Stripe Price ID from settings
-    const stripePriceId = await db.query.appSettings.findFirst({
-        where: eq(appSettings.key, 'stripePriceId')
-    }).then((s: { key: string; value: string; updatedAt: Date | null } | undefined) => s?.value)
+    const stripePriceId = await db.query.appSettings
+      .findFirst({
+        where: eq(appSettings.key, "stripePriceId"),
+      })
+      .then(
+        (
+          s: { key: string; value: string; updatedAt: Date | null } | undefined,
+        ) => s?.value,
+      );
 
     return {
       post,
@@ -100,7 +122,7 @@ const addComment = createServerFn({ method: "POST" })
       authorName: string;
       authorEmail?: string;
       content: string;
-    }) => data
+    }) => data,
   )
   .handler(async ({ data }) => {
     await db.insert(comments).values({
@@ -117,76 +139,79 @@ const addComment = createServerFn({ method: "POST" })
 export const Route = createFileRoute("/_public/blog/$slug")({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
   head: ({ loaderData }) => {
-    const data = loaderData as any
-    const post = data?.post
-    const blogName = data?.blogName || 'VibeZine'
-    
+    const data = loaderData as any;
+    const post = data?.post;
+    const blogName = data?.blogName || "VibeZine";
+
     if (!post) {
       return {
         meta: [{ title: `Post Not Found | ${blogName}` }],
-      }
+      };
     }
 
-    const title = `${post.metaTitle || post.title} | ${blogName}`
-    const description = post.metaDescription || post.excerpt
-    const image = post.ogImage || post.coverImage || undefined
+    const title = `${post.metaTitle || post.title} | ${blogName}`;
+    const description = post.metaDescription || post.excerpt;
+    const image = post.ogImage || post.coverImage || undefined;
 
     return {
       meta: [
         { title },
-        { name: 'description', content: description },
-        { property: 'og:title', content: title },
-        { property: 'og:description', content: description },
-        { property: 'og:image', content: image },
-        { property: 'og:type', content: 'article' },
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: title },
-        { name: 'twitter:description', content: description },
-        { name: 'twitter:image', content: image },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:image", content: image },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: image },
       ],
-    }
+    };
   },
   component: PostDetail,
 });
 
 function PostDetail() {
-  const { post, comments, recommended, hasAccess, stripePriceId }: any = Route.useLoaderData();
+  const { post, comments, recommended, hasAccess, stripePriceId }: any =
+    Route.useLoaderData();
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-  const [subscribing, setSubscribing] = useState(false)
+  const [subscribing, setSubscribing] = useState(false);
 
   async function handleSubscribe() {
     if (!stripePriceId) {
-        alert('O checkout do Stripe ainda não foi configurado pelo administrador.')
-        return
+      alert(
+        "O checkout do Stripe ainda não foi configurado pelo administrador.",
+      );
+      return;
     }
 
     try {
-        setSubscribing(true)
-        const response = await fetch('/api/stripe/checkout', {
-            method: 'POST',
-            body: JSON.stringify({ priceId: stripePriceId }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+      setSubscribing(true);
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        body: JSON.stringify({ priceId: stripePriceId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        if (response.status === 401) {
-            // Redirect to login if not authenticated
-            window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`
-            return
-        }
+      if (response.status === 401) {
+        // Redirect to login if not authenticated
+        window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
 
-        const data = await response.json()
-        if (data.url) {
-            window.location.href = data.url
-        } else {
-            throw new Error('No checkout URL received')
-        }
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
     } catch (error) {
-        console.error('Checkout error:', error)
-        alert('Ocorreu um erro ao iniciar o checkout. Tente novamente.')
+      console.error("Checkout error:", error);
+      alert("Ocorreu um erro ao iniciar o checkout. Tente novamente.");
     } finally {
-        setSubscribing(false)
+      setSubscribing(false);
     }
   }
 
@@ -197,7 +222,7 @@ function PostDetail() {
         <BlogHero post={post} />
 
         {/* Social Sharing */}
-        <div className="bg-card border shadow-sm rounded-2xl bg-card p-4 sm:p-6">
+        <div className="bg-card border shadow-sm rounded-md p-4 sm:p-6">
           <SocialSharing url={currentUrl} title={post.title} />
         </div>
 
@@ -205,20 +230,19 @@ function PostDetail() {
         <TableOfContents content={post.content} />
 
         {/* Main Article Content */}
-        <article className="bg-card border shadow-sm prose-lg bg-card p-6 sm:p-12 rounded-2xl relative overflow-hidden">
+        <article className="bg-card border shadow-sm prose-lg p-6 sm:p-12 rounded-md relative overflow-hidden">
           <MarkdownContent content={post.content} />
           {!hasAccess && (
             <Paywall onSubscribe={handleSubscribe} isLoading={subscribing} />
           )}
         </article>
 
-
         {/* Author Bio */}
         <AuthorBio />
 
         {/* Comments Section */}
-        <section className="bg-card border shadow-sm rounded-2xl bg-card p-6 sm:p-12">
-          <h3 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-tight">
+        <section className="bg-card border shadow-sm rounded-md p-6 sm:p-12">
+          <h3 className="text-2xl font-bold text-foreground mb-6  tracking-tight">
             Leave a Comment
           </h3>
           <div className="mb-10 border-b border-border pb-10">
@@ -229,7 +253,7 @@ function PostDetail() {
             />
           </div>
 
-          <h3 className="text-2xl font-bold text-foreground mb-6 uppercase tracking-tight">
+          <h3 className="text-2xl font-bold text-foreground mb-6  tracking-tight">
             Discussion ({comments?.length || 0})
           </h3>
           <CommentList comments={comments} />
