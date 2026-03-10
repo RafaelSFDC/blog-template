@@ -4,11 +4,11 @@ import { Twitter, Github, Linkedin, Rss } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const settings = useLoaderData({ from: '__root__' }) as any;
+  const settings = useLoaderData({ from: "__root__" }) as any;
   const blogName = settings?.blogName || "VibeZine";
 
   return (
-    <footer className="site-footer mt-16 px-4 pb-12 pt-10 text-center text-muted-foreground">
+    <footer className="site-footer mt-24 border-t border-border/40 bg-muted/10 px-4 pb-12 pt-12 text-center text-foreground/60 backdrop-blur-sm transition-all hover:bg-muted/20">
       <div className="page-wrap">
         <div className="mb-8 flex flex-wrap justify-center gap-4 text-sm font-bold">
           <Button
@@ -38,7 +38,7 @@ export default function Footer() {
             <Link to="/dashboard">Dashboard</Link>
           </Button>
         </div>
-        <p className="m-0 text-sm text-muted-foreground">
+        <p className="m-0 text-sm font-medium text-foreground/70">
           &copy; {year} {blogName}. Made with creativity and joy.
         </p>
       </div>
@@ -60,7 +60,7 @@ export default function Footer() {
             </a>
           </Button>
         )}
-        
+
         {settings?.githubProfile && (
           <Button
             asChild
@@ -103,11 +103,7 @@ export default function Footer() {
           size="icon"
           className="size-12 rounded-2xl shadow-sm hover:shadow-md"
         >
-          <a
-            href="/rss.xml"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="/rss.xml" target="_blank" rel="noopener noreferrer">
             <span className="sr-only">RSS Feed</span>
             <Rss size={20} />
           </a>

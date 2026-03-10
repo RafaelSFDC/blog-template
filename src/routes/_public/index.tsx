@@ -4,44 +4,10 @@ import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { PostCard } from "#/components/blog/PostCard";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
 import { Newsletter } from "#/components/blog/newsletter";
-
-function MarqueeTicker() {
-  const items = [
-    "VibeZine Vol. 1 Out Now",
-    "Design is not a crime",
-    "High-Energy Code",
-    "Editorial Excellence",
-    "The Soul of the Web",
-    "Analog Vibes",
-    "Future Proofing...",
-  ];
-  return (
-    <div className="zine-marquee mt-8 mb-12">
-      <div className="zine-marquee-content">
-        {items.map((item, i) => (
-          <div key={i} className="zine-marquee-item flex items-center gap-2">
-            <TrendingUp size={16} strokeWidth={4} className="text-primary" />
-            {item}
-            <span className="mx-4 text-border opacity-30">•</span>
-          </div>
-        ))}
-      </div>
-      <div className="zine-marquee-content" aria-hidden="true">
-        {items.map((item, i) => (
-          <div key={i} className="zine-marquee-item flex items-center gap-2">
-            <TrendingUp size={16} strokeWidth={4} className="text-primary" />
-            {item}
-            <span className="mx-4 text-border opacity-30">•</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
@@ -72,8 +38,6 @@ function Home() {
 
   return (
     <main className="page-wrap pb-16 pt-6">
-      <MarqueeTicker />
-
       <section className="editorial-grid rise-in gap-8">
         <div className="bg-card border shadow-sm col-span-12 overflow-hidden rounded-xl p-8 sm:p-10 lg:p-12 relative">
           <Badge variant="default">Issue #01 / Spring 2026</Badge>

@@ -117,8 +117,9 @@ export function applyThemeClasses(theme: string): void {
       document.body.classList.remove(className);
     });
 
-  // Add new theme class
-  document.body.classList.add(`theme-${theme}`);
+  // Add new theme class (ensuring we don't double-prefix)
+  const themeClass = theme.startsWith("theme-") ? theme : `theme-${theme}`;
+  document.body.classList.add(themeClass);
 
   // Add scaled class if needed
   if (theme.endsWith("-scaled")) {

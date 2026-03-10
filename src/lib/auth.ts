@@ -1,14 +1,22 @@
-import { betterAuth } from 'better-auth'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { admin as adminPlugin } from 'better-auth/plugins'
-import { db } from '../db/index'
-import * as schema from '../db/schema'
-import { ac, reader, author, editor, moderator, admin, superAdmin } from './permissions'
+import { betterAuth } from "better-auth";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { admin as adminPlugin } from "better-auth/plugins";
+import { db } from "../db/index";
+import * as schema from "../db/schema";
+import {
+  ac,
+  reader,
+  author,
+  editor,
+  moderator,
+  admin,
+  superAdmin,
+} from "./permissions";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'sqlite',
+    provider: "sqlite",
     schema,
   }),
   databaseHooks: {
@@ -16,13 +24,52 @@ export const auth = betterAuth({
       create: {
         before: async (user: any) => {
           // Check if any user already exists
-          const existingUser = await db.select({ id: schema.user.id }).from(schema.user).limit(1);
+          const existingUser = await db
+            .select({ id: schema.user.id })
+            .from(schema.user)
+            .limit(1);
           const isFirstUser = existingUser.length === 0;
-          
+
           return {
             ...user,
-            role: isFirstUser ? 'admin' : 'reader',
+            role: isFirstUser ? "admin" : "reader",
           } as any;
+        },
+      },
+      update: {
+        before: async (user: any) => {
+          // Prevent users from performing critical actions on themselves
+          const { getAuthSession } = await import("./admin-auth");
+          const session = await getAuthSession();
+
+          if (session?.user?.id === user.id) {
+            // Prevent self-role modification
+            if (user.role) {
+              const currentRole = (session?.user as any)?.role;
+              if (currentRole && currentRole !== user.role) {
+                throw new Error("You cannot change your own role");
+              }
+            }
+
+            // Prevent self-banning
+            if (user.banned === true) {
+              const isCurrentlyBanned = (session?.user as any)?.banned;
+              if (!isCurrentlyBanned) {
+                throw new Error("You cannot ban yourself");
+              }
+            }
+          }
+          return { data: user };
+        },
+      },
+      delete: {
+        before: async (user: any) => {
+          const { getAuthSession } = await import("./admin-auth");
+          const session = await getAuthSession();
+
+          if (session?.user?.id === user.id) {
+            throw new Error("You cannot delete your own account");
+          }
         },
       },
     },
@@ -30,10 +77,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     async sendResetPassword({ user, url }: { user: any; url: string }) {
-      const { resend: defaultResend } = await import('./resend');
-      const { Resend } = await import('resend');
-      const { appSettings } = await import('../db/schema');
-      
+      const { resend: defaultResend } = await import("./resend");
+      const { Resend } = await import("resend");
+      const { appSettings } = await import("../db/schema");
+
       // Fetch settings for Resend
       const settings = await db.select().from(appSettings);
       const settingsObj: Record<string, string> = {};
@@ -41,10 +88,11 @@ export const auth = betterAuth({
         settingsObj[s.key] = s.value;
       });
 
-      const apiKey = settingsObj['resendApiKey'];
-      const senderEmail = settingsObj['newsletterSenderEmail'] || 'no-reply@resend.dev';
-      const blogName = settingsObj['blogName'] || 'VibeZine';
-      
+      const apiKey = settingsObj["resendApiKey"];
+      const senderEmail =
+        settingsObj["newsletterSenderEmail"] || "no-reply@resend.dev";
+      const blogName = settingsObj["blogName"] || "VibeZine";
+
       const resendClient = apiKey ? new Resend(apiKey) : defaultResend;
 
       await resendClient.emails.send({
@@ -54,7 +102,7 @@ export const auth = betterAuth({
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 10px;">
             <h2 style="color: #333;">Password Reset Request</h2>
-            <p>Hi ${user.name || 'there'},</p>
+            <p>Hi ${user.name || "there"},</p>
             <p>We received a request to reset your password for your <strong>${blogName}</strong> account.</p>
             <p>Click the button below to set a new password:</p>
             <div style="text-align: center; margin: 30px 0;">
@@ -71,12 +119,12 @@ export const auth = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID || '',
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
     },
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     },
   },
   plugins: [
@@ -93,4 +141,4 @@ export const auth = betterAuth({
       },
     }),
   ],
-})
+});

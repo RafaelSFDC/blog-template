@@ -1,144 +1,184 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { appSettings } from '#/db/schema'
-import { useState, type FormEvent } from 'react'
-import { requireAdminSession } from '#/lib/admin-auth'
-import { Button } from '#/components/ui/button'
-import { Settings as SettingsIcon, Save, Info } from 'lucide-react'
-import { getAvailableThemes } from '#/lib/theme-utils'
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { appSettings } from "#/db/schema";
+import { useState, type FormEvent } from "react";
+import { requireAdminSession } from "#/lib/admin-auth";
+import { Button } from "#/components/ui/button";
+import { Settings as SettingsIcon, Save, Info } from "lucide-react";
+import { getAvailableThemes, applyThemeClasses } from "#/lib/theme-utils";
+import { useEffect } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+import { z } from "zod";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
+import { Textarea } from "#/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+} from "#/components/ui/select";
 
-const getAppSettings = createServerFn({ method: 'GET' }).handler(async () => {
-  await requireAdminSession()
-  const { db } = await import('#/db/index');
-  const settings = await db.select().from(appSettings)
-  
+const settingsSchema = z.object({
+  blogName: z.string().min(1, "Publication Name is required"),
+  blogDescription: z.string(),
+  blogLogo: z.string(),
+  fontFamily: z.string(),
+  gaMeasurementId: z.string(),
+  plausibleDomain: z.string(),
+  stripePriceId: z.string(),
+  resendApiKey: z.string(),
+  newsletterSenderEmail: z.string(),
+  twitterProfile: z.string(),
+  githubProfile: z.string(),
+  linkedinProfile: z.string(),
+  themeVariant: z.string(),
+});
+
+type SettingsFormInput = z.infer<typeof settingsSchema>;
+
+const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdminSession();
+  const { db } = await import("#/db/index");
+  const settings = await db.select().from(appSettings);
+
   // Convert array to a more useful object
-  const settingsObj: Record<string, string> = {}
+  const settingsObj: Record<string, string> = {};
   settings.forEach((s: any) => {
-    settingsObj[s.key] = s.value
-  })
+    settingsObj[s.key] = s.value;
+  });
 
   return {
-    blogName: settingsObj['blogName'] || 'VibeZine',
-    blogDescription: settingsObj['blogDescription'] || 'A vibrant zine-style blog for creators.',
-    blogLogo: settingsObj['blogLogo'] || '',
-    accentColor: settingsObj['accentColor'] || 'var(--primary)',
-    fontFamily: settingsObj['fontFamily'] || 'Inter',
-    gaMeasurementId: settingsObj['gaMeasurementId'] || '',
-    plausibleDomain: settingsObj['plausibleDomain'] || '',
-    stripePriceId: settingsObj['stripePriceId'] || '',
-    resendApiKey: settingsObj['resendApiKey'] || '',
-    newsletterSenderEmail: settingsObj['newsletterSenderEmail'] || '',
-    twitterProfile: settingsObj['twitterProfile'] || '',
-    githubProfile: settingsObj['githubProfile'] || '',
-    linkedinProfile: settingsObj['linkedinProfile'] || '',
-    themeVariant: settingsObj['themeVariant'] || 'default',
-  }
-})
+    blogName: settingsObj["blogName"] || "VibeZine",
+    blogDescription:
+      settingsObj["blogDescription"] ||
+      "A vibrant zine-style blog for creators.",
+    blogLogo: settingsObj["blogLogo"] || "",
+    fontFamily: settingsObj["fontFamily"] || "Inter",
+    gaMeasurementId: settingsObj["gaMeasurementId"] || "",
+    plausibleDomain: settingsObj["plausibleDomain"] || "",
+    stripePriceId: settingsObj["stripePriceId"] || "",
+    resendApiKey: settingsObj["resendApiKey"] || "",
+    newsletterSenderEmail: settingsObj["newsletterSenderEmail"] || "",
+    twitterProfile: settingsObj["twitterProfile"] || "",
+    githubProfile: settingsObj["githubProfile"] || "",
+    linkedinProfile: settingsObj["linkedinProfile"] || "",
+    themeVariant: settingsObj["themeVariant"] || "default",
+  };
+});
 
-const updateAppSettings = createServerFn({ method: 'POST' })
-  .inputValidator((input: { 
-    blogName: string; 
-    blogDescription: string;
-    blogLogo: string;
-    accentColor: string;
-    fontFamily: string;
-    gaMeasurementId: string;
-    plausibleDomain: string;
-    stripePriceId: string;
-    resendApiKey: string;
-    newsletterSenderEmail: string;
-    twitterProfile: string;
-    githubProfile: string;
-    linkedinProfile: string;
-    themeVariant: string;
-  }) => input)
+const updateAppSettings = createServerFn({ method: "POST" })
+  .inputValidator((input: SettingsFormInput) => input)
   .handler(async ({ data }) => {
-    await requireAdminSession()
-    const { db } = await import('#/db/index');
+    await requireAdminSession();
+    const { db } = await import("#/db/index");
 
     const upsert = async (key: string, value: string) => {
-       await db.insert(appSettings)
-         .values({ key, value, updatedAt: new Date() })
-         .onConflictDoUpdate({
-           target: appSettings.key,
-           set: { value, updatedAt: new Date() }
-         })
-    }
+      await db
+        .insert(appSettings)
+        .values({ key, value, updatedAt: new Date() })
+        .onConflictDoUpdate({
+          target: appSettings.key,
+          set: { value, updatedAt: new Date() },
+        });
+    };
 
-    await upsert('blogName', data.blogName)
-    await upsert('blogDescription', data.blogDescription)
-    await upsert('blogLogo', data.blogLogo)
-    await upsert('accentColor', data.accentColor)
-    await upsert('fontFamily', data.fontFamily)
-    await upsert('gaMeasurementId', data.gaMeasurementId)
-    await upsert('plausibleDomain', data.plausibleDomain)
-    await upsert('stripePriceId', data.stripePriceId)
-    await upsert('resendApiKey', data.resendApiKey)
-    await upsert('newsletterSenderEmail', data.newsletterSenderEmail)
-    await upsert('twitterProfile', data.twitterProfile)
-    await upsert('githubProfile', data.githubProfile)
-    await upsert('linkedinProfile', data.linkedinProfile)
-    await upsert('themeVariant', data.themeVariant)
+    await upsert("blogName", data.blogName);
+    await upsert("blogDescription", data.blogDescription);
+    await upsert("blogLogo", data.blogLogo);
+    await upsert("fontFamily", data.fontFamily);
+    await upsert("gaMeasurementId", data.gaMeasurementId);
+    await upsert("plausibleDomain", data.plausibleDomain);
+    await upsert("stripePriceId", data.stripePriceId);
+    await upsert("resendApiKey", data.resendApiKey);
+    await upsert("newsletterSenderEmail", data.newsletterSenderEmail);
+    await upsert("twitterProfile", data.twitterProfile);
+    await upsert("githubProfile", data.githubProfile);
+    await upsert("linkedinProfile", data.linkedinProfile);
+    await upsert("themeVariant", data.themeVariant);
 
-    return { ok: true as const }
-  })
+    return { ok: true as const };
+  });
 
-export const Route = createFileRoute('/dashboard/settings')({
+export const Route = createFileRoute("/dashboard/settings")({
   loader: () => getAppSettings(),
   component: SettingsPage,
-})
+});
 
-import { DashboardHeader } from '#/components/dashboard/Header'
-import { DashboardPageContainer } from '#/components/dashboard/DashboardPageContainer'
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 
 function SettingsPage() {
-  const initialSettings = Route.useLoaderData()
-  const [blogName, setBlogName] = useState(initialSettings.blogName)
-  const [blogDescription, setBlogDescription] = useState(initialSettings.blogDescription)
-  const [blogLogo, setBlogLogo] = useState(initialSettings.blogLogo)
-  const [accentColor, setAccentColor] = useState(initialSettings.accentColor)
-  const [fontFamily, setFontFamily] = useState(initialSettings.fontFamily)
-  const [gaMeasurementId, setGaMeasurementId] = useState(initialSettings.gaMeasurementId)
-  const [plausibleDomain, setPlausibleDomain] = useState(initialSettings.plausibleDomain)
-  const [stripePriceId, setStripePriceId] = useState(initialSettings.stripePriceId)
-  const [resendApiKey, setResendApiKey] = useState(initialSettings.resendApiKey)
-  const [newsletterSenderEmail, setNewsletterSenderEmail] = useState(initialSettings.newsletterSenderEmail)
-  const [twitterProfile, setTwitterProfile] = useState(initialSettings.twitterProfile)
-  const [githubProfile, setGithubProfile] = useState(initialSettings.githubProfile)
-  const [linkedinProfile, setLinkedinProfile] = useState(initialSettings.linkedinProfile)
-  const [themeVariant, setThemeVariant] = useState(initialSettings.themeVariant)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
+  const initialSettings = Route.useLoaderData();
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSaving(true)
-    setMessage('')
+  const form = useForm({
+    defaultValues: {
+      blogName: initialSettings.blogName,
+      blogDescription: initialSettings.blogDescription,
+      blogLogo: initialSettings.blogLogo,
+      fontFamily: initialSettings.fontFamily,
+      gaMeasurementId: initialSettings.gaMeasurementId,
+      plausibleDomain: initialSettings.plausibleDomain,
+      stripePriceId: initialSettings.stripePriceId,
+      resendApiKey: initialSettings.resendApiKey,
+      newsletterSenderEmail: initialSettings.newsletterSenderEmail,
+      twitterProfile: initialSettings.twitterProfile,
+      githubProfile: initialSettings.githubProfile,
+      linkedinProfile: initialSettings.linkedinProfile,
+      themeVariant: initialSettings.themeVariant,
+    },
+    validators: {
+      onChange: settingsSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setSaving(true);
+      setMessage("");
 
-    try {
-      await updateAppSettings({ data: { 
-        blogName, 
-        blogDescription, 
-        blogLogo, 
-        accentColor, 
-        fontFamily,
-        gaMeasurementId: gaMeasurementId.trim(),
-        plausibleDomain: plausibleDomain.trim(),
-        stripePriceId: stripePriceId.trim(),
-        resendApiKey: resendApiKey.trim(),
-        newsletterSenderEmail: newsletterSenderEmail.trim(),
-        twitterProfile: twitterProfile.trim(),
-        githubProfile: githubProfile.trim(),
-        linkedinProfile: linkedinProfile.trim(),
-        themeVariant,
-      } })
-      setMessage('Settings saved successfully!')
-    } catch {
-      setMessage('Failed to save settings. Please try again.')
-    } finally {
-      setSaving(false)
-    }
+      try {
+        await updateAppSettings({
+          data: {
+            ...value,
+            gaMeasurementId: value.gaMeasurementId.trim(),
+            plausibleDomain: value.plausibleDomain.trim(),
+            stripePriceId: value.stripePriceId.trim(),
+            resendApiKey: value.resendApiKey.trim(),
+            newsletterSenderEmail: value.newsletterSenderEmail.trim(),
+            twitterProfile: value.twitterProfile.trim(),
+            githubProfile: value.githubProfile.trim(),
+            linkedinProfile: value.linkedinProfile.trim(),
+          },
+        });
+        setMessage("Settings saved successfully!");
+      } catch {
+        setMessage("Failed to save settings. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+  });
+
+  const formThemeVariant = useStore(
+    form.store,
+    (state) => state.values.themeVariant,
+  );
+
+  useEffect(() => {
+    applyThemeClasses(formThemeVariant);
+  }, [formThemeVariant]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    form.handleSubmit();
   }
 
   return (
@@ -152,254 +192,420 @@ function SettingsPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={onSubmit} className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label htmlFor="blogName" className="text-xs font-black uppercase tracking-widest text-foreground">
-                  Publication Name
-                </label>
-                <input
-                  id="blogName"
-                  value={blogName}
-                  onChange={(e) => setBlogName(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                  placeholder="e.g. VibeZine"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="blogDescription" className="text-xs font-black uppercase tracking-widest text-foreground">
-                  Short Bio / Description
-                </label>
-                <textarea
-                  id="blogDescription"
-                  value={blogDescription}
-                  onChange={(e) => setBlogDescription(e.target.value)}
-                  className="min-h-32 w-full rounded-xl border border-border bg-muted/50 px-5 py-4 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                  placeholder="Tell your readers what this blog is about..."
-                />
-              </div>
-
-              <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Branding & Style</h3>
-                
-                <div className="grid gap-6 sm:grid-cols-2">
-                   <div className="space-y-2">
-                    <label htmlFor="blogLogo" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Logo URL
-                    </label>
-                    <input
-                      id="blogLogo"
-                      value={blogLogo}
-                      onChange={(e) => setBlogLogo(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="https://exemplo.com/logo.png"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="accentColor" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Accent Color
-                    </label>
-                    <div className="flex gap-4">
-                      <input
-                        id="accentColor"
-                        type="color"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="h-11 w-20 rounded-lg border border-border bg-background p-1 outline-none pointer cursor-pointer"
+          <form
+            onSubmit={handleSubmit}
+            className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8"
+          >
+            <FieldGroup>
+              <form.Field
+                name="blogName"
+                children={(field) => {
+                  const isInvalid = !!field.state.meta.errors.length;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-xs  text-foreground"
+                      >
+                        Publication Name
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="e.g. VibeZine"
                       />
-                      <input
-                        type="text"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="flex-1 rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono uppercase"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <label htmlFor="fontFamily" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Typography / Font Family
-                    </label>
-                    <select
-                      id="fontFamily"
-                      value={fontFamily}
-                      onChange={(e) => setFontFamily(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors as any} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+
+              <form.Field
+                name="blogDescription"
+                children={(field) => (
+                  <Field>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-xs  text-foreground"
                     >
-                      <option value="Inter">Modern (Inter)</option>
-                      <option value="Outfit">Creative (Outfit)</option>
-                      <option value="Playfair Display">Elegant (Playfair Display)</option>
-                      <option value="Space Grotesk">Tech (Space Grotesk)</option>
-                      <option value="Bricolage Grotesque">Expressive (Bricolage Grotesque)</option>
-                    </select>
-                  </div>
-                   <div className="space-y-2 sm:col-span-2">
-                    <label htmlFor="themeVariant" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Theme Variant (Kataly Style)
-                    </label>
-                    <select
-                      id="themeVariant"
-                      value={themeVariant}
-                      onChange={(e) => setThemeVariant(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                    >
-                      {['standard', 'creative', 'compact', 'special'].map((group) => (
-                        <optgroup key={group} label={group.charAt(0).toUpperCase() + group.slice(1)} className="font-black uppercase tracking-widest text-[10px]">
-                          {getAvailableThemes()
-                            .filter((t) => t.group === group)
-                            .map((theme) => (
-                              <option key={theme.variant} value={`theme-${theme.variant}`} className="font-bold normal-case tracking-normal">
-                                {theme.name}
-                              </option>
-                            ))}
-                        </optgroup>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
+                      Short Bio / Description
+                    </FieldLabel>
+                    <Textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="min-h-32"
+                      placeholder="Tell your readers what this blog is about..."
+                    />
+                  </Field>
+                )}
+              />
 
               <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Analytics Tracking</h3>
-                
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Branding & Style
+                </h3>
+
                 <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label htmlFor="gaMeasurementId" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Google Analytics Measurement ID
-                    </label>
-                    <input
-                      id="gaMeasurementId"
-                      value={gaMeasurementId}
-                      onChange={(e) => setGaMeasurementId(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="G-XXXXXXXXXX"
-                    />
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Requires a "G-" prefix</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="plausibleDomain" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Plausible Analytics Domain
-                    </label>
-                    <input
-                      id="plausibleDomain"
-                      value={plausibleDomain}
-                      onChange={(e) => setPlausibleDomain(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="yourdomain.com"
-                    />
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Leaves out "https://"</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Monetization (Stripe)</h3>
-                <div className="space-y-2">
-                  <label htmlFor="stripePriceId" className="text-xs font-black uppercase tracking-widest text-foreground">
-                    Premium Plan Price ID
-                  </label>
-                  <input
-                    id="stripePriceId"
-                    value={stripePriceId}
-                    onChange={(e) => setStripePriceId(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
-                    placeholder="price_H5v..."
+                  <form.Field
+                    name="blogLogo"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Logo URL
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="https://exemplo.com/logo.png"
+                        />
+                      </Field>
+                    )}
                   />
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Obtido no dashboard do Stripe</p>
+
+                  <form.Field
+                    name="fontFamily"
+                    children={(field) => (
+                      <Field className="sm:col-span-2">
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Typography / Font Family
+                        </FieldLabel>
+                        <Select
+                          value={field.state.value}
+                          onValueChange={(val) => field.handleChange(val)}
+                        >
+                          <SelectTrigger
+                            id={field.name}
+                            className="w-full h-auto"
+                          >
+                            <SelectValue placeholder="Select a font family" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Inter">
+                              Modern (Inter)
+                            </SelectItem>
+                            <SelectItem value="Outfit">
+                              Creative (Outfit)
+                            </SelectItem>
+                            <SelectItem value="Playfair Display">
+                              Elegant (Playfair Display)
+                            </SelectItem>
+                            <SelectItem value="Space Grotesk">
+                              Tech (Space Grotesk)
+                            </SelectItem>
+                            <SelectItem value="Bricolage Grotesque">
+                              Expressive (Bricolage Grotesque)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="themeVariant"
+                    children={(field) => (
+                      <Field className="sm:col-span-2">
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Theme Variant (Kataly Style)
+                        </FieldLabel>
+                        <Select
+                          value={field.state.value}
+                          onValueChange={(val) => field.handleChange(val)}
+                        >
+                          <SelectTrigger
+                            id={field.name}
+                            className="w-full h-auto"
+                          >
+                            <SelectValue placeholder="Select a theme variant" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["standard", "creative", "compact", "special"].map(
+                              (group) => (
+                                <SelectGroup key={group}>
+                                  <div className="px-2 py-1.5 text-xs  text-muted-foreground bg-muted/30">
+                                    {group}
+                                  </div>
+                                  {getAvailableThemes()
+                                    .filter((t) => t.group === group)
+                                    .map((theme) => (
+                                      <SelectItem
+                                        key={theme.variant}
+                                        value={`theme-${theme.variant}`}
+                                        className="font-bold"
+                                      >
+                                        {theme.name}
+                                      </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
+                  />
                 </div>
               </div>
 
               <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Email / Newsletter Configuration</h3>
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Analytics Tracking
+                </h3>
+
                 <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label htmlFor="resendApiKey" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Resend API Key
-                    </label>
-                    <input
-                      id="resendApiKey"
-                      type="password"
-                      value={resendApiKey}
-                      onChange={(e) => setResendApiKey(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all font-mono"
-                      placeholder="re_XXXXXXXXXXXX"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="newsletterSenderEmail" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Sender Email
-                    </label>
-                    <input
-                      id="newsletterSenderEmail"
-                      value={newsletterSenderEmail}
-                      onChange={(e) => setNewsletterSenderEmail(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="newsletter@seudominio.com"
-                    />
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Must be verified in Resend</p>
-                  </div>
+                  <form.Field
+                    name="gaMeasurementId"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Google Analytics Measurement ID
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="G-XXXXXXXXXX"
+                        />
+                        <p className="text-[10px] text-muted-foreground ">
+                          Requires a "G-" prefix
+                        </p>
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="plausibleDomain"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Plausible Analytics Domain
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="yourdomain.com"
+                        />
+                        <p className="text-[10px] text-muted-foreground ">
+                          Leaves out "https://"
+                        </p>
+                      </Field>
+                    )}
+                  />
                 </div>
               </div>
 
               <div className="pt-6 border-t border-border/10">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary mb-6">Social Links & Feeds</h3>
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Monetization (Stripe)
+                </h3>
+                <form.Field
+                  name="stripePriceId"
+                  children={(field) => (
+                    <Field>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-xs  text-foreground"
+                      >
+                        Premium Plan Price ID
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="w-full font-mono"
+                        placeholder="price_H5v..."
+                      />
+                      <p className="text-[10px] text-muted-foreground ">
+                        Obtido no dashboard do Stripe
+                      </p>
+                    </Field>
+                  )}
+                />
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Email / Newsletter Configuration
+                </h3>
                 <div className="grid gap-6 sm:grid-cols-2">
+                  <form.Field
+                    name="resendApiKey"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Resend API Key
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="password"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="w-full font-mono"
+                          placeholder="re_XXXXXXXXXXXX"
+                        />
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="newsletterSenderEmail"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Sender Email
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="newsletter@seudominio.com"
+                        />
+                        <p className="text-[10px] text-muted-foreground ">
+                          Must be verified in Resend
+                        </p>
+                      </Field>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Social Links & Feeds
+                </h3>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <form.Field
+                    name="twitterProfile"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          Twitter Profile URL
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="https://twitter.com/seuperfil"
+                        />
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="githubProfile"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          GitHub Profile URL
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="https://github.com/seuperfil"
+                        />
+                      </Field>
+                    )}
+                  />
+
+                  <form.Field
+                    name="linkedinProfile"
+                    children={(field) => (
+                      <Field>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs  text-foreground"
+                        >
+                          LinkedIn Profile URL
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="https://linkedin.com/in/seuperfil"
+                        />
+                      </Field>
+                    )}
+                  />
+
                   <div className="space-y-2">
-                    <label htmlFor="twitterProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Twitter Profile URL
-                    </label>
-                    <input
-                      id="twitterProfile"
-                      value={twitterProfile}
-                      onChange={(e) => setTwitterProfile(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="https://twitter.com/seuperfil"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="githubProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      GitHub Profile URL
-                    </label>
-                    <input
-                      id="githubProfile"
-                      value={githubProfile}
-                      onChange={(e) => setGithubProfile(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="https://github.com/seuperfil"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="linkedinProfile" className="text-xs font-black uppercase tracking-widest text-foreground">
-                      LinkedIn Profile URL
-                    </label>
-                    <input
-                      id="linkedinProfile"
-                      value={linkedinProfile}
-                      onChange={(e) => setLinkedinProfile(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-muted/50 px-5 py-3 text-sm font-bold text-foreground outline-none focus:border-primary transition-all"
-                      placeholder="https://linkedin.com/in/seuperfil"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-foreground">
+                    <label className="text-xs  text-foreground">
                       RSS Feed URL
                     </label>
                     <div className="flex h-11 items-center rounded-xl border border-border bg-muted/20 px-5 text-sm font-mono font-bold text-muted-foreground">
                       /rss.xml
                     </div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Auto-generated for your readers</p>
+                    <p className="text-[10px] text-muted-foreground ">
+                      Auto-generated for your readers
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
+            </FieldGroup>
 
             {message && (
-              <div className={`rounded-xl border px-6 py-4 text-sm font-bold flex items-center gap-3 ${
-                message.includes('successfully') 
-                  ? 'border-green-500/20 bg-green-500/5 text-green-600' 
-                  : 'border-destructive/20 bg-destructive/5 text-destructive'
-              }`}>
+              <div
+                className={`rounded-xl border px-6 py-4 text-sm font-bold flex items-center gap-3 ${
+                  message.includes("successfully")
+                    ? "border-green-500/20 bg-green-500/5 text-green-600"
+                    : "border-destructive/20 bg-destructive/5 text-destructive"
+                }`}
+              >
                 <Info size={18} />
                 {message}
               </div>
@@ -414,8 +620,8 @@ function SettingsPage() {
                 className="shadow-sm"
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
-                <span className="uppercase tracking-widest font-black">
-                  {saving ? 'Saving...' : 'Save Configuration'}
+                <span className="">
+                  {saving ? "Saving..." : "Save Configuration"}
                 </span>
               </Button>
             </div>
@@ -423,18 +629,19 @@ function SettingsPage() {
         </div>
 
         <aside className="space-y-6">
-           <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
-              <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
-                 <Info size={18} className="text-primary" />
-                 Metadata Tip
-              </h3>
-              <p className="text-sm text-muted-foreground font-medium leading-relaxed">
-                 These settings affect your blog's public appearance in the header, footer, and SEO tags. 
-                 Ensure your description is concise but descriptive to help with search engine rankings.
-              </p>
-           </div>
+          <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
+            <h3 className=" tracking-tighter text-foreground mb-4 flex items-center gap-2">
+              <Info size={18} className="text-primary" />
+              Metadata Tip
+            </h3>
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+              These settings affect your blog's public appearance in the header,
+              footer, and SEO tags. Ensure your description is concise but
+              descriptive to help with search engine rankings.
+            </p>
+          </div>
         </aside>
       </div>
     </DashboardPageContainer>
-  )
+  );
 }
