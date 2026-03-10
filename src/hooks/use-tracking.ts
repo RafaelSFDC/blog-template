@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
-import { trackPageView } from "#/server/analytics-actions";
 
 export function useTracking() {
   const location = useLocation();
@@ -43,7 +42,7 @@ export function useTracking() {
 
       try {
         // Use PostHog if available, otherwise fallback to DB tracking (deprecated)
-        const key = import.meta.env.VITE_POSTHOG_KEY;
+        const key = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
         if (key) {
           // PostHog handles pageviews automatically if configured,
           // but we can also manually capture with extra properties
@@ -55,18 +54,6 @@ export function useTracking() {
             browser,
             os,
             device,
-          });
-        } else {
-          // Keep DB tracking as fallback only if PostHog is NOT configured
-          await trackPageView({
-            data: {
-              url: window.location.href,
-              pathname: location.pathname,
-              referrer: document.referrer || null,
-              browser,
-              os,
-              device,
-            },
           });
         }
       } catch (e) {

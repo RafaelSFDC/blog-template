@@ -6,6 +6,7 @@ export interface StatCardProps extends React.ComponentProps<"div"> {
   icon: LucideIcon;
   label: string;
   value: React.ReactNode;
+  iconClassName?: string;
 }
 
 function StatCard({
@@ -13,6 +14,7 @@ function StatCard({
   label,
   value,
   className,
+  iconClassName,
   ...props
 }: StatCardProps) {
   return (
@@ -27,6 +29,7 @@ function StatCard({
       <div
         className={cn(
           "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl  text-primary",
+          iconClassName,
         )}
       >
         <Icon size={24} strokeWidth={2.5} />

@@ -15,6 +15,7 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { useState } from "react";
+import { usePostHog } from "@posthog/react";
 
 const getRegistrationStatus = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -43,6 +44,7 @@ export const Route = createFileRoute("/_public/auth/register")({
 function RegisterPage() {
   const { locked } = Route.useLoaderData();
   const [success, setSuccess] = useState(false);
+  const posthog = usePostHog();
 
   const form = useForm({
     defaultValues: {
@@ -59,8 +61,11 @@ function RegisterPage() {
           name: value.name,
           callbackURL: "/dashboard",
         });
+        posthog.identify(value.email, { email: value.email, name: value.name });
+        posthog.capture("user_signed_up", { method: "email" });
         setSuccess(true);
       } catch (err: any) {
+        posthog.captureException(err);
         const msg =
           err.message || "Failed to create account. Please try again.";
         toast.error(msg);

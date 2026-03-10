@@ -8,18 +8,13 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
-
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-
 import { getLocale } from "#/paraglide/runtime";
 import { appSettings } from "#/db/schema";
 import { createServerFn } from "@tanstack/react-start";
-
 import appCss from "../styles.css?url";
-import { useTracking } from "#/hooks/use-tracking";
 import { ThemeProvider } from "next-themes";
 import { PostHogProvider } from "#/components/analytics/posthog-provider";
-
 import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "#/components/ui/sonner";
 
@@ -169,8 +164,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     /\s+/g,
     "+",
   );
-
-  useTracking(); // Call the custom tracking hook
 
   return (
     <html lang={getLocale()} suppressHydrationWarning>

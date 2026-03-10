@@ -5,8 +5,8 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { User, Shield, CreditCard, LogOut, Save } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import { cn } from "#/lib/utils";
 import { toast } from "sonner";
+import { usePostHog } from "@posthog/react";
 
 const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -31,6 +31,7 @@ import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 
 function AccountPage() {
   const { data: session } = authClient.useSession();
+  const posthog = usePostHog();
 
   const profileForm = useForm({
     defaultValues: {
@@ -41,8 +42,10 @@ function AccountPage() {
         await authClient.updateUser({
           name: value.name,
         });
+        posthog.capture("profile_updated", { name: value.name });
         toast.success("Profile updated successfully!");
       } catch (error) {
+        posthog.captureException(error);
         toast.error("Failed to update profile.");
       }
     },
@@ -61,15 +64,19 @@ function AccountPage() {
           currentPassword: value.currentPassword,
           revokeOtherSessions: true,
         });
+        posthog.capture("password_changed");
         toast.success("Password updated successfully!");
         passwordForm.reset();
       } catch (error: any) {
+        posthog.captureException(error);
         toast.error(error.message || "Failed to update password.");
       }
     },
   });
 
   const handleLogout = async () => {
+    posthog.capture("user_signed_out");
+    posthog.reset();
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {

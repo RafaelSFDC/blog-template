@@ -1,5 +1,6 @@
 import { Twitter, Linkedin, Facebook, Link as LinkIcon } from 'lucide-react'
 import { Button } from '#/components/ui/button'
+import { usePostHog } from '@posthog/react'
 
 interface SocialSharingProps {
   url: string
@@ -9,6 +10,7 @@ interface SocialSharingProps {
 export function SocialSharing({ url, title }: SocialSharingProps) {
   const encodedUrl = encodeURIComponent(url)
   const encodedTitle = encodeURIComponent(title)
+  const posthog = usePostHog()
 
   const shareLinks = [
     {
@@ -33,7 +35,7 @@ export function SocialSharing({ url, title }: SocialSharingProps) {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(url)
-    // You could add a toast here
+    posthog.capture('post_shared', { platform: 'copy_link', url, title })
   }
 
   return (
@@ -45,6 +47,7 @@ export function SocialSharing({ url, title }: SocialSharingProps) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => posthog.capture('post_shared', { platform: link.name.toLowerCase(), url, title })}
           className={`flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all hover:scale-110 hover:text-white ${link.color}`}
           title={`Share on ${link.name}`}
         >

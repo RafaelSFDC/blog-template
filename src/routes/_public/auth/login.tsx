@@ -13,6 +13,7 @@ import {
   FieldLabel,
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import { usePostHog } from "@posthog/react";
 
 const getSession = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/_public/auth/login")({
 });
 
 function LoginPage() {
+  const posthog = usePostHog();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -42,7 +44,10 @@ function LoginPage() {
           password: value.password,
           callbackURL: "/dashboard",
         });
+        posthog.identify(value.email, { email: value.email });
+        posthog.capture("user_signed_in", { method: "email" });
       } catch (err) {
+        posthog.captureException(err);
         toast.error("Invalid email or password. Please try again.");
       }
     },

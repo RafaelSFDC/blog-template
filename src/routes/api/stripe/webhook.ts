@@ -4,6 +4,7 @@ import { db } from '../../../db/index'
 import { user } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import Stripe from 'stripe'
+import { getPostHogClient } from '../../../server/posthog'
 
 export const Route = createFileRoute('/api/stripe/webhook')({
   server: {
@@ -46,6 +47,19 @@ export const Route = createFileRoute('/api/stripe/webhook')({
                         stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
                     })
                     .where(eq(user.id, userId))
+
+                const posthog = getPostHogClient()
+                posthog.capture({
+                    distinctId: session.customer_email || userId,
+                    event: 'subscription_activated',
+                    properties: {
+                        user_id: userId,
+                        customer_email: session.customer_email,
+                        stripe_customer_id: session.customer as string,
+                        stripe_subscription_id: subscription.id,
+                        price_id: subscription.items.data[0].price.id,
+                    },
+                })
             }
         }
 

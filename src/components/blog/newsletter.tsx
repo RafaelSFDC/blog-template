@@ -5,6 +5,7 @@ import { Mail } from "lucide-react";
 import { cn } from "#/lib/utils";
 import { subscribeNewsletter } from "#/server/newsletter-actions";
 import { toast } from "sonner";
+import { usePostHog } from "@posthog/react";
 
 interface NewsletterProps {
   title?: string;
@@ -26,6 +27,7 @@ export function Newsletter({
   className,
 }: NewsletterProps) {
   const [email, setEmail] = useState("");
+  const posthog = usePostHog();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +37,14 @@ export function Newsletter({
       try {
         const res = await subscribeNewsletter({ data: email });
         if (res.success) {
+          posthog.capture("newsletter_subscribed", { email });
           toast.success(res.message);
           setEmail("");
         } else {
           toast.error(res.message);
         }
       } catch (err) {
+        posthog.captureException(err);
         toast.error("An error occurred. Please try again.");
       }
     }

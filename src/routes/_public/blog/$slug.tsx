@@ -17,6 +17,7 @@ import { Paywall } from "#/components/blog/paywall";
 import { auth } from "#/lib/auth";
 import { user } from "#/db/schema";
 import { useState } from "react";
+import { usePostHog } from "@posthog/react";
 
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -170,6 +171,7 @@ function PostDetail() {
     Route.useLoaderData();
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const [subscribing, setSubscribing] = useState(false);
+  const posthog = usePostHog();
 
   async function handleSubscribe() {
     if (!stripePriceId) {
@@ -179,6 +181,12 @@ function PostDetail() {
       return;
     }
 
+    posthog.capture("subscription_checkout_started", {
+      post_slug: post.slug,
+      post_title: post.title,
+      price_id: stripePriceId,
+    });
+
     try {
       setSubscribing(true);
       const response = await fetch("/api/stripe/checkout", {
@@ -186,6 +194,8 @@ function PostDetail() {
         body: JSON.stringify({ priceId: stripePriceId }),
         headers: {
           "Content-Type": "application/json",
+          "X-PostHog-Session-Id": posthog.get_session_id() ?? "",
+          "X-PostHog-Distinct-Id": posthog.get_distinct_id() ?? "",
         },
       });
 
@@ -202,6 +212,7 @@ function PostDetail() {
         throw new Error("No checkout URL received");
       }
     } catch (error) {
+      posthog.captureException(error);
       console.error("Checkout error:", error);
       alert("Ocorreu um erro ao iniciar o checkout. Tente novamente.");
     } finally {
@@ -243,6 +254,10 @@ function PostDetail() {
             <CommentForm
               onSubmit={async (data) => {
                 await addComment({ data: { ...data, postId: post.id } });
+                posthog.capture("post_comment_submitted", {
+                  post_slug: post.slug,
+                  post_title: post.title,
+                });
               }}
             />
           </div>

@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "#/components/ui/select";
 import { toast } from "sonner";
+import { usePostHog } from "@posthog/react";
 
 const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -131,6 +132,7 @@ function slugify(value: string) {
 
 function NewPostPage() {
   const navigate = useNavigate();
+  const posthog = usePostHog();
   const form = useForm({
     defaultValues: {
       title: "",
@@ -179,9 +181,16 @@ function NewPostPage() {
             tagIds: value.tagIds,
           },
         });
+        posthog.capture("post_created", {
+          title: value.title.trim(),
+          slug: normalizedSlug,
+          status: value.status,
+          is_premium: value.isPremium,
+        });
         toast.success("Post created successfully!");
         await navigate({ to: "/dashboard" });
       } catch (e) {
+        posthog.captureException(e);
         console.error(e);
         toast.error(
           "Could not create this post. Check the slug and try again.",

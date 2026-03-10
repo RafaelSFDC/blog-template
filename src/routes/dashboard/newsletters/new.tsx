@@ -10,6 +10,7 @@ import { TiptapEditor } from "#/components/tiptap-editor";
 import { sendNewsletter } from "#/lib/newsletter";
 import { ChevronLeft, Info, Send } from "lucide-react";
 import { format } from "date-fns";
+import { usePostHog } from "@posthog/react";
 
 const saveAndSendNewsletter = createServerFn({ method: "POST" })
   .inputValidator(
@@ -84,6 +85,7 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
 function NewNewsletterPage() {
   const { posts: recentPosts, existing } = Route.useLoaderData();
   const navigate = useNavigate();
+  const posthog = usePostHog();
   const [subject, setSubject] = useState(existing?.subject || "");
   const [content, setContent] = useState(existing?.content || "");
   const [saving, setSaving] = useState(false);
@@ -116,8 +118,12 @@ function NewNewsletterPage() {
       await saveAndSendNewsletter({
         data: { subject, content, postId, sendNow },
       });
+      if (sendNow) {
+        posthog.capture("newsletter_campaign_sent", { subject, post_id: postId });
+      }
       await navigate({ to: "/dashboard/newsletters" });
     } catch (err) {
+      posthog.captureException(err);
       setErrorMessage("Failed to save newsletter campaign.");
     } finally {
       setSaving(false);
