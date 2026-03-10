@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { Mail, Plus, Trash2, Download } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { EmptyState } from "#/components/dashboard/EmptyState";
 
 const getNewsletters = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -102,7 +103,6 @@ function NewsletterIndexPage() {
           <Button asChild variant="default" size="lg">
             <Link
               to="/dashboard/newsletters/new"
-              className="flex items-center gap-2"
               search={{ fromId: undefined } as any}
             >
               <Plus className="h-5 w-5" />
@@ -114,23 +114,21 @@ function NewsletterIndexPage() {
 
       <div className="mt-0 space-y-4">
         {data.length === 0 ? (
-          <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-xl py-12 text-center">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Mail className="h-10 w-10" />
-            </div>
-            <h3 className="text-2xl font-bold">No campaigns yet</h3>
-            <p className="mt-2 text-muted-foreground">
-              Start your first newsletter campaign to engage your subscribers.
-            </p>
-            <Button asChild variant="outline" className="mt-8">
-              <Link
-                to="/dashboard/newsletters/new"
-                search={{ fromId: undefined } as any}
-              >
-                Create First Campaign
-              </Link>
-            </Button>
-          </div>
+          <EmptyState
+            icon={Mail}
+            title="No campaigns yet"
+            description="Start your first newsletter campaign to engage your subscribers."
+            action={
+              <Button asChild variant="outline">
+                <Link
+                  to="/dashboard/newsletters/new"
+                  search={{ fromId: undefined } as any}
+                >
+                  Create First Campaign
+                </Link>
+              </Button>
+            }
+          />
         ) : (
           data.map((item: any) => (
             <div

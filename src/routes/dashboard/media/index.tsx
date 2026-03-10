@@ -10,6 +10,7 @@ import {
   deleteMediaItem,
 } from "#/server/media-actions";
 import { toast } from "sonner";
+import { EmptyState } from "#/components/dashboard/EmptyState";
 
 export const Route = createFileRoute("/dashboard/media/")({
   loader: () => getMediaItems(),
@@ -146,17 +147,11 @@ function MediaLibraryPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-xl py-12 text-center">
-          <div className="mb-6 rounded-full bg-muted p-6">
-            <Image size={40} className="text-muted-foreground opacity-20" />
-          </div>
-          <p className="text-xl font-black text-foreground uppercase tracking-tight">
-            No media found
-          </p>
-          <p className="mt-2 text-muted-foreground font-bold">
-            Start by uploading some images for your posts.
-          </p>
-        </div>
+        <EmptyState
+          icon={Image}
+          title="No media found"
+          description="Start by uploading some images for your posts."
+        />
       )}
     </DashboardPageContainer>
   );

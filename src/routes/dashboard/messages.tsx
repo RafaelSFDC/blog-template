@@ -9,6 +9,7 @@ import { Badge } from "#/components/ui/badge";
 import { Mail, Trash2, Check, Archive, Inbox } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { requireAdminSession } from "#/lib/admin-auth";
+import { EmptyState } from "#/components/dashboard/EmptyState";
 
 const getMessages = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -161,17 +162,11 @@ function MessagesPage() {
             </div>
           ))
         ) : (
-          <div className="bg-card border shadow-sm rounded-xl p-12 text-center border-dashed border-border/20">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted text-muted-foreground/50">
-              <Inbox size={40} />
-            </div>
-            <h2 className="text-2xl font-black text-foreground uppercase">
-              Your inbox is empty
-            </h2>
-            <p className="text-muted-foreground font-bold mt-2">
-              Messages from the contact form will appear here.
-            </p>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title="Your inbox is empty"
+            description="Messages from the contact form will appear here."
+          />
         )}
       </div>
     </DashboardPageContainer>

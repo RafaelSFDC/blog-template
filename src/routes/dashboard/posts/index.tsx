@@ -7,8 +7,9 @@ import { desc, eq } from "drizzle-orm";
 import { useState } from "react";
 import { useRouter, useLoaderData } from "@tanstack/react-router";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { Plus, Eye, Pencil, Trash2, FileText } from "lucide-react";
+import { FileText, Plus, Eye, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { EmptyState } from "#/components/dashboard/EmptyState";
 
 type DashboardPost = typeof posts.$inferSelect;
 
@@ -173,26 +174,16 @@ function PostsManagementPage() {
             </article>
           ))
         ) : (
-          <div className="bg-card border shadow-sm rounded-xl p-12 text-center border-dashed border-border/50">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <Plus size={32} />
-            </div>
-            <h2 className="display-title text-3xl text-foreground">
-              No Stories Shared Yet
-            </h2>
-            <p className="mt-3 text-muted-foreground font-medium">
-              Your content archive is empty. Begin your blog journey by creating
-              your first post.
-            </p>
-            <Button asChild variant="default" className="mt-8">
-              <Link
-                to="/dashboard/posts/new"
-                className="no-underline uppercase tracking-widest font-black"
-              >
-                Create First Post
-              </Link>
-            </Button>
-          </div>
+          <EmptyState
+            icon={FileText}
+            title="No Stories Shared Yet"
+            description="Your content archive is empty. Begin your blog journey by creating your first post."
+            action={
+              <Button asChild variant="default">
+                <Link to="/dashboard/posts/new">Create First Post</Link>
+              </Button>
+            }
+          />
         )}
       </div>
     </DashboardPageContainer>
