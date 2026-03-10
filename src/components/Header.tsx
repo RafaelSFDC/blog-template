@@ -1,15 +1,8 @@
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import BetterAuthHeader from "../integrations/better-auth/header-user.tsx";
-import { Menu, X, Search as SearchIcon } from "lucide-react";
-import {
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "#/components/ui/command";
+import { Menu, X } from "lucide-react";
+
 import { Button } from "#/components/ui/button";
 import { LuminaLogo } from "./LuminaLogo";
 
@@ -20,30 +13,7 @@ export default function Header() {
   const blogName = settings?.blogName || "Lumina";
   const blogLogo = settings?.blogLogo || "";
 
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setIsSearchOpen((open: boolean) => !open);
-      }
-    };
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
-
-  async function onSearch(query: string) {
-    const q = query.trim();
-    await navigate({
-      to: "/blog",
-      search: { q } as any,
-    });
-    setIsSearchOpen(false);
-    setIsMenuOpen(false);
-  }
 
   return (
     <header className="sticky top-0 z-50 px-2 py-4 sm:px-4">
@@ -88,53 +58,6 @@ export default function Header() {
               isMenuOpen ? "flex" : "hidden"
             }`}
           >
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setIsSearchOpen(true)}
-              className="w-full justify-start gap-2 h-11 border sm:border lg:w-48 xl:w-64"
-            >
-              <SearchIcon
-                size={18}
-                strokeWidth={3}
-                className="text-primary/60"
-              />
-              <span className="text-muted-foreground font-bold">Search...</span>
-              <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
-
-            <CommandDialog
-              open={isSearchOpen}
-              onOpenChange={setIsSearchOpen}
-              title="Search Stories"
-              description="Type to search through all articles..."
-            >
-              <CommandInput
-                placeholder="Type to search..."
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    onSearch(e.currentTarget.value);
-                  }
-                }}
-              />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup heading="Suggestions">
-                  <CommandItem onSelect={() => onSearch("Design")}>
-                    🎨 Design
-                  </CommandItem>
-                  <CommandItem onSelect={() => onSearch("Tech")}>
-                    🚀 Tech
-                  </CommandItem>
-                  <CommandItem onSelect={() => onSearch("Culture")}>
-                    🧸 Culture
-                  </CommandItem>
-                </CommandGroup>
-              </CommandList>
-            </CommandDialog>
-
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 asChild

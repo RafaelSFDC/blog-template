@@ -1,11 +1,18 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
 import { Mail } from "lucide-react";
 import { SocialLogin } from "#/components/auth/social-login";
 import { toast } from "sonner";
 import { createServerFn } from "@tanstack/react-start";
+import { useForm } from "@tanstack/react-form";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
 
 const getSession = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -23,29 +30,23 @@ export const Route = createFileRoute("/_public/auth/login")({
 });
 
 function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleEmailLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsPending(true);
-    setError("");
-
-    try {
-      await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: "/dashboard",
-      });
-    } catch (err) {
-      toast.error("Invalid email or password. Please try again.");
-      setError("Invalid email or password. Please try again.");
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+          callbackURL: "/dashboard",
+        });
+      } catch (err) {
+        toast.error("Invalid email or password. Please try again.");
+      }
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -71,63 +72,86 @@ function LoginPage() {
         </div>
       </div>
 
-      <form onSubmit={handleEmailLogin} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-black uppercase tracking-wider text-muted-foreground ml-1">
-            Email
-          </label>
-          <div className="relative">
-            <Mail
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50"
-              size={18}
-            />
-            <input
-              type="email"
-              placeholder="name@example.com"
-              className="w-full bg-muted/30 border border-border rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-        </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <form.Field
+          name="email"
+          children={(field) => (
+            <Field>
+              <FieldLabel className="ml-1">Email</FieldLabel>
+              <FieldContent>
+                <div className="relative">
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50"
+                    size={18}
+                  />
+                  <Input
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    type="email"
+                    placeholder="name@example.com"
+                    className="pl-10 h-12"
+                    required
+                  />
+                </div>
+                <FieldError errors={field.state.meta.errors} />
+              </FieldContent>
+            </Field>
+          )}
+        />
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between ml-1">
-            <label className="text-sm font-black uppercase tracking-wider text-muted-foreground">
-              Password
-            </label>
-            <Link
-              to="/auth/forgot-password"
-              className="text-xs font-bold text-primary hover:underline decoration-2 underline-offset-4"
+        <form.Field
+          name="password"
+          children={(field) => (
+            <Field>
+              <div className="flex items-center justify-between ml-1">
+                <FieldLabel>Password</FieldLabel>
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-xs font-bold text-primary hover:underline decoration-2 underline-offset-4"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <FieldContent>
+                <Input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="password"
+                  placeholder="••••••••"
+                  className="h-12"
+                  required
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </FieldContent>
+            </Field>
+          )}
+        />
+
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              variant="default"
+              size="lg"
+              className="w-full rounded-md text-lg shadow-sm hover:shadow-md active:shadow-none transition-all"
+              disabled={!canSubmit || isSubmitting}
             >
-              Forgot password?
-            </Link>
-          </div>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full bg-muted/30 border border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        {error && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-bold animate-in fade-in slide-in-from-top-1">
-            {error}
-          </div>
-        )}
-
-        <Button
-          type="submit"
-          variant="default"
-          className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all"
-          disabled={isPending}
-        >
-          {isPending ? "Signing in..." : "Sign In"}
-        </Button>
+              {isSubmitting ? "Signing in..." : "Sign In"}
+            </Button>
+          )}
+        />
       </form>
 
       <div className="text-center pt-2">

@@ -1,43 +1,46 @@
-import { useState } from 'react'
-import { authClient } from '#/lib/auth-client'
-import { Button } from '#/components/ui/button'
-import { Github } from 'lucide-react'
-import { cn } from '#/lib/utils'
+import { useState } from "react";
+import { authClient } from "#/lib/auth-client";
+import { Button } from "#/components/ui/button";
+import { Github } from "lucide-react";
+import { cn } from "#/lib/utils";
 
 interface SocialLoginProps {
-  callbackURL?: string
-  className?: string
+  callbackURL?: string;
+  className?: string;
 }
 
-export function SocialLogin({ callbackURL = '/dashboard', className }: SocialLoginProps) {
-  const [error, setError] = useState('')
+export function SocialLogin({
+  callbackURL = "/dashboard",
+  className,
+}: SocialLoginProps) {
+  const [error, setError] = useState("");
 
-  const handleSocialLogin = async (provider: 'github' | 'google') => {
+  const handleSocialLogin = async (provider: "github" | "google") => {
     try {
       await authClient.signIn.social({
         provider,
         callbackURL,
-      })
+      });
     } catch (err) {
-      setError(`Failed to sign in with ${provider}.`)
+      setError(`Failed to sign in with ${provider}.`);
     }
-  }
+  };
 
   return (
     <div className={cn("space-y-4", className)}>
       <div className="grid grid-cols-2 gap-4">
-        <Button 
-          variant="outline" 
-          onClick={() => handleSocialLogin('github')}
-          className="rounded-xl h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
+        <Button
+          variant="outline"
+          onClick={() => handleSocialLogin("github")}
+          className="rounded-md h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
         >
           <Github size={20} />
           <span className="font-bold">GitHub</span>
         </Button>
-        <Button 
-          variant="outline" 
-          onClick={() => handleSocialLogin('google')}
-          className="rounded-xl h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
+        <Button
+          variant="outline"
+          onClick={() => handleSocialLogin("google")}
+          className="rounded-md h-12 flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -67,5 +70,5 @@ export function SocialLogin({ callbackURL = '/dashboard', className }: SocialLog
         </div>
       )}
     </div>
-  )
+  );
 }

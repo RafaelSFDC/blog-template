@@ -27,47 +27,7 @@ export const Route = createFileRoute("/_public/account")({
   component: AccountPage,
 });
 
-// Simple Form UI components for local use to match Shadcn pattern without RHF dependency
-const FormItem = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <div className={cn("grid gap-2", className)}>{children}</div>;
-
-const FormLabel = ({
-  children,
-  className,
-  htmlFor,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  htmlFor?: string;
-}) => (
-  <label
-    htmlFor={htmlFor}
-    className={cn(
-      "text-xs font-black uppercase tracking-[0.2em] text-muted-foreground",
-      className,
-    )}
-  >
-    {children}
-  </label>
-);
-
-const FormMessage = ({ errors }: { errors?: any[] }) => {
-  if (!errors || errors.length === 0) return null;
-  return (
-    <p className="text-xs font-bold text-destructive animate-in fade-in slide-in-from-top-1">
-      {errors.join(", ")}
-    </p>
-  );
-};
-
-const FormControl = ({ children }: { children: React.ReactNode }) => (
-  <>{children}</>
-);
+import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 
 function AccountPage() {
   const { data: session } = authClient.useSession();
@@ -121,14 +81,14 @@ function AccountPage() {
 
   return (
     <div className="page-wrap space-y-10 py-10 pb-20">
-      <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-12">
+      <header className="bg-card border shadow-sm rounded-md p-8 sm:p-12">
         <div className="mb-4 flex items-center gap-2 text-primary">
           <User size={20} strokeWidth={3} />
-          <p className="island-kicker mb-0 font-black uppercase tracking-widest text-primary/80">
+          <p className="island-kicker mb-0 font-black  text-primary/80">
             Account
           </p>
         </div>
-        <h1 className="display-title text-5xl text-foreground sm:text-7xl uppercase">
+        <h1 className="display-title text-5xl text-foreground sm:text-7xl">
           Profile Settings
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground font-medium leading-relaxed">
@@ -140,8 +100,8 @@ function AccountPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-8">
           {/* Profile Section */}
-          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
-            <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
+          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
+            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
               <User size={20} className="text-primary" strokeWidth={3} />
               Personal Info
             </h2>
@@ -164,10 +124,16 @@ function AccountPage() {
                         ? "Name must be at least 2 characters"
                         : undefined,
                 }}
-                children={(field) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel htmlFor={field.name}>Display Name</FormLabel>
-                    <FormControl>
+                children={(field) => {
+                  const isInvalid = !!field.state.meta.errors.length;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-xs text-foreground"
+                      >
+                        Display Name
+                      </FieldLabel>
                       <Input
                         id={field.name}
                         name={field.name}
@@ -176,19 +142,23 @@ function AccountPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="Your full name"
                       />
-                    </FormControl>
-                    <FormMessage errors={field.state.meta.errors} />
-                  </FormItem>
-                )}
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors as any} />
+                      )}
+                    </Field>
+                  );
+                }}
               />
 
-              <div className="space-y-3 opacity-90">
-                <FormLabel>Email Address</FormLabel>
+              <Field className="opacity-90">
+                <FieldLabel className="text-xs text-foreground">
+                  Email Address
+                </FieldLabel>
                 <Input value={session?.user?.email || ""} disabled />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-medium">
                   Note: Email updates are handled via security verification
                 </p>
-              </div>
+              </Field>
 
               <div className="pt-4">
                 <profileForm.Subscribe
@@ -197,10 +167,11 @@ function AccountPage() {
                     <Button
                       type="submit"
                       variant="default"
+                      size="lg"
                       disabled={!canSubmit || isSubmitting}
                     >
-                      <Save size={20} className="mr-2" />
-                      {isSubmitting ? "SAVING..." : "SAVE CHANGES"}
+                      <Save size={20} className="mr-3" strokeWidth={3} />
+                      {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
                   )}
                 />
@@ -209,8 +180,8 @@ function AccountPage() {
           </section>
 
           {/* Security / Password Section */}
-          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
-            <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
+          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
+            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Security
             </h2>
@@ -229,10 +200,16 @@ function AccountPage() {
                   onChange: ({ value }) =>
                     !value ? "Current password is required" : undefined,
                 }}
-                children={(field) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel htmlFor={field.name}>Current Password</FormLabel>
-                    <FormControl>
+                children={(field) => {
+                  const isInvalid = !!field.state.meta.errors.length;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-xs text-foreground"
+                      >
+                        Current Password
+                      </FieldLabel>
                       <Input
                         id={field.name}
                         name={field.name}
@@ -242,10 +219,12 @@ function AccountPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="••••••••"
                       />
-                    </FormControl>
-                    <FormMessage errors={field.state.meta.errors} />
-                  </FormItem>
-                )}
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors as any} />
+                      )}
+                    </Field>
+                  );
+                }}
               />
 
               <div className="grid gap-6 sm:grid-cols-2">
@@ -259,10 +238,16 @@ function AccountPage() {
                           ? "Min 8 characters"
                           : undefined,
                   }}
-                  children={(field) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel htmlFor={field.name}>New Password</FormLabel>
-                      <FormControl>
+                  children={(field) => {
+                    const isInvalid = !!field.state.meta.errors.length;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs text-foreground"
+                        >
+                          New Password
+                        </FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -271,12 +256,13 @@ function AccountPage() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
-                          className="h-14 rounded-xl border border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                         />
-                      </FormControl>
-                      <FormMessage errors={field.state.meta.errors} />
-                    </FormItem>
-                  )}
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors as any} />
+                        )}
+                      </Field>
+                    );
+                  }}
                 />
                 <passwordForm.Field
                   name="confirmPassword"
@@ -288,12 +274,16 @@ function AccountPage() {
                       return undefined;
                     },
                   }}
-                  children={(field) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel htmlFor={field.name}>
-                        Confirm Password
-                      </FormLabel>
-                      <FormControl>
+                  children={(field) => {
+                    const isInvalid = !!field.state.meta.errors.length;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-xs text-foreground"
+                        >
+                          Confirm Password
+                        </FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -302,12 +292,13 @@ function AccountPage() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
-                          className="h-14 rounded-xl border border-border bg-muted/30 px-6 text-base font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                         />
-                      </FormControl>
-                      <FormMessage errors={field.state.meta.errors} />
-                    </FormItem>
-                  )}
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors as any} />
+                        )}
+                      </Field>
+                    );
+                  }}
                 />
               </div>
 
@@ -318,10 +309,11 @@ function AccountPage() {
                     <Button
                       type="submit"
                       variant="default"
+                      size="lg"
                       disabled={!canSubmit || isSubmitting}
                     >
-                      <Save size={20} className="mr-2" />
-                      {isSubmitting ? "UPDATING..." : "UPDATE PASSWORD"}
+                      <Save size={20} className="mr-3" strokeWidth={3} />
+                      {isSubmitting ? "Updating..." : "Update Password"}
                     </Button>
                   )}
                 />
@@ -330,17 +322,17 @@ function AccountPage() {
           </section>
 
           {/* Security / Role Section */}
-          <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
-            <h2 className="text-xl font-black uppercase tracking-widest text-foreground mb-8 flex items-center gap-2">
+          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
+            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Access Level
             </h2>
             <div className="flex items-center justify-between p-6 rounded-2xl border border-border bg-muted/20">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1">
+                <p className="text-xs font-black  text-muted-foreground mb-1">
                   Authenticated As
                 </p>
-                <p className="text-2xl font-black uppercase text-foreground tracking-tight">
+                <p className="text-2xl font-black text-foreground tracking-tight">
                   {session?.user?.role || "Reader"}
                 </p>
               </div>
@@ -353,16 +345,16 @@ function AccountPage() {
 
         <aside className="space-y-8">
           {/* Subscription Section */}
-          <section className="border shadow-sm rounded-xl p-8 bg-secondary/10 border-secondary/20">
-            <h3 className="font-black uppercase tracking-widest text-foreground mb-6 flex items-center gap-2 text-sm">
+          <section className="border shadow-sm rounded-md p-8 bg-secondary/10 border-secondary/20">
+            <h3 className="font-black  text-foreground mb-6 flex items-center gap-2 text-sm">
               <CreditCard size={18} className="text-primary" strokeWidth={3} />
               Subscription
             </h3>
             <div className="mb-8">
-              <p className="text-sm font-bold text-muted-foreground mb-1 uppercase tracking-wider">
+              <p className="text-sm font-bold text-muted-foreground mb-1 tracking-wider">
                 Current Plan
               </p>
-              <p className="text-3xl font-black text-foreground uppercase tracking-tighter">
+              <p className="text-3xl font-black text-foreground tracking-tighter">
                 Free Tier
               </p>
             </div>
@@ -376,8 +368,8 @@ function AccountPage() {
           </section>
 
           {/* Danger Zone */}
-          <section className="border shadow-sm rounded-xl p-8 border-destructive/30 bg-destructive/10">
-            <h3 className="font-black uppercase tracking-widest text-destructive mb-6 text-sm">
+          <section className="border shadow-sm rounded-md p-8 border-destructive/30 bg-destructive/10">
+            <h3 className="font-black  text-destructive mb-6 text-sm">
               Session Management
             </h3>
             <Button

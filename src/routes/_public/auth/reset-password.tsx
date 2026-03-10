@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
 import { KeyRound, Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "@tanstack/react-form";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
+import { useState } from "react";
+import { IconBox } from "#/components/IconBox";
 
 export const Route = createFileRoute("/_public/auth/reset-password")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -14,49 +23,41 @@ export const Route = createFileRoute("/_public/auth/reset-password")({
 
 function ResetPasswordPage() {
   const { token } = Route.useSearch();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleReset = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!token) {
-      setError("Invalid or missing reset token.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
-      setError("Passwords do not match.");
-      return;
-    }
+  const form = useForm({
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    onSubmit: async ({ value }) => {
+      if (!token) {
+        toast.error("Invalid or missing reset token.");
+        return;
+      }
+      if (value.password !== value.confirmPassword) {
+        toast.error("Passwords do not match.");
+        return;
+      }
 
-    setIsPending(true);
-    setError("");
-
-    try {
-      await authClient.resetPassword({
-        newPassword: password,
-        token: token,
-      });
-      setSuccess(true);
-    } catch (err: any) {
-      const msg =
-        err.message || "Failed to reset password. The link may have expired.";
-      toast.error(msg);
-      setError(msg);
-    } finally {
-      setIsPending(false);
-    }
-  };
+      try {
+        await authClient.resetPassword({
+          newPassword: value.password,
+          token: token,
+        });
+        setSuccess(true);
+      } catch (err: any) {
+        const msg =
+          err.message || "Failed to reset password. The link may have expired.";
+        toast.error(msg);
+      }
+    },
+  });
 
   if (success) {
     return (
       <div className="space-y-6 text-center animate-in fade-in zoom-in duration-500">
-        <div className="mx-auto w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mb-4 text-secondary">
-          <Lock size={32} />
-        </div>
+        <IconBox icon={Lock} />
         <h2 className="text-3xl font-black tracking-tight text-foreground">
           Password Reset
         </h2>
@@ -91,51 +92,73 @@ function ResetPasswordPage() {
         </p>
       </div>
 
-      <form onSubmit={handleReset} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-black uppercase tracking-wider text-muted-foreground ml-1">
-            New Password
-          </label>
-          <input
-            type="password"
-            placeholder="Min. 8 characters"
-            className="w-full bg-muted/30 border border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <form.Field
+          name="password"
+          children={(field) => (
+            <Field>
+              <FieldLabel className="ml-1">New Password</FieldLabel>
+              <FieldContent>
+                <Input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  className="h-12"
+                  required
+                  minLength={8}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </FieldContent>
+            </Field>
+          )}
+        />
 
-        <div className="space-y-2">
-          <label className="text-sm font-black uppercase tracking-wider text-muted-foreground ml-1">
-            Confirm New Password
-          </label>
-          <input
-            type="password"
-            placeholder="Repeat new password"
-            className="w-full bg-muted/30 border border-border rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </div>
+        <form.Field
+          name="confirmPassword"
+          children={(field) => (
+            <Field>
+              <FieldLabel className="ml-1">Confirm New Password</FieldLabel>
+              <FieldContent>
+                <Input
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="password"
+                  placeholder="Repeat new password"
+                  className="h-12"
+                  required
+                  minLength={8}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </FieldContent>
+            </Field>
+          )}
+        />
 
-        {error && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs font-bold animate-in fade-in slide-in-from-top-1">
-            {error}
-          </div>
-        )}
-
-        <Button
-          type="submit"
-          variant="default"
-          className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all mt-2"
-          disabled={isPending}
-        >
-          {isPending ? "Resetting..." : "Reset Password"}
-        </Button>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full h-12 rounded-xl text-lg font-black shadow-sm hover:shadow-md active:shadow-none transition-all mt-2"
+              disabled={!canSubmit || isSubmitting}
+            >
+              {isSubmitting ? "Resetting..." : "Reset Password"}
+            </Button>
+          )}
+        />
       </form>
 
       <div className="text-center pt-2">
