@@ -2,10 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { subscribers } from "#/db/schema";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { Users, Download, Info, CheckCircle2 } from "lucide-react";
+import { Users, Download, CheckCircle2 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { desc } from "drizzle-orm";
 import { format } from "date-fns";
+import { useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#/components/dashboard/DataTable";
 
 const getSubscribers = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -90,6 +93,49 @@ function SubscribersPage() {
     }
   };
 
+  const columns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: "email",
+        header: "Email Address",
+        cell: ({ row }) => (
+          <div className="font-bold text-foreground">
+            {row.getValue("email")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as string;
+          return (
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
+                status === "active"
+                  ? "bg-green-500/10 text-green-600"
+                  : "bg-destructive/10 text-destructive"
+              }`}
+            >
+              {status === "active" && <CheckCircle2 size={12} />}
+              {status}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date Subscribed",
+        cell: ({ row }) => (
+          <div className="font-medium text-muted-foreground">
+            {format(new Date(row.getValue("createdAt")), "MMM d, yyyy h:mm a")}
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <div className="space-y-10">
       <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
@@ -118,63 +164,12 @@ function SubscribersPage() {
         </Button>
       </header>
 
-      <div className="bg-card border shadow-sm overflow-hidden rounded-xl border-border/50">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-muted/50 text-xs font-black uppercase tracking-widest text-muted-foreground">
-              <tr>
-                <th className="px-6 py-5">Email Address</th>
-                <th className="px-6 py-5">Status</th>
-                <th className="px-6 py-5">Date Subscribed</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y-2 divide-border/10">
-              {subs.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={3}
-                    className="px-6 py-12 text-center text-muted-foreground"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <Info size={24} className="opacity-50" />
-                      <p className="font-bold">No subscribers yet.</p>
-                      <p className="text-sm">
-                        When users subscribe, they will appear here.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                subs.map((sub: any) => (
-                  <tr
-                    key={sub.id}
-                    className="transition-colors hover:bg-muted/30"
-                  >
-                    <td className="px-6 py-5 font-bold text-foreground">
-                      {sub.email}
-                    </td>
-                    <td className="px-6 py-5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
-                          sub.status === "active"
-                            ? "bg-green-500/10 text-green-600"
-                            : "bg-destructive/10 text-destructive"
-                        }`}
-                      >
-                        {sub.status === "active" && <CheckCircle2 size={12} />}
-                        {sub.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 font-medium text-muted-foreground">
-                      {format(new Date(sub.createdAt), "MMM d, yyyy h:mm a")}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={subs}
+        searchKey="email"
+        searchPlaceholder="Filter subscribers..."
+      />
     </div>
   );
 }

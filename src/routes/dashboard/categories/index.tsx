@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { FolderTree, Plus, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "#/components/ui/button";
 import {
   getCategories,
@@ -22,6 +22,8 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#/components/dashboard/DataTable";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -123,6 +125,73 @@ function CategoriesPage() {
     e.stopPropagation();
     form.handleSubmit();
   };
+
+  const columns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <div className="font-semibold">{row.getValue("name")}</div>
+        ),
+      },
+      {
+        accessorKey: "slug",
+        header: "Slug",
+        cell: ({ row }) => (
+          <div className="italic text-muted-foreground">
+            {row.getValue("slug")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "description",
+        header: "Description",
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground hidden md:table-cell truncate max-w-xs">
+            {row.getValue("description") || "-"}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const category = row.original;
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => handleEdit(category)}
+                title="Edit"
+              >
+                <Pencil size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => {
+                  if (
+                    confirm("Are you sure you want to delete this category?")
+                  ) {
+                    deleteMutation.mutate({
+                      data: { id: category.id },
+                    });
+                  }
+                }}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                title="Delete"
+              >
+                <Trash2 size={18} />
+              </Button>
+            </div>
+          );
+        },
+      },
+    ],
+    [],
+  );
 
   return (
     <DashboardPageContainer>
@@ -254,79 +323,13 @@ function CategoriesPage() {
         </section>
       )}
 
-      <section className="bg-card border shadow-sm rounded-xl overflow-hidden">
-        {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground font-medium italic">
-            Loading categories...
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground font-medium italic">
-            No categories found. Start by creating one.
-          </div>
-        ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="px-6 py-4 font-bold text-sm">Name</th>
-                <th className="px-6 py-4 font-bold text-sm">Slug</th>
-                <th className="px-6 py-4 font-bold text-sm hidden md:table-cell">
-                  Description
-                </th>
-                <th className="px-6 py-4 font-bold text-sm text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category: any) => (
-                <tr
-                  key={category.id}
-                  className="border-b border-border hover:bg-muted/10 transition-colors"
-                >
-                  <td className="px-6 py-4 font-semibold">{category.name}</td>
-                  <td className="px-6 py-4 italic text-muted-foreground">
-                    {category.slug}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground hidden md:table-cell truncate max-w-xs">
-                    {category.description || "-"}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => handleEdit(category)}
-                        title="Edit"
-                      >
-                        <Pencil size={18} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => {
-                          if (
-                            confirm(
-                              "Are you sure you want to delete this category?",
-                            )
-                          ) {
-                            deleteMutation.mutate({
-                              data: { id: category.id },
-                            });
-                          }
-                        }}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        title="Delete"
-                      >
-                        <Trash2 size={18} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <DataTable
+        columns={columns}
+        data={categories}
+        isLoading={isLoading}
+        searchKey="name"
+        searchPlaceholder="Filter categories..."
+      />
     </DashboardPageContainer>
   );
 }

@@ -83,9 +83,7 @@ function PostsManagementPage() {
             className="flex items-center gap-2 no-underline"
           >
             <Plus size={20} strokeWidth={3} />
-            <span className="uppercase tracking-widest font-black">
-              New Post
-            </span>
+            New Post
           </Link>
         </Button>
       </DashboardHeader>
@@ -186,11 +184,7 @@ function PostsManagementPage() {
               Your content archive is empty. Begin your blog journey by creating
               your first post.
             </p>
-            <Button
-              asChild
-              variant="default"
-              className="mt-8 rounded-xl h-12 px-8"
-            >
+            <Button asChild variant="default" className="mt-8">
               <Link
                 to="/dashboard/posts/new"
                 className="no-underline uppercase tracking-widest font-black"

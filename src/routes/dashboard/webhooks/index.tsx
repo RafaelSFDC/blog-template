@@ -6,8 +6,10 @@ import { eq, desc } from "drizzle-orm";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
 import { Webhook, Plus, Trash2, Activity, Globe } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "#/lib/utils";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#/components/dashboard/DataTable";
 
 const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -58,6 +60,86 @@ function WebhooksPage() {
     setList(list.map((w: any) => (w.id === id ? { ...w, isActive } : w)));
   }
 
+  const columns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => {
+          const webhook = row.original;
+          return (
+            <div className="flex items-center gap-3 font-bold text-foreground">
+              <div
+                className={cn(
+                  "w-3 h-3 rounded-full",
+                  webhook.isActive
+                    ? "bg-success shadow-[0_0_8px_oklch(0.72_0.19_150/0.5)]"
+                    : "bg-muted-foreground/30",
+                )}
+              />
+              {webhook.name}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "url",
+        header: "URL",
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground font-mono max-w-[200px] truncate">
+            {row.getValue("url")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "event",
+        header: "Event",
+        cell: ({ row }) => (
+          <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold uppercase tracking-wider">
+            {row.getValue("event")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "isActive",
+        header: "Status",
+        cell: ({ row }) => {
+          const webhook = row.original;
+          return (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleToggle(webhook.id, !webhook.isActive)}
+              className={cn(
+                "text-xs font-semibold uppercase tracking-wider",
+                webhook.isActive
+                  ? "text-success hover:text-success/80"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {webhook.isActive ? "Active" : "Disabled"}
+            </Button>
+          );
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <div className="text-right">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDelete(row.original.id)}
+            >
+              <Trash2 size={18} />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [list],
+  );
+
   return (
     <div className="space-y-10">
       <DashboardHeader
@@ -74,95 +156,12 @@ function WebhooksPage() {
         </Button>
       </DashboardHeader>
 
-      <section className="bg-card border shadow-sm rounded-xl p-6 sm:p-10">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Name
-                </th>
-                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  URL
-                </th>
-                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Event
-                </th>
-                <th className="pb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Status
-                </th>
-                <th className="pb-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/50">
-              {list.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="py-20 text-center text-muted-foreground font-medium"
-                  >
-                    No webhooks configured yet.
-                  </td>
-                </tr>
-              ) : (
-                list.map((webhook: any) => (
-                  <tr
-                    key={webhook.id}
-                    className="group hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="py-5 font-bold text-foreground">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${webhook.isActive ? `bg-success shadow-[0_0_8px_oklch(0.72_0.19_150/0.5)]` : `bg-muted-foreground/30`}`}
-                        />
-                        {webhook.name}
-                      </div>
-                    </td>
-                    <td className="py-5 text-sm text-muted-foreground font-mono max-w-[200px] truncate">
-                      {webhook.url}
-                    </td>
-                    <td className="py-5">
-                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold uppercase tracking-wider">
-                        {webhook.event}
-                      </span>
-                    </td>
-                    <td className="py-5">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          handleToggle(webhook.id, !webhook.isActive)
-                        }
-                        className={cn(
-                          "text-xs font-semibold uppercase tracking-wider",
-                          webhook.isActive
-                            ? "text-success hover:text-success/80"
-                            : "text-muted-foreground hover:text-foreground",
-                        )}
-                      >
-                        {webhook.isActive ? "Active" : "Disabled"}
-                      </Button>
-                    </td>
-                    <td className="py-5 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(webhook.id)}
-                        >
-                          <Trash2 size={18} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        columns={columns}
+        data={list}
+        searchKey="name"
+        searchPlaceholder="Filter webhooks..."
+      />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">

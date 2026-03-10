@@ -16,7 +16,7 @@ import {
 import { Button } from "#/components/ui/button";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +25,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import { Card } from "#/components/ui/card";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#/components/dashboard/DataTable";
 
 const ensureAdmin = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -112,6 +113,144 @@ function UsersManagementPage() {
     toast.info("Ban functionality coming soon");
   };
 
+  const columns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Identity",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl overflow-hidden border border-border shrink-0 bg-background">
+                {user.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center font-black text-muted-foreground bg-muted/50 text-xs">
+                    {user.name?.[0] || <UserIcon size={18} />}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-foreground truncate">
+                  {user.name}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "role",
+        header: "Access Level",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild disabled={user.id === currentUserId}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={user.id === currentUserId}
+                >
+                  {user.role}
+                  <ChevronRight className="rotate-90" size={12} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-48 rounded-xl border bg-card p-2 shadow-md border-border"
+              >
+                <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground p-2">
+                  Change Level
+                </DropdownMenuLabel>
+                {ROLES.map((r) => (
+                  <DropdownMenuItem
+                    key={r}
+                    onClick={() => handleRoleChange(user.id, r)}
+                    className={`rounded-lg p-3 text-xs font-semibold uppercase tracking-wider cursor-pointer ${user.role === r ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}
+                  >
+                    {r}
+                    {user.role === r && (
+                      <CheckCircle2 className="ml-auto" size={14} />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: () => (
+          <StatusBadge variant="default" className="rounded-full">
+            Active
+          </StatusBadge>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Join Date",
+        cell: ({ row }) => (
+          <div className="text-xs font-bold text-muted-foreground">
+            {new Date(row.getValue("createdAt")).toLocaleDateString()}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const user = row.original;
+          return (
+            <div className="text-right">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  asChild
+                  disabled={user.id === currentUserId}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                    disabled={user.id === currentUserId}
+                  >
+                    <MoreVertical size={20} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 rounded-xl border shadow-md border-border bg-card"
+                >
+                  <DropdownMenuItem
+                    onClick={() => handleBanUser(user.id)}
+                    className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-warning/10"
+                  >
+                    <Ban size={16} /> Ban User
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-destructive/5">
+                    <Trash2 size={16} /> Delete Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    [currentUserId],
+  );
+
   return (
     <DashboardPageContainer>
       <DashboardHeader
@@ -122,157 +261,13 @@ function UsersManagementPage() {
       />
 
       <div className="grid gap-6">
-        {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border border-primary border-t-transparent mb-4"></div>
-            <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">
-              Accessing User Directory...
-            </p>
-          </div>
-        ) : (
-          <Card className="w-full border border-border/50 shadow-md rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border/10 bg-muted/20">
-                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Identity
-                    </th>
-                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Access Level
-                    </th>
-                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Status
-                    </th>
-                    <th className="p-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Join Date
-                    </th>
-                    <th className="p-6 text-right"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/10">
-                  {users.map((user: any) => (
-                    <tr
-                      key={user.id}
-                      className="hover:bg-muted/30 transition-colors group"
-                    >
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-xl overflow-hidden border border-border shrink-0 bg-background">
-                            {user.image ? (
-                              <img
-                                src={user.image}
-                                alt={user.name}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center font-black text-muted-foreground bg-muted/50 text-xs">
-                                {user.name?.[0] || <UserIcon size={18} />}
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-foreground truncate">
-                              {user.name}
-                            </p>
-                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-6">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            asChild
-                            disabled={user.id === currentUserId}
-                          >
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-2"
-                              disabled={user.id === currentUserId}
-                            >
-                              {user.role}
-                              <ChevronRight className="rotate-90" size={12} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="start"
-                            className="w-48 rounded-xl border bg-card p-2 shadow-md border-border"
-                          >
-                            <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground p-2">
-                              Change Level
-                            </DropdownMenuLabel>
-                            {ROLES.map((r) => (
-                              <DropdownMenuItem
-                                key={r}
-                                onClick={() => handleRoleChange(user.id, r)}
-                                className={`rounded-lg p-3 text-xs font-semibold uppercase tracking-wider cursor-pointer ${user.role === r ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}
-                              >
-                                {r}
-                                {user.role === r && (
-                                  <CheckCircle2 className="ml-auto" size={14} />
-                                )}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                      <td className="p-6">
-                        <StatusBadge variant="default" className="rounded-full">
-                          Active
-                        </StatusBadge>
-                      </td>
-                      <td className="p-6 text-xs font-bold text-muted-foreground">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-6 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            asChild
-                            disabled={user.id === currentUserId}
-                          >
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-10 text-muted-foreground hover:text-foreground"
-                              disabled={user.id === currentUserId}
-                            >
-                              <MoreVertical size={20} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-48 rounded-xl border shadow-md border-border bg-card"
-                          >
-                            <DropdownMenuItem
-                              onClick={() => handleBanUser(user.id)}
-                              className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-warning/10"
-                            >
-                              <Ban size={16} /> Ban User
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-destructive/5">
-                              <Trash2 size={16} /> Delete Account
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {users.length === 0 && (
-              <div className="p-20 text-center">
-                <p className="text-muted-foreground font-bold">
-                  No users found.
-                </p>
-              </div>
-            )}
-          </Card>
-        )}
+        <DataTable
+          columns={columns}
+          data={users}
+          isLoading={loading}
+          searchKey="name"
+          searchPlaceholder="Search users..."
+        />
       </div>
     </DashboardPageContainer>
   );

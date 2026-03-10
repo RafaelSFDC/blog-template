@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { Tags, Plus, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "#/components/ui/button";
 import {
   getTags,
@@ -21,6 +21,8 @@ import {
   FieldLabel,
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#/components/dashboard/DataTable";
 
 const tagSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -114,6 +116,64 @@ function TagsPage() {
     e.stopPropagation();
     form.handleSubmit();
   };
+
+  const columns = useMemo<ColumnDef<any>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <div className="font-semibold">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              #{row.getValue("name")}
+            </span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "slug",
+        header: "Slug",
+        cell: ({ row }) => (
+          <div className="italic text-muted-foreground">
+            {row.getValue("slug")}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const tag = row.original;
+          return (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => handleEdit(tag)}
+                title="Edit"
+              >
+                <Pencil size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this tag?")) {
+                    deleteMutation.mutate({ data: { id: tag.id } });
+                  }
+                }}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                title="Delete"
+              >
+                <Trash2 size={18} />
+              </Button>
+            </div>
+          );
+        },
+      },
+    ],
+    [],
+  );
 
   return (
     <DashboardPageContainer>
@@ -222,73 +282,13 @@ function TagsPage() {
         </section>
       )}
 
-      <section className="bg-card border shadow-sm rounded-xl overflow-hidden">
-        {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground font-medium italic">
-            Loading tags...
-          </div>
-        ) : tags.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground font-medium italic">
-            No tags found. Start by creating one.
-          </div>
-        ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="px-6 py-4 font-bold text-sm">Name</th>
-                <th className="px-6 py-4 font-bold text-sm">Slug</th>
-                <th className="px-6 py-4 font-bold text-sm text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tags.map((tag: any) => (
-                <tr
-                  key={tag.id}
-                  className="border-b border-border hover:bg-muted/10 transition-colors"
-                >
-                  <td className="px-6 py-4 font-semibold">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      #{tag.name}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 italic text-muted-foreground">
-                    {tag.slug}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => handleEdit(tag)}
-                        title="Edit"
-                      >
-                        <Pencil size={18} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => {
-                          if (
-                            confirm("Are you sure you want to delete this tag?")
-                          ) {
-                            deleteMutation.mutate({ data: { id: tag.id } });
-                          }
-                        }}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        title="Delete"
-                      >
-                        <Trash2 size={18} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <DataTable
+        columns={columns}
+        data={tags}
+        isLoading={isLoading}
+        searchKey="name"
+        searchPlaceholder="Filter tags..."
+      />
     </DashboardPageContainer>
   );
 }
