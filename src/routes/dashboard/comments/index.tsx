@@ -5,12 +5,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { Button } from "#/components/ui/button";
-import { Badge } from "#/components/ui/badge";
-import { Check, X, Trash2, MessageSquare } from "lucide-react";
+import { Check, X, MessageSquare } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { EmptyState } from "#/components/dashboard/EmptyState";
+import { StatusBadge } from "#/components/ui/status-badge";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
+import { Button } from "#/components/ui/button";
 
 const getComments = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -69,7 +70,6 @@ function CommentsPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
     await deleteComment({ data: id });
     navigate({ to: "." }); // Refresh
   }
@@ -96,17 +96,17 @@ function CommentsPage() {
                     <span className="font-black text-foreground uppercase tracking-wider text-sm">
                       {comment.authorName}
                     </span>
-                    <Badge
+                    <StatusBadge
                       variant={
                         comment.status === "approved"
-                          ? "default"
+                          ? "success"
                           : comment.status === "spam"
                             ? "destructive"
-                            : "outline"
+                            : "warning"
                       }
                     >
                       {comment.status}
-                    </Badge>
+                    </StatusBadge>
                   </div>
                   <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
                     on{" "}
@@ -144,15 +144,11 @@ function CommentsPage() {
                       <X size={16} />
                     </Button>
                   )}
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(comment.id)}
-                    className="border border-destructive/20"
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <DeleteButton
+                    onConfirm={() => handleDelete(comment.id)}
+                    title="Delete Comment?"
+                    description="This will permanently delete the comment. This action cannot be undone."
+                  />
                 </div>
               </div>
             </div>

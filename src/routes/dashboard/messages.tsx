@@ -5,11 +5,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { contactMessages } from "#/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { Button } from "#/components/ui/button";
-import { Badge } from "#/components/ui/badge";
-import { Mail, Trash2, Check, Archive, Inbox } from "lucide-react";
+import { Mail, Check, Archive, Inbox } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { EmptyState } from "#/components/dashboard/EmptyState";
+import { StatusBadge } from "#/components/ui/status-badge";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
 
 const getMessages = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -57,7 +58,6 @@ function MessagesPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this message?")) return;
     await deleteMessage({ data: id });
     navigate({ to: "." });
   }
@@ -99,17 +99,17 @@ function MessagesPage() {
                     <span className="text-muted-foreground text-xs font-bold font-mono">
                       &lt;{msg.email}&gt;
                     </span>
-                    <Badge
+                    <StatusBadge
                       variant={
                         msg.status === "new"
-                          ? "default"
+                          ? "destructive"
                           : msg.status === "read"
-                            ? "outline"
-                            : "secondary"
+                            ? "success"
+                            : "info"
                       }
                     >
                       {msg.status}
-                    </Badge>
+                    </StatusBadge>
                   </div>
 
                   <h3 className="text-xl font-bold text-foreground">
@@ -149,14 +149,11 @@ function MessagesPage() {
                       <Archive size={16} />
                     </Button>
                   )}
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(msg.id)}
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <DeleteButton
+                    onConfirm={() => handleDelete(msg.id)}
+                    title="Delete Message?"
+                    description="This will permanently delete the message. This action cannot be undone."
+                  />
                 </div>
               </div>
             </div>

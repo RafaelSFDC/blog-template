@@ -62,6 +62,8 @@ export const Route = createFileRoute("/dashboard/")({
 
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { DashboardSection } from "#/components/dashboard/DashboardSection";
+import { QuickAction } from "#/components/dashboard/QuickAction";
 
 function DashboardOverview() {
   const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } =
@@ -72,25 +74,44 @@ function DashboardOverview() {
       label: "Total Posts",
       value: postCount,
       icon: FileText,
-      iconClassName: "bg-info/10 text-info",
     },
     {
       label: "Unread Messages",
       value: unreadMessages,
       icon: Mail,
-      iconClassName: "bg-destructive/10 text-destructive",
     },
     {
       label: "Total Post Views",
       value: totalViews,
       icon: Eye,
-      iconClassName: "bg-warning/10 text-warning-foreground",
     },
     {
       label: "Platform Status",
       value: "High",
       icon: TrendingUp,
-      iconClassName: "bg-success/10 text-success",
+    },
+  ];
+
+  const quickActions = [
+    {
+      to: "/dashboard/posts/new",
+      label: "Content",
+      title: "New Story",
+      icon: Plus,
+      variant: "primary" as const,
+    },
+    {
+      to: "/dashboard/messages",
+      label: "Inbox",
+      title: "Messages",
+      icon: Inbox,
+      badge: unreadMessages,
+    },
+    {
+      to: "/dashboard/settings",
+      label: "General",
+      title: "Settings",
+      icon: Settings,
     },
   ];
 
@@ -110,17 +131,15 @@ function DashboardOverview() {
             icon={stat.icon}
             label={stat.label}
             value={stat.value}
-            iconClassName={stat.iconClassName}
           />
         ))}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        <section className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="display-title text-2xl uppercase tracking-tight text-foreground">
-              Recent Activity
-            </h2>
+        <DashboardSection
+          title="Recent Activity"
+          className="lg:col-span-2"
+          action={
             <Button
               asChild
               variant="ghost"
@@ -134,7 +153,8 @@ function DashboardOverview() {
                 View All <ArrowRight size={14} />
               </Link>
             </Button>
-          </div>
+          }
+        >
           <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
             {latestPosts.map((post: PostRow) => (
               <div
@@ -171,108 +191,38 @@ function DashboardOverview() {
               </div>
             ))}
           </div>
-        </section>
+        </DashboardSection>
 
-        <section className="space-y-6">
-          <h2 className="display-title text-2xl uppercase tracking-tight text-foreground px-2">
-            Popular Posts
-          </h2>
-          <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
-            {popularPosts.map((post: PostRow) => (
-              <div
-                key={post.id}
-                className="flex items-center justify-between p-4 group"
-              >
-                <div className="min-w-0 pr-4 flex-1">
-                  <p className="font-bold text-sm text-foreground truncate">
-                    {post.title}
-                  </p>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {post.viewCount} views
-                  </p>
+        <div className="space-y-8">
+          <DashboardSection title="Popular Posts">
+            <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
+              {popularPosts.map((post: PostRow) => (
+                <div
+                  key={post.id}
+                  className="flex items-center justify-between p-4 group"
+                >
+                  <div className="min-w-0 pr-4 flex-1">
+                    <p className="font-bold text-sm text-foreground truncate">
+                      {post.title}
+                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {post.viewCount} views
+                    </p>
+                  </div>
+                  <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors shrink-0" />
                 </div>
-                <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors shrink-0" />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </DashboardSection>
 
-          <h2 className="display-title text-2xl uppercase tracking-tight text-foreground px-2 pt-4">
-            Quick Actions
-          </h2>
-          <div className="grid gap-4">
-            <Link
-              to="/dashboard/posts/new"
-              className="group flex items-center justify-between rounded-xl bg-primary p-6 text-primary-foreground no-underline shadow-sm transition-all hover:scale-[1.02] active:scale-95"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-                  <Plus size={20} strokeWidth={3} />
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest opacity-80">
-                    Content
-                  </p>
-                  <h3 className="display-title text-xl">New Story</h3>
-                </div>
-              </div>
-              <ArrowRight
-                size={20}
-                className="opacity-40 group-hover:opacity-100 transition-opacity"
-              />
-            </Link>
-
-            <Link
-              to="/dashboard/messages"
-              className="bg-card border shadow-sm group flex items-center justify-between rounded-xl border-border/50 p-6 text-foreground no-underline transition-all hover:border-rose-500/50 hover:bg-muted/50"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-rose-500/10 group-hover:text-rose-500 transition-colors">
-                  <Inbox size={20} strokeWidth={2.5} />
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                    Inbox
-                  </p>
-                  <h3 className="display-title text-xl">Messages</h3>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {unreadMessages > 0 && (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-[10px] font-black text-destructive-foreground shadow-sm">
-                    {unreadMessages}
-                  </span>
-                )}
-                <ArrowRight
-                  size={20}
-                  className="text-muted-foreground opacity-40 group-hover:opacity-100 transition-opacity"
-                />
-              </div>
-            </Link>
-
-            <Link
-              to="/dashboard/settings"
-              className="bg-card border shadow-sm group flex items-center justify-between rounded-xl border-border/50 p-6 text-foreground no-underline transition-all hover:border-primary/50 hover:bg-muted/50"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                  <Settings size={20} strokeWidth={2.5} />
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                    General
-                  </p>
-                  <h3 className="display-title text-xl text-primary">
-                    Settings
-                  </h3>
-                </div>
-              </div>
-              <ArrowRight
-                size={20}
-                className="text-muted-foreground opacity-40 group-hover:opacity-100 transition-opacity"
-              />
-            </Link>
-          </div>
-        </section>
+          <DashboardSection title="Quick Actions">
+            <div className="grid gap-4">
+              {quickActions.map((action) => (
+                <QuickAction key={action.to} {...action} />
+              ))}
+            </div>
+          </DashboardSection>
+        </div>
       </div>
     </DashboardPageContainer>
   );

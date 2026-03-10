@@ -193,7 +193,7 @@ function SettingsPage() {
         <div className="lg:col-span-2">
           <form
             onSubmit={handleSubmit}
-            className="bg-card border shadow-sm rounded-xl p-6 sm:p-10 border-border/50 space-y-8"
+            className="bg-card border shadow-sm rounded-md p-6 sm:p-10  space-y-8"
           >
             <FieldGroup>
               <form.Field
@@ -615,7 +615,7 @@ function SettingsPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
+          <div className="border shadow-sm rounded-md bg-muted/50 p-6 border-border/30">
             <h3 className=" tracking-tighter text-foreground mb-4 flex items-center gap-2">
               <Info size={18} className="text-primary" />
               Metadata Tip

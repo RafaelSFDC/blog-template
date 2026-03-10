@@ -164,8 +164,8 @@ function WebhooksPage() {
       />
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
-          <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
+        <div className="border shadow-sm rounded-md bg-muted/50 p-6 border-border/30">
+          <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Globe size={18} className="text-primary" />
             External Integrations
           </h3>
@@ -174,8 +174,8 @@ function WebhooksPage() {
             your own custom notification bots.
           </p>
         </div>
-        <div className="border shadow-sm rounded-lg bg-muted/50 p-6 border-border/30">
-          <h3 className="font-black uppercase tracking-tighter text-foreground mb-4 flex items-center gap-2">
+        <div className="border shadow-sm rounded-md bg-muted/50 p-6 border-border/30">
+          <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Activity size={18} className="text-primary" />
             Verification
           </h3>
