@@ -11,11 +11,14 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
     const projectId = process.env.VITE_POSTHOG_PROJECT_ID;
     const host = process.env.VITE_POSTHOG_HOST || "https://app.posthog.com";
 
-    if (!apiKey || !projectId) {
+    const isConfigured = !!apiKey && !!projectId;
+
+    if (!isConfigured) {
       console.warn(
         "PostHog API Key or Project ID missing. Returning empty stats.",
       );
       return {
+        isConfigured: false,
         totalViews: 0,
         totalVisitors: 0,
         viewsPerDay: [],
@@ -98,6 +101,7 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
       }));
 
       return {
+        isConfigured: true,
         totalViews,
         totalVisitors,
         viewsPerDay,
@@ -108,6 +112,7 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
     } catch (error) {
       console.error("Failed to fetch PostHog stats:", error);
       return {
+        isConfigured: true,
         totalViews: 0,
         totalVisitors: 0,
         viewsPerDay: [],

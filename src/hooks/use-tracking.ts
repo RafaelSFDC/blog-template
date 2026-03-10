@@ -41,11 +41,9 @@ export function useTracking() {
       else if (/Tablet|iPad/i.test(ua)) device = "tablet";
 
       try {
-        // Use PostHog if available, otherwise fallback to DB tracking (deprecated)
+        // Use PostHog if available
         const key = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
         if (key) {
-          // PostHog handles pageviews automatically if configured,
-          // but we can also manually capture with extra properties
           const { default: posthog } = await import("posthog-js");
           posthog.capture("$pageview", {
             url: window.location.href,
@@ -55,6 +53,19 @@ export function useTracking() {
             os,
             device,
           });
+
+          // Custom event for granular blog post tracking
+          if (
+            location.pathname.startsWith("/blog") &&
+            location.pathname !== "/blog"
+          ) {
+            const slug = location.pathname.split("/").pop();
+            posthog.capture("blog_post_view", {
+              slug,
+              url: window.location.href,
+              pathname: location.pathname,
+            });
+          }
         }
       } catch (e) {
         // Silently fail analytics
@@ -62,5 +73,21 @@ export function useTracking() {
     };
 
     void track();
+
+    const startTime = Date.now();
+    return () => {
+      const durationSeconds = Math.round((Date.now() - startTime) / 1000);
+      const key = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+      if (key && durationSeconds > 0) {
+        // Send page_leave event but use dynamic import to avoid blocking cleanup
+        import("posthog-js").then(({ default: posthog }) => {
+          posthog.capture("page_leave", {
+            url: window.location.href,
+            pathname: location.pathname,
+            duration_seconds: durationSeconds,
+          });
+        });
+      }
+    };
   }, [location.pathname]);
 }
