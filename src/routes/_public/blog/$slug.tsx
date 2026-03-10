@@ -69,7 +69,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
     settings.forEach((s: any) => {
       settingsObj[s.key] = s.value;
     });
-    const blogName = settingsObj["blogName"] || "VibeZine";
+    const blogName = settingsObj["blogName"] || "Lumina";
 
     // Increment view count
     await db
@@ -141,7 +141,7 @@ export const Route = createFileRoute("/_public/blog/$slug")({
   head: ({ loaderData }) => {
     const data = loaderData as any;
     const post = data?.post;
-    const blogName = data?.blogName || "VibeZine";
+    const blogName = data?.blogName || "Lumina";
 
     if (!post) {
       return {

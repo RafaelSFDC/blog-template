@@ -1,25 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "#/components/SiteHeader";
 import { Badge } from "#/components/ui/badge";
-import {
-  Heart,
-  Lightbulb,
-  Zap,
-  Target,
-  Users,
-  MessageSquare,
-} from "lucide-react";
+import { Lightbulb, Zap, Target } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { IconBox } from "#/components/IconBox";
 
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: [
-      { title: "About | VibeZine" },
+      { title: "About | Lumina" },
       {
         name: "description",
         content:
-          "Learn about the editorial vision, cadence, and values behind VibeZine.",
+          "Learn about the editorial vision, cadence, and values behind Lumina.",
       },
     ],
   }),
@@ -51,7 +44,7 @@ function About() {
         <SiteHeader
           badge="Inside The Studio"
           title="About This Publication"
-          description="VibeZine is an editorial experiment in digital storytelling, focusing on the intersection of design, culture, and high-energy code."
+          description="Lumina is an editorial experiment in digital storytelling, focusing on the intersection of design, culture, and high-quality code."
         />
 
         <section className="grid gap-8 lg:grid-cols-2">
@@ -61,7 +54,7 @@ function About() {
             </h2>
             <div className="space-y-4 text-muted-foreground font-bold leading-relaxed">
               <p>
-                In a world of generic templates and AI-generated noise, VibeZine
+                In a world of generic templates and AI-generated noise, Lumina
                 stands for something different. We believe that every article
                 should have a visual signature—a soul that reflects the energy
                 of the ideas within.

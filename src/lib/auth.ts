@@ -91,7 +91,7 @@ export const auth = betterAuth({
       const apiKey = settingsObj["resendApiKey"];
       const senderEmail =
         settingsObj["newsletterSenderEmail"] || "no-reply@resend.dev";
-      const blogName = settingsObj["blogName"] || "VibeZine";
+      const blogName = settingsObj["blogName"] || "Lumina";
 
       const resendClient = apiKey ? new Resend(apiKey) : defaultResend;
 

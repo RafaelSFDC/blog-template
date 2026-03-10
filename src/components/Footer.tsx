@@ -14,7 +14,7 @@ import {
 export default function Footer() {
   const year = new Date().getFullYear();
   const settings = useLoaderData({ from: "__root__" }) as any;
-  const blogName = settings?.blogName || "VibeZine";
+  const blogName = settings?.blogName || "Lumina";
 
   return (
     <footer className=" mt-24 border-t border-border bg-muted px-4 pb-12 pt-12 text-center text-foreground  transition-all">

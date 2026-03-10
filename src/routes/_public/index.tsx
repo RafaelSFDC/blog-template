@@ -22,11 +22,11 @@ export const Route = createFileRoute("/_public/")({
   loader: () => getTopPosts(),
   head: () => ({
     meta: [
-      { title: "VibeZine | Bold Stories" },
+      { title: "Lumina | Elegant Stories" },
       {
         name: "description",
         content:
-          "Join the vibe. Discovery edgy stories on design, culture, and high-energy code.",
+          "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
       },
     ],
   }),

@@ -1,5 +1,5 @@
 {
-  "name": "blog-template",
+  "name": "lumina-blog",
   "private": true,
   "type": "module",
   "imports": {

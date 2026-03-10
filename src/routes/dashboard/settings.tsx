@@ -89,10 +89,9 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
   }
 
   return {
-    blogName: settingsObj["blogName"] || "VibeZine",
+    blogName: settingsObj["blogName"] || "Lumina",
     blogDescription:
-      settingsObj["blogDescription"] ||
-      "A vibrant zine-style blog for creators.",
+      settingsObj["blogDescription"] || "An elegant premium blog for creators.",
     blogLogo: settingsObj["blogLogo"] || "",
     fontFamily: settingsObj["fontFamily"] || "Inter",
     themeVariant: settingsObj["themeVariant"] || "default",
@@ -225,7 +224,7 @@ function SettingsPage() {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="e.g. VibeZine"
+                        placeholder="e.g. Lumina"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors as any} />

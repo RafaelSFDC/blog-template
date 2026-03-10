@@ -17,10 +17,10 @@ interface NewsletterProps {
 }
 
 export function Newsletter({
-  title = "JOIN THE TRIBE!",
-  description = "No noise. Just high-energy design drops and creative insights every Sunday.",
+  title = "JOIN THE CIRCLE!",
+  description = "No noise. Just premium design drops and creative insights every Sunday.",
   buttonText = "Subscribe!",
-  placeholder = "your@edgy.email",
+  placeholder = "your@elegant.email",
   onSubscribe,
   variant = "default",
   className,

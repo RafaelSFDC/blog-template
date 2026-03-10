@@ -184,7 +184,7 @@ function NewWebhookPage() {
               Webhook Security
             </h3>
             <p className="text-sm text-muted-foreground font-medium leading-relaxed">
-              When a secret is configured, VibeZine will send it in the{" "}
+              When a secret is configured, Lumina will send it in the{" "}
               <code>X-Webhook-Secret</code> header. Use this to verify that the
               request came from your blog.
             </p>

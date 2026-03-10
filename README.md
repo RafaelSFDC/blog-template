@@ -1,4 +1,4 @@
-# 🚀 Open-Source Blog Template
+# ✨ Lumina - Premium Blog Template
 
 A premium, high-performance blog template built with **TanStack Start**, **Drizzle ORM**, and **Tailwind CSS**.
 
@@ -7,7 +7,7 @@ A premium, high-performance blog template built with **TanStack Start**, **Drizz
 ## ✨ Features
 
 - **🚀 Performance-First**: Built with TanStack Start for lightning-fast SSR and streaming.
-- **🎨 Premium Design**: Modern, responsive UI with "Lagoon & Sea" neo-brutalism aesthetics.
+- 🎨 Premium Design: Modern, responsive UI with "Lumina" elegant aesthetics.
 - **📝 Markdown Support**: Write your posts in Markdown with full GFM support.
 - **🗄️ Database-Backed**: Simple and robust SQLite/Drizzle ORM integration.
 - **🔐 Authentication**: Better Auth pre-configured for future admin dashboard expansion.

@@ -10,7 +10,7 @@ interface AuthorBioProps {
 }
 
 export function AuthorBio({ author }: AuthorBioProps) {
-  const name = author?.name || "VibeZine Editorial Team";
+  const name = author?.name || "Lumina Editorial Team";
   const bio =
     author?.bio ||
     "Passionate about digital strategy, creative coding, and the intersection of art and technology. Follow our journal for more bold updates.";

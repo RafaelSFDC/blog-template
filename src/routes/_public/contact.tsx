@@ -32,11 +32,11 @@ const submitContactForm = createServerFn({ method: "POST" })
 export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: [
-      { title: "Contact | VibeZine" },
+      { title: "Contact | Lumina" },
       {
         name: "description",
         content:
-          "Get in touch with the VibeZine team for support, feedback, or collaborations.",
+          "Get in touch with the Lumina team for support, feedback, or collaborations.",
       },
     ],
   }),
@@ -126,7 +126,7 @@ function ContactPage() {
                       Email us
                     </p>
                     <p className="font-black text-2xl  tracking-tight text-foreground">
-                      hello@vibezine.com
+                      hello@lumina.com
                     </p>
                   </div>
                 </div>

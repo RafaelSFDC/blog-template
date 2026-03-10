@@ -58,7 +58,7 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
 
   if (!session) {
     return (
-      <div className="bg-muted/30 border border-dashed border-border/60 rounded-4xl p-10 text-center space-y-4">
+      <div className="bg-muted/30 border border-dashed border-border/60 rounded-md p-10 text-center space-y-4">
         <h3 className="text-xl font-bold tracking-tight">
           Want to join the discussion?
         </h3>

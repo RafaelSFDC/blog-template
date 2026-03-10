@@ -78,7 +78,7 @@ function SubscribersPage() {
         link.href = url;
         link.setAttribute(
           "download",
-          `vibe-subscribers-${format(new Date(), "yyyy-MM-dd")}.csv`,
+          `lumina-subscribers-${format(new Date(), "yyyy-MM-dd")}.csv`,
         );
         document.body.appendChild(link);
         link.click();

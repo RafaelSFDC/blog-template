@@ -11,12 +11,13 @@ import {
   CommandItem,
 } from "#/components/ui/command";
 import { Button } from "#/components/ui/button";
+import { LuminaLogo } from "./LuminaLogo";
 
 export default function Header() {
   const router = useRouter();
   const settings = router.state.matches.find((m) => m.routeId === "__root__")
     ?.loaderData as any;
-  const blogName = settings?.blogName || "VibeZine";
+  const blogName = settings?.blogName || "Lumina";
   const blogLogo = settings?.blogLogo || "";
 
   const navigate = useNavigate();
@@ -60,9 +61,7 @@ export default function Header() {
                   className="h-10 w-auto object-contain sm:h-12"
                 />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-primary text-xl font-black text-white shadow-sm sm:h-12 sm:w-12 sm:border sm:text-2xl">
-                  {blogName.charAt(0).toLowerCase()}.
-                </span>
+                <LuminaLogo className="h-10 w-10 sm:h-12 sm:w-12" />
               )}
               <span className="display-title text-2xl font-bold text-foreground whitespace-nowrap sm:text-3xl">
                 {blogName}

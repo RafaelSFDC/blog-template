@@ -62,13 +62,13 @@ export const Route = createFileRoute("/_public/blog/")({
       meta: [
         {
           title: hasQuery
-            ? `Search "${search.q}" | VibeZine`
-            : "All Stories | VibeZine Blog",
+            ? `Search "${search.q}" | Lumina`
+            : "All Stories | Lumina Blog",
         },
         {
           name: "description",
           content: hasQuery
-            ? `Search results for "${search.q}" in VibeZine stories.`
+            ? `Search results for "${search.q}" in Lumina stories.`
             : "Browse all articles on design, tech, and cultural experiments.",
         },
       ],

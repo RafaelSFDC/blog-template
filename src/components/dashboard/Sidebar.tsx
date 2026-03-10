@@ -26,7 +26,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroup,
-  SidebarGroupLabel,
 } from "#/components/ui/sidebar";
 import { cn } from "#/lib/utils";
 
@@ -151,11 +150,11 @@ export function DashboardSidebar() {
       <SidebarHeader className="border-b-4 border-border px-5 py-4">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-md border-2 border-foreground bg-primary text-primary-foreground font-black text-base shadow-[2px_2px_0px_0px] shadow-foreground group-hover:shadow-none group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-all">
-            V
+            L
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-black uppercase tracking-widest text-sm text-foreground">
-              Vibe<span className="text-primary">Zine</span>
+              Lumina
             </span>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Dashboard

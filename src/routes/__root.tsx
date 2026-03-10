@@ -27,7 +27,7 @@ interface MyRouterContext {
 }
 
 const DEFAULT_SETTINGS = {
-  blogName: "VibeZine",
+  blogName: "Lumina",
   accentColor: "var(--primary)",
   fontFamily: "Inter",
   gaMeasurementId: "",
@@ -88,7 +88,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
   head: ({ loaderData }) => {
     const settings = loaderData as any;
-    const blogName = settings?.blogName || "VibeZine";
+    const blogName = settings?.blogName || "Lumina";
     const accentColor = settings?.accentColor || "var(--primary)";
 
     return {
@@ -101,11 +101,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           content: "width=device-width, initial-scale=1",
         },
         {
-          title: `${blogName} | Bold Stories`,
+          title: `${blogName} | Elegant Stories`,
         },
         {
           name: "description",
-          content: `${blogName} is a high-energy publication about design, culture, and creative code. Bold thoughts, sharp edges.`,
+          content: `${blogName} is a premium publication about design, culture, and creative code. Refined thoughts, elegant edges.`,
         },
         {
           property: "og:site_name",
@@ -122,7 +122,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         {
           property: "og:description",
           content:
-            "A vibrant zine-style blog for the next generation of creators.",
+            "An elegant premium blog for the next generation of creators.",
         },
         {
           name: "twitter:card",
@@ -277,7 +277,7 @@ function RootNotFoundComponent() {
       <section className="bg-card border shadow-sm clip-sash rounded-md p-8 text-center">
         <p className="island-kicker mb-3">404 - Not Found</p>
         <h1 className="display-title mb-3 text-4xl font-bold text-foreground sm:text-6xl">
-          Lost in the Vibe?
+          Lost in the Light?
         </h1>
         <p className="mx-auto mb-8 max-w-md text-lg text-muted-foreground">
           The page you're looking for has drifted off the grid. Let's get you
@@ -286,7 +286,7 @@ function RootNotFoundComponent() {
         <div className="flex justify-center">
           <Link
             to="/"
-            className="vibe-btn-primary inline-flex h-12 items-center justify-center rounded-full px-8 text-lg font-bold transition-all hover:scale-105 active:scale-95"
+            className="lumina-btn-primary inline-flex h-12 items-center justify-center rounded-full px-8 text-lg font-bold transition-all hover:scale-105 active:scale-95"
           >
             Return to Feed
           </Link>

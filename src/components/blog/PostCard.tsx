@@ -31,13 +31,13 @@ export const cardThemes = [
   },
   {
     cover: "bg-zinc-100",
-    badge: "Edgy",
+    badge: "Modern",
     action: "text-accent",
     avatar: "bg-accent",
   },
   {
     cover: "bg-zinc-100",
-    badge: "Vibe",
+    badge: "Lumina",
     action: "text-accent",
     avatar: "bg-accent",
   },

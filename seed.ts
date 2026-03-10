@@ -139,7 +139,7 @@ async function seed() {
 
   console.log("--- Seeding App Settings ---");
   const initialSettings = [
-    { key: "blogName", value: "VibeZine" },
+    { key: "blogName", value: "Lumina" },
     { key: "accentColor", value: "#ff5c00" },
     { key: "fontFamily", value: "Inter" },
     { key: "gaMeasurementId", value: "" },
