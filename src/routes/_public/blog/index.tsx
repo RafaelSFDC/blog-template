@@ -8,8 +8,8 @@ import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
 import { Button } from "#/components/ui/button";
-import { Badge } from "#/components/ui/badge";
 import { cn } from "#/lib/utils";
+import { SiteHeader } from "#/components/SiteHeader";
 
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
@@ -101,15 +101,11 @@ function BlogIndex() {
   return (
     <main className="pb-20 pt-10">
       <div className="page-wrap flex flex-col gap-8 sm:gap-12">
-        <header className="bg-card border shadow-sm rounded-2xl p-8 sm:p-12">
-          <Badge variant="default">Vibe Archive</Badge>
-          <h1 className="font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-4 text-5xl text-foreground sm:text-6xl uppercase">
-            All Stories
-          </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground font-bold leading-tight">
-            Bold notes on design, cultural code, and aesthetic experiments.
-          </p>
-        </header>
+        <SiteHeader
+          badge="The Collection"
+          title="All Stories"
+          description="Bold notes on design, cultural code, and aesthetic experiments."
+        />
 
         <section className="bg-card border shadow-sm flex flex-col gap-8 rounded-2xl p-6 sm:p-8">
           <div className="relative max-w-xl">
@@ -139,14 +135,15 @@ function BlogIndex() {
               variant={!category ? "default" : "outline"}
               className={cn(
                 "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
-                !category && "scale-105 z-10"
+                !category && "scale-105 z-10",
               )}
             >
               ✨ All Stories
             </Button>
             {cardThemes.map((theme) => {
               const isActive =
-                category && category.toLowerCase() === theme.badge.toLowerCase();
+                category &&
+                category.toLowerCase() === theme.badge.toLowerCase();
               return (
                 <Button
                   key={theme.badge}
@@ -154,7 +151,7 @@ function BlogIndex() {
                   variant={isActive ? "default" : "outline"}
                   className={cn(
                     "rounded-lg border border-border px-6 py-2 font-black shadow-sm transition-all",
-                    isActive && `${theme.cover} scale-105 z-10`
+                    isActive && `${theme.cover} scale-105 z-10`,
                   )}
                 >
                   {theme.badge}

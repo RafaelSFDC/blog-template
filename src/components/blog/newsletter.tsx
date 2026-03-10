@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Mail } from "lucide-react";
@@ -12,7 +12,7 @@ interface NewsletterProps {
   buttonText?: string;
   placeholder?: string;
   onSubscribe?: (email: string) => void;
-  variant?: 'default' | 'compact';
+  variant?: "default" | "compact";
   className?: string;
 }
 
@@ -22,10 +22,10 @@ export function Newsletter({
   buttonText = "Subscribe!",
   placeholder = "your@edgy.email",
   onSubscribe,
-  variant = 'default',
-  className
+  variant = "default",
+  className,
 }: NewsletterProps) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ export function Newsletter({
         const res = await subscribeNewsletter({ data: email });
         if (res.success) {
           toast.success(res.message);
-          setEmail('');
+          setEmail("");
         } else {
           toast.error(res.message);
         }
@@ -46,9 +46,12 @@ export function Newsletter({
     }
   };
 
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
-      <form onSubmit={handleSubmit} className={cn("flex flex-col sm:flex-row gap-3 max-w-md", className)}>
+      <form
+        onSubmit={handleSubmit}
+        className={cn("flex flex-col sm:flex-row gap-3 max-w-md", className)}
+      >
         <div className="relative flex-1">
           <Mail
             className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -63,12 +66,7 @@ export function Newsletter({
             className="pl-11 pr-4"
           />
         </div>
-        <Button 
-          type="submit" 
-          variant="default" 
-          size="lg" 
-          className="sm:w-auto"
-        >
+        <Button type="submit" variant="default">
           {buttonText === "Subscribe!" ? "Join" : buttonText}
         </Button>
       </form>
@@ -76,7 +74,12 @@ export function Newsletter({
   }
 
   return (
-    <section className={cn("bg-card border shadow-sm rounded-2xl px-4 py-8 sm:px-6 text-center border-border", className)}>
+    <section
+      className={cn(
+        "bg-card border shadow-sm rounded-2xl px-4 py-8 sm:px-6 text-center border-border",
+        className,
+      )}
+    >
       <div className="mx-auto max-w-2xl text-foreground">
         <h3 className="display-title mb-6 text-4xl font-extrabold uppercase italic tracking-tighter sm:text-6xl text-foreground">
           {title}
@@ -84,8 +87,11 @@ export function Newsletter({
         <p className="mb-10 text-lg font-bold sm:text-xl text-muted-foreground">
           {description}
         </p>
-        
-        <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row sm:gap-3 items-center">
+
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row sm:gap-3 items-center"
+        >
           <Input
             type="email"
             value={email}
@@ -94,11 +100,7 @@ export function Newsletter({
             required
             className="flex-1"
           />
-          <Button 
-            type="submit"
-            variant="default"
-            size="default"
-          >
+          <Button type="submit" variant="default" size="default">
             {buttonText}
           </Button>
         </form>

@@ -17,37 +17,22 @@ export default function Footer() {
   const blogName = settings?.blogName || "VibeZine";
 
   return (
-    <footer className="site-footer mt-24 border-t border-border/40 bg-muted/10 px-4 pb-12 pt-12 text-center text-foreground/60 backdrop-blur-sm transition-all hover:bg-muted/20">
+    <footer className=" mt-24 border-t border-border bg-muted px-4 pb-12 pt-12 text-center text-foreground  transition-all">
       <div className="page-wrap">
         <div className="mb-8 flex flex-wrap justify-center gap-4 text-sm font-bold">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hover:text-primary transition-colors font-bold"
-          >
+          <Button asChild variant="ghost" size="sm">
             <Link to="/blog" search={{ q: "", category: "" }}>
               Stories
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hover:text-secondary transition-colors font-bold"
-          >
+          <Button asChild variant="ghost" size="sm">
             <Link to="/about">About</Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="hover:text-accent transition-colors font-bold"
-          >
+          <Button asChild variant="ghost" size="sm">
             <Link to="/dashboard">Dashboard</Link>
           </Button>
         </div>
-        <p className="m-0 text-sm font-medium text-foreground/70">
+        <p className="m-0 text-sm font-medium ">
           &copy; {year} {blogName}. Made with creativity and joy.
         </p>
       </div>

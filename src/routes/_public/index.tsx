@@ -39,7 +39,7 @@ function Home() {
   return (
     <main className="page-wrap pb-16 pt-6">
       <section className="editorial-grid rise-in gap-8">
-        <div className="bg-card border shadow-sm col-span-12 overflow-hidden rounded-xl p-8 sm:p-10 lg:p-12 relative">
+        <div className="bg-card border shadow-sm col-span-12 overflow-hidden rounded-md p-8 sm:p-10 lg:p-12 relative">
           <Badge variant="default">Issue #01 / Spring 2026</Badge>
           <h1 className="display-title font-bold leading-tight tracking-tight text-balance mb-6 max-w-4xl text-foreground text-4xl sm:text-5xl lg:text-7xl">
             Stories With A <br />
@@ -60,7 +60,7 @@ function Home() {
             <Link
               to="/blog"
               search={{ q: "", category: "" }}
-              className="group flex items-center gap-2 text-sm font-black text-foreground no-underline uppercase tracking-widest hover:text-primary transition-colors"
+              className="group flex items-center gap-2 font-medium text-foreground  hover:text-primary transition-colors"
             >
               Learn More About Our Vision
               <ArrowRight
@@ -74,8 +74,8 @@ function Home() {
       </section>
 
       <section className="mt-20">
-        <header className="bg-card border shadow-sm flex items-center justify-between rounded-xl p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
-          <h2 className="display-title mb-0 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
+        <header className="bg-card border shadow-sm flex items-center justify-between rounded-md p-6 sm:p-8 mb-10 transition-transform hover:-translate-y-1">
+          <h2 className=" mb-0 text-2xl font-medium text-foreground sm:text-3xl">
             Featured Articles
           </h2>
           <Button asChild variant="outline" size="sm">
@@ -97,7 +97,7 @@ function Home() {
             ))}
           </div>
         ) : (
-          <div className="bg-card border shadow-sm rounded-xl p-12 text-center">
+          <div className="bg-card border shadow-sm rounded-md p-12 text-center">
             <p className="text-muted-foreground">
               No posts yet. Run the seed command to create your first 5
               articles.

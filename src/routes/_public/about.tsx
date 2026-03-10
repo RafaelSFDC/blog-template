@@ -1,32 +1,156 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Badge } from '#/components/ui/badge'
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SiteHeader } from "#/components/SiteHeader";
+import { Badge } from "#/components/ui/badge";
+import {
+  Heart,
+  Lightbulb,
+  Zap,
+  Target,
+  Users,
+  MessageSquare,
+} from "lucide-react";
+import { Button } from "#/components/ui/button";
 
-export const Route = createFileRoute('/_public/about')({
+export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: [
-      { title: 'About | PlayfulPulse Blog' },
+      { title: "About | VibeZine" },
       {
-        name: 'description',
+        name: "description",
         content:
-          'Learn about the editorial vision, cadence, and values behind PlayfulPulse.',
+          "Learn about the editorial vision, cadence, and values behind VibeZine.",
       },
     ],
   }),
   component: About,
-})
+});
 
 function About() {
+  const values = [
+    {
+      icon: <Zap className="h-6 w-6 text-primary" />,
+      title: "High Energy",
+      description: "We focus on content that moves fast and hits hard.",
+    },
+    {
+      icon: <Lightbulb className="h-6 w-6 text-primary" />,
+      title: "Bold Design",
+      description: "Visuals aren't an afterthought; they're the core story.",
+    },
+    {
+      icon: <Target className="h-6 w-6 text-primary" />,
+      title: "Sharp Focus",
+      description: "No fluff. Just deep dives into what actually matters.",
+    },
+  ];
+
   return (
-    <main className="page-wrap px-4 pb-20 pt-14">
-      <section className="bg-card border shadow-sm rounded-xl p-8 text-center sm:p-12">
-        <Badge variant="default">Inside The Studio</Badge>
-        <h1 className="font-serif leading-[1.08] tracking-tight text-balance font-extrabold mb-6 text-5xl text-foreground sm:text-6xl">
-          About This Publication
-        </h1>
-        <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-          Use this page to explain your editorial vision, publishing cadence, and the problems your content solves for readers.
-        </p>
-      </section>
+    <main className="page-wrap pb-20 pt-10">
+      <div className="flex flex-col gap-12">
+        <SiteHeader
+          badge="Inside The Studio"
+          title="About This Publication"
+          description="VibeZine is an editorial experiment in digital storytelling, focusing on the intersection of design, culture, and high-energy code."
+        />
+
+        <section className="grid gap-8 lg:grid-cols-2">
+          <div className="bg-card border shadow-sm rounded-md p-8 sm:p-12">
+            <h2 className="text-3xl font-black text-foreground mb-6">
+              Our Vision
+            </h2>
+            <div className="space-y-4 text-muted-foreground font-bold leading-relaxed">
+              <p>
+                In a world of generic templates and AI-generated noise, VibeZine
+                stands for something different. We believe that every article
+                should have a visual signature—a soul that reflects the energy
+                of the ideas within.
+              </p>
+              <p>
+                Our editorial cadence is deliberate. We don't chase the news
+                cycle; we chase the concepts that define the next era of digital
+                experience.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {values.map((value, i) => (
+              <div
+                key={i}
+                className="bg-card border shadow-sm rounded-md p-6 flex items-start gap-4 transition-transform hover:-translate-y-1"
+              >
+                <div className="rounded-lg bg-primary/10 p-3">{value.icon}</div>
+                <div>
+                  <h3 className="font-black text-foreground text-lg mb-1">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground font-bold">
+                    {value.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-primary text-primary-foreground rounded-md p-8 sm:p-16 text-center shadow-xl">
+          <Badge
+            variant="outline"
+            className="mb-6 border-primary-foreground/30 text-primary-foreground"
+          >
+            Get Involved
+          </Badge>
+          <h2 className="text-4xl sm:text-5xl font-black mb-8 leading-tight">
+            Ready to share <br />
+            your own story?
+          </h2>
+          <p className="max-w-2xl mx-auto text-lg opacity-90 font-bold mb-10">
+            We are always looking for contributors who think outside the box. If
+            you have an aesthetic experiment or a bold cultural takes, we want
+            to hear from you.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button
+              asChild
+              size="xl"
+              variant="secondary"
+              className="w-full sm:w-auto bg-background text-primary text-lg font-bold"
+            >
+              <Link to="/contact">Contact Us</Link>
+            </Button>
+          </div>
+        </section>
+
+        <section className="grid gap-8 sm:grid-cols-3">
+          <div className="text-center group">
+            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+              <Users className="text-accent-foreground" />
+            </div>
+            <h4 className="font-black text-2xl mb-1">2.4k+</h4>
+            <p className="text-muted-foreground font-bold text-sm uppercase">
+              Readers
+            </p>
+          </div>
+          <div className="text-center group">
+            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+              <MessageSquare className="text-accent-foreground" />
+            </div>
+            <h4 className="font-black text-2xl mb-1">150+</h4>
+            <p className="text-muted-foreground font-bold text-sm uppercase">
+              Stories
+            </p>
+          </div>
+          <div className="text-center group">
+            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+              <Heart className="text-accent-foreground" />
+            </div>
+            <h4 className="font-black text-2xl mb-1">100%</h4>
+            <p className="text-muted-foreground font-bold text-sm uppercase">
+              Independent
+            </p>
+          </div>
+        </section>
+      </div>
     </main>
-  )
+  );
 }

@@ -37,11 +37,11 @@ export function DashboardHeader({
             )}
           </div>
         ) : null}
-        <h1 className="text-4xl text-foreground sm:text-5xl md:text-6xl">
+        <h1 className="font-medium text-4xl text-foreground sm:text-5xl md:text-6xl">
           {title}
         </h1>
         {description && (
-          <p className="mt-4 max-w-2xl text-muted-foreground font-medium text-lg leading-relaxed">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground font-bold leading-tight">
             {description}
           </p>
         )}
