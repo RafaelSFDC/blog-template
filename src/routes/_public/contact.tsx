@@ -11,6 +11,7 @@ import { useState } from "react";
 import { SiteHeader } from "#/components/SiteHeader";
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
+import { IconBox } from "#/components/IconBox";
 
 const submitContactForm = createServerFn({ method: "POST" })
   .inputValidator(
@@ -68,9 +69,14 @@ function ContactPage() {
     return (
       <main className="page-wrap px-4 py-20 text-center">
         <section className="bg-card border shadow-sm mx-auto max-w-2xl rounded-md p-12 overflow-hidden relative">
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 rotate-3 transition-all hover:rotate-12">
-            <CheckCircle2 size={48} strokeWidth={2.5} />
-          </div>
+          <IconBox
+            icon={CheckCircle2}
+            variant="primary"
+            size="lg"
+            rounded="2xl"
+            animation="rotate"
+            className="mx-auto mb-8"
+          />
           <h1 className="text-4xl sm:text-5xl font-black mb-6  tracking-tight">
             Message Received!
           </h1>
@@ -108,9 +114,13 @@ function ContactPage() {
               </h2>
               <div className="space-y-8">
                 <div className="flex items-center gap-6 group">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 group-hover:rotate-6 transition-transform">
-                    <Mail size={32} strokeWidth={2.5} />
-                  </div>
+                  <IconBox
+                    icon={Mail}
+                    variant="primary"
+                    size="md"
+                    rounded="2xl"
+                    animation="rotate-soft"
+                  />
                   <div>
                     <p className="text-xs font-black  tracking-[0.2em] text-muted-foreground mb-1">
                       Email us

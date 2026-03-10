@@ -10,6 +10,8 @@ import { Newsletter } from "#/components/blog/newsletter";
 import { Button } from "#/components/ui/button";
 import { cn } from "#/lib/utils";
 import { SiteHeader } from "#/components/SiteHeader";
+import { Input } from "#/components/ui/input";
+import { IconBox } from "#/components/IconBox";
 
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
   return await db
@@ -110,12 +112,12 @@ function BlogIndex() {
         <section className="bg-card border shadow-sm flex flex-col gap-8 rounded-2xl p-6 sm:p-8">
           <div className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Input
               type="text"
               value={localSearch}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="Search stories..."
-              className="h-14 w-full rounded-lg border border-border bg-background/50 pl-12 pr-12 font-bold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-primary/20 shadow-sm"
+              className=" pl-12 pr-12"
             />
             {localSearch && (
               <Button
@@ -169,9 +171,7 @@ function BlogIndex() {
           </div>
         ) : (
           <div className="bg-card border shadow-sm flex flex-col items-center justify-center rounded-2xl py-20 text-center">
-            <div className="mb-4 rounded-lg bg-muted p-4 border border-border">
-              <Search className="h-8 w-8 text-muted-foreground" />
-            </div>
+            <IconBox icon={Search} className="mb-4" />
             <h2 className="text-xl font-black text-foreground uppercase tracking-tight">
               {query ? `Search for "${q}" failed` : "No stories found"}
             </h2>

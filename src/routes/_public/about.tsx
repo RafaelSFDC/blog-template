@@ -10,6 +10,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Button } from "#/components/ui/button";
+import { IconBox } from "#/components/IconBox";
 
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
@@ -28,17 +29,17 @@ export const Route = createFileRoute("/_public/about")({
 function About() {
   const values = [
     {
-      icon: <Zap className="h-6 w-6 text-primary" />,
+      icon: Zap,
       title: "High Energy",
       description: "We focus on content that moves fast and hits hard.",
     },
     {
-      icon: <Lightbulb className="h-6 w-6 text-primary" />,
+      icon: Lightbulb,
       title: "Bold Design",
       description: "Visuals aren't an afterthought; they're the core story.",
     },
     {
-      icon: <Target className="h-6 w-6 text-primary" />,
+      icon: Target,
       title: "Sharp Focus",
       description: "No fluff. Just deep dives into what actually matters.",
     },
@@ -79,7 +80,12 @@ function About() {
                 key={i}
                 className="bg-card border shadow-sm rounded-md p-6 flex items-start gap-4 transition-transform hover:-translate-y-1"
               >
-                <div className="rounded-lg bg-primary/10 p-3">{value.icon}</div>
+                <IconBox
+                  icon={value.icon}
+                  variant="primary"
+                  size="sm"
+                  rounded="lg"
+                />
                 <div>
                   <h3 className="font-black text-foreground text-lg mb-1">
                     {value.title}
@@ -123,27 +129,39 @@ function About() {
 
         <section className="grid gap-8 sm:grid-cols-3">
           <div className="text-center group">
-            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-              <Users className="text-accent-foreground" />
-            </div>
+            <IconBox
+              icon={Users}
+              variant="outline"
+              size="sm"
+              rounded="full"
+              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
+            />
             <h4 className="font-black text-2xl mb-1">2.4k+</h4>
             <p className="text-muted-foreground font-bold text-sm uppercase">
               Readers
             </p>
           </div>
           <div className="text-center group">
-            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-              <MessageSquare className="text-accent-foreground" />
-            </div>
+            <IconBox
+              icon={MessageSquare}
+              variant="outline"
+              size="sm"
+              rounded="full"
+              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
+            />
             <h4 className="font-black text-2xl mb-1">150+</h4>
             <p className="text-muted-foreground font-bold text-sm uppercase">
               Stories
             </p>
           </div>
           <div className="text-center group">
-            <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-              <Heart className="text-accent-foreground" />
-            </div>
+            <IconBox
+              icon={Heart}
+              variant="outline"
+              size="sm"
+              rounded="full"
+              className="mx-auto border-accent bg-accent/10 text-accent-foreground mb-4 group-hover:scale-110 transition-transform"
+            />
             <h4 className="font-black text-2xl mb-1">100%</h4>
             <p className="text-muted-foreground font-bold text-sm uppercase">
               Independent
