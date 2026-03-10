@@ -71,12 +71,6 @@ const getPostBySlug = createServerFn({ method: "GET" })
     });
     const blogName = settingsObj["blogName"] || "Lumina";
 
-    // Increment view count
-    await db
-      .update(posts)
-      .set({ viewCount: (post.viewCount || 0) + 1 })
-      .where(eq(posts.id, post.id));
-
     // Fetch comments
     const commentsList = await db.query.comments
       .findMany({

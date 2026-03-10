@@ -1,128 +1,120 @@
-import { createServerFn } from '@tanstack/react-start'
-import { getRequest } from '@tanstack/react-start/server'
-import { db } from '#/db/index'
-import { pageViews as pageViewsTable, visitors as visitorsTable } from '#/db/schema'
-import { sql, desc, gte, eq } from 'drizzle-orm'
-import { requireAdminSession } from '#/lib/admin-auth'
-import { isPostgres } from '#/db/dialect'
+import { createServerFn } from "@tanstack/react-start";
+import { requireAdminSession } from "#/lib/admin-auth";
 
-// Helper to hash IP for privacy
-async function hashIp(ip: string, userAgent: string) {
-  const msgUint8 = new TextEncoder().encode(ip + userAgent);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+// Hashing and manual DB tracking removed in favor of PostHog
 
-export const trackPageView = createServerFn({ method: 'POST' })
-  .inputValidator((data: { 
-    url: string, 
-    pathname: string, 
-    referrer: string | null,
-    browser: string | null,
-    os: string | null,
-    device: string | null
-  }) => data)
-  .handler(async ({ data }: { data: any }) => {
-    const request = getRequest();
-    const headers = request?.headers;
-    const ip = headers?.get('cf-connecting-ip') || headers?.get('x-forwarded-for') || '127.0.0.1';
-    const userAgent = headers?.get('user-agent') || 'unknown';
-    
-    const visitorId = await hashIp(ip, userAgent);
+export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
+  async () => {
+    await requireAdminSession();
 
-    try {
-      const visitorExists = await db.select().from(visitorsTable).where(eq(visitorsTable.id, visitorId)).limit(1);
-      
-      if (visitorExists.length > 0) {
-        await db.update(visitorsTable).set({ lastSeenAt: new Date() }).where(eq(visitorsTable.id, visitorId));
-      } else {
-        await db.insert(visitorsTable).values({ id: visitorId, lastSeenAt: new Date(), createdAt: new Date() });
-      }
+    const apiKey = process.env.POSTHOG_PERSONAL_API_KEY;
+    const projectId = process.env.VITE_POSTHOG_PROJECT_ID;
+    const host = process.env.VITE_POSTHOG_HOST || "https://app.posthog.com";
 
-      // Insert page view
-      await db.insert(pageViewsTable).values({
-        visitorId,
-        url: data.url,
-        pathname: data.pathname,
-        referrer: data.referrer,
-        userAgent,
-        browser: data.browser,
-        os: data.os,
-        device: data.device,
-        timestamp: new Date(),
-      });
-    } catch (e) {
-      console.error('Failed to track page view:', e);
+    if (!apiKey || !projectId) {
+      console.warn(
+        "PostHog API Key or Project ID missing. Returning empty stats.",
+      );
+      return {
+        totalViews: 0,
+        totalVisitors: 0,
+        viewsPerDay: [],
+        topPages: [],
+        browsers: [],
+        devices: [],
+      };
     }
 
-    return { success: true };
-  })
-
-export const getAnalyticsStats = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    await requireAdminSession();
-    
-    // Total Views
-    const totalViewsRes = await db.select({ count: sql`count(*)` }).from(pageViewsTable);
-    const totalViews = Number(totalViewsRes[0]?.count || 0);
-    
-    // Unique Visitors
-    const totalVisitorsRes = await db.select({ count: sql`count(*)` }).from(visitorsTable);
-    const totalVisitors = Number(totalVisitorsRes[0]?.count || 0);
-
-    // Views per day (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const dateSql = isPostgres 
-      ? sql`DATE_TRUNC('day', ${pageViewsTable.timestamp})`
-      : sql`date(${pageViewsTable.timestamp}, 'unixepoch')`;
-
-    const viewsPerDay = await db.select({
-      date: dateSql,
-      count: sql`count(*)`
-    })
-    .from(pageViewsTable)
-    .where(gte(pageViewsTable.timestamp, thirtyDaysAgo))
-    .groupBy(dateSql)
-    .orderBy(dateSql);
-
-    // Top Pages
-    const topPages = await db.select({
-      pathname: pageViewsTable.pathname,
-      count: sql`count(*)`
-    })
-    .from(pageViewsTable)
-    .groupBy(pageViewsTable.pathname)
-    .orderBy(desc(sql`count(*)`))
-    .limit(10);
-
-    // Browsers
-    const browsers = await db.select({
-      name: pageViewsTable.browser,
-      count: sql`count(*)`
-    })
-    .from(pageViewsTable)
-    .groupBy(pageViewsTable.browser)
-    .orderBy(desc(sql`count(*)`))
-    .limit(5);
-
-    // Devices
-    const devices = await db.select({
-      name: pageViewsTable.device,
-      count: sql`count(*)`
-    })
-    .from(pageViewsTable)
-    .groupBy(pageViewsTable.device)
-    .orderBy(desc(sql`count(*)`));
-
-    return {
-      totalViews,
-      totalVisitors,
-      viewsPerDay,
-      topPages,
-      browsers,
-      devices
+    const posthogQuery = async (query: any) => {
+      const response = await fetch(`${host}/api/projects/${projectId}/query/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+      if (!response.ok) {
+        throw new Error(`PostHog API error: ${response.statusText}`);
+      }
+      return response.json();
     };
-  })
+
+    try {
+      // 1. Total Views & Visitors (Trends)
+      const trendsRes = await posthogQuery({
+        kind: "TrendsQuery",
+        series: [
+          { event: "$pageview", math: "total" },
+          { event: "$pageview", math: "unique_group", math_group: "person" },
+        ],
+        dateRange: { date_from: "-30d" },
+        interval: "day",
+      });
+
+      const pageviewData = trendsRes.results[0];
+      const uniqueData = trendsRes.results[1];
+
+      const totalViews = pageviewData.count;
+      const totalVisitors = uniqueData.count;
+
+      const viewsPerDay = pageviewData.data.map((count: number, i: number) => ({
+        date: pageviewData.labels[i],
+        count,
+      }));
+
+      // 2. Top Pages (HogQL)
+      const topPagesRes = await posthogQuery({
+        kind: "HogQLQuery",
+        query:
+          "SELECT properties.$pathname, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$pathname ORDER BY count DESC LIMIT 10",
+      });
+
+      const topPages = topPagesRes.results.map((row: any) => ({
+        pathname: row[0],
+        count: row[1],
+      }));
+
+      // 3. Browsers
+      const browsersRes = await posthogQuery({
+        kind: "HogQLQuery",
+        query:
+          "SELECT properties.$browser, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$browser ORDER BY count DESC LIMIT 5",
+      });
+      const browsers = browsersRes.results.map((row: any) => ({
+        name: row[0],
+        count: row[1],
+      }));
+
+      // 4. Devices
+      const devicesRes = await posthogQuery({
+        kind: "HogQLQuery",
+        query:
+          "SELECT properties.$device_type, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$device_type ORDER BY count DESC",
+      });
+      const devices = devicesRes.results.map((row: any) => ({
+        name: row[0] || "Desktop",
+        count: row[1],
+      }));
+
+      return {
+        totalViews,
+        totalVisitors,
+        viewsPerDay,
+        topPages,
+        browsers,
+        devices,
+      };
+    } catch (error) {
+      console.error("Failed to fetch PostHog stats:", error);
+      return {
+        totalViews: 0,
+        totalVisitors: 0,
+        viewsPerDay: [],
+        topPages: [],
+        browsers: [],
+        devices: [],
+      };
+    }
+  },
+);

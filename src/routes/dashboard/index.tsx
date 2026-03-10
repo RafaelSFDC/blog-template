@@ -155,7 +155,7 @@ function DashboardOverview() {
             </Button>
           }
         >
-          <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
+          <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-md overflow-hidden">
             {latestPosts.map((post: PostRow) => (
               <div
                 key={post.id}
@@ -195,7 +195,7 @@ function DashboardOverview() {
 
         <div className="space-y-8">
           <DashboardSection title="Popular Posts">
-            <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-xl overflow-hidden">
+            <div className="bg-card border shadow-sm divide-y divide-border/10 rounded-md overflow-hidden">
               {popularPosts.map((post: PostRow) => (
                 <div
                   key={post.id}

@@ -64,7 +64,7 @@ export default function BetterAuthHeader() {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-56 mt-2 bg-card border shadow-sm border"
+          className="w-56 mt-2 bg-card shadow-sm border"
         >
           <DropdownMenuLabel className="font-black uppercase tracking-widest text-xs px-3 py-2">
             My Account

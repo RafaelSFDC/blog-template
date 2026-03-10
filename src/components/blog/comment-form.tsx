@@ -80,7 +80,7 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {session ? (
-        <div className="flex items-center gap-3 mb-6 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+        <div className="flex items-center gap-3 mb-6 bg-primary/5 p-4 rounded-md border border-primary/10">
           <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black  text-xs">
             {session.user.name?.[0] || "U"}
           </div>
