@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { posts, comments, appSettings } from "#/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
@@ -37,6 +37,12 @@ const getPostBySlug = createServerFn({ method: "GET" })
           headers: request.headers,
         })
       : null;
+    
+    if (session) {
+      setResponseHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+    } else {
+      setResponseHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+    }
 
     // If not published and not admin, hide it
     if (post.status !== "published" && session?.user?.role !== "admin") {

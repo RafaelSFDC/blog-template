@@ -28,10 +28,10 @@ export default defineConfig(() => {
     ],
     server: {
       proxy: {
-        "/ingest": {
+        "/api/ingest": {
           target: "https://us.i.posthog.com",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/ingest/, ""),
+          rewrite: (path) => path.replace(/^\/api\/ingest/, ""),
           secure: false,
         },
       },

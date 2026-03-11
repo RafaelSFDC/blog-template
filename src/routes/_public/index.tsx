@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { desc, eq } from "drizzle-orm";
@@ -10,6 +11,10 @@ import { Badge } from "#/components/ui/badge";
 import { Newsletter } from "#/components/blog/newsletter";
 
 const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
+  setResponseHeader(
+    "Cache-Control",
+    "public, s-maxage=300, stale-while-revalidate=600",
+  );
   return await db
     .select()
     .from(posts)

@@ -41,6 +41,7 @@ import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhoo
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
+import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest.$'
 import { Route as ApiExportPostsRouteImport } from './routes/api/export/posts'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
@@ -215,6 +216,11 @@ const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   path: '/api/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiIngestSplatRoute = ApiIngestSplatRouteImport.update({
+  id: '/api/ingest/$',
+  path: '/api/ingest/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExportPostsRoute = ApiExportPostsRouteImport.update({
   id: '/api/export/posts',
   path: '/api/export/posts',
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -332,6 +339,7 @@ export interface FileRoutesByTo {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
@@ -422,6 +431,7 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -464,6 +474,7 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -508,6 +519,7 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
     | '/api/stripe/checkout'
@@ -539,6 +551,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronPublishRoute: typeof ApiCronPublishRoute
   ApiExportPostsRoute: typeof ApiExportPostsRoute
+  ApiIngestSplatRoute: typeof ApiIngestSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
@@ -771,6 +784,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ingest/$': {
+      id: '/api/ingest/$'
+      path: '/api/ingest/$'
+      fullPath: '/api/ingest/$'
+      preLoaderRoute: typeof ApiIngestSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/export/posts': {
       id: '/api/export/posts'
       path: '/api/export/posts'
@@ -952,6 +972,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronPublishRoute: ApiCronPublishRoute,
   ApiExportPostsRoute: ApiExportPostsRoute,
+  ApiIngestSplatRoute: ApiIngestSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,

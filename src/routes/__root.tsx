@@ -12,6 +12,7 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import { getLocale } from "#/paraglide/runtime";
 import { appSettings } from "#/db/schema";
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import appCss from "../styles.css?url";
 import { ThemeProvider } from "next-themes";
 import { PostHogProvider } from "#/components/analytics/posthog-provider";
@@ -37,6 +38,10 @@ const DEFAULT_SETTINGS = {
 
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(
   async () => {
+    setResponseHeader(
+      "Cache-Control",
+      "public, s-maxage=3600, stale-while-revalidate=86400",
+    );
     try {
       const { db } = await import("#/db/index");
       const settings = await db.select().from(appSettings);
