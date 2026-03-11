@@ -23,6 +23,12 @@ export interface GlobalSiteData {
   linkedinProfile: string;
   themeVariant: string;
   blogDescription: string;
+  siteUrl: string;
+  defaultMetaTitle: string;
+  defaultMetaDescription: string;
+  defaultOgImage: string;
+  twitterHandle: string;
+  robotsIndexingEnabled: boolean;
   socialLinks: Array<{ platform: string; url: string }>;
   primaryMenu: MenuItemView[];
   footerMenu: MenuItemView[];
@@ -40,6 +46,12 @@ export const DEFAULT_SITE_DATA: GlobalSiteData = {
   linkedinProfile: "",
   themeVariant: "default",
   blogDescription: "An elegant premium blog for creators.",
+  siteUrl: "",
+  defaultMetaTitle: "",
+  defaultMetaDescription: "",
+  defaultOgImage: "",
+  twitterHandle: "",
+  robotsIndexingEnabled: true,
   socialLinks: [],
   primaryMenu: [],
   footerMenu: [],
@@ -60,6 +72,22 @@ export async function ensureCoreMenus() {
       });
     }
   }
+}
+
+export function normalizeBooleanSetting(value: string | undefined, fallback: boolean) {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (value === "false" || value === "0") {
+    return false;
+  }
+
+  if (value === "true" || value === "1") {
+    return true;
+  }
+
+  return fallback;
 }
 
 export async function getGlobalSiteData(): Promise<GlobalSiteData> {
@@ -131,6 +159,17 @@ export async function getGlobalSiteData(): Promise<GlobalSiteData> {
     linkedinProfile: settingsObj["linkedinProfile"] || DEFAULT_SITE_DATA.linkedinProfile,
     themeVariant: settingsObj["themeVariant"] || DEFAULT_SITE_DATA.themeVariant,
     blogDescription: settingsObj["blogDescription"] || DEFAULT_SITE_DATA.blogDescription,
+    siteUrl: settingsObj["siteUrl"] || DEFAULT_SITE_DATA.siteUrl,
+    defaultMetaTitle:
+      settingsObj["defaultMetaTitle"] || DEFAULT_SITE_DATA.defaultMetaTitle,
+    defaultMetaDescription:
+      settingsObj["defaultMetaDescription"] || DEFAULT_SITE_DATA.defaultMetaDescription,
+    defaultOgImage: settingsObj["defaultOgImage"] || DEFAULT_SITE_DATA.defaultOgImage,
+    twitterHandle: settingsObj["twitterHandle"] || DEFAULT_SITE_DATA.twitterHandle,
+    robotsIndexingEnabled: normalizeBooleanSetting(
+      settingsObj["robotsIndexingEnabled"],
+      DEFAULT_SITE_DATA.robotsIndexingEnabled,
+    ),
     socialLinks,
     primaryMenu: menuItemsByMenuId.get(menuIdByKey.get("primary") ?? -1) ?? [],
     footerMenu: menuItemsByMenuId.get(menuIdByKey.get("footer") ?? -1) ?? [],

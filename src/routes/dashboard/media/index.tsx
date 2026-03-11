@@ -64,9 +64,8 @@ function MediaLibraryPage() {
   }
 
   function copyToClipboard(text: string, id: number) {
-    // Generate absolute URL if possible, otherwise keep relative
     const absoluteUrl =
-      typeof window !== "undefined"
+      typeof window !== "undefined" && text.startsWith("/")
         ? `${window.location.protocol}//${window.location.host}${text}`
         : text;
     navigator.clipboard.writeText(absoluteUrl);

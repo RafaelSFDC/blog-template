@@ -4,18 +4,20 @@ import { Badge } from "#/components/ui/badge";
 import { Lightbulb, Zap, Target } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { IconBox } from "#/components/IconBox";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 export const Route = createFileRoute("/_public/about")({
-  head: () => ({
-    meta: [
-      { title: "About | Lumina" },
-      {
-        name: "description",
-        content:
-          "Learn about the editorial vision, cadence, and values behind Lumina.",
-      },
-    ],
-  }),
+  loader: () => getSeoSiteData(),
+  head: ({ loaderData }) =>
+    buildPublicSeo({
+      site: loaderData,
+      path: "/about",
+      title: `About | ${loaderData.blogName}`,
+      description:
+        "Learn about the editorial vision, cadence, and values behind Lumina.",
+      image: loaderData.defaultOgImage,
+    }),
   component: About,
 });
 

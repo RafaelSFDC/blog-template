@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
-import { categories, tags } from '#/db/schema'
+import { categories, postCategories, posts, postTags, tags } from '#/db/schema'
 import { requireAdminSession } from '#/lib/admin-auth'
-import { eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { categorySchema, getFriendlyDbError, normalizeSlug, tagSchema } from '#/lib/cms-schema'
 
 // Categories
@@ -112,3 +112,72 @@ export const deleteTag = createServerFn({ method: 'POST' })
     await db.delete(tags).where(eq(tags.id, data.id))
     return { success: true }
   })
+
+export async function getPublishedCategoryBySlug(slug: string) {
+  const category = await db.query.categories.findFirst({
+    where: eq(categories.slug, slug),
+  })
+
+  if (!category) {
+    return null
+  }
+
+  const categoryPosts = await db
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      coverImage: posts.coverImage,
+      publishedAt: posts.publishedAt,
+      category: categories.name,
+      categorySlug: categories.slug,
+    })
+    .from(postCategories)
+    .innerJoin(posts, eq(postCategories.postId, posts.id))
+    .innerJoin(categories, eq(postCategories.categoryId, categories.id))
+    .where(and(eq(categories.slug, slug), eq(posts.status, 'published')))
+    .orderBy(desc(posts.publishedAt))
+
+  return {
+    category,
+    posts: categoryPosts,
+  }
+}
+
+export async function getPublishedTagBySlug(slug: string) {
+  const tag = await db.query.tags.findFirst({
+    where: eq(tags.slug, slug),
+  })
+
+  if (!tag) {
+    return null
+  }
+
+  const taggedPosts = await db
+    .select({
+      id: posts.id,
+      slug: posts.slug,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      coverImage: posts.coverImage,
+      publishedAt: posts.publishedAt,
+    })
+    .from(postTags)
+    .innerJoin(posts, eq(postTags.postId, posts.id))
+    .where(and(eq(postTags.tagId, tag.id), eq(posts.status, 'published')))
+    .orderBy(desc(posts.publishedAt))
+
+  return {
+    tag,
+    posts: taggedPosts,
+  }
+}
+
+export async function getPublishedCategories() {
+  return db.select().from(categories)
+}
+
+export async function getPublishedTags() {
+  return db.select().from(tags)
+}

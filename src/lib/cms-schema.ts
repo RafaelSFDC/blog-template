@@ -5,12 +5,20 @@ export const PAGE_STATUSES = ["draft", "published", "private"] as const;
 export const MENU_KEYS = ["primary", "footer"] as const;
 export const MENU_ITEM_KINDS = ["internal", "external"] as const;
 export const WEBHOOK_EVENTS = ["post.published"] as const;
+export const MEDIA_IMAGE_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+] as const;
 
 export const postStatusSchema = z.enum(POST_STATUSES);
 export const pageStatusSchema = z.enum(PAGE_STATUSES);
 export const menuKeySchema = z.enum(MENU_KEYS);
 export const menuItemKindSchema = z.enum(MENU_ITEM_KINDS);
 export const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
+export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
 
 function emptyStringToUndefined(value: unknown) {
   if (typeof value !== "string") return value;
@@ -69,6 +77,21 @@ export const settingsSchema = z.object({
   blogLogo: optionalUrlSchema,
   fontFamily: trimmedString(1, "Font family is required", 80, "Font family is too long"),
   themeVariant: trimmedString(1, "Theme is required", 120, "Theme is too long"),
+  siteUrl: optionalUrlSchema,
+  defaultMetaTitle: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(160, "Default meta title is too long").optional(),
+  ),
+  defaultMetaDescription: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(320, "Default meta description is too long").optional(),
+  ),
+  defaultOgImage: optionalUrlSchema,
+  twitterHandle: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(50, "Twitter handle is too long").optional(),
+  ),
+  robotsIndexingEnabled: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(20, "Too many social links"),
 });
 
@@ -178,6 +201,16 @@ export const webhookCreateSchema = z.object({
   secret: z.preprocess(
     emptyStringToUndefined,
     z.string().trim().max(255, "Secret is too long").optional(),
+  ),
+});
+
+export const mediaUploadSchema = z.object({
+  filename: trimmedString(1, "A file is required", 255, "Filename is too long"),
+  mimeType: mediaImageMimeTypeSchema,
+  size: z.number().int().positive("A file is required").max(10 * 1024 * 1024, "File is too large"),
+  altText: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(255, "Alt text is too long").optional(),
   ),
 });
 

@@ -56,6 +56,8 @@ import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login
 import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
 import { Route as DashboardPostsPostIdEditRouteImport } from './routes/dashboard/posts/$postId.edit'
 import { Route as DashboardPagesPageIdEditRouteImport } from './routes/dashboard/pages/$pageId.edit'
+import { Route as PublicBlogTagSlugRouteImport } from './routes/_public/blog/tag/$slug'
+import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public/blog/category/$slug'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -298,6 +300,16 @@ const DashboardPagesPageIdEditRoute =
     path: '/pages/$pageId/edit',
     getParentRoute: () => DashboardRoute,
   } as any)
+const PublicBlogTagSlugRoute = PublicBlogTagSlugRouteImport.update({
+  id: '/blog/tag/$slug',
+  path: '/blog/tag/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogCategorySlugRoute = PublicBlogCategorySlugRouteImport.update({
+  id: '/blog/category/$slug',
+  path: '/blog/category/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
@@ -344,6 +356,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
@@ -391,6 +405,8 @@ export interface FileRoutesByTo {
   '/dashboard/tags': typeof DashboardTagsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks': typeof DashboardWebhooksIndexRoute
+  '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
@@ -441,6 +457,8 @@ export interface FileRoutesById {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/_public/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/_public/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
@@ -491,6 +509,8 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -538,6 +558,8 @@ export interface FileRouteTypes {
     | '/dashboard/tags'
     | '/dashboard/users'
     | '/dashboard/webhooks'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   id:
@@ -587,6 +609,8 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/_public/blog/category/$slug'
+    | '/_public/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   fileRoutesById: FileRoutesById
@@ -938,6 +962,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPagesPageIdEditRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_public/blog/tag/$slug': {
+      id: '/_public/blog/tag/$slug'
+      path: '/blog/tag/$slug'
+      fullPath: '/blog/tag/$slug'
+      preLoaderRoute: typeof PublicBlogTagSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/category/$slug': {
+      id: '/_public/blog/category/$slug'
+      path: '/blog/category/$slug'
+      fullPath: '/blog/category/$slug'
+      preLoaderRoute: typeof PublicBlogCategorySlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
@@ -968,6 +1006,8 @@ interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+  PublicBlogCategorySlugRoute: typeof PublicBlogCategorySlugRoute
+  PublicBlogTagSlugRoute: typeof PublicBlogTagSlugRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
@@ -979,6 +1019,8 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
+  PublicBlogCategorySlugRoute: PublicBlogCategorySlugRoute,
+  PublicBlogTagSlugRoute: PublicBlogTagSlugRoute,
 }
 
 const PublicRouteWithChildren =

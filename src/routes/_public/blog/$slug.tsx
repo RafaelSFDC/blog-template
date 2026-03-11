@@ -25,7 +25,7 @@ interface PostBySlugData {
   recommended: PostSummary[];
   hasAccess: boolean;
   stripePriceId: string | undefined;
-  blogName: string;
+  site: Awaited<ReturnType<typeof import("#/server/seo-actions").getSeoSiteData>>;
 }
 import { MarkdownContent } from "#/components/markdown-content";
 import { BlogHero } from "#/components/blog-hero";
@@ -42,6 +42,8 @@ import { user } from "#/db/schema";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
 import type { Comment as BlogComment } from "#/components/blog/comment-list";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -94,14 +96,6 @@ const getPostBySlug = createServerFn({ method: "GET" })
       post.content = post.content.substring(0, 500) + "...";
     }
 
-    // Fetch blog settings for SEO
-    const settings = await db.select().from(appSettings);
-    const settingsObj: Record<string, string> = {};
-    settings.forEach((s: { key: string, value: string }) => {
-      settingsObj[s.key] = s.value;
-    });
-    const blogName = settingsObj["blogName"] || "Lumina";
-
     // Fetch comments
     const commentsList = await db.query.comments
       .findMany({
@@ -129,6 +123,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
           s: { key: string; value: string; updatedAt: Date | null } | undefined,
         ) => s?.value,
       );
+    const site = await getSeoSiteData();
 
     return {
       post: post as PostWithExtras,
@@ -136,7 +131,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
       recommended: (recommended as PostSummary[]) || [],
       hasAccess,
       stripePriceId,
-      blogName,
+      site,
     } as PostBySlugData;
   });
 
@@ -166,32 +161,22 @@ export const Route = createFileRoute("/_public/blog/$slug")({
   head: ({ loaderData }) => {
     const data = loaderData as PostBySlugData;
     const post = data?.post;
-    const blogName = data?.blogName || "Lumina";
+    const site = data?.site;
 
-    if (!post) {
-      return {
-        meta: [{ title: `Post Not Found | ${blogName}` }],
-      };
+    if (!post || !site) {
+      return {};
     }
 
-    const title = `${post.metaTitle || post.title} | ${blogName}`;
-    const description = post.metaDescription || post.excerpt;
-    const image = post.ogImage || post.coverImage || undefined;
-
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:image", content: image },
-        { property: "og:type", content: "article" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-        { name: "twitter:image", content: image },
-      ],
-    };
+    return buildPublicSeo({
+      site,
+      path: `/blog/${post.slug}`,
+      title: `${post.metaTitle || post.title} | ${site.blogName}`,
+      description: post.metaDescription || post.excerpt || site.blogDescription,
+      image: post.ogImage || post.coverImage || site.defaultOgImage,
+      type: "article",
+      indexable:
+        site.robotsIndexingEnabled && (!post.isPremium || data.hasAccess),
+    });
   },
   component: PostDetail,
 });

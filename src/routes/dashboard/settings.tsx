@@ -22,6 +22,7 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import { Switch } from "#/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -79,6 +80,12 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
     blogLogo: settingsObj["blogLogo"] || "",
     fontFamily: settingsObj["fontFamily"] || "Inter",
     themeVariant: settingsObj["themeVariant"] || "default",
+    siteUrl: settingsObj["siteUrl"] || "",
+    defaultMetaTitle: settingsObj["defaultMetaTitle"] || "",
+    defaultMetaDescription: settingsObj["defaultMetaDescription"] || "",
+    defaultOgImage: settingsObj["defaultOgImage"] || "",
+    twitterHandle: settingsObj["twitterHandle"] || "",
+    robotsIndexingEnabled: settingsObj["robotsIndexingEnabled"] !== "false",
     socialLinks,
   };
 });
@@ -104,6 +111,12 @@ const updateAppSettings = createServerFn({ method: "POST" })
     await upsert("blogLogo", data.blogLogo || "");
     await upsert("fontFamily", data.fontFamily);
     await upsert("themeVariant", data.themeVariant);
+    await upsert("siteUrl", data.siteUrl || "");
+    await upsert("defaultMetaTitle", data.defaultMetaTitle || "");
+    await upsert("defaultMetaDescription", data.defaultMetaDescription || "");
+    await upsert("defaultOgImage", data.defaultOgImage || "");
+    await upsert("twitterHandle", data.twitterHandle || "");
+    await upsert("robotsIndexingEnabled", String(data.robotsIndexingEnabled));
     await upsert("socialLinks", JSON.stringify(data.socialLinks));
 
     return { ok: true as const };
@@ -128,6 +141,12 @@ function SettingsPage() {
       blogLogo: initialSettings.blogLogo,
       fontFamily: initialSettings.fontFamily,
       themeVariant: initialSettings.themeVariant,
+      siteUrl: initialSettings.siteUrl,
+      defaultMetaTitle: initialSettings.defaultMetaTitle,
+      defaultMetaDescription: initialSettings.defaultMetaDescription,
+      defaultOgImage: initialSettings.defaultOgImage,
+      twitterHandle: initialSettings.twitterHandle,
+      robotsIndexingEnabled: initialSettings.robotsIndexingEnabled,
       socialLinks: initialSettings.socialLinks,
     },
     validators: {
@@ -354,6 +373,141 @@ function SettingsPage() {
                           </SelectContent>
                         </Select>
                       </Field>
+                    )}
+                  </form.Field>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black text-primary mb-6">
+                  SEO & Discovery
+                </h3>
+
+                <div className="grid gap-6">
+                  <form.Field name="siteUrl">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Public Site URL
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="https://blog.example.com"
+                        />
+                        {field.state.meta.errors.length > 0 && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="defaultMetaTitle">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Default Meta Title
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Optional default title for public pages"
+                        />
+                        {field.state.meta.errors.length > 0 && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="defaultMetaDescription">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Default Meta Description
+                        </FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Default description for RSS, sitemap metadata and public pages."
+                        />
+                        {field.state.meta.errors.length > 0 && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <form.Field name="defaultOgImage">
+                      {(field) => (
+                        <Field>
+                          <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                            Default OG Image
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            placeholder="https://media.example.com/default-og.jpg"
+                          />
+                          {field.state.meta.errors.length > 0 && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      )}
+                    </form.Field>
+
+                    <form.Field name="twitterHandle">
+                      {(field) => (
+                        <Field>
+                          <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                            Twitter / X Handle
+                          </FieldLabel>
+                          <Input
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            placeholder="@lumina"
+                          />
+                          {field.state.meta.errors.length > 0 && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      )}
+                    </form.Field>
+                  </div>
+
+                  <form.Field name="robotsIndexingEnabled">
+                    {(field) => (
+                      <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                        <Switch
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        />
+                        <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                          <span className="text-sm font-bold text-foreground">
+                            Allow search engine indexing
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Disable this for staging or private launches to output `noindex, nofollow`.
+                          </span>
+                        </label>
+                      </div>
                     )}
                   </form.Field>
                 </div>

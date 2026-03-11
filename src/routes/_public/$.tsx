@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { PageContent } from "#/components/cms/PageContent";
 import { getPublishedPageBySlug } from "#/server/page-actions";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 const getPageBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -21,40 +23,48 @@ const getPageBySlug = createServerFn({ method: "GET" })
   });
 
 export const Route = createFileRoute("/_public/$")({
-  loader: ({ params }) => getPageBySlug({ data: params._splat || "" }),
+  loader: async ({ params }) => {
+    const [page, site] = await Promise.all([
+      getPageBySlug({ data: params._splat || "" }),
+      getSeoSiteData(),
+    ]);
+
+    return { page, site };
+  },
   head: ({ loaderData }) => {
-    const page = loaderData as
+    const data = loaderData as
       | {
-          title: string;
-          metaTitle?: string | null;
-          excerpt?: string | null;
-          metaDescription?: string | null;
-          ogImage?: string | null;
+          page: {
+            slug: string;
+            title: string;
+            metaTitle?: string | null;
+            excerpt?: string | null;
+            metaDescription?: string | null;
+            ogImage?: string | null;
+          };
+          site: Awaited<ReturnType<typeof getSeoSiteData>>;
         }
       | undefined;
+    const page = data?.page;
+    const site = data?.site;
 
-    if (!page) {
+    if (!page || !site) {
       return {};
     }
 
-    const title = page.metaTitle || page.title;
-    const description = page.metaDescription || page.excerpt || "Custom page";
-
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        ...(page.ogImage ? [{ property: "og:image", content: page.ogImage }] : []),
-      ],
-    };
+    return buildPublicSeo({
+      site,
+      path: page.slug === "" ? "/" : `/${page.slug}`,
+      title: page.metaTitle || page.title,
+      description: page.metaDescription || page.excerpt || site.blogDescription,
+      image: page.ogImage || site.defaultOgImage,
+    });
   },
   component: CmsPage,
 });
 
 function CmsPage() {
-  const page = Route.useLoaderData();
+  const { page } = Route.useLoaderData();
 
   return (
     <PageContent

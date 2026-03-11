@@ -1,37 +1,39 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { db } from "#/db/index"
-import { eq, desc, type InferSelectModel } from 'drizzle-orm'
-import { pages, posts } from '#/db/schema'
+import { createFileRoute } from "@tanstack/react-router";
+import { db } from "#/db/index";
+import { eq, desc } from "drizzle-orm";
+import { pages, posts } from "#/db/schema";
+import { getPublishedCategories, getPublishedTags } from "#/server/taxonomy-actions";
+import { getGlobalSiteData } from "#/lib/cms";
+import { resolveSiteUrl } from "#/lib/seo";
 
-type Post = InferSelectModel<typeof posts>
-type Page = InferSelectModel<typeof pages>
-
-export const Route = createFileRoute('/sitemap/xml')({
+export const Route = createFileRoute("/sitemap/xml")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const url = new URL(request.url)
-        const baseUrl = `${url.protocol}//${url.host}`
+        const site = await getGlobalSiteData();
+        const baseUrl = resolveSiteUrl(site.siteUrl, request.url);
 
-        const [allPosts, allPages] = await Promise.all([
+        const [allPosts, allPages, allCategories, allTags] = await Promise.all([
           db.query.posts.findMany({
-            where: eq(posts.status, 'published'),
+            where: eq(posts.status, "published"),
             orderBy: [desc(posts.publishedAt)],
             columns: {
               slug: true,
               updatedAt: true,
-            }
+            },
           }),
           db.query.pages.findMany({
-            where: eq(pages.status, 'published'),
+            where: eq(pages.status, "published"),
             orderBy: [desc(pages.updatedAt)],
             columns: {
               slug: true,
               updatedAt: true,
               isHome: true,
-            }
+            },
           }),
-        ])
+          getPublishedCategories(),
+          getPublishedTags(),
+        ]);
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -46,29 +48,56 @@ export const Route = createFileRoute('/sitemap/xml')({
     <priority>0.8</priority>
   </url>
   ${allPages
-    .filter((page: Partial<Page>) => !page.isHome)
-    .map((page: Partial<Page>) => `
+    .filter((page) => !page.isHome)
+    .map(
+      (page) => `
   <url>
     <loc>${baseUrl}/${page.slug}</loc>
-    <lastmod>${page.updatedAt?.toISOString().split('T')[0]}</lastmod>
+    <lastmod>${page.updatedAt?.toISOString().split("T")[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>`).join('')}
-  ${allPosts.map((post: Partial<Post>) => `
+  </url>`,
+    )
+    .join("")}
+  ${allPosts
+    .map(
+      (post) => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
-    <lastmod>${post.updatedAt?.toISOString().split('T')[0]}</lastmod>
+    <lastmod>${post.updatedAt?.toISOString().split("T")[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-  </url>`).join('')}
-</urlset>`
+  </url>`,
+    )
+    .join("")}
+  ${allCategories
+    .map(
+      (category) => `
+  <url>
+    <loc>${baseUrl}/blog/category/${category.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`,
+    )
+    .join("")}
+  ${allTags
+    .map(
+      (tag) => `
+  <url>
+    <loc>${baseUrl}/blog/tag/${tag.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
+  </url>`,
+    )
+    .join("")}
+</urlset>`;
 
         return new Response(sitemap, {
           headers: {
-            'Content-Type': 'application/xml',
+            "Content-Type": "application/xml",
           },
-        })
-      }
-    }
-  }
-})
+        });
+      },
+    },
+  },
+});

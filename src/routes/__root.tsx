@@ -11,7 +11,7 @@ import TanStackQueryProvider from "../integrations/tanstack-query/root-provider"
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import { getLocale } from "#/paraglide/runtime";
 import { createServerFn } from "@tanstack/react-start";
-import { setResponseHeader } from "@tanstack/react-start/server";
+import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import appCss from "../styles.css?url";
 import { ThemeProvider } from "next-themes";
 import { LazyPostHogProvider } from "#/components/analytics/lazy-posthog-provider";
@@ -27,6 +27,7 @@ import {
   type GlobalSiteData,
   getGlobalSiteData,
 } from "#/lib/cms";
+import { getRobotsMeta, resolveSiteUrl } from "#/lib/seo";
 
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -35,7 +36,12 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(
       "public, s-maxage=3600, stale-while-revalidate=86400",
     );
     try {
-      return await getGlobalSiteData();
+      const request = getRequest();
+      const site = await getGlobalSiteData();
+      return {
+        ...site,
+        siteUrl: resolveSiteUrl(site.siteUrl, request?.url),
+      };
     } catch (error) {
       console.error("Failed to fetch settings from DB, using defaults:", error);
       return DEFAULT_SITE_DATA;
@@ -59,6 +65,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     const settings = loaderData as GlobalSiteData;
     const blogName = settings?.blogName || "Lumina";
     const accentColor = settings?.accentColor || "var(--primary)";
+    const defaultTitle = settings?.defaultMetaTitle || `${blogName} | Elegant Stories`;
+    const defaultDescription =
+      settings?.defaultMetaDescription ||
+      `${blogName} is a premium publication about design, culture, and creative code. Refined thoughts, elegant edges.`;
+    const robots = getRobotsMeta(settings?.robotsIndexingEnabled ?? true);
 
     return {
       meta: [
@@ -70,11 +81,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           content: "width=device-width, initial-scale=1",
         },
         {
-          title: `${blogName} | Elegant Stories`,
+          title: defaultTitle,
         },
         {
           name: "description",
-          content: `${blogName} is a premium publication about design, culture, and creative code. Refined thoughts, elegant edges.`,
+          content: defaultDescription,
+        },
+        {
+          name: "robots",
+          content: robots,
         },
         {
           property: "og:site_name",
@@ -86,17 +101,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         },
         {
           property: "og:title",
-          content: `${blogName} Blog`,
+          content: defaultTitle,
         },
         {
           property: "og:description",
-          content:
-            "An elegant premium blog for the next generation of creators.",
+          content: defaultDescription,
         },
         {
           name: "twitter:card",
           content: "summary_large_image",
         },
+        ...(settings?.twitterHandle
+          ? [{ name: "twitter:site", content: settings.twitterHandle }]
+          : []),
+        ...(settings?.defaultOgImage
+          ? [{ property: "og:image", content: settings.defaultOgImage }]
+          : []),
         {
           name: "theme-color",
           content: accentColor,

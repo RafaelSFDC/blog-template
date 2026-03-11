@@ -47,6 +47,22 @@ pnpm dev
 
 Navigate to [http://localhost:3000](http://localhost:3000) to see your blog in action!
 
+### Local Media Development
+
+- `pnpm dev` uses local uploads by default when the Cloudflare `STORAGE` binding is not present.
+- `pnpm dev:cf` is the path for validating Cloudflare bindings like D1 and R2 in the Worker runtime.
+- `R2_PUBLIC_URL` is optional. If absent, media can still be served through `/api/media/:filename`.
+
+### SEO Settings
+
+The dashboard settings page now controls:
+
+- public `siteUrl`
+- default meta title and description
+- default Open Graph image
+- robots indexing toggle
+- optional Twitter/X handle
+
 ## 📖 Project Structure
 
 - `src/routes`: File-based routing (Home, Blog List, Post Details).

@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { IconBox } from "#/components/IconBox";
 import { contactFormSchema } from "#/lib/cms-schema";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 const submitContactForm = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => contactFormSchema.parse(input))
@@ -28,16 +30,16 @@ const submitContactForm = createServerFn({ method: "POST" })
   });
 
 export const Route = createFileRoute("/_public/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact | Lumina" },
-      {
-        name: "description",
-        content:
-          "Get in touch with the Lumina team for support, feedback, or collaborations.",
-      },
-    ],
-  }),
+  loader: () => getSeoSiteData(),
+  head: ({ loaderData }) =>
+    buildPublicSeo({
+      site: loaderData,
+      path: "/contact",
+      title: `Contact | ${loaderData.blogName}`,
+      description:
+        "Get in touch with the Lumina team for support, feedback, or collaborations.",
+      image: loaderData.defaultOgImage,
+    }),
   component: ContactPage,
 });
 

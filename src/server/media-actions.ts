@@ -3,7 +3,12 @@ import { db } from '#/db/index'
 import { media as mediaTable } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdminSession } from '#/lib/admin-auth'
-import { deleteObject, putObject } from '#/lib/storage'
+import {
+  deleteObject,
+  putObject,
+  sanitizeMediaFilename,
+} from '#/lib/storage'
+import { mediaUploadSchema } from '#/lib/cms-schema'
 
 export const getMediaItems = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -18,12 +23,19 @@ export const uploadMedia = createServerFn({ method: 'POST' })
 
     const file = data.get('file') as File
     const altText = data.get('altText') as string | null
-    
+
     if (!file) {
       throw new Error('No file provided')
     }
 
-    const filename = `${Date.now()}-${file.name}`
+    mediaUploadSchema.parse({
+      filename: file.name,
+      mimeType: file.type,
+      size: file.size,
+      altText: altText ?? undefined,
+    })
+
+    const filename = sanitizeMediaFilename(file.name)
     const buffer = Buffer.from(await file.arrayBuffer())
     const stored = await putObject({
       filename,
@@ -33,9 +45,9 @@ export const uploadMedia = createServerFn({ method: 'POST' })
 
     // Save to DB
     const created = await db.insert(mediaTable).values({
-      url: stored.url,
+      url: stored.publicUrl,
       filename,
-      altText: altText || null,
+      altText: altText?.trim() || null,
       mimeType: file.type,
       size: file.size,
     }).returning()

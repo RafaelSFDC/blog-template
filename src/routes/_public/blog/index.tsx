@@ -1,30 +1,30 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { desc, eq } from "drizzle-orm";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PostCard, type Post } from "#/components/blog/PostCard";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
 import { Button } from "#/components/ui/button";
-import { cn } from "#/lib/utils";
 import { SiteHeader } from "#/components/SiteHeader";
 import { Input } from "#/components/ui/input";
 import { IconBox } from "#/components/IconBox";
-
-import { posts, categories, postCategories } from "#/db/schema";
+import { categories, postCategories, posts } from "#/db/schema";
 import { type InferSelectModel } from "drizzle-orm";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 type Category = InferSelectModel<typeof categories>;
 type BlogIndexLoaderData = {
   posts: Post[];
   categories: Category[];
-  search: { q?: string; category?: string };
+  search: { q?: string };
+  site: Awaited<ReturnType<typeof getSeoSiteData>>;
 };
 
-
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
-  const data = await db
+  return db
     .select({
       id: posts.id,
       slug: posts.slug,
@@ -33,6 +33,7 @@ const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
       coverImage: posts.coverImage,
       publishedAt: posts.publishedAt,
       category: categories.name,
+      categorySlug: categories.slug,
     })
     .from(posts)
     .leftJoin(postCategories, eq(posts.id, postCategories.postId))
@@ -40,52 +41,50 @@ const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
     .where(eq(posts.status, "published"))
     .orderBy(desc(posts.publishedAt))
     .limit(12);
-
-  return data;
 });
 
-const getCategories = createServerFn({ method: "GET" }).handler(async () => {
-  return await db.select().from(categories);
+const getPublicCategories = createServerFn({ method: "GET" }).handler(async () => {
+  return db.select().from(categories);
 });
 
 export const Route = createFileRoute("/_public/blog/")({
   validateSearch: (search: Record<string, unknown>) => ({
     q: (search.q as string) || undefined,
-    category: (search.category as string) || undefined,
   }),
   loaderDeps: ({ search }) => ({
     q: search.q,
-    category: search.category,
   }),
   loader: async ({ deps }) => {
-    const [posts, categories] = await Promise.all([
+    const [postsData, categoriesData, site] = await Promise.all([
       getLatestPosts(),
-      getCategories(),
+      getPublicCategories(),
+      getSeoSiteData(),
     ]);
-    return { posts, categories, search: deps };
+    return { posts: postsData, categories: categoriesData, search: deps, site };
   },
   head: ({ loaderData }) => {
-    const data = loaderData as {
-      search: { q?: string; category?: string };
-    } | undefined;
+    const data = loaderData as BlogIndexLoaderData | undefined;
     const search = data?.search;
     const q = search?.q || "";
     const hasQuery = q.trim().length > 0;
-    return {
-      meta: [
-        {
-          title: hasQuery
-            ? `Search "${q}" | Lumina`
-            : "All Stories | Lumina Blog",
-        },
-        {
-          name: "description",
-          content: hasQuery
-            ? `Search results for "${q}" in Lumina stories.`
-            : "Browse all articles on design, tech, and cultural experiments.",
-        },
-      ],
-    };
+
+    if (!data?.site) {
+      return {};
+    }
+
+    return buildPublicSeo({
+      site: data.site,
+      path: "/blog",
+      title: hasQuery
+        ? `Search "${q}" | ${data.site.blogName}`
+        : `All Stories | ${data.site.blogName}`,
+      description: hasQuery
+        ? `Search results for "${q}" in ${data.site.blogName}.`
+        : data.site.defaultMetaDescription ||
+          "Browse all articles on design, tech, and cultural experiments.",
+      image: data.site.defaultOgImage,
+      indexable: !hasQuery && data.site.robotsIndexingEnabled,
+    });
   },
   component: BlogIndex,
 });
@@ -97,7 +96,6 @@ function BlogIndex() {
     search,
   } = Route.useLoaderData() as BlogIndexLoaderData;
   const q = typeof search.q === "string" ? search.q : "";
-  const category = typeof search.category === "string" ? search.category : "";
 
   const navigate = useNavigate();
   const query = q.trim().toLowerCase();
@@ -109,34 +107,19 @@ function BlogIndex() {
 
   const filteredPosts = useMemo(() => {
     return latestPosts.filter((post) => {
-      const matchesQuery =
+      return (
         !query ||
-        String(post.title || "")
-          .toLowerCase()
-          .includes(query) ||
-        String(post.excerpt || "")
-          .toLowerCase()
-          .includes(query);
-
-      const matchesCategory =
-        !category || post.category?.toLowerCase() === category.toLowerCase();
-
-      return matchesQuery && matchesCategory;
+        String(post.title || "").toLowerCase().includes(query) ||
+        String(post.excerpt || "").toLowerCase().includes(query)
+      );
     });
-  }, [latestPosts, query, category]);
+  }, [latestPosts, query]);
 
   function handleSearch(val: string) {
     setLocalSearch(val);
     navigate({
       to: ".",
-      search: (prev) => ({ ...prev, q: val || undefined }),
-    });
-  }
-
-  function handleCategory(cat: string) {
-    navigate({
-      to: ".",
-      search: (prev) => ({ ...prev, category: cat || undefined }),
+      search: () => ({ q: val || undefined }),
     });
   }
 
@@ -172,31 +155,21 @@ function BlogIndex() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={() => handleCategory("")}
-              variant={!category ? "default" : "outline"}
-              className={cn(
-                "rounded-md border border-border px-6 py-2 shadow-sm transition-all",
-              )}
-            >
-              All Stories
+            <Button asChild variant="default" className="rounded-md px-6 py-2 shadow-sm">
+              <Link to="/blog">All Stories</Link>
             </Button>
-            {dbCategories.map((cat: Category) => {
-              const isActive =
-                category && category.toLowerCase() === cat.name.toLowerCase();
-              return (
-                <Button
-                  key={cat.id}
-                  onClick={() => handleCategory(cat.name!)}
-                  variant={isActive ? "default" : "outline"}
-                  className={cn(
-                    "rounded-md border border-border px-6 py-2 shadow-sm transition-all",
-                  )}
-                >
+            {dbCategories.map((cat: Category) => (
+              <Button
+                key={cat.id}
+                asChild
+                variant="outline"
+                className="rounded-md border border-border px-6 py-2 shadow-sm transition-all"
+              >
+                <Link to="/blog/category/$slug" params={{ slug: cat.slug }}>
                   {cat.name}
-                </Button>
-              );
-            })}
+                </Link>
+              </Button>
+            ))}
           </div>
         </section>
 

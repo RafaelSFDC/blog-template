@@ -11,6 +11,8 @@ import { Badge } from "#/components/ui/badge";
 import { Newsletter } from "#/components/blog/newsletter";
 import { getPublishedHomepage } from "#/server/page-actions";
 import { PageContent } from "#/components/cms/PageContent";
+import { getSeoSiteData } from "#/server/seo-actions";
+import { buildPublicSeo } from "#/lib/seo";
 
 const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
   setResponseHeader(
@@ -35,13 +37,14 @@ const getHomepage = createServerFn({ method: "GET" }).handler(async () => {
 
 export const Route = createFileRoute("/_public/")({
   loader: async () => {
+    const site = await getSeoSiteData();
     const homepage = await getHomepage();
     if (homepage) {
-      return { homepage, latestPosts: [] };
+      return { homepage, latestPosts: [], site };
     }
 
     const latestPosts = await getTopPosts();
-    return { homepage: null, latestPosts };
+    return { homepage: null, latestPosts, site };
   },
   head: ({ loaderData }) => {
     const data = loaderData as
@@ -53,34 +56,35 @@ export const Route = createFileRoute("/_public/")({
             metaDescription?: string | null;
             ogImage?: string | null;
           } | null;
+          site: Awaited<ReturnType<typeof getSeoSiteData>>;
         }
       | undefined;
     const homepage = data?.homepage;
+    const site = data?.site;
 
-    if (homepage) {
-      const title = homepage.metaTitle || homepage.title;
-      const description = homepage.metaDescription || homepage.excerpt || "Custom homepage";
-      return {
-        meta: [
-          { title },
-          { name: "description", content: description },
-          { property: "og:title", content: title },
-          { property: "og:description", content: description },
-          ...(homepage.ogImage ? [{ property: "og:image", content: homepage.ogImage }] : []),
-        ],
-      };
+    if (!site) {
+      return {};
     }
 
-    return {
-      meta: [
-        { title: "Lumina | Elegant Stories" },
-        {
-          name: "description",
-          content:
-            "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
-        },
-      ],
-    };
+    if (homepage) {
+      return buildPublicSeo({
+        site,
+        path: "/",
+        title: homepage.metaTitle || homepage.title,
+        description: homepage.metaDescription || homepage.excerpt || site.blogDescription,
+        image: homepage.ogImage || site.defaultOgImage,
+      });
+    }
+
+    return buildPublicSeo({
+      site,
+      path: "/",
+      title: site.defaultMetaTitle || `${site.blogName} | Elegant Stories`,
+      description:
+        site.defaultMetaDescription ||
+        "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
+      image: site.defaultOgImage,
+    });
   },
   component: Home,
 });
