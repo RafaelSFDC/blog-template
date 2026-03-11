@@ -10,7 +10,6 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import { getLocale } from "#/paraglide/runtime";
-import { appSettings } from "#/db/schema";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import appCss from "../styles.css?url";
@@ -23,31 +22,11 @@ interface MyRouterContext {
   queryClient: QueryClient;
 }
 
-export interface GlobalSettings {
-  blogName: string;
-  accentColor: string;
-  fontFamily: string;
-  gaMeasurementId: string;
-  plausibleDomain: string;
-  blogLogo: string;
-  twitterProfile: string;
-  githubProfile: string;
-  linkedinProfile: string;
-  themeVariant: string;
-}
-
-const DEFAULT_SETTINGS = {
-  blogName: "Lumina",
-  accentColor: "var(--primary)",
-  fontFamily: "Inter",
-  gaMeasurementId: "",
-  plausibleDomain: "",
-  blogLogo: "",
-  twitterProfile: "",
-  githubProfile: "",
-  linkedinProfile: "",
-  themeVariant: "default",
-};
+import {
+  DEFAULT_SITE_DATA,
+  type GlobalSiteData,
+  getGlobalSiteData,
+} from "#/lib/cms";
 
 const getGlobalSettings = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -56,34 +35,10 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(
       "public, s-maxage=3600, stale-while-revalidate=86400",
     );
     try {
-      const { db } = await import("#/db/index");
-      const settings = await db.select().from(appSettings);
-      const settingsObj: Record<string, string> = {};
-      settings.forEach((s: { key: string; value: string }) => {
-        settingsObj[s.key] = s.value;
-      });
-
-      return {
-        blogName: settingsObj["blogName"] || DEFAULT_SETTINGS.blogName,
-        accentColor: settingsObj["accentColor"] || DEFAULT_SETTINGS.accentColor,
-        fontFamily: settingsObj["fontFamily"] || DEFAULT_SETTINGS.fontFamily,
-        gaMeasurementId:
-          settingsObj["gaMeasurementId"] || DEFAULT_SETTINGS.gaMeasurementId,
-        plausibleDomain:
-          settingsObj["plausibleDomain"] || DEFAULT_SETTINGS.plausibleDomain,
-        blogLogo: settingsObj["blogLogo"] || DEFAULT_SETTINGS.blogLogo,
-        twitterProfile:
-          settingsObj["twitterProfile"] || DEFAULT_SETTINGS.twitterProfile,
-        githubProfile:
-          settingsObj["githubProfile"] || DEFAULT_SETTINGS.githubProfile,
-        linkedinProfile:
-          settingsObj["linkedinProfile"] || DEFAULT_SETTINGS.linkedinProfile,
-        themeVariant:
-          settingsObj["themeVariant"] || DEFAULT_SETTINGS.themeVariant,
-      };
+      return await getGlobalSiteData();
     } catch (error) {
       console.error("Failed to fetch settings from DB, using defaults:", error);
-      return DEFAULT_SETTINGS;
+      return DEFAULT_SITE_DATA;
     }
   },
 );
@@ -101,7 +56,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   loader: () => getGlobalSettings(),
 
   head: ({ loaderData }) => {
-    const settings = loaderData as GlobalSettings;
+    const settings = loaderData as GlobalSiteData;
     const blogName = settings?.blogName || "Lumina";
     const accentColor = settings?.accentColor || "var(--primary)";
 
@@ -177,8 +132,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const settings = Route.useLoaderData() || DEFAULT_SETTINGS;
-  const fontSlug = (settings.fontFamily || DEFAULT_SETTINGS.fontFamily).replace(
+  const settings = Route.useLoaderData() || DEFAULT_SITE_DATA;
+  const fontSlug = (settings.fontFamily || DEFAULT_SITE_DATA.fontFamily).replace(
     /\s+/g,
     "+",
   );

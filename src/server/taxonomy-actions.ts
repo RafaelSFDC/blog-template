@@ -3,18 +3,7 @@ import { db } from '#/db/index'
 import { categories, tags } from '#/db/schema'
 import { requireAdminSession } from '#/lib/admin-auth'
 import { eq } from 'drizzle-orm'
-import { z } from 'zod'
-
-const categorySchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  slug: z.string().min(1, 'Slug is required'),
-  description: z.string().optional(),
-})
-
-const tagSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  slug: z.string().min(1, 'Slug is required'),
-})
+import { categorySchema, getFriendlyDbError, normalizeSlug, tagSchema } from '#/lib/cms-schema'
 
 // Categories
 export const getCategories = createServerFn({ method: 'GET' })
@@ -24,22 +13,42 @@ export const getCategories = createServerFn({ method: 'GET' })
   })
 
 export const createCategory = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof categorySchema>) => categorySchema.parse(data))
+  .inputValidator((data: unknown) => categorySchema.parse(data))
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const result = await db.insert(categories).values(data).returning()
-    return result[0]
+    try {
+      const result = await db.insert(categories).values({
+        ...data,
+        slug: normalizeSlug(data.slug, data.name),
+      }).returning()
+      return result[0]
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, 'Category') || 'Error creating category')
+    }
   })
 
 export const updateCategory = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: number, data: z.infer<typeof categorySchema> }) => data)
+  .inputValidator((data: unknown) => {
+    const parsed = data as { id: number; data: unknown }
+    return {
+      id: parsed.id,
+      data: categorySchema.parse(parsed.data),
+    }
+  })
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const result = await db.update(categories)
-      .set(data.data)
-      .where(eq(categories.id, data.id))
-      .returning()
-    return result[0]
+    try {
+      const result = await db.update(categories)
+        .set({
+          ...data.data,
+          slug: normalizeSlug(data.data.slug, data.data.name),
+        })
+        .where(eq(categories.id, data.id))
+        .returning()
+      return result[0]
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, 'Category') || 'Error updating category')
+    }
   })
 
 export const deleteCategory = createServerFn({ method: 'POST' })
@@ -58,22 +67,42 @@ export const getTags = createServerFn({ method: 'GET' })
   })
 
 export const createTag = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof tagSchema>) => tagSchema.parse(data))
+  .inputValidator((data: unknown) => tagSchema.parse(data))
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const result = await db.insert(tags).values(data).returning()
-    return result[0]
+    try {
+      const result = await db.insert(tags).values({
+        ...data,
+        slug: normalizeSlug(data.slug, data.name),
+      }).returning()
+      return result[0]
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, 'Tag') || 'Error creating tag')
+    }
   })
 
 export const updateTag = createServerFn({ method: 'POST' })
-  .inputValidator((data: { id: number, data: z.infer<typeof tagSchema> }) => data)
+  .inputValidator((data: unknown) => {
+    const parsed = data as { id: number; data: unknown }
+    return {
+      id: parsed.id,
+      data: tagSchema.parse(parsed.data),
+    }
+  })
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const result = await db.update(tags)
-      .set(data.data)
-      .where(eq(tags.id, data.id))
-      .returning()
-    return result[0]
+    try {
+      const result = await db.update(tags)
+        .set({
+          ...data.data,
+          slug: normalizeSlug(data.data.slug, data.data.name),
+        })
+        .where(eq(tags.id, data.id))
+        .returning()
+      return result[0]
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, 'Tag') || 'Error updating tag')
+    }
   })
 
 export const deleteTag = createServerFn({ method: 'POST' })

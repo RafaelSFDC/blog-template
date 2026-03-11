@@ -9,6 +9,8 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
 import { Newsletter } from "#/components/blog/newsletter";
+import { getPublishedHomepage } from "#/server/page-actions";
+import { PageContent } from "#/components/cms/PageContent";
 
 const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
   setResponseHeader(
@@ -23,23 +25,85 @@ const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
     .limit(3);
 });
 
+const getHomepage = createServerFn({ method: "GET" }).handler(async () => {
+  setResponseHeader(
+    "Cache-Control",
+    "public, s-maxage=300, stale-while-revalidate=600",
+  );
+  return getPublishedHomepage();
+});
+
 export const Route = createFileRoute("/_public/")({
-  loader: () => getTopPosts(),
-  head: () => ({
-    meta: [
-      { title: "Lumina | Elegant Stories" },
-      {
-        name: "description",
-        content:
-          "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
-      },
-    ],
-  }),
+  loader: async () => {
+    const homepage = await getHomepage();
+    if (homepage) {
+      return { homepage, latestPosts: [] };
+    }
+
+    const latestPosts = await getTopPosts();
+    return { homepage: null, latestPosts };
+  },
+  head: ({ loaderData }) => {
+    const data = loaderData as
+      | {
+          homepage: {
+            title: string;
+            metaTitle?: string | null;
+            excerpt?: string | null;
+            metaDescription?: string | null;
+            ogImage?: string | null;
+          } | null;
+        }
+      | undefined;
+    const homepage = data?.homepage;
+
+    if (homepage) {
+      const title = homepage.metaTitle || homepage.title;
+      const description = homepage.metaDescription || homepage.excerpt || "Custom homepage";
+      return {
+        meta: [
+          { title },
+          { name: "description", content: description },
+          { property: "og:title", content: title },
+          { property: "og:description", content: description },
+          ...(homepage.ogImage ? [{ property: "og:image", content: homepage.ogImage }] : []),
+        ],
+      };
+    }
+
+    return {
+      meta: [
+        { title: "Lumina | Elegant Stories" },
+        {
+          name: "description",
+          content:
+            "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
+        },
+      ],
+    };
+  },
   component: Home,
 });
 
 function Home() {
-  const latestPosts = Route.useLoaderData() as Post[];
+  const { homepage, latestPosts } = Route.useLoaderData() as {
+    homepage: {
+      title: string;
+      excerpt?: string | null;
+      content: string;
+    } | null;
+    latestPosts: Post[];
+  };
+
+  if (homepage) {
+    return (
+      <PageContent
+        title={homepage.title}
+        description={homepage.excerpt}
+        content={homepage.content}
+      />
+    );
+  }
 
   return (
     <main className="page-wrap pb-16 pt-6">

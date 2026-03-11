@@ -5,13 +5,15 @@ import { Menu, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { LuminaLogo } from "./LuminaLogo";
+import type { GlobalSiteData } from "#/lib/cms";
 
 export default function Header() {
   const router = useRouter();
   const settings = router.state.matches.find((m) => m.routeId === "__root__")
-    ?.loaderData as { blogName?: string; blogLogo?: string };
+    ?.loaderData as GlobalSiteData | undefined;
   const blogName = settings?.blogName || "Lumina";
   const blogLogo = settings?.blogLogo || "";
+  const primaryMenu = settings?.primaryMenu ?? [];
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -59,50 +61,32 @@ export default function Header() {
             }`}
           >
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-auto py-2 px-4 shadow-sm"
-              >
-                <Link to="/" onClick={() => setIsMenuOpen(false)}>
-                  Home
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-auto py-2 px-4 shadow-sm"
-              >
-                <Link
-                  to="/blog"
-                  search={{ q: "", category: "" }}
-                  onClick={() => setIsMenuOpen(false)}
+              {(primaryMenu.length > 0
+                ? primaryMenu
+                : [
+                    { id: 0, label: "Home", href: "/", kind: "internal" as const },
+                    { id: 1, label: "Stories", href: "/blog", kind: "internal" as const },
+                    { id: 2, label: "About", href: "/about", kind: "internal" as const },
+                    { id: 3, label: "Contact", href: "/contact", kind: "internal" as const },
+                  ]
+              ).map((item) => (
+                <Button
+                  key={item.id}
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-auto px-4 py-2 shadow-sm"
                 >
-                  Stories
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-auto py-2 px-4 shadow-sm"
-              >
-                <Link to="/about" onClick={() => setIsMenuOpen(false)}>
-                  About
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-auto py-2 px-4 shadow-sm"
-              >
-                <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
-                  Contact
-                </Link>
-              </Button>
+                  <a
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    target={item.kind === "external" ? "_blank" : undefined}
+                    rel={item.kind === "external" ? "noopener noreferrer" : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </Button>
+              ))}
             </div>
 
             <div className="flex items-center gap-2 border-t border-border pt-4 lg:border-none lg:pt-0">

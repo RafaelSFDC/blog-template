@@ -32,22 +32,21 @@ import {
   SelectGroup,
 } from "#/components/ui/select";
 import { toast } from "sonner";
+import { settingsSchema } from "#/lib/cms-schema";
 
-const socialLinkSchema = z.object({
-  platform: z.string(),
-  url: z.string(),
-});
-
-const settingsSchema = z.object({
+const settingsFormSchema = z.object({
   blogName: z.string().min(1, "Publication Name is required"),
   blogDescription: z.string(),
   blogLogo: z.string(),
   fontFamily: z.string(),
   themeVariant: z.string(),
-  socialLinks: z.array(socialLinkSchema),
+  socialLinks: z.array(
+    z.object({
+      platform: z.string(),
+      url: z.string(),
+    }),
+  ),
 });
-
-type SettingsFormInput = z.infer<typeof settingsSchema>;
 
 const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -100,7 +99,7 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 const updateAppSettings = createServerFn({ method: "POST" })
-  .inputValidator((input: SettingsFormInput) => input)
+  .inputValidator((input: unknown) => settingsSchema.parse(input))
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
@@ -117,7 +116,7 @@ const updateAppSettings = createServerFn({ method: "POST" })
 
     await upsert("blogName", data.blogName);
     await upsert("blogDescription", data.blogDescription);
-    await upsert("blogLogo", data.blogLogo);
+    await upsert("blogLogo", data.blogLogo || "");
     await upsert("fontFamily", data.fontFamily);
     await upsert("themeVariant", data.themeVariant);
     await upsert("socialLinks", JSON.stringify(data.socialLinks));
@@ -147,7 +146,7 @@ function SettingsPage() {
       socialLinks: initialSettings.socialLinks,
     },
     validators: {
-      onChange: settingsSchema,
+      onChange: settingsFormSchema,
     },
     onSubmit: async ({ value }) => {
       setSaving(true);

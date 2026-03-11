@@ -125,6 +125,31 @@ export const posts = table("posts", {
   updatedAt: timestamp("updated_at").default(now),
 });
 
+export const pages = table(
+  "pages",
+  {
+    id: autoIncrementId("id"),
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    excerpt: text("excerpt"),
+    content: text("content").notNull(),
+    status: text("status").notNull().default("draft"),
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    ogImage: text("og_image"),
+    isHome: boolean("is_home").notNull().default(false),
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("pages_slug_idx").on(t.slug),
+    index("pages_status_idx").on(t.status),
+    index("pages_is_home_idx").on(t.isHome),
+  ],
+);
+
 export const comments = table(
   "comments",
   {
@@ -179,6 +204,35 @@ export const appSettings = table("app_settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").default(now),
 });
+
+export const menus = table("menus", {
+  id: autoIncrementId("id"),
+  key: text("key").notNull().unique(),
+  label: text("label").notNull(),
+  createdAt: timestamp("created_at").default(now),
+  updatedAt: timestamp("updated_at").default(now),
+});
+
+export const menuItems = table(
+  "menu_items",
+  {
+    id: autoIncrementId("id"),
+    menuId: integer("menu_id")
+      .notNull()
+      .references(() => menus.id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    href: text("href").notNull(),
+    kind: text("kind").notNull().default("internal"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("menu_items_menu_id_idx").on(t.menuId),
+    index("menu_items_sort_order_idx").on(t.menuId, t.sortOrder),
+  ],
+);
 
 export const subscribers = table("subscribers", {
   id: autoIncrementId("id"),

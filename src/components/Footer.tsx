@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "@tanstack/react-router";
+import { useLoaderData } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import {
   Twitter,
@@ -10,45 +10,44 @@ import {
   Facebook,
   Link as LinkIcon,
 } from "lucide-react";
-
-interface SocialLink {
-  platform: string;
-  url: string;
-}
-
-interface RootSettings {
-  blogName?: string;
-  socialLinks?: string;
-}
+import type { GlobalSiteData } from "#/lib/cms";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const settings = useLoaderData({ from: "__root__" }) as RootSettings;
+  const settings = useLoaderData({ from: "__root__" }) as GlobalSiteData;
   const blogName = settings?.blogName || "Lumina";
+  const footerMenu = settings?.footerMenu ?? [];
+  const socialLinks = settings?.socialLinks ?? [];
 
   return (
     <footer className=" mt-24 border-t border-border bg-muted px-4 pb-12 pt-12 text-center text-foreground  transition-all">
       <div className="page-wrap">
         <div className="mb-8 flex flex-wrap justify-center gap-4 text-sm font-bold">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/blog" search={{ q: "", category: "" }}>
-              Stories
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/about">About</Link>
-          </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/dashboard">Dashboard</Link>
-          </Button>
+          {(footerMenu.length > 0
+            ? footerMenu
+            : [
+                { id: 0, label: "Stories", href: "/blog", kind: "internal" },
+                { id: 1, label: "About", href: "/about", kind: "internal" },
+                { id: 2, label: "Dashboard", href: "/dashboard", kind: "internal" },
+              ]
+          ).map((item) => (
+            <Button key={item.id} asChild variant="ghost" size="sm">
+              <a
+                href={item.href}
+                target={item.kind === "external" ? "_blank" : undefined}
+                rel={item.kind === "external" ? "noopener noreferrer" : undefined}
+              >
+                {item.label}
+              </a>
+            </Button>
+          ))}
         </div>
         <p className="m-0 text-sm font-medium ">
           &copy; {year} {blogName}. Made with creativity and joy.
         </p>
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
-        {settings?.socialLinks &&
-          (JSON.parse(settings.socialLinks) as SocialLink[]).map((link, i) => {
+        {socialLinks.map((link, i) => {
             const platform = link.platform.toLowerCase();
             const Icon =
               (

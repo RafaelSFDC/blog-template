@@ -14,6 +14,7 @@ import {
   Inbox,
   Webhook,
   BarChart3,
+  Navigation,
 } from "lucide-react";
 import { authClient } from "#/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
@@ -79,6 +80,11 @@ const sidebarLinks = [
     label: "Pages",
     icon: Library,
     to: "/dashboard/pages",
+  },
+  {
+    label: "Menus",
+    icon: Navigation,
+    to: "/dashboard/menus",
   },
   {
     label: "Users",

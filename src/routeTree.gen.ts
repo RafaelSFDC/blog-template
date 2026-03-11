@@ -17,11 +17,13 @@ import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
+import { Route as DashboardMenusRouteImport } from './routes/dashboard/menus'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAuthRouteImport } from './routes/_public/auth'
 import { Route as PublicAccountRouteImport } from './routes/_public/account'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as PublicSplatRouteImport } from './routes/_public/$'
 import { Route as DashboardWebhooksIndexRouteImport } from './routes/dashboard/webhooks/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
 import { Route as DashboardTagsIndexRouteImport } from './routes/dashboard/tags/index'
@@ -36,6 +38,7 @@ import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index
 import { Route as DashboardWebhooksNewRouteImport } from './routes/dashboard/webhooks/new'
 import { Route as DashboardUsersSubscribersRouteImport } from './routes/dashboard/users/subscribers'
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
+import { Route as DashboardPagesNewRouteImport } from './routes/dashboard/pages/new'
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
@@ -52,6 +55,7 @@ import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/re
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
 import { Route as DashboardPostsPostIdEditRouteImport } from './routes/dashboard/posts/$postId.edit'
+import { Route as DashboardPagesPageIdEditRouteImport } from './routes/dashboard/pages/$pageId.edit'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -92,6 +96,11 @@ const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardMenusRoute = DashboardMenusRouteImport.update({
+  id: '/menus',
+  path: '/menus',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const ApiCommentsRoute = ApiCommentsRouteImport.update({
   id: '/api/comments',
   path: '/api/comments',
@@ -115,6 +124,11 @@ const PublicAccountRoute = PublicAccountRouteImport.update({
 const PublicAboutRoute = PublicAboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSplatRoute = PublicSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => PublicRoute,
 } as any)
 const DashboardWebhooksIndexRoute = DashboardWebhooksIndexRouteImport.update({
@@ -188,6 +202,11 @@ const DashboardUsersSubscribersRoute =
 const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
   id: '/posts/new',
   path: '/posts/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPagesNewRoute = DashboardPagesNewRouteImport.update({
+  id: '/pages/new',
+  path: '/pages/new',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardNewslettersNewRoute = DashboardNewslettersNewRouteImport.update({
@@ -273,15 +292,23 @@ const DashboardPostsPostIdEditRoute =
     path: '/posts/$postId/edit',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardPagesPageIdEditRoute =
+  DashboardPagesPageIdEditRouteImport.update({
+    id: '/pages/$pageId/edit',
+    path: '/pages/$pageId/edit',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/$': typeof PublicSplatRoute
   '/about': typeof PublicAboutRoute
   '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -302,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
+  '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
@@ -316,14 +344,17 @@ export interface FileRoutesByFullPath {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesByTo {
+  '/$': typeof PublicSplatRoute
   '/about': typeof PublicAboutRoute
   '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -345,6 +376,7 @@ export interface FileRoutesByTo {
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
+  '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
@@ -359,17 +391,20 @@ export interface FileRoutesByTo {
   '/dashboard/tags': typeof DashboardTagsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks': typeof DashboardWebhooksIndexRoute
+  '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
+  '/_public/$': typeof PublicSplatRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/account': typeof PublicAccountRoute
   '/_public/auth': typeof PublicAuthRouteWithChildren
   '/_public/contact': typeof PublicContactRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
@@ -391,6 +426,7 @@ export interface FileRoutesById {
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
+  '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
   '/dashboard/users/subscribers': typeof DashboardUsersSubscribersRoute
   '/dashboard/webhooks/new': typeof DashboardWebhooksNewRoute
@@ -405,6 +441,7 @@ export interface FileRoutesById {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
 }
 export interface FileRouteTypes {
@@ -412,11 +449,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/$'
     | '/about'
     | '/account'
     | '/auth'
     | '/contact'
     | '/api/comments'
+    | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -437,6 +476,7 @@ export interface FileRouteTypes {
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
+    | '/dashboard/pages/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
@@ -451,14 +491,17 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/$'
     | '/about'
     | '/account'
     | '/auth'
     | '/contact'
     | '/api/comments'
+    | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -480,6 +523,7 @@ export interface FileRouteTypes {
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
+    | '/dashboard/pages/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
@@ -494,16 +538,19 @@ export interface FileRouteTypes {
     | '/dashboard/tags'
     | '/dashboard/users'
     | '/dashboard/webhooks'
+    | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   id:
     | '__root__'
     | '/_public'
     | '/dashboard'
+    | '/_public/$'
     | '/_public/about'
     | '/_public/account'
     | '/_public/auth'
     | '/_public/contact'
     | '/api/comments'
+    | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/settings'
     | '/rss/xml'
@@ -525,6 +572,7 @@ export interface FileRouteTypes {
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
+    | '/dashboard/pages/new'
     | '/dashboard/posts/new'
     | '/dashboard/users/subscribers'
     | '/dashboard/webhooks/new'
@@ -539,6 +587,7 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -616,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMessagesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/menus': {
+      id: '/dashboard/menus'
+      path: '/menus'
+      fullPath: '/dashboard/menus'
+      preLoaderRoute: typeof DashboardMenusRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/comments': {
       id: '/api/comments'
       path: '/api/comments'
@@ -649,6 +705,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/$': {
+      id: '/_public/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof PublicSplatRouteImport
       parentRoute: typeof PublicRoute
     }
     '/dashboard/webhooks/': {
@@ -747,6 +810,13 @@ declare module '@tanstack/react-router' {
       path: '/posts/new'
       fullPath: '/dashboard/posts/new'
       preLoaderRoute: typeof DashboardPostsNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/pages/new': {
+      id: '/dashboard/pages/new'
+      path: '/pages/new'
+      fullPath: '/dashboard/pages/new'
+      preLoaderRoute: typeof DashboardPagesNewRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/newsletters/new': {
@@ -861,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPostsPostIdEditRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/pages/$pageId/edit': {
+      id: '/dashboard/pages/$pageId/edit'
+      path: '/pages/$pageId/edit'
+      fullPath: '/dashboard/pages/$pageId/edit'
+      preLoaderRoute: typeof DashboardPagesPageIdEditRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -883,6 +960,7 @@ const PublicAuthRouteWithChildren = PublicAuthRoute._addFileChildren(
 )
 
 interface PublicRouteChildren {
+  PublicSplatRoute: typeof PublicSplatRoute
   PublicAboutRoute: typeof PublicAboutRoute
   PublicAccountRoute: typeof PublicAccountRoute
   PublicAuthRoute: typeof PublicAuthRouteWithChildren
@@ -893,6 +971,7 @@ interface PublicRouteChildren {
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicSplatRoute: PublicSplatRoute,
   PublicAboutRoute: PublicAboutRoute,
   PublicAccountRoute: PublicAccountRoute,
   PublicAuthRoute: PublicAuthRouteWithChildren,
@@ -906,10 +985,12 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface DashboardRouteChildren {
+  DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
+  DashboardPagesNewRoute: typeof DashboardPagesNewRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
   DashboardUsersSubscribersRoute: typeof DashboardUsersSubscribersRoute
   DashboardWebhooksNewRoute: typeof DashboardWebhooksNewRoute
@@ -923,14 +1004,17 @@ interface DashboardRouteChildren {
   DashboardTagsIndexRoute: typeof DashboardTagsIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
   DashboardWebhooksIndexRoute: typeof DashboardWebhooksIndexRoute
+  DashboardPagesPageIdEditRoute: typeof DashboardPagesPageIdEditRoute
   DashboardPostsPostIdEditRoute: typeof DashboardPostsPostIdEditRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardMenusRoute: DashboardMenusRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
+  DashboardPagesNewRoute: DashboardPagesNewRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
   DashboardUsersSubscribersRoute: DashboardUsersSubscribersRoute,
   DashboardWebhooksNewRoute: DashboardWebhooksNewRoute,
@@ -944,6 +1028,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardTagsIndexRoute: DashboardTagsIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
   DashboardWebhooksIndexRoute: DashboardWebhooksIndexRoute,
+  DashboardPagesPageIdEditRoute: DashboardPagesPageIdEditRoute,
   DashboardPostsPostIdEditRoute: DashboardPostsPostIdEditRoute,
 }
 

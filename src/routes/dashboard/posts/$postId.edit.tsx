@@ -34,6 +34,11 @@ import {
   SelectValue,
 } from "#/components/ui/select";
 import { toast } from "sonner";
+import {
+  getFriendlyDbError,
+  normalizeSlug,
+  postServerSchema,
+} from "#/lib/cms-schema";
 
 const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -87,26 +92,39 @@ const getPostForEdit = createServerFn({ method: "GET" })
   });
 
 const updatePost = createServerFn({ method: "POST" })
-  .inputValidator((input: PostFormInput) => input)
+  .inputValidator((input: unknown) =>
+    postServerSchema
+      .extend({ id: z.number().int().positive() })
+      .parse(input),
+  )
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
-    await db
-      .update(posts)
-      .set({
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
-        ogImage: data.ogImage,
-        isPremium: data.isPremium,
-        status: data.status,
-        publishedAt: data.publishedAt || new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(posts.id, data.id));
+    const slug = normalizeSlug(data.slug, data.title);
+    if (!slug) {
+      throw new Error("Post slug could not be generated");
+    }
+
+    try {
+      await db
+        .update(posts)
+        .set({
+          title: data.title,
+          slug,
+          excerpt: data.excerpt,
+          content: data.content,
+          metaTitle: data.metaTitle,
+          metaDescription: data.metaDescription,
+          ogImage: data.ogImage,
+          isPremium: data.isPremium,
+          status: data.status,
+          publishedAt: data.publishedAt || new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(posts.id, data.id));
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, "Post") || "Could not update post");
+    }
 
     // Sync categories
     await db.delete(postCategories).where(eq(postCategories.postId, data.id));

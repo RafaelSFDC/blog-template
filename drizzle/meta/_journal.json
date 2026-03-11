@@ -36,6 +36,13 @@
       "when": 1773059200428,
       "tag": "0004_condemned_groot",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1773221400000,
+      "tag": "0005_hushed_navigation",
+      "breakpoints": true
     }
   ]
 }
