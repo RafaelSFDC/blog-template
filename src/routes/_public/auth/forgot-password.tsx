@@ -34,9 +34,9 @@ function ForgotPasswordPage() {
         });
         setSubmittedEmail(value.email);
         setSuccess(true);
-      } catch (err: any) {
+      } catch (err) {
         const msg =
-          err.message || "Failed to send reset email. Please try again.";
+          err instanceof Error ? err.message : "Failed to send reset email. Please try again.";
         toast.error(msg);
       }
     },
@@ -77,7 +77,7 @@ function ForgotPasswordPage() {
           Forgot Password?
         </h2>
         <p className="text-muted-foreground">
-          No worries, we'll send you reset instructions.
+          No worries, we&apos;ll send you reset instructions.
         </p>
       </div>
 
@@ -91,7 +91,8 @@ function ForgotPasswordPage() {
       >
         <form.Field
           name="email"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Email</FieldLabel>
               <FieldContent>
@@ -115,11 +116,12 @@ function ForgotPasswordPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
               variant="default"
@@ -130,7 +132,7 @@ function ForgotPasswordPage() {
               {isSubmitting ? "Sending..." : "Reset Password"}
             </Button>
           )}
-        />
+        </form.Subscribe>
       </form>
 
       <div className="text-center pt-2">

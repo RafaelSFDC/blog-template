@@ -9,7 +9,7 @@ import { LuminaLogo } from "./LuminaLogo";
 export default function Header() {
   const router = useRouter();
   const settings = router.state.matches.find((m) => m.routeId === "__root__")
-    ?.loaderData as any;
+    ?.loaderData as { blogName?: string; blogLogo?: string };
   const blogName = settings?.blogName || "Lumina";
   const blogLogo = settings?.blogLogo || "";
 

@@ -12,7 +12,7 @@ export const getMediaItems = createServerFn({ method: 'GET' })
   })
 
 export const uploadMedia = createServerFn({ method: 'POST' })
-  .inputValidator((data: any) => data)
+  .inputValidator((data: FormData) => data)
   .handler(async ({ data }: { data: FormData }) => {
     await requireAdminSession()
     const storage = getBinding('STORAGE')

@@ -81,7 +81,7 @@ function ContactPage() {
             Message Received!
           </h1>
           <p className="text-muted-foreground text-xl mb-10 font-bold leading-relaxed">
-            Thank you for reaching out. Your message is in our inbox, and we'll
+            Thank you for reaching out. Your message is in our inbox, and we&apos;ll
             get back to you sooner than you think.
           </p>
           <Button
@@ -134,7 +134,7 @@ function ContactPage() {
               <div className="mt-12 pt-8 border-t border-border">
                 <p className="text-muted-foreground font-bold leading-relaxed">
                   We typically respond within 24 hours during working days. For
-                  urgent editorial inquiries, please include "URGENT" in the
+                  urgent editorial inquiries, please include &quot;URGENT&quot; in the
                   subject line.
                 </p>
               </div>
@@ -157,7 +157,8 @@ function ContactPage() {
                     onChange: ({ value }) =>
                       !value ? "Full name required" : undefined,
                   }}
-                  children={(field) => {
+                >
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -176,12 +177,12 @@ function ContactPage() {
                           placeholder="John Doe"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
                 <form.Field
                   name="email"
                   validators={{
@@ -192,7 +193,8 @@ function ContactPage() {
                           ? "Invalid email"
                           : undefined,
                   }}
-                  children={(field) => {
+                >
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -212,12 +214,12 @@ function ContactPage() {
                           placeholder="john@example.com"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
               </div>
               <form.Field
                 name="subject"
@@ -229,7 +231,8 @@ function ContactPage() {
                         ? "Subject too short"
                         : undefined,
                 }}
-                children={(field) => {
+              >
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -247,13 +250,11 @@ function ContactPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="How can we help?"
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
-                      )}
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
                 }}
-              />
+              </form.Field>
               <form.Field
                 name="message"
                 validators={{
@@ -264,7 +265,8 @@ function ContactPage() {
                         ? "Message too short"
                         : undefined,
                 }}
-                children={(field) => {
+              >
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -283,18 +285,17 @@ function ContactPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="Your message here..."
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
-                      )}
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
                 }}
-              />
+              </form.Field>
 
               <div className="pt-4">
                 <form.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, isSubmitting]) => (
+                >
+                  {([canSubmit, isSubmitting]) => (
                     <Button
                       type="submit"
                       variant="default"
@@ -306,7 +307,7 @@ function ContactPage() {
                       {isSubmitting ? "Sending..." : "Send"}
                     </Button>
                   )}
-                />
+                </form.Subscribe>
               </div>
             </form>
           </div>

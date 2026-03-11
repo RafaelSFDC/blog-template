@@ -4,6 +4,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin as adminPlugin } from "better-auth/plugins";
 import { db } from "../db/index";
 import * as schema from "../db/schema";
+import { type InferSelectModel } from "drizzle-orm";
+
+type User = InferSelectModel<typeof schema.user>;
 import {
   ac,
   reader,
@@ -22,7 +25,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user: any) => {
+        before: async (user: User) => {
           // Check if any user already exists
           const existingUser = await db
             .select({ id: schema.user.id })
@@ -31,13 +34,15 @@ export const auth = betterAuth({
           const isFirstUser = existingUser.length === 0;
 
           return {
-            ...user,
-            role: isFirstUser ? "admin" : "reader",
-          } as any;
+            data: {
+              ...user,
+              role: isFirstUser ? "admin" : "reader",
+            } as User,
+          };
         },
       },
       update: {
-        before: async (user: any) => {
+        before: async (user: User) => {
           // Prevent users from performing critical actions on themselves
           const { getAuthSession } = await import("./admin-auth");
           const session = await getAuthSession();
@@ -45,7 +50,7 @@ export const auth = betterAuth({
           if (session?.user?.id === user.id) {
             // Prevent self-role modification
             if (user.role) {
-              const currentRole = (session?.user as any)?.role;
+              const currentRole = (session?.user as { role?: string })?.role;
               if (currentRole && currentRole !== user.role) {
                 throw new Error("You cannot change your own role");
               }
@@ -53,7 +58,8 @@ export const auth = betterAuth({
 
             // Prevent self-banning
             if (user.banned === true) {
-              const isCurrentlyBanned = (session?.user as any)?.banned;
+              const isCurrentlyBanned = (session?.user as { banned?: boolean })
+                ?.banned;
               if (!isCurrentlyBanned) {
                 throw new Error("You cannot ban yourself");
               }
@@ -63,7 +69,7 @@ export const auth = betterAuth({
         },
       },
       delete: {
-        before: async (user: any) => {
+        before: async (user: { id: string }) => {
           const { getAuthSession } = await import("./admin-auth");
           const session = await getAuthSession();
 
@@ -76,7 +82,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    async sendResetPassword({ user, url }: { user: any; url: string }) {
+    async sendResetPassword({ user, url }: { user: User; url: string }) {
       const { resend: defaultResend } = await import("./resend");
       const { Resend } = await import("resend");
       const { appSettings } = await import("../db/schema");

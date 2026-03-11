@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 
-interface Post {
+export interface Post {
   id: number;
   slug: string;
   title: string;
   excerpt: string;
-  publishedAt: Date | null;
+  publishedAt: Date | string | null;
   coverImage?: string | null;
   category?: string | null;
 }

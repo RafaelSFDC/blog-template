@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { Tags, Plus, Pencil, Trash2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "#/components/ui/button";
 import {
   getTags,
@@ -104,12 +104,12 @@ function TagsPage() {
     form.reset();
   };
 
-  const handleEdit = (tag: any) => {
+  const handleEdit = useCallback((tag: typeof tags[0]) => {
     setEditingId(tag.id);
     form.setFieldValue("name", tag.name);
     form.setFieldValue("slug", tag.slug);
     setIsAdding(false);
-  };
+  }, [form]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +117,7 @@ function TagsPage() {
     form.handleSubmit();
   };
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<typeof tags[0]>[]>(
     () => [
       {
         accessorKey: "name",
@@ -172,7 +172,7 @@ function TagsPage() {
         },
       },
     ],
-    [],
+    [handleEdit, deleteMutation],
   );
 
   return (
@@ -198,9 +198,8 @@ function TagsPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <FieldGroup>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <form.Field
-                  name="name"
-                  children={(field) => {
+                <form.Field name="name">
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -226,15 +225,14 @@ function TagsPage() {
                           placeholder="e.g. React"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
-                <form.Field
-                  name="slug"
-                  children={(field) => {
+                </form.Field>
+                <form.Field name="slug">
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -250,12 +248,12 @@ function TagsPage() {
                           placeholder="e.g. react"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
               </div>
             </FieldGroup>
             <div className="flex gap-2">

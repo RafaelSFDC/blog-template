@@ -67,7 +67,7 @@ export function useTracking() {
             });
           }
         }
-      } catch (e) {
+      } catch {
         // Silently fail analytics
       }
     };

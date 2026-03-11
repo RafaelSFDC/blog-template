@@ -5,12 +5,9 @@ config({ path: ['.env.local', '.env'] })
 
 const dbType = process.env.DB_TYPE || 'sqlite'
 
-const credentials: any = {
+const credentials = {
   url: process.env.DATABASE_URL || 'blog.db',
-}
-
-if (dbType === 'libsql') {
-  credentials.authToken = process.env.DATABASE_AUTH_TOKEN
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 }
 
 export default defineConfig({

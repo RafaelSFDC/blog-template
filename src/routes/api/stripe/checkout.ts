@@ -57,9 +57,10 @@ export const Route = createFileRoute('/api/stripe/checkout')({
             return new Response(JSON.stringify({ url: checkoutSession.url }), {
                 headers: { 'Content-Type': 'application/json' },
             })
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Stripe error:', error)
-            return new Response(error.message, { status: 500 })
+            const message = error instanceof Error ? error.message : 'Internal Server Error'
+            return new Response(message, { status: 500 })
         }
       },
     }

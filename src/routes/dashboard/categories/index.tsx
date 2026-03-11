@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { FolderTree, Plus, Pencil, Trash2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "#/components/ui/button";
 import {
   getCategories,
@@ -65,9 +65,9 @@ function CategoriesPage() {
         description: value.description || "",
       };
       if (editingId) {
-        updateMutation.mutate({ data: { id: editingId, data: data as any } });
+        updateMutation.mutate({ data: { id: editingId, data: data } });
       } else {
-        createMutation.mutate({ data: data as any });
+        createMutation.mutate({ data: data });
       }
     },
   });
@@ -112,13 +112,13 @@ function CategoriesPage() {
     form.reset();
   };
 
-  const handleEdit = (category: any) => {
+  const handleEdit = useCallback((category: typeof categories[0]) => {
     setEditingId(category.id);
     form.setFieldValue("name", category.name);
     form.setFieldValue("slug", category.slug);
     form.setFieldValue("description", category.description || "");
     setIsAdding(false);
-  };
+  }, [form]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +126,7 @@ function CategoriesPage() {
     form.handleSubmit();
   };
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<typeof categories[0]>[]>(
     () => [
       {
         accessorKey: "name",
@@ -190,7 +190,7 @@ function CategoriesPage() {
         },
       },
     ],
-    [],
+    [handleEdit, deleteMutation],
   );
 
   return (
@@ -216,9 +216,8 @@ function CategoriesPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <FieldGroup>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <form.Field
-                  name="name"
-                  children={(field) => {
+                <form.Field name="name">
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -244,15 +243,14 @@ function CategoriesPage() {
                           placeholder="e.g. Technology"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
-                <form.Field
-                  name="slug"
-                  children={(field) => {
+                </form.Field>
+                <form.Field name="slug">
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -268,16 +266,15 @@ function CategoriesPage() {
                           placeholder="e.g. technology"
                         />
                         {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
               </div>
-              <form.Field
-                name="description"
-                children={(field) => {
+              <form.Field name="description">
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -291,13 +288,11 @@ function CategoriesPage() {
                         className="min-h-[100px]"
                         placeholder="Optional description..."
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
-                      )}
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
                 }}
-              />
+              </form.Field>
             </FieldGroup>
             <div className="flex gap-2">
               <Button

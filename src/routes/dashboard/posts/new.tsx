@@ -66,6 +66,10 @@ interface PostFormInput {
   tagIds: number[];
 }
 
+type PostStatus = PostFormInput["status"];
+type Category = Awaited<ReturnType<typeof getCategories>>[number];
+type Tag = Awaited<ReturnType<typeof getTags>>[number];
+
 const createPost = createServerFn({ method: "POST" })
   .inputValidator((input: PostFormInput) => input)
   .handler(async ({ data }) => {
@@ -214,7 +218,7 @@ function NewPostPage() {
     queryKey: ["tags"],
     queryFn: () => getTags(),
   });
-  async function handleSubmit(event: any) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
     form.handleSubmit();
@@ -234,9 +238,8 @@ function NewPostPage() {
         className="bg-card border shadow-sm mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8"
       >
         <FieldGroup>
-          <form.Field
-            name="title"
-            children={(field) => {
+          <form.Field name="title">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -259,16 +262,15 @@ function NewPostPage() {
                     placeholder="Designing A Better Publishing Workflow…"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="slug"
-            children={(field) => {
+          <form.Field name="slug">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -284,16 +286,15 @@ function NewPostPage() {
                     placeholder="designing-a-better-publishing-workflow…"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="excerpt"
-            children={(field) => {
+          <form.Field name="excerpt">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -308,17 +309,16 @@ function NewPostPage() {
                     className="min-h-28 w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
-            <form.Field
-              name="categoryIds"
-              children={(field) => (
+            <form.Field name="categoryIds">
+              {(field) => (
                 <Field>
                   <FieldLabel>Categories</FieldLabel>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
@@ -327,7 +327,7 @@ function NewPostPage() {
                         No categories available.
                       </p>
                     ) : (
-                      categories.map((cat: any) => (
+                      categories.map((cat: Category) => (
                         <label
                           key={cat.id}
                           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors"
@@ -357,11 +357,10 @@ function NewPostPage() {
                   </div>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="tagIds"
-              children={(field) => (
+            <form.Field name="tagIds">
+              {(field) => (
                 <Field>
                   <FieldLabel>Tags</FieldLabel>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
@@ -370,7 +369,7 @@ function NewPostPage() {
                         No tags available.
                       </p>
                     ) : (
-                      tags.map((tag: any) => (
+                      tags.map((tag: Tag) => (
                         <label
                           key={tag.id}
                           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors"
@@ -400,12 +399,11 @@ function NewPostPage() {
                   </div>
                 </Field>
               )}
-            />
+            </form.Field>
           </div>
 
-          <form.Field
-            name="content"
-            children={(field) => {
+          <form.Field name="content">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -415,12 +413,12 @@ function NewPostPage() {
                     onChange={field.handleChange}
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
         </FieldGroup>
 
         <div className="border-t border-border pt-6">
@@ -436,9 +434,8 @@ function NewPostPage() {
 
           {showSEO && (
             <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
-              <form.Field
-                name="metaTitle"
-                children={(field) => (
+              <form.Field name="metaTitle">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>
                       Meta Title (Google Title)
@@ -454,10 +451,9 @@ function NewPostPage() {
                     />
                   </Field>
                 )}
-              />
-              <form.Field
-                name="metaDescription"
-                children={(field) => (
+              </form.Field>
+              <form.Field name="metaDescription">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>
                       Meta Description
@@ -473,10 +469,9 @@ function NewPostPage() {
                     />
                   </Field>
                 )}
-              />
-              <form.Field
-                name="ogImage"
-                children={(field) => (
+              </form.Field>
+              <form.Field name="ogImage">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>OG Image URL</FieldLabel>
                     <Input
@@ -490,19 +485,20 @@ function NewPostPage() {
                     />
                   </Field>
                 )}
-              />
+              </form.Field>
             </div>
           )}
         </div>
 
-        <form.Field
-          name="isPremium"
-          children={(field) => (
+        <form.Field name="isPremium">
+          {(field) => (
             <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
               <Switch
                 id={field.name}
                 checked={field.state.value}
-                onCheckedChange={(val) => field.handleChange(val as any)}
+                onCheckedChange={(checked) =>
+                  field.handleChange(checked === true)
+                }
               />
               <label
                 htmlFor={field.name}
@@ -517,17 +513,16 @@ function NewPostPage() {
               </label>
             </div>
           )}
-        />
+        </form.Field>
 
         <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
-          <form.Field
-            name="status"
-            children={(field) => (
+          <form.Field name="status">
+            {(field) => (
               <Field>
                 <FieldLabel htmlFor={field.name}>Status</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(val) => field.handleChange(val as any)}
+                  onValueChange={(val) => field.handleChange(val as PostStatus)}
                 >
                   <SelectTrigger id={field.name}>
                     <SelectValue placeholder="Select status" />
@@ -541,16 +536,14 @@ function NewPostPage() {
                 </Select>
               </Field>
             )}
-          />
+          </form.Field>
 
-          <form.Subscribe
-            selector={(state) => state.values.status}
-            children={(status: any) => {
-              if (status !== ("scheduled" as any)) return null;
+          <form.Subscribe selector={(state) => state.values.status}>
+            {(status: PostStatus) => {
+              if (status !== "scheduled") return null;
               return (
-                <form.Field
-                  name="publishedAt"
-                  children={(field) => (
+                <form.Field name="publishedAt">
+                  {(field) => (
                     <Field>
                       <FieldLabel htmlFor={field.name}>
                         Publication Date
@@ -563,10 +556,10 @@ function NewPostPage() {
                       />
                     </Field>
                   )}
-                />
+                </form.Field>
               );
             }}
-          />
+          </form.Subscribe>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

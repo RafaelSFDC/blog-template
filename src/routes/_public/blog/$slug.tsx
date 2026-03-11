@@ -4,6 +4,29 @@ import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { posts, comments, appSettings } from "#/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
+
+import { type Post as PostSummary } from "#/components/blog/PostCard";
+
+type PostWithExtras = PostSummary & {
+  content: string;
+  isPremium: boolean | null;
+  status: string;
+  readingTime?: number | null;
+  authorName?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+};
+
+
+interface PostBySlugData {
+  post: PostWithExtras;
+  comments: BlogComment[];
+  recommended: PostSummary[];
+  hasAccess: boolean;
+  stripePriceId: string | undefined;
+  blogName: string;
+}
 import { MarkdownContent } from "#/components/markdown-content";
 import { BlogHero } from "#/components/blog-hero";
 import { RecommendedPosts } from "#/components/recommended-posts";
@@ -18,6 +41,7 @@ import { auth } from "#/lib/auth";
 import { user } from "#/db/schema";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
+import type { Comment as BlogComment } from "#/components/blog/comment-list";
 
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -55,9 +79,9 @@ const getPostBySlug = createServerFn({ method: "GET" })
             where: eq(user.id, session.user.id),
           })
           .then(
-            (u: any) =>
-              u?.stripeCurrentPeriodEnd &&
-              u.stripeCurrentPeriodEnd > new Date(),
+            (u: { stripeCurrentPeriodEnd: Date | null } | undefined) =>
+              !!(u?.stripeCurrentPeriodEnd &&
+              u.stripeCurrentPeriodEnd > new Date()),
           )
       : false;
 
@@ -73,7 +97,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
     // Fetch blog settings for SEO
     const settings = await db.select().from(appSettings);
     const settingsObj: Record<string, string> = {};
-    settings.forEach((s: any) => {
+    settings.forEach((s: { key: string, value: string }) => {
       settingsObj[s.key] = s.value;
     });
     const blogName = settingsObj["blogName"] || "Lumina";
@@ -107,13 +131,13 @@ const getPostBySlug = createServerFn({ method: "GET" })
       );
 
     return {
-      post,
+      post: post as PostWithExtras,
       comments: commentsList,
-      recommended: (recommended as any[]) || [],
+      recommended: (recommended as PostSummary[]) || [],
       hasAccess,
       stripePriceId,
       blogName,
-    };
+    } as PostBySlugData;
   });
 
 const addComment = createServerFn({ method: "POST" })
@@ -140,7 +164,7 @@ const addComment = createServerFn({ method: "POST" })
 export const Route = createFileRoute("/_public/blog/$slug")({
   loader: ({ params }) => getPostBySlug({ data: params.slug }),
   head: ({ loaderData }) => {
-    const data = loaderData as any;
+    const data = loaderData as PostBySlugData;
     const post = data?.post;
     const blogName = data?.blogName || "Lumina";
 
@@ -173,8 +197,8 @@ export const Route = createFileRoute("/_public/blog/$slug")({
 });
 
 function PostDetail() {
-  const { post, comments, recommended, hasAccess, stripePriceId }: any =
-    Route.useLoaderData();
+  const { post, comments, recommended, hasAccess, stripePriceId } =
+    Route.useLoaderData() as PostBySlugData;
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const [subscribing, setSubscribing] = useState(false);
   const posthog = usePostHog();

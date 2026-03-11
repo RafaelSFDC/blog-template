@@ -46,9 +46,9 @@ function ResetPasswordPage() {
           token: token,
         });
         setSuccess(true);
-      } catch (err: any) {
+      } catch (err) {
         const msg =
-          err.message || "Failed to reset password. The link may have expired.";
+          err instanceof Error ? err.message : "Failed to reset password. The link may have expired.";
         toast.error(msg);
       }
     },
@@ -102,7 +102,8 @@ function ResetPasswordPage() {
       >
         <form.Field
           name="password"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">New Password</FieldLabel>
               <FieldContent>
@@ -121,11 +122,12 @@ function ResetPasswordPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Field
           name="confirmPassword"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Confirm New Password</FieldLabel>
               <FieldContent>
@@ -144,11 +146,12 @@ function ResetPasswordPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
               variant="default"
@@ -158,7 +161,7 @@ function ResetPasswordPage() {
               {isSubmitting ? "Resetting..." : "Reset Password"}
             </Button>
           )}
-        />
+        </form.Subscribe>
       </form>
 
       <div className="text-center pt-2">

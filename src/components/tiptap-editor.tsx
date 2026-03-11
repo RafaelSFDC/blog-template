@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import { Button } from '#/components/ui/button'
@@ -36,7 +36,7 @@ interface TiptapEditorProps {
   placeholder?: string
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
     return null
   }
@@ -182,7 +182,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   )
 }
 
-function ImageUploadButton({ editor }: { editor: any }) {
+function ImageUploadButton({ editor }: { editor: Editor }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,7 +265,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
 
     content: content,
     onUpdate: ({ editor }) => {
-      // @ts-ignore - getMarkdown exists on editor with the extension
+      // @ts-expect-error - getMarkdown exists on editor with the extension
       onChange(editor.storage.markdown.getMarkdown())
     },
     editorProps: {

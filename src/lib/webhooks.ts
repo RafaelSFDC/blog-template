@@ -1,17 +1,20 @@
 import { db } from '#/db/index'
 import { webhooks, webhookDeliveries } from '#/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, type InferSelectModel } from 'drizzle-orm'
+import * as schema from '#/db/schema'
+
+type Webhook = InferSelectModel<typeof schema.webhooks>
 
 export type WebhookEvent = 'post.published' | 'post.created'
 
-export async function triggerWebhook(event: WebhookEvent, payload: any) {
+export async function triggerWebhook(event: WebhookEvent, payload: unknown) {
   const activeWebhooks = await db.query.webhooks.findMany({
     where: and(eq(webhooks.event, event), eq(webhooks.isActive, true)),
   })
 
   if (activeWebhooks.length === 0) return
 
-  const deliveryPromises = activeWebhooks.map(async (webhook: any) => {
+  const deliveryPromises = activeWebhooks.map(async (webhook: Webhook) => {
     const startTime = Date.now()
     let status: number | null = null
     let success = false
@@ -36,9 +39,10 @@ export async function triggerWebhook(event: WebhookEvent, payload: any) {
       status = response.status
       success = response.ok
       responseText = await response.text()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err)
       success = false
-      errorText = err.message
+      errorText = errorMsg
     } finally {
       const duration = Date.now() - startTime
       

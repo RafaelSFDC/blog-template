@@ -3,6 +3,8 @@ import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
 import { Github } from "lucide-react";
 import { cn } from "#/lib/utils";
+import { toast } from "sonner";
+import { usePostHog } from "@posthog/react";
 
 interface SocialLoginProps {
   callbackURL?: string;
@@ -15,14 +17,17 @@ export function SocialLogin({
 }: SocialLoginProps) {
   const [error, setError] = useState("");
 
+  const posthog = usePostHog();
   const handleSocialLogin = async (provider: "github" | "google") => {
     try {
       await authClient.signIn.social({
         provider,
         callbackURL,
       });
-    } catch (err) {
+      posthog.capture("user_signed_in", { method: provider });
+    } catch {
       setError(`Failed to sign in with ${provider}.`);
+      toast.error(`Failed to sign in with ${provider}. Please try again.`);
     }
   };
 

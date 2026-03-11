@@ -46,7 +46,7 @@ import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 
 function PostsManagementPage() {
-  const postList = useLoaderData({ from: "/dashboard/posts/" });
+  const postList = useLoaderData({ from: "/dashboard/posts/" }) as DashboardPost[];
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 

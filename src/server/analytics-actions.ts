@@ -28,7 +28,15 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
       };
     }
 
-    const posthogQuery = async (query: any) => {
+    interface PostHogTrendsResult {
+      results: Array<{
+        count: number;
+        data: number[];
+        labels: string[];
+      }>;
+    }
+
+    const posthogQuery = async <T>(query: unknown): Promise<T> => {
       const response = await fetch(`${host}/api/projects/${projectId}/query/`, {
         method: "POST",
         headers: {
@@ -40,12 +48,12 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
       if (!response.ok) {
         throw new Error(`PostHog API error: ${response.statusText}`);
       }
-      return response.json();
+      return response.json() as Promise<T>;
     };
 
     try {
       // 1. Total Views & Visitors (Trends)
-      const trendsRes = await posthogQuery({
+      const trendsRes = (await posthogQuery({
         kind: "TrendsQuery",
         series: [
           { event: "$pageview", math: "total" },
@@ -53,7 +61,7 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
         ],
         dateRange: { date_from: "-30d" },
         interval: "day",
-      });
+      })) as PostHogTrendsResult;
 
       const pageviewData = trendsRes.results[0];
       const uniqueData = trendsRes.results[1];
@@ -67,35 +75,35 @@ export const getAnalyticsStats = createServerFn({ method: "GET" }).handler(
       }));
 
       // 2. Top Pages (HogQL)
-      const topPagesRes = await posthogQuery({
+      const topPagesRes = (await posthogQuery({
         kind: "HogQLQuery",
         query:
           "SELECT properties.$pathname, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$pathname ORDER BY count DESC LIMIT 10",
-      });
+      })) as { results: Array<[string, number]> };
 
-      const topPages = topPagesRes.results.map((row: any) => ({
+      const topPages = topPagesRes.results.map((row) => ({
         pathname: row[0],
         count: row[1],
       }));
 
       // 3. Browsers
-      const browsersRes = await posthogQuery({
+      const browsersRes = (await posthogQuery({
         kind: "HogQLQuery",
         query:
           "SELECT properties.$browser, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$browser ORDER BY count DESC LIMIT 5",
-      });
-      const browsers = browsersRes.results.map((row: any) => ({
+      })) as { results: Array<[string, number]> };
+      const browsers = browsersRes.results.map((row) => ({
         name: row[0],
         count: row[1],
       }));
 
       // 4. Devices
-      const devicesRes = await posthogQuery({
+      const devicesRes = (await posthogQuery({
         kind: "HogQLQuery",
         query:
           "SELECT properties.$device_type, count() as count FROM events WHERE event = '$pageview' GROUP BY properties.$device_type ORDER BY count DESC",
-      });
-      const devices = devicesRes.results.map((row: any) => ({
+      })) as { results: Array<[string | null, number]> };
+      const devices = devicesRes.results.map((row) => ({
         name: row[0] || "Desktop",
         count: row[1],
       }));

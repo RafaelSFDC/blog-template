@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { createServerFn } from "@tanstack/react-start";
-import { webhooks } from "#/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { webhooks as webhooksSchema } from "#/db/schema";
+import { eq, desc, type InferSelectModel } from "drizzle-orm";
+
+type WebhookType = InferSelectModel<typeof webhooksSchema>;
 import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
 import { Webhook, Plus, Trash2, Activity, Globe } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { cn } from "#/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
@@ -15,7 +17,7 @@ const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   const { db } = await import("#/db/index");
   return db.query.webhooks.findMany({
-    orderBy: [desc(webhooks.createdAt)],
+    orderBy: [desc(webhooksSchema.createdAt)],
   });
 });
 
@@ -24,7 +26,7 @@ const deleteWebhook = createServerFn({ method: "POST" })
   .handler(async ({ data: id }) => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
-    await db.delete(webhooks).where(eq(webhooks.id, id));
+    await db.delete(webhooksSchema).where(eq(webhooksSchema.id, id));
     return { success: true };
   });
 
@@ -34,9 +36,9 @@ const toggleWebhook = createServerFn({ method: "POST" })
     await requireAdminSession();
     const { db } = await import("#/db/index");
     await db
-      .update(webhooks)
+      .update(webhooksSchema)
       .set({ isActive: data.isActive })
-      .where(eq(webhooks.id, data.id));
+      .where(eq(webhooksSchema.id, data.id));
     return { success: true };
   });
 
@@ -47,20 +49,20 @@ export const Route = createFileRoute("/dashboard/webhooks/")({
 
 function WebhooksPage() {
   const initialWebhooks = Route.useLoaderData();
-  const [list, setList] = useState(initialWebhooks);
+  const [list, setList] = useState<WebhookType[]>(initialWebhooks);
 
-  async function handleDelete(id: number) {
+  const handleDelete = useCallback(async (id: number) => {
     if (!confirm("Are you sure you want to delete this webhook?")) return;
     await deleteWebhook({ data: id });
-    setList(list.filter((w: any) => w.id !== id));
-  }
+    setList((prev) => prev.filter((w) => w.id !== id));
+  }, []);
 
-  async function handleToggle(id: number, isActive: boolean) {
+  const handleToggle = useCallback(async (id: number, isActive: boolean) => {
     await toggleWebhook({ data: { id, isActive } });
-    setList(list.map((w: any) => (w.id === id ? { ...w, isActive } : w)));
-  }
+    setList((prev) => prev.map((w) => (w.id === id ? { ...w, isActive } : w)));
+  }, []);
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<WebhookType>[]>(
     () => [
       {
         accessorKey: "name",
@@ -137,7 +139,7 @@ function WebhooksPage() {
         ),
       },
     ],
-    [list],
+    [handleDelete, handleToggle],
   );
 
   return (

@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { faker } from "@faker-js/faker";
+import type { InferSelectModel } from "drizzle-orm";
 
 config({ path: [".env.local", ".env"], override: true });
 
@@ -14,6 +15,10 @@ async function seed() {
     postTags,
     appSettings,
   } = await import("./src/db/schema");
+
+  type User = InferSelectModel<typeof user>;
+  type Category = InferSelectModel<typeof categories>;
+  type Tag = InferSelectModel<typeof tags>;
 
   console.log("--- Reseting Data (Optional/Manual) ---");
   // We use onConflictDoNothing in inserts, but if we want a fresh start we could truncate.
@@ -30,9 +35,9 @@ async function seed() {
   }));
 
   await db.insert(user).values(sampleUsers).onConflictDoNothing();
-  const allUsers = (await db.select().from(user)) as any[];
+  const allUsers = (await db.select().from(user)) as User[];
   const authors = allUsers.filter(
-    (u: any) => u.role === "admin" || u.role === "author",
+    (u) => u.role === "admin" || u.role === "author",
   );
 
   console.log("--- Seeding Categories ---");
@@ -54,7 +59,7 @@ async function seed() {
   for (const cat of sampleCategories) {
     await db.insert(categories).values(cat).onConflictDoNothing();
   }
-  const allCategories = (await db.select().from(categories)) as any[];
+  const allCategories = (await db.select().from(categories)) as Category[];
 
   console.log("--- Seeding Tags ---");
   const tagNames = [
@@ -75,7 +80,7 @@ async function seed() {
   for (const tag of sampleTags) {
     await db.insert(tags).values(tag).onConflictDoNothing();
   }
-  const allTags = (await db.select().from(tags)) as any[];
+  const allTags = (await db.select().from(tags)) as Tag[];
 
   console.log("--- Seeding Posts ---");
   const postCount = 20;

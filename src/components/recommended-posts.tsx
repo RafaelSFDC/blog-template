@@ -1,16 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "#/components/ui/button";
-import { PostCard } from "#/components/blog/PostCard";
-
-interface Post {
-  id: number;
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverImage?: string | null;
-  category?: string | null;
-}
+import { PostCard, type Post } from "#/components/blog/PostCard";
 
 interface RecommendedPostsProps {
   posts: Post[];
@@ -39,7 +30,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post as any} />
+          <PostCard key={post.id} post={post} />
         ))}
       </div>
     </section>

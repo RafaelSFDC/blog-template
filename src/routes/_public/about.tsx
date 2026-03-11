@@ -60,7 +60,7 @@ function About() {
                 of the ideas within.
               </p>
               <p>
-                Our editorial cadence is deliberate. We don't chase the news
+                Our editorial cadence is deliberate. We don&apos;t chase the news
                 cycle; we chase the concepts that define the next era of digital
                 experience.
               </p>

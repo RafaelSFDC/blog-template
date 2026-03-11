@@ -67,13 +67,14 @@ export async function sendNewsletter(newsletterId: number) {
         status: 'sent',
       });
       successCount++;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(`Failed to send newsletter to ${subscriber.email}:`, error);
       await db.insert(newsletterLogs).values({
         newsletterId,
         subscriberEmail: subscriber.email,
         status: 'failed',
-        error: error.message,
+        error: errorMessage,
       });
       failCount++;
     }

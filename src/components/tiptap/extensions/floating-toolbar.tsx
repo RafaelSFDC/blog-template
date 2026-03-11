@@ -1,6 +1,6 @@
 "use client";
 
-// @ts-ignore
+// @ts-expect-error: Tiptap floating toolbar plugin types mismatch with standard Editor types
 import { BubbleMenu, type Editor } from "@tiptap/react";
 import { BoldToolbar } from "../toolbars/bold";
 import { ItalicToolbar } from "../toolbars/italic";

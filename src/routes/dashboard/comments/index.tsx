@@ -57,6 +57,8 @@ export const Route = createFileRoute("/dashboard/comments/")({
   component: CommentsPage,
 });
 
+type CommentRow = Awaited<ReturnType<typeof getComments>>[number];
+
 function CommentsPage() {
   const commentsList = Route.useLoaderData();
   const navigate = useNavigate();
@@ -85,7 +87,7 @@ function CommentsPage() {
 
       <div className="grid gap-6">
         {commentsList.length > 0 ? (
-          commentsList.map((comment: any) => (
+          commentsList.map((comment: CommentRow) => (
             <div
               key={comment.id}
               className="bg-card border shadow-sm rounded-xl p-6 border-border/10 hover:border-border transition-colors group"
@@ -111,7 +113,7 @@ function CommentsPage() {
                   <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
                     on{" "}
                     <span className="text-primary italic">
-                      "{comment.postTitle}"
+                      &quot;{comment.postTitle}&quot;
                     </span>{" "}
                     •{" "}
                     {comment.createdAt
@@ -119,7 +121,7 @@ function CommentsPage() {
                       : "N/A"}
                   </p>
                   <p className="text-foreground leading-relaxed mt-3 border-l-3 border-primary/20 pl-4 py-1 italic">
-                    "{comment.content}"
+                    &quot;{comment.content}&quot;
                   </p>
                 </div>
 

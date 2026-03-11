@@ -16,7 +16,7 @@ import {
 import { Button } from "#/components/ui/button";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { toast } from "sonner";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,36 +53,45 @@ const ROLES = [
   "super-admin",
 ] as const;
 
+type AdminUser = {
+  id: string;
+  name: string | null;
+  email: string;
+  image?: string | null;
+  role?: string | null;
+  createdAt: string | Date | null;
+};
+
 function UsersManagementPage() {
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user?.id;
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await authClient.admin.listUsers({
-        query: {} as any,
+        query: {},
       });
 
       if (error) {
         toast.error("Failed to load users");
       } else {
-        setUsers(data.users);
+        setUsers(data.users as AdminUser[]);
       }
-    } catch (err) {
+    } catch {
       toast.error("An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = useCallback(async (userId: string, newRole: string) => {
     if (userId === currentUserId) {
       toast.error("You cannot change your own role");
       return;
@@ -90,7 +99,8 @@ function UsersManagementPage() {
     try {
       const { error } = await authClient.admin.setRole({
         userId,
-        role: newRole as any,
+        // @ts-expect-error - dynamic role string
+        role: newRole,
       });
 
       if (error) {
@@ -99,21 +109,21 @@ function UsersManagementPage() {
         toast.success(`Role updated to ${newRole}`);
         fetchUsers();
       }
-    } catch (err) {
+    } catch {
       toast.error("An error occurred");
     }
-  };
+  }, [currentUserId, fetchUsers]);
 
-  const handleBanUser = async (userId: string) => {
+  const handleBanUser = useCallback(async (userId: string) => {
     if (userId === currentUserId) {
       toast.error("You cannot ban yourself");
       return;
     }
     console.log("Banning user:", userId);
     toast.info("Ban functionality coming soon");
-  };
+  }, [currentUserId]);
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<AdminUser>[]>(
     () => [
       {
         accessorKey: "name",
@@ -248,7 +258,7 @@ function UsersManagementPage() {
         },
       },
     ],
-    [currentUserId],
+    [currentUserId, handleBanUser, handleRoleChange],
   );
 
   return (

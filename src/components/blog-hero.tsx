@@ -8,7 +8,7 @@ interface BlogHeroProps {
     excerpt: string;
     coverImage?: string | null;
     category?: string | null;
-    publishedAt?: Date | null;
+    publishedAt?: Date | string | null;
     readingTime?: number | null;
     authorName?: string | null;
   };

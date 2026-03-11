@@ -17,6 +17,12 @@ export const Route = createFileRoute("/dashboard/media/")({
   component: MediaLibraryPage,
 });
 
+type MediaItem = Awaited<ReturnType<typeof getMediaItems>>[number];
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : undefined;
+}
+
 function MediaLibraryPage() {
   const mediaItems = Route.useLoaderData();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,8 +43,8 @@ function MediaLibraryPage() {
       toast.success("File uploaded successfully");
       // Simple reload for now
       window.location.reload();
-    } catch (error: any) {
-      toast.error(error.message || "Upload failed");
+    } catch (error) {
+      toast.error(getErrorMessage(error) || "Upload failed");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -52,8 +58,8 @@ function MediaLibraryPage() {
       await deleteMediaItem({ data: { id, filename } });
       toast.success("File deleted");
       window.location.reload();
-    } catch (error: any) {
-      toast.error(error.message || "Delete failed");
+    } catch (error) {
+      toast.error(getErrorMessage(error) || "Delete failed");
     }
   }
 
@@ -104,7 +110,7 @@ function MediaLibraryPage() {
 
       {mediaItems.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {mediaItems.map((item: any) => (
+          {mediaItems.map((item: MediaItem) => (
             <div
               key={item.id}
               className="group bg-card border shadow-sm relative aspect-square overflow-hidden rounded-xl p-0 hover:border-primary/50"

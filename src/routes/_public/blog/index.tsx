@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { desc, eq } from "drizzle-orm";
-import { PostCard } from "#/components/blog/PostCard";
 import { useMemo, useState, useEffect } from "react";
+import { PostCard, type Post } from "#/components/blog/PostCard";
 import { Search, X } from "lucide-react";
 import { Newsletter } from "#/components/blog/newsletter";
 import { Button } from "#/components/ui/button";
@@ -13,6 +13,15 @@ import { Input } from "#/components/ui/input";
 import { IconBox } from "#/components/IconBox";
 
 import { posts, categories, postCategories } from "#/db/schema";
+import { type InferSelectModel } from "drizzle-orm";
+
+type Category = InferSelectModel<typeof categories>;
+type BlogIndexLoaderData = {
+  posts: Post[];
+  categories: Category[];
+  search: { q?: string; category?: string };
+};
+
 
 const getLatestPosts = createServerFn({ method: "GET" }).handler(async () => {
   const data = await db
@@ -44,31 +53,35 @@ export const Route = createFileRoute("/_public/blog/")({
     q: (search.q as string) || undefined,
     category: (search.category as string) || undefined,
   }),
-  loader: async () => {
+  loaderDeps: ({ search }) => ({
+    q: search.q,
+    category: search.category,
+  }),
+  loader: async ({ deps }) => {
     const [posts, categories] = await Promise.all([
       getLatestPosts(),
       getCategories(),
     ]);
-    return { posts, categories };
+    return { posts, categories, search: deps };
   },
-  head: (ctx: any) => {
-    const search = (ctx.search || ctx.match?.search || {}) as {
-      q?: string;
-      category?: string;
-    };
-    const q = search.q || "";
+  head: ({ loaderData }) => {
+    const data = loaderData as {
+      search: { q?: string; category?: string };
+    } | undefined;
+    const search = data?.search;
+    const q = search?.q || "";
     const hasQuery = q.trim().length > 0;
     return {
       meta: [
         {
           title: hasQuery
-            ? `Search "${search.q}" | Lumina`
+            ? `Search "${q}" | Lumina`
             : "All Stories | Lumina Blog",
         },
         {
           name: "description",
           content: hasQuery
-            ? `Search results for "${search.q}" in Lumina stories.`
+            ? `Search results for "${q}" in Lumina stories.`
             : "Browse all articles on design, tech, and cultural experiments.",
         },
       ],
@@ -78,9 +91,11 @@ export const Route = createFileRoute("/_public/blog/")({
 });
 
 function BlogIndex() {
-  const { posts: latestPosts, categories: dbCategories } =
-    Route.useLoaderData();
-  const search = Route.useSearch();
+  const {
+    posts: latestPosts,
+    categories: dbCategories,
+    search,
+  } = Route.useLoaderData() as BlogIndexLoaderData;
   const q = typeof search.q === "string" ? search.q : "";
   const category = typeof search.category === "string" ? search.category : "";
 
@@ -93,7 +108,7 @@ function BlogIndex() {
   }, [q]);
 
   const filteredPosts = useMemo(() => {
-    return latestPosts.filter((post: any) => {
+    return latestPosts.filter((post) => {
       const matchesQuery =
         !query ||
         String(post.title || "")
@@ -114,14 +129,14 @@ function BlogIndex() {
     setLocalSearch(val);
     navigate({
       to: ".",
-      search: (prev: any) => ({ ...prev, q: val || undefined }),
+      search: (prev) => ({ ...prev, q: val || undefined }),
     });
   }
 
   function handleCategory(cat: string) {
     navigate({
       to: ".",
-      search: (prev: any) => ({ ...prev, category: cat || undefined }),
+      search: (prev) => ({ ...prev, category: cat || undefined }),
     });
   }
 
@@ -166,13 +181,13 @@ function BlogIndex() {
             >
               All Stories
             </Button>
-            {dbCategories.map((cat: any) => {
+            {dbCategories.map((cat: Category) => {
               const isActive =
                 category && category.toLowerCase() === cat.name.toLowerCase();
               return (
                 <Button
                   key={cat.id}
-                  onClick={() => handleCategory(cat.name)}
+                  onClick={() => handleCategory(cat.name!)}
                   variant={isActive ? "default" : "outline"}
                   className={cn(
                     "rounded-md border border-border px-6 py-2 shadow-sm transition-all",
@@ -187,8 +202,8 @@ function BlogIndex() {
 
         {filteredPosts.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {filteredPosts.map((post: any) => (
-              <PostCard key={post.id} post={post} />
+            {filteredPosts.map((post) => (
+              <PostCard key={post.id} post={post as Post} />
             ))}
           </div>
         ) : (

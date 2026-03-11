@@ -6,7 +6,7 @@
  * - Dev: @cloudflare/vite-plugin simulated environment
  */
 
-let _env: any = null
+let _env: Record<string, unknown> | null = null
 
 function getEnv() {
   if (_env) return _env
@@ -26,7 +26,7 @@ function getEnv() {
 /**
  * Get a specific Cloudflare binding (D1, R2, KV, etc.) or env var.
  */
-export function getBinding<T = any>(name: string): T | undefined {
+export function getBinding<T = unknown>(name: string): T | undefined {
   const env = getEnv()
   if (env && env[name] !== undefined) {
     return env[name] as T

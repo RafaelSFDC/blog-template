@@ -10,17 +10,18 @@ console.log(`🚀 Starting automigration for: ${dbType}${isProd ? ' (Production)
 
 try {
   switch (dbType) {
-    case 'd1':
+    case 'd1': {
       const d1Command = isProd 
         ? 'npx wrangler d1 migrations apply blog-db --remote'
         : 'npx wrangler d1 migrations apply blog-db --local';
       console.log(`Running: ${d1Command}`);
       execSync(d1Command, { stdio: 'inherit' });
       break;
+    }
 
     case 'sqlite':
     case 'libsql':
-    case 'neon':
+    case 'neon': {
       // For these, we use drizzle-kit push which is faster for dev/simple schemas
       // or drizzle-kit migrate if you have formal migrations.
       // Assuming drizzle-kit push for simplicity in this template.
@@ -28,6 +29,7 @@ try {
       console.log(`Running: ${drizzleCommand}`);
       execSync(drizzleCommand, { stdio: 'inherit' });
       break;
+    }
 
     default:
       console.error(`❌ Unknown DB_TYPE: ${dbType}`);

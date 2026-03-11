@@ -56,7 +56,7 @@ const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
 
   // Convert array to a more useful object
   const settingsObj: Record<string, string> = {};
-  settings.forEach((s: any) => {
+  settings.forEach((s: typeof appSettings.$inferSelect) => {
     settingsObj[s.key] = s.value;
   });
 
@@ -206,9 +206,8 @@ function SettingsPage() {
                 Publication Identity
               </h3>
 
-              <form.Field
-                name="blogName"
-                children={(field) => {
+              <form.Field name="blogName">
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -227,16 +226,15 @@ function SettingsPage() {
                         placeholder="e.g. Lumina"
                       />
                       {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>
                   );
                 }}
-              />
+              </form.Field>
 
-              <form.Field
-                name="blogDescription"
-                children={(field) => (
+              <form.Field name="blogDescription">
+                {(field) => (
                   <Field>
                     <FieldLabel
                       htmlFor={field.name}
@@ -255,7 +253,7 @@ function SettingsPage() {
                     />
                   </Field>
                 )}
-              />
+              </form.Field>
 
               <div className="pt-6 border-t border-border/10">
                 <h3 className="text-sm font-black text-primary mb-6">
@@ -263,9 +261,8 @@ function SettingsPage() {
                 </h3>
 
                 <div className="grid gap-6 sm:grid-cols-2">
-                  <form.Field
-                    name="blogLogo"
-                    children={(field) => (
+                  <form.Field name="blogLogo">
+                    {(field) => (
                       <Field>
                         <FieldLabel
                           htmlFor={field.name}
@@ -283,11 +280,10 @@ function SettingsPage() {
                         />
                       </Field>
                     )}
-                  />
+                  </form.Field>
 
-                  <form.Field
-                    name="fontFamily"
-                    children={(field) => (
+                  <form.Field name="fontFamily">
+                    {(field) => (
                       <Field className="sm:col-span-2">
                         <FieldLabel
                           htmlFor={field.name}
@@ -325,11 +321,10 @@ function SettingsPage() {
                         </Select>
                       </Field>
                     )}
-                  />
+                  </form.Field>
 
-                  <form.Field
-                    name="themeVariant"
-                    children={(field) => (
+                  <form.Field name="themeVariant">
+                    {(field) => (
                       <Field className="sm:col-span-2">
                         <FieldLabel
                           htmlFor={field.name}
@@ -372,7 +367,7 @@ function SettingsPage() {
                         </Select>
                       </Field>
                     )}
-                  />
+                  </form.Field>
                 </div>
               </div>
 
@@ -381,19 +376,16 @@ function SettingsPage() {
                   Social Links & Feeds
                 </h3>
                 <div className="space-y-6">
-                  <form.Field
-                    name="socialLinks"
-                    mode="array"
-                    children={(field) => (
+                  <form.Field name="socialLinks" mode="array">
+                    {(field) => (
                       <div className="space-y-4">
                         {field.state.value.map((_, i) => (
                           <div
                             key={i}
                             className="flex flex-col sm:flex-row gap-4 p-4 border rounded-xl bg-muted/20 items-end"
                           >
-                            <form.Field
-                              name={`socialLinks[${i}].platform`}
-                              children={(subField) => (
+                            <form.Field name={`socialLinks[${i}].platform`}>
+                              {(subField) => (
                                 <Field className="flex-1 w-full">
                                   <FieldLabel className="text-xs text-foreground">
                                     Platform
@@ -423,30 +415,16 @@ function SettingsPage() {
                                       <SelectItem value="youtube">
                                         YouTube
                                       </SelectItem>
-                                      <SelectItem value="threads">
-                                        Threads
-                                      </SelectItem>
-                                      <SelectItem value="facebook">
-                                        Facebook
-                                      </SelectItem>
-                                      <SelectItem value="tiktok">
-                                        TikTok
-                                      </SelectItem>
-                                      <SelectItem value="link">
-                                        Website Link
-                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </Field>
                               )}
-                            />
-
-                            <form.Field
-                              name={`socialLinks[${i}].url`}
-                              children={(subField) => (
+                            </form.Field>
+                            <form.Field name={`socialLinks[${i}].url`}>
+                              {(subField) => (
                                 <Field className="flex-2 w-full">
                                   <FieldLabel className="text-xs text-foreground">
-                                    Profile URL
+                                    URL
                                   </FieldLabel>
                                   <Input
                                     value={subField.state.value}
@@ -455,39 +433,37 @@ function SettingsPage() {
                                       subField.handleChange(e.target.value)
                                     }
                                     placeholder="https://..."
+                                    className="h-auto"
                                   />
                                 </Field>
                               )}
-                            />
-
+                            </form.Field>
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="text-destructive hover:bg-destructive/10"
+                              className="text-destructive h-10 w-10 shrink-0"
                               onClick={() => field.removeValue(i)}
                             >
-                              <span className="sr-only">Remove</span>
                               <Trash2 size={20} />
                             </Button>
                           </div>
                         ))}
-
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="w-full py-6 border-dashed border-2 hover:bg-primary/5 hover:border-primary/50 text-foreground transition-all"
+                          className="w-full bg-background border-dashed border-2 hover:border-primary hover:text-primary rounded-xl"
                           onClick={() =>
-                            field.pushValue({ platform: "link", url: "" })
+                            field.pushValue({ platform: "twitter", url: "" })
                           }
                         >
                           <Plus size={20} className="mr-2" />
-                          Add Social Media Link
+                          Add New Link
                         </Button>
                       </div>
                     )}
-                  />
+                  </form.Field>
                 </div>
               </div>
             </FieldGroup>
@@ -516,9 +492,9 @@ function SettingsPage() {
               Metadata Tip
             </h3>
             <p className="text-sm text-muted-foreground font-medium leading-relaxed">
-              These settings affect your blog's public appearance in the header,
-              footer, and SEO tags. Ensure your description is concise but
-              descriptive to help with search engine rankings.
+              These settings affect your blog&apos;s public appearance in the
+              header, footer, and SEO tags. Ensure your description is concise
+              but descriptive to help with search engine rankings.
             </p>
           </div>
         </aside>

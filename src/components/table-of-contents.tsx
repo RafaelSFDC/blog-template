@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Hash, List as ListIcon } from "lucide-react";
 
 interface TOCItem {
@@ -12,9 +12,7 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ content }: TableOfContentsProps) {
-  const [headings, setHeadings] = useState<TOCItem[]>([]);
-
-  useEffect(() => {
+  const headings = useMemo(() => {
     // Basic regex to find H2 and H3 headings from markdown or simple HTML
     // This is a simplification; in a real scenario, you'd use a parser or DOM query
     const h2h3Regex = /<h([23])[^>]*>(.*?)<\/h[23]>|## (.*)|### (.*)/g;
@@ -35,8 +33,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
         foundHeadings.push({ id, text, level });
       }
     }
-
-    setHeadings(foundHeadings);
+    return foundHeadings;
   }, [content]);
 
   if (headings.length === 0) return null;

@@ -38,7 +38,7 @@ export const Route = createFileRoute('/api/newsletter/unsubscribe')({
           `, {
             headers: { 'Content-Type': 'text/html' }
           })
-        } catch (err) {
+        } catch {
           return new Response('Unsubscribe failed. Please contact support.', { status: 500 })
         }
       },

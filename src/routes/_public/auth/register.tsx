@@ -64,10 +64,10 @@ function RegisterPage() {
         posthog.identify(value.email, { email: value.email, name: value.name });
         posthog.capture("user_signed_up", { method: "email" });
         setSuccess(true);
-      } catch (err: any) {
+      } catch (err) {
         posthog.captureException(err);
         const msg =
-          err.message || "Failed to create account. Please try again.";
+          err instanceof Error ? err.message : "Failed to create account. Please try again.";
         toast.error(msg);
       }
     },
@@ -159,7 +159,8 @@ function RegisterPage() {
       >
         <form.Field
           name="name"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Full Name</FieldLabel>
               <FieldContent>
@@ -183,11 +184,12 @@ function RegisterPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Field
           name="email"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Email</FieldLabel>
               <FieldContent>
@@ -211,11 +213,12 @@ function RegisterPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Field
           name="password"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Password</FieldLabel>
               <FieldContent>
@@ -234,11 +237,12 @@ function RegisterPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
               variant="default"
@@ -249,7 +253,7 @@ function RegisterPage() {
               {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           )}
-        />
+        </form.Subscribe>
       </form>
 
       <div className="text-center pt-2">

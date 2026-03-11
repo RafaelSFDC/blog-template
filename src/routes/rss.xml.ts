@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from "#/db/index"
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, type InferSelectModel } from 'drizzle-orm'
 import { posts } from '#/db/schema'
+
+type Post = InferSelectModel<typeof posts>
 
 export const Route = createFileRoute('/rss/xml')({
   server: {
@@ -25,7 +27,7 @@ export const Route = createFileRoute('/rss/xml')({
   <language>pt-br</language>
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
   <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
-  ${latestPosts.map((post: any) => `
+  ${latestPosts.map((post: Partial<Post>) => `
   <item>
     <title>${post.title}</title>
     <link>${baseUrl}/blog/${post.slug}</link>

@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
-import { newsletters } from "#/db/schema";
-import { eq } from "drizzle-orm";
-import { useState, type FormEvent } from "react";
+import { newsletters, posts } from "#/db/schema";
+import { desc, eq } from "drizzle-orm";
+import { useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { TiptapEditor } from "#/components/tiptap-editor";
 import { sendNewsletter } from "#/lib/newsletter";
@@ -50,10 +50,7 @@ const saveAndSendNewsletter = createServerFn({ method: "POST" })
 const getPostsForTemplate = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
-    return db.query.posts.findMany({
-      orderBy: (p: any, { desc }: any) => [desc(p.publishedAt)],
-      limit: 10,
-    });
+    return db.select().from(posts).orderBy(desc(posts.publishedAt)).limit(10);
   },
 );
 
@@ -70,8 +67,7 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
   validateSearch: (search: Record<string, unknown>) => ({
     fromId: search.fromId ? Number(search.fromId) : undefined,
   }),
-  loader: async (ctx: any) => {
-    const { search } = ctx;
+  loader: async ({ search }) => {
     const posts = await getPostsForTemplate();
     let existing = null;
     if (search.fromId) {
@@ -81,6 +77,8 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
   },
   component: NewNewsletterPage,
 });
+
+type RecentPost = Awaited<ReturnType<typeof getPostsForTemplate>>[number];
 
 function NewNewsletterPage() {
   const { posts: recentPosts, existing } = Route.useLoaderData();
@@ -95,7 +93,7 @@ function NewNewsletterPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const handlePostTemplate = (pId: number) => {
-    const post = recentPosts.find((p: any) => p.id === pId);
+    const post = recentPosts.find((p: RecentPost) => p.id === pId);
     if (post) {
       setSubject(`New post: ${post.title}`);
       setContent(
@@ -105,8 +103,7 @@ function NewNewsletterPage() {
     }
   };
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>, sendNow: boolean) {
-    event.preventDefault();
+  async function submitCampaign(sendNow: boolean) {
     if (!subject || !content) {
       setErrorMessage("Subject and Content are required.");
       return;
@@ -187,7 +184,7 @@ function NewNewsletterPage() {
                 disabled={saving}
                 variant="default"
                 size="lg"
-                onClick={(e) => onSubmit(e as any, true)}
+                onClick={() => void submitCampaign(true)}
               >
                 <Send className="mr-2 h-5 w-5" />
                 {saving ? "Processing…" : "Save & Send Now"}
@@ -197,7 +194,7 @@ function NewNewsletterPage() {
                 disabled={saving}
                 variant="outline"
                 size="lg"
-                onClick={(e) => onSubmit(e as any, false)}
+                onClick={() => void submitCampaign(false)}
               >
                 Save as Draft
               </Button>
@@ -212,7 +209,7 @@ function NewNewsletterPage() {
               Use Post as Template
             </h3>
             <div className="space-y-3">
-              {recentPosts.map((post: any) => (
+              {recentPosts.map((post: RecentPost) => (
                 <Button
                   key={post.id}
                   variant="outline"

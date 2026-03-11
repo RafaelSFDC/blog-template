@@ -67,9 +67,10 @@ function AccountPage() {
         posthog.capture("password_changed");
         toast.success("Password updated successfully!");
         passwordForm.reset();
-      } catch (error: any) {
+      } catch (error) {
         posthog.captureException(error);
-        toast.error(error.message || "Failed to update password.");
+        const message = error instanceof Error ? error.message : "Failed to update password.";
+        toast.error(message);
       }
     },
   });
@@ -131,7 +132,8 @@ function AccountPage() {
                         ? "Name must be at least 2 characters"
                         : undefined,
                 }}
-                children={(field) => {
+              >
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -150,12 +152,12 @@ function AccountPage() {
                         placeholder="Your full name"
                       />
                       {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>
                   );
                 }}
-              />
+              </profileForm.Field>
 
               <Field className="opacity-90">
                 <FieldLabel className="text-xs text-foreground">
@@ -170,7 +172,8 @@ function AccountPage() {
               <div className="pt-4">
                 <profileForm.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, isSubmitting]) => (
+                >
+                  {([canSubmit, isSubmitting]) => (
                     <Button
                       type="submit"
                       variant="default"
@@ -181,7 +184,7 @@ function AccountPage() {
                       {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
                   )}
-                />
+                </profileForm.Subscribe>
               </div>
             </form>
           </section>
@@ -207,7 +210,8 @@ function AccountPage() {
                   onChange: ({ value }) =>
                     !value ? "Current password is required" : undefined,
                 }}
-                children={(field) => {
+              >
+                {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
@@ -227,12 +231,12 @@ function AccountPage() {
                         placeholder="••••••••"
                       />
                       {isInvalid && (
-                        <FieldError errors={field.state.meta.errors as any} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>
                   );
                 }}
-              />
+              </passwordForm.Field>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <passwordForm.Field
@@ -245,7 +249,8 @@ function AccountPage() {
                           ? "Min 8 characters"
                           : undefined,
                   }}
-                  children={(field) => {
+                >
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -264,13 +269,11 @@ function AccountPage() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
                         />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
-                        )}
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
                       </Field>
                     );
                   }}
-                />
+                </passwordForm.Field>
                 <passwordForm.Field
                   name="confirmPassword"
                   validators={{
@@ -281,7 +284,8 @@ function AccountPage() {
                       return undefined;
                     },
                   }}
-                  children={(field) => {
+                >
+                  {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
@@ -300,19 +304,18 @@ function AccountPage() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
                         />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors as any} />
-                        )}
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
                       </Field>
                     );
                   }}
-                />
+                </passwordForm.Field>
               </div>
 
               <div className="pt-4">
                 <passwordForm.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, isSubmitting]) => (
+                >
+                  {([canSubmit, isSubmitting]) => (
                     <Button
                       type="submit"
                       variant="default"
@@ -323,7 +326,7 @@ function AccountPage() {
                       {isSubmitting ? "Updating..." : "Update Password"}
                     </Button>
                   )}
-                />
+                </passwordForm.Subscribe>
               </div>
             </form>
           </section>

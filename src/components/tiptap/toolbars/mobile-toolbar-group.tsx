@@ -74,7 +74,6 @@ export const MobileToolbarItem = ({
       active && "bg-accent",
     )}
     onClick={(e) => {
-      // @ts-ignore - event type mismatch in cloneElement sometimes
       onClick?.(e);
       setTimeout(() => {
         closeDrawer?.();

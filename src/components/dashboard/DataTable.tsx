@@ -47,6 +47,8 @@ export function DataTable<TData, TValue>({
     [],
   );
 
+  // TanStack Table currently exposes APIs React Compiler treats as incompatible.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,

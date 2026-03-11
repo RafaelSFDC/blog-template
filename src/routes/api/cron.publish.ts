@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from '#/db/index'
 import { posts } from '#/db/schema'
-import { eq, and, lte } from 'drizzle-orm'
-// @ts-ignore
+import { eq, and, lte, type InferSelectModel } from 'drizzle-orm'
 import { getBinding } from '#/lib/cf-env'
 
 import { triggerWebhook } from '#/lib/webhooks'
@@ -24,7 +23,7 @@ export const Route = createFileRoute('/api/cron/publish')({
           const now = new Date()
           
           // Find posts that are scheduled and whose publication date has passed (or is now)
-          const toPublish = await db
+          const toPublish: InferSelectModel<typeof posts>[] = await db
             .select()
             .from(posts)
             .where(
@@ -62,11 +61,12 @@ export const Route = createFileRoute('/api/cron/publish')({
           return Response.json({ 
             message: 'Successfully published posts', 
             count: publishedCount,
-            publishedIds: toPublish.map((p: any) => p.id)
+            publishedIds: toPublish.map((p) => p.id)
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Error in cron publish:', error)
-          return new Response(error.message || 'Internal Server Error', { status: 500 })
+          const message = error instanceof Error ? error.message : 'Internal Server Error'
+          return new Response(message, { status: 500 })
         }
       }
     }

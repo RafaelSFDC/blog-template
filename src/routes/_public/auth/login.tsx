@@ -46,8 +46,8 @@ function LoginPage() {
         });
         posthog.identify(value.email, { email: value.email });
         posthog.capture("user_signed_in", { method: "email" });
-      } catch (err) {
-        posthog.captureException(err);
+      } catch (_err) {
+        posthog.captureException(_err);
         toast.error("Invalid email or password. Please try again.");
       }
     },
@@ -87,7 +87,8 @@ function LoginPage() {
       >
         <form.Field
           name="email"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <FieldLabel className="ml-1">Email</FieldLabel>
               <FieldContent>
@@ -111,11 +112,12 @@ function LoginPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Field
           name="password"
-          children={(field) => (
+        >
+          {(field) => (
             <Field>
               <div className="flex items-center justify-between ml-1">
                 <FieldLabel>Password</FieldLabel>
@@ -141,11 +143,12 @@ function LoginPage() {
               </FieldContent>
             </Field>
           )}
-        />
+        </form.Field>
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
+        >
+          {([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
               variant="default"
@@ -156,7 +159,7 @@ function LoginPage() {
               {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           )}
-        />
+        </form.Subscribe>
       </form>
 
       <div className="text-center pt-2">

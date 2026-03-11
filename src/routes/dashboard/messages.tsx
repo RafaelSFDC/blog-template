@@ -12,12 +12,14 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
 
+type MessageRow = typeof contactMessages.$inferSelect;
+
 const getMessages = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   const { db } = await import("#/db/index");
-  return await db.query.contactMessages.findMany({
+  return (await db.query.contactMessages.findMany({
     orderBy: desc(contactMessages.createdAt),
-  });
+  })) as MessageRow[];
 });
 
 const updateMessageStatus = createServerFn({ method: "POST" })
@@ -73,7 +75,7 @@ function MessagesPage() {
 
       <div className="grid gap-6">
         {messages.length > 0 ? (
-          messages.map((msg: any) => (
+          messages.map((msg: MessageRow) => (
             <div
               key={msg.id}
               className={`bg-card border shadow-sm rounded-xl p-6 transition-all group ${
@@ -117,7 +119,7 @@ function MessagesPage() {
                   </h3>
 
                   <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/20 italic">
-                    "{msg.message}"
+                    &quot;{msg.message}&quot;
                   </p>
 
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2">

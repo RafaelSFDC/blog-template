@@ -34,18 +34,18 @@ const exportSubscribersCSV = createServerFn({ method: "GET" }).handler(
     const headers = ["Email", "Status", "Subscribed At"];
 
     // Generate CSV Rows
-    const rows = allSubscribers.map((sub: any) => [
+    const rows = allSubscribers.map((sub: typeof subscribers.$inferSelect) => [
       sub.email,
       sub.status,
-      sub.createdAt.toISOString(),
+      sub.createdAt ? (typeof sub.createdAt === 'string' ? sub.createdAt : sub.createdAt.toISOString()) : "",
     ]);
 
     // Combine headers and rows, handle escaping for CSV format
     const csvContent = [
       headers.join(","),
-      ...rows.map((row: any[]) =>
+      ...rows.map((row: string[]) =>
         row
-          .map((value: any) => `"${String(value).replace(/"/g, '""')}"`)
+          .map((value: string) => `"${String(value).replace(/"/g, '""')}"`)
           .join(","),
       ),
     ].join("\n");
@@ -58,6 +58,8 @@ export const Route = createFileRoute("/dashboard/users/subscribers")({
   loader: () => getSubscribers(),
   component: SubscribersPage,
 });
+
+type SubscriberRow = Awaited<ReturnType<typeof getSubscribers>>[number];
 
 function SubscribersPage() {
   const subs = Route.useLoaderData();
@@ -93,7 +95,7 @@ function SubscribersPage() {
     }
   };
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<SubscriberRow>[]>(
     () => [
       {
         accessorKey: "email",
@@ -108,7 +110,7 @@ function SubscribersPage() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-          const status = row.getValue("status") as string;
+          const status = row.getValue("status") as (typeof subs)[0]["status"];
           return (
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${

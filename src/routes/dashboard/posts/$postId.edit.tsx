@@ -177,9 +177,9 @@ function EditPostPage() {
         ? new Date(post.publishedAt).toISOString().slice(0, 16)
         : new Date().toISOString().slice(0, 16),
       categoryIds:
-        post.postCategories?.map((pc: any) => pc.categoryId) ||
+        post.postCategories?.map((pc: { categoryId: number }) => pc.categoryId) ||
         ([] as number[]),
-      tagIds: post.postTags?.map((pt: any) => pt.tagId) || ([] as number[]),
+      tagIds: post.postTags?.map((pt: { tagId: number }) => pt.tagId) || ([] as number[]),
     },
     validators: {
       onChange: postSchema,
@@ -242,7 +242,7 @@ function EditPostPage() {
     queryFn: () => getTags(),
   });
 
-  async function handleSubmit(event: any) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     event.stopPropagation();
     form.handleSubmit();
@@ -262,9 +262,8 @@ function EditPostPage() {
         className="bg-card border shadow-sm mt-8 space-y-6 rounded-[1.6rem] p-6 sm:p-8"
       >
         <FieldGroup>
-          <form.Field
-            name="title"
-            children={(field) => {
+          <form.Field name="title">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -287,16 +286,15 @@ function EditPostPage() {
                     placeholder="Designing A Better Publishing Workflow…"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="slug"
-            children={(field) => {
+          <form.Field name="slug">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -312,16 +310,15 @@ function EditPostPage() {
                     placeholder="designing-a-better-publishing-workflow…"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="excerpt"
-            children={(field) => {
+          <form.Field name="excerpt">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -335,17 +332,16 @@ function EditPostPage() {
                     placeholder="Summarize the key argument of this post in 1 short paragraph…"
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
-            <form.Field
-              name="categoryIds"
-              children={(field) => (
+            <form.Field name="categoryIds">
+              {(field) => (
                 <Field>
                   <FieldLabel>Categories</FieldLabel>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
@@ -354,7 +350,7 @@ function EditPostPage() {
                         No categories available.
                       </p>
                     ) : (
-                      categories.map((cat: any) => (
+                      categories.map((cat: { id: number; name: string }) => (
                         <label
                           key={cat.id}
                           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors"
@@ -384,11 +380,10 @@ function EditPostPage() {
                   </div>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="tagIds"
-              children={(field) => (
+            <form.Field name="tagIds">
+              {(field) => (
                 <Field>
                   <FieldLabel>Tags</FieldLabel>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-input bg-muted/30">
@@ -397,7 +392,7 @@ function EditPostPage() {
                         No tags available.
                       </p>
                     ) : (
-                      tags.map((tag: any) => (
+                      tags.map((tag: { id: number; name: string }) => (
                         <label
                           key={tag.id}
                           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border cursor-pointer hover:border-primary transition-colors"
@@ -427,12 +422,11 @@ function EditPostPage() {
                   </div>
                 </Field>
               )}
-            />
+            </form.Field>
           </div>
 
-          <form.Field
-            name="content"
-            children={(field) => {
+          <form.Field name="content">
+            {(field) => {
               const isInvalid = !!field.state.meta.errors.length;
               return (
                 <Field data-invalid={isInvalid}>
@@ -442,12 +436,12 @@ function EditPostPage() {
                     onChange={field.handleChange}
                   />
                   {isInvalid && (
-                    <FieldError errors={field.state.meta.errors as any} />
+                    <FieldError errors={field.state.meta.errors} />
                   )}
                 </Field>
               );
             }}
-          />
+          </form.Field>
         </FieldGroup>
 
         <div className="border-t border-border pt-6">
@@ -463,9 +457,8 @@ function EditPostPage() {
 
           {showSEO && (
             <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
-              <form.Field
-                name="metaTitle"
-                children={(field) => (
+              <form.Field name="metaTitle">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>
                       Meta Title (Google Title)
@@ -481,10 +474,9 @@ function EditPostPage() {
                     />
                   </Field>
                 )}
-              />
-              <form.Field
-                name="metaDescription"
-                children={(field) => (
+              </form.Field>
+              <form.Field name="metaDescription">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>
                       Meta Description
@@ -500,10 +492,9 @@ function EditPostPage() {
                     />
                   </Field>
                 )}
-              />
-              <form.Field
-                name="ogImage"
-                children={(field) => (
+              </form.Field>
+              <form.Field name="ogImage">
+                {(field) => (
                   <Field>
                     <FieldLabel htmlFor={field.name}>OG Image URL</FieldLabel>
                     <Input
@@ -517,20 +508,19 @@ function EditPostPage() {
                     />
                   </Field>
                 )}
-              />
+              </form.Field>
             </div>
           )}
         </div>
 
         <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
-          <form.Field
-            name="status"
-            children={(field) => (
+          <form.Field name="status">
+            {(field) => (
               <Field>
                 <FieldLabel htmlFor={field.name}>Status</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(val) => field.handleChange(val as any)}
+                  onValueChange={(val) => field.handleChange(val as PostFormInput['status'])}
                 >
                   <SelectTrigger id={field.name}>
                     <SelectValue placeholder="Select status" />
@@ -544,16 +534,14 @@ function EditPostPage() {
                 </Select>
               </Field>
             )}
-          />
+          </form.Field>
 
-          <form.Subscribe
-            selector={(state) => state.values.status}
-            children={(status: any) => {
-              if (status !== ("scheduled" as any)) return null;
+          <form.Subscribe selector={(state) => state.values.status}>
+            {(status) => {
+              if (status !== "scheduled") return null;
               return (
-                <form.Field
-                  name="publishedAt"
-                  children={(field) => (
+                <form.Field name="publishedAt">
+                  {(field) => (
                     <Field>
                       <FieldLabel htmlFor={field.name}>
                         Publication Date
@@ -566,20 +554,19 @@ function EditPostPage() {
                       />
                     </Field>
                   )}
-                />
+                </form.Field>
               );
             }}
-          />
+          </form.Subscribe>
         </div>
 
-        <form.Field
-          name="isPremium"
-          children={(field) => (
+        <form.Field name="isPremium">
+          {(field) => (
             <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
               <Switch
                 id={field.name}
                 checked={field.state.value}
-                onCheckedChange={(val) => field.handleChange(val as any)}
+                onCheckedChange={(val) => field.handleChange(val)}
               />
               <label
                 htmlFor={field.name}
@@ -594,7 +581,7 @@ function EditPostPage() {
               </label>
             </div>
           )}
-        />
+        </form.Field>
 
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={saving} variant="default" size="lg">

@@ -31,12 +31,13 @@ export const Route = createFileRoute('/api/comments/$id')({
           }
 
           return Response.json(updatedComment)
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Error updating comment:', error)
-          if (error.message === 'Unauthorized' || error.status === 401) {
+          const err = error as { message?: string; status?: number }
+          if (err.message === 'Unauthorized' || err.status === 401) {
              return new Response('Unauthorized', { status: 401 })
           }
-          return new Response(error.message || 'Internal Server Error', { status: 500 })
+          return new Response(err.message || 'Internal Server Error', { status: 500 })
         }
       },
       DELETE: async ({ params }) => {
@@ -56,12 +57,13 @@ export const Route = createFileRoute('/api/comments/$id')({
           }
 
           return Response.json({ message: 'Comment deleted successfully' })
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Error deleting comment:', error)
-          if (error.message === 'Unauthorized' || error.status === 401) {
+          const err = error as { message?: string; status?: number }
+          if (err.message === 'Unauthorized' || err.status === 401) {
              return new Response('Unauthorized', { status: 401 })
           }
-          return new Response(error.message || 'Internal Server Error', { status: 500 })
+          return new Response(err.message || 'Internal Server Error', { status: 500 })
         }
       },
     }

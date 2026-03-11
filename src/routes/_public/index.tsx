@@ -4,7 +4,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { PostCard } from "#/components/blog/PostCard";
+import { PostCard, type Post } from "#/components/blog/PostCard";
 import { ArrowRight } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_public/")({
 });
 
 function Home() {
-  const latestPosts: any[] = Route.useLoaderData();
+  const latestPosts = Route.useLoaderData() as Post[];
 
   return (
     <main className="page-wrap pb-16 pt-6">
@@ -97,7 +97,7 @@ function Home() {
 
         {latestPosts.length > 0 ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {latestPosts.map((post: any) => (
+            {latestPosts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>

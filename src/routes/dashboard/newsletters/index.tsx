@@ -3,7 +3,9 @@ import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { createServerFn } from "@tanstack/react-start";
 import { newsletters } from "#/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, type InferSelectModel } from "drizzle-orm";
+
+type Newsletter = InferSelectModel<typeof newsletters>;
 import { Button } from "#/components/ui/button";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { format } from "date-fns";
@@ -29,22 +31,25 @@ const deleteNewsletter = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const Route = createFileRoute("/dashboard/newsletters/")({
+  loader: () => getNewsletters(),
+  component: NewsletterIndexPage,
+});
+
+import { subscribers } from "#/db/schema";
+type SubscriberRow = typeof subscribers.$inferSelect;
+
 const exportSubscribers = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
-    const allSubscribers = await db.query.subscribers.findMany();
+    const allSubscribers = (await db.query.subscribers.findMany()) as SubscriberRow[];
 
     const header = "ID,Email,Status,CreatedAt\n";
     const rows = allSubscribers
       .map(
-        (s: {
-          id: number;
-          email: string;
-          status: string;
-          createdAt: Date | null;
-        }) =>
-          `${s.id},"${s.email}",${s.status},${s.createdAt ? s.createdAt.toISOString() : ""}`,
+        (s) =>
+          `${s.id},"${s.email}",${s.status},${s.createdAt ? (typeof s.createdAt === 'string' ? s.createdAt : s.createdAt.toISOString()) : ""}`,
       )
       .join("\n");
 
@@ -52,13 +57,8 @@ const exportSubscribers = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const Route = createFileRoute("/dashboard/newsletters/")({
-  loader: () => getNewsletters(),
-  component: NewsletterIndexPage,
-});
-
 function NewsletterIndexPage() {
-  const data = Route.useLoaderData();
+  const data = Route.useLoaderData() as Newsletter[];
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState<number | null>(null);
 
@@ -68,7 +68,7 @@ function NewsletterIndexPage() {
       setDeleting(id);
       await deleteNewsletter({ data: id });
       navigate({ to: "." }); // Refresh
-    } catch (err) {
+    } catch {
       alert("Failed to delete newsletter.");
     } finally {
       setDeleting(null);
@@ -103,7 +103,7 @@ function NewsletterIndexPage() {
           <Button asChild variant="default" size="lg">
             <Link
               to="/dashboard/newsletters/new"
-              search={{ fromId: undefined } as any}
+              search={{ fromId: undefined }}
             >
               <Plus className="h-5 w-5" />
               New Campaign
@@ -122,7 +122,7 @@ function NewsletterIndexPage() {
               <Button asChild variant="outline">
                 <Link
                   to="/dashboard/newsletters/new"
-                  search={{ fromId: undefined } as any}
+                  search={{ fromId: undefined }}
                 >
                   Create First Campaign
                 </Link>
@@ -130,7 +130,7 @@ function NewsletterIndexPage() {
             }
           />
         ) : (
-          data.map((item: any) => (
+          data.map((item: Newsletter) => (
             <div
               key={item.id}
               className="bg-card border shadow-sm group flex flex-col items-start justify-between gap-4 rounded-[1.6rem] p-6 transition-all hover:bg-muted/50 sm:flex-row sm:items-center sm:p-8"
@@ -176,7 +176,7 @@ function NewsletterIndexPage() {
                   <Button variant="outline" size="sm" asChild>
                     <Link
                       to={`/dashboard/newsletters/new`}
-                      search={{ fromId: item.id } as any}
+                      search={{ fromId: item.id }}
                     >
                       Edit
                     </Link>

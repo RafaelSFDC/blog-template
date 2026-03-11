@@ -23,6 +23,19 @@ interface MyRouterContext {
   queryClient: QueryClient;
 }
 
+export interface GlobalSettings {
+  blogName: string;
+  accentColor: string;
+  fontFamily: string;
+  gaMeasurementId: string;
+  plausibleDomain: string;
+  blogLogo: string;
+  twitterProfile: string;
+  githubProfile: string;
+  linkedinProfile: string;
+  themeVariant: string;
+}
+
 const DEFAULT_SETTINGS = {
   blogName: "Lumina",
   accentColor: "var(--primary)",
@@ -46,7 +59,7 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(
       const { db } = await import("#/db/index");
       const settings = await db.select().from(appSettings);
       const settingsObj: Record<string, string> = {};
-      settings.forEach((s: any) => {
+      settings.forEach((s: { key: string; value: string }) => {
         settingsObj[s.key] = s.value;
       });
 
@@ -88,7 +101,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   loader: () => getGlobalSettings(),
 
   head: ({ loaderData }) => {
-    const settings = loaderData as any;
+    const settings = loaderData as GlobalSettings;
     const blogName = settings?.blogName || "Lumina";
     const accentColor = settings?.accentColor || "var(--primary)";
 
@@ -279,7 +292,7 @@ function RootNotFoundComponent() {
           Lost in the Light?
         </h1>
         <p className="mx-auto mb-8 max-w-md text-lg text-muted-foreground">
-          The page you're looking for has drifted off the grid. Let's get you
+          The page you&apos;re looking for has drifted off the grid. Let&apos;s get you
           back to the signal.
         </p>
         <div className="flex justify-center">

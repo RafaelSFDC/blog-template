@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from "#/db/index"
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, type InferSelectModel } from 'drizzle-orm'
 import { posts } from '#/db/schema'
+
+type Post = InferSelectModel<typeof posts>
 
 export const Route = createFileRoute('/sitemap/xml')({
   server: {
@@ -31,7 +33,7 @@ export const Route = createFileRoute('/sitemap/xml')({
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  ${allPosts.map((post: any) => `
+  ${allPosts.map((post: Partial<Post>) => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${post.updatedAt?.toISOString().split('T')[0]}</lastmod>

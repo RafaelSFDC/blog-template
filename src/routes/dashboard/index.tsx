@@ -46,9 +46,9 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
       .limit(5);
 
     return {
-      postCount: postCount.value,
-      unreadMessages: unreadMessages.value,
-      totalViews: totalViews.value || 0,
+      postCount: postCount.value || 0,
+      unreadMessages: unreadMessages.value || 0,
+      totalViews: Number(totalViews.value) || 0,
       latestPosts,
       popularPosts,
     };
@@ -67,7 +67,13 @@ import { QuickAction } from "#/components/dashboard/QuickAction";
 
 function DashboardOverview() {
   const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } =
-    Route.useLoaderData();
+    Route.useLoaderData() as {
+      postCount: number;
+      unreadMessages: number;
+      totalViews: number;
+      latestPosts: PostRow[];
+      popularPosts: PostRow[];
+    };
 
   const stats = [
     {
@@ -168,7 +174,7 @@ function DashboardOverview() {
                   <p className="text-xs text-muted-foreground mt-1 font-bold">
                     Updated{" "}
                     {new Date(
-                      post.updatedAt || Date.now(),
+                      post.updatedAt || post.createdAt,
                     ).toLocaleDateString()}
                   </p>
                 </div>

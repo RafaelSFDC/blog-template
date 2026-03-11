@@ -15,7 +15,7 @@ import {
   CodeSquare,
   TextQuote
 } from "lucide-react";
-// @ts-ignore
+// @ts-expect-error: Tiptap floating menu plugin types are slightly incompatible with internal state
 import { FloatingMenu } from "@tiptap/react";
 import {
   Command,
@@ -255,13 +255,14 @@ export function TipTapFloatingMenu({ editor }: { editor: Editor }) {
           });
           break;
 
-        case "Enter":
+        case "Enter": {
           preventDefault();
           const targetIndex = selectedIndex === -1 ? 0 : selectedIndex;
           if (flatFilteredItems[targetIndex]) {
             executeCommand(flatFilteredItems[targetIndex].command);
           }
           break;
+        }
 
         case "Escape":
           preventDefault();
@@ -298,7 +299,7 @@ export function TipTapFloatingMenu({ editor }: { editor: Editor }) {
   return (
     <FloatingMenu
       editor={editor}
-      shouldShow={({ state }: { state: any }) => {
+      shouldShow={({ state }: { state: Editor['state'] }) => {
         if (!editor) return false;
 
         const { $from } = state.selection;

@@ -11,9 +11,19 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 
+interface SocialLink {
+  platform: string;
+  url: string;
+}
+
+interface RootSettings {
+  blogName?: string;
+  socialLinks?: string;
+}
+
 export default function Footer() {
   const year = new Date().getFullYear();
-  const settings = useLoaderData({ from: "__root__" }) as any;
+  const settings = useLoaderData({ from: "__root__" }) as RootSettings;
   const blogName = settings?.blogName || "Lumina";
 
   return (
@@ -38,7 +48,7 @@ export default function Footer() {
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
         {settings?.socialLinks &&
-          JSON.parse(settings.socialLinks).map((link: any, i: number) => {
+          (JSON.parse(settings.socialLinks) as SocialLink[]).map((link, i) => {
             const platform = link.platform.toLowerCase();
             const Icon =
               (
@@ -50,7 +60,7 @@ export default function Footer() {
                   instagram: Instagram,
                   youtube: Youtube,
                   facebook: Facebook,
-                } as Record<string, any>
+                } as Record<string, typeof Twitter>
               )[platform] || LinkIcon;
 
             return (

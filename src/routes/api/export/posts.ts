@@ -19,8 +19,9 @@ export const Route = createFileRoute('/api/export/posts')({
               'Content-Disposition': `attachment; filename="${filename}"`
             }
           })
-        } catch (err: any) {
-          return new Response(JSON.stringify({ error: err.message || 'Unauthorized' }), {
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Unauthorized'
+          return new Response(JSON.stringify({ error: message }), {
             status: 401,
             headers: { 'Content-Type': 'application/json' }
           })
