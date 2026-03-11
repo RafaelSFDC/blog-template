@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
-import { cloudflare } from "@cloudflare/vite-plugin";
 import { devtools } from "@tanstack/devtools-vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
@@ -11,7 +11,6 @@ import { nitro } from "nitro/vite";
 export default defineConfig(() => {
   return {
     plugins: [
-      cloudflare(),
       nitro(),
       devtools(),
       paraglideVitePlugin({
@@ -20,6 +19,10 @@ export default defineConfig(() => {
         strategy: ["url", "baseLocale"],
       }),
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackRouter({
+        target: "react",
+        autoCodeSplitting: true,
+      }),
       tailwindcss(),
       tanstackStart(),
       viteReact({
