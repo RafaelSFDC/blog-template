@@ -1,4 +1,5 @@
 import * as schema from "./schema";
+import { getBinding } from "#/lib/cf-env";
 
 let _db: Record<string, unknown> | null = null;
 
@@ -8,12 +9,13 @@ const dbUrl = process.env.DATABASE_URL;
 // Perform top-level initialization based on environment
 if (dbType === "d1") {
   try {
-    // @ts-expect-error - dynamic import in cloudflare workers
-    const { env } = await import("cloudflare:workers");
-    const foundD1 = env?.DB;
+    const foundD1 = getBinding("DB");
     if (foundD1) {
       const { drizzle: drizzleD1 } = await import("drizzle-orm/d1");
-      _db = drizzleD1(foundD1, { schema }) as unknown as Record<string, unknown>;
+      _db = drizzleD1(foundD1, { schema }) as unknown as Record<
+        string,
+        unknown
+      >;
     }
   } catch (e) {
     // This may fail in local environments where cloudflare:workers isn't available
@@ -38,7 +40,10 @@ if (dbType === "d1") {
       await import("drizzle-orm/better-sqlite3");
     const { default: Database } = await import("better-sqlite3");
     const sqlite = new Database(dbUrl || "blog.db");
-    _db = drizzleSqlite(sqlite, { schema }) as unknown as Record<string, unknown>;
+    _db = drizzleSqlite(sqlite, { schema }) as unknown as Record<
+      string,
+      unknown
+    >;
   } catch (e) {
     console.debug(
       "SQLite initialization failed (likely running in environment without better-sqlite3):",
@@ -51,7 +56,6 @@ if (dbType === "d1") {
  * Universal Database Adapter
  * Supports: sqlite, d1, neon, libsql
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = new Proxy({} as any, {
   get(_target, prop) {
     if (prop === "schema") return schema;
