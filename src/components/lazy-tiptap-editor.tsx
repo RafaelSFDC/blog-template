@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
+import { useHydrated } from "#/hooks/use-hydrated";
 
 interface LazyTiptapEditorProps {
   content: string;
@@ -13,13 +14,9 @@ const LazyEditor = lazy(() =>
 );
 
 export function LazyTiptapEditor(props: LazyTiptapEditorProps) {
-  const [isMounted, setIsMounted] = useState(false);
+  const isHydrated = useHydrated();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
+  if (!isHydrated) {
     return <EditorFallback />;
   }
 

@@ -2,10 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { subscribers } from "#/db/schema";
 import { eq } from "drizzle-orm";
+import { newsletterSubscribeSchema } from "#/lib/cms-schema";
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
-  .inputValidator((email: string) => email)
-  .handler(async ({ data: email }) => {
+  .inputValidator((input: unknown) => newsletterSubscribeSchema.parse(input))
+  .handler(async ({ data }) => {
+    const email = data.email;
     try {
       // Check if already subscribed
       const existing = await db.query.subscribers.findFirst({

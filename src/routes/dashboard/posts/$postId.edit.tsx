@@ -2,20 +2,13 @@ import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { Button } from "#/components/ui/button";
-import { createServerFn } from "@tanstack/react-start";
-import { posts } from "#/db/schema";
-import { eq } from "drizzle-orm";
 import { useState } from "react";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
-import { postCategories, postTags } from "#/db/schema";
 import { getCategories, getTags } from "#/server/taxonomy-actions";
 import { FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-import { triggerWebhook } from "#/lib/webhooks";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import {
   Field,
   FieldError,
@@ -35,25 +28,10 @@ import {
 } from "#/components/ui/select";
 import { toast } from "sonner";
 import {
-  getFriendlyDbError,
-  normalizeSlug,
-  postServerSchema,
+  postFormSchema,
+  slugify,
 } from "#/lib/cms-schema";
-
-const postSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
-  excerpt: z.string().min(1, "Excerpt is required"),
-  content: z.string().min(1, "Content is required"),
-  metaTitle: z.string(),
-  metaDescription: z.string(),
-  ogImage: z.string(),
-  isPremium: z.boolean(),
-  status: z.enum(["draft", "published", "scheduled", "private"]),
-  publishedAt: z.string(),
-  categoryIds: z.array(z.number()),
-  tagIds: z.array(z.number()),
-});
+import { getPostForEdit, updatePost } from "#/server/post-actions";
 
 interface PostFormInput {
   id: number;
@@ -71,92 +49,6 @@ interface PostFormInput {
   tagIds: number[];
 }
 
-const getPostForEdit = createServerFn({ method: "GET" })
-  .inputValidator((input: { id: number }) => input)
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    const post = await db.query.posts.findFirst({
-      where: eq(posts.id, data.id),
-      with: {
-        postCategories: true,
-        postTags: true,
-      },
-    });
-
-    if (!post) {
-      throw notFound();
-    }
-
-    return post;
-  });
-
-const updatePost = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    postServerSchema
-      .extend({ id: z.number().int().positive() })
-      .parse(input),
-  )
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    const slug = normalizeSlug(data.slug, data.title);
-    if (!slug) {
-      throw new Error("Post slug could not be generated");
-    }
-
-    try {
-      await db
-        .update(posts)
-        .set({
-          title: data.title,
-          slug,
-          excerpt: data.excerpt,
-          content: data.content,
-          metaTitle: data.metaTitle,
-          metaDescription: data.metaDescription,
-          ogImage: data.ogImage,
-          isPremium: data.isPremium,
-          status: data.status,
-          publishedAt: data.publishedAt || new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(posts.id, data.id));
-    } catch (error) {
-      throw new Error(getFriendlyDbError(error, "Post") || "Could not update post");
-    }
-
-    // Sync categories
-    await db.delete(postCategories).where(eq(postCategories.postId, data.id));
-    if (data.categoryIds.length > 0) {
-      await db.insert(postCategories).values(
-        data.categoryIds.map((categoryId) => ({
-          postId: data.id,
-          categoryId,
-        })),
-      );
-    }
-
-    // Sync tags
-    await db.delete(postTags).where(eq(postTags.postId, data.id));
-    if (data.tagIds.length > 0) {
-      await db
-        .insert(postTags)
-        .values(data.tagIds.map((tagId) => ({ postId: data.id, tagId })));
-    }
-
-    if (data.status === "published") {
-      await triggerWebhook("post.published", {
-        id: data.id,
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-      });
-    }
-
-    return { ok: true as const };
-  });
-
 export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
   loader: ({ params }) => {
     const id = Number(params.postId);
@@ -167,15 +59,6 @@ export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
   },
   component: EditPostPage,
 });
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 function EditPostPage() {
   const post = Route.useLoaderData();
@@ -200,7 +83,7 @@ function EditPostPage() {
       tagIds: post.postTags?.map((pt: { tagId: number }) => pt.tagId) || ([] as number[]),
     },
     validators: {
-      onChange: postSchema,
+      onChange: postFormSchema,
     },
     onSubmit: async ({ value }) => {
       const normalizedSlug = value.slug || slugify(value.title);
@@ -236,9 +119,10 @@ function EditPostPage() {
         toast.success("Post updated successfully!");
         await navigate({ to: "/dashboard" });
       } catch (e) {
-        console.error(e);
         toast.error(
-          "Could not update this post. Check the slug and try again.",
+          e instanceof Error
+            ? e.message
+            : "Could not update this post. Check the slug and try again.",
         );
       } finally {
         setSaving(false);

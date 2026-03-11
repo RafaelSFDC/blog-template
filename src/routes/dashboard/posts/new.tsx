@@ -2,20 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { Button } from "#/components/ui/button";
-import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db/index";
-import { posts } from "#/db/schema";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { requireAdminSession } from "#/lib/admin-auth";
-import { triggerWebhook } from "#/lib/webhooks";
 import { useQuery } from "@tanstack/react-query";
 import { getCategories, getTags } from "#/server/taxonomy-actions";
 import { FileText } from "lucide-react";
-import { postCategories, postTags } from "#/db/schema";
 import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import {
   Field,
   FieldError,
@@ -36,25 +29,10 @@ import {
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
 import {
-  getFriendlyDbError,
-  normalizeSlug,
-  postServerSchema,
+  postFormSchema,
+  slugify,
 } from "#/lib/cms-schema";
-
-const postSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
-  excerpt: z.string().min(1, "Excerpt is required"),
-  content: z.string().min(1, "Content is required"),
-  metaTitle: z.string(),
-  metaDescription: z.string(),
-  ogImage: z.string(),
-  isPremium: z.boolean(),
-  status: z.enum(["draft", "published", "scheduled", "private"]),
-  publishedAt: z.string(),
-  categoryIds: z.array(z.number()),
-  tagIds: z.array(z.number()),
-});
+import { createPost } from "#/server/post-actions";
 
 interface PostFormInput {
   title: string;
@@ -75,79 +53,9 @@ type PostStatus = PostFormInput["status"];
 type Category = Awaited<ReturnType<typeof getCategories>>[number];
 type Tag = Awaited<ReturnType<typeof getTags>>[number];
 
-const createPost = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => postServerSchema.parse(input))
-  .handler(async ({ data }) => {
-    const session = await requireAdminSession();
-
-    const slug = normalizeSlug(data.slug, data.title);
-    if (!slug) {
-      throw new Error("Post slug could not be generated");
-    }
-
-    let created;
-    try {
-      created = await db
-        .insert(posts)
-        .values({
-          title: data.title,
-          slug,
-          excerpt: data.excerpt,
-          content: data.content,
-          metaTitle: data.metaTitle,
-          metaDescription: data.metaDescription,
-          ogImage: data.ogImage,
-          authorId: session.user.id,
-          isPremium: data.isPremium,
-          status: data.status,
-          publishedAt: data.publishedAt || new Date(),
-          updatedAt: new Date(),
-        })
-        .returning({ id: posts.id });
-    } catch (error) {
-      throw new Error(getFriendlyDbError(error, "Post") || "Could not create post");
-    }
-
-    const postId = created[0].id;
-
-    // Insert categories
-    if (data.categoryIds.length > 0) {
-      await db
-        .insert(postCategories)
-        .values(data.categoryIds.map((categoryId) => ({ postId, categoryId })));
-    }
-
-    // Insert tags
-    if (data.tagIds.length > 0) {
-      await db
-        .insert(postTags)
-        .values(data.tagIds.map((tagId) => ({ postId, tagId })));
-    }
-
-    if (data.status === "published") {
-      await triggerWebhook("post.published", {
-        id: postId,
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-      });
-    }
-
-    return created[0];
-  });
-
 export const Route = createFileRoute("/dashboard/posts/new")({
   component: NewPostPage,
 });
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 function NewPostPage() {
   const navigate = useNavigate();
@@ -168,7 +76,7 @@ function NewPostPage() {
       tagIds: [] as number[],
     },
     validators: {
-      onChange: postSchema,
+      onChange: postFormSchema,
     },
     onSubmit: async ({ value }) => {
       const normalizedSlug = value.slug || slugify(value.title);
@@ -210,9 +118,10 @@ function NewPostPage() {
         await navigate({ to: "/dashboard" });
       } catch (e) {
         posthog.captureException(e);
-        console.error(e);
         toast.error(
-          "Could not create this post. Check the slug and try again.",
+          e instanceof Error
+            ? e.message
+            : "Could not create this post. Check the slug and try again.",
         );
       } finally {
         setSaving(false);

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { getAnalyticsStats } from "#/server/analytics-actions";
 import { DashboardHeader } from "#/components/dashboard/Header";
@@ -11,6 +11,7 @@ import {
   Globe,
 } from "lucide-react";
 import { StatCard } from "#/components/ui/stat-card";
+import { useHydrated } from "#/hooks/use-hydrated";
 
 export const Route = createFileRoute("/dashboard/analytics/")({
   loader: () => getAnalyticsStats(),
@@ -40,11 +41,7 @@ interface AnalyticsData {
 
 function AnalyticsDashboard() {
   const data = Route.useLoaderData() as AnalyticsData;
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isHydrated = useHydrated();
 
   const stats = [
     {
@@ -137,7 +134,7 @@ function AnalyticsDashboard() {
         ))}
       </div>
 
-      {isClient ? (
+      {isHydrated ? (
         <Suspense fallback={<AnalyticsChartsSkeleton />}>
           <LazyAnalyticsCharts data={data} />
         </Suspense>

@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
+import { useHydrated } from "#/hooks/use-hydrated";
 
 const LazyPostHogProviderImpl = lazy(() =>
   import("./posthog-provider").then((module) => ({
@@ -7,13 +8,9 @@ const LazyPostHogProviderImpl = lazy(() =>
 );
 
 export function LazyPostHogProvider({ children }: { children: ReactNode }) {
-  const [isMounted, setIsMounted] = useState(false);
+  const isHydrated = useHydrated();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted || !import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
+  if (!isHydrated || !import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
     return <>{children}</>;
   }
 

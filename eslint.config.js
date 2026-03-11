@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import react from 'eslint-plugin-react'
 
 export default tseslint.config(
-  { ignores: ['dist', '.wrangler', '.tanstack', 'Kataly'] },
+  { ignores: ['dist', '.output', '.wrangler', '.tanstack', 'Kataly', 'src/paraglide'] },
   {
     extends: [
       js.configs.recommended,

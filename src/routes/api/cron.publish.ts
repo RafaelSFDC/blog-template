@@ -1,74 +1,46 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { db } from '#/db/index'
-import { posts } from '#/db/schema'
-import { eq, and, lte, type InferSelectModel } from 'drizzle-orm'
-import { getBinding } from '#/lib/cf-env'
+import { createFileRoute } from "@tanstack/react-router";
+import { getBinding } from "#/lib/cf-env";
+import { publishScheduledPosts } from "#/server/post-actions";
+import {
+  getCronSecretConfig,
+  isAuthorizedCronRequest,
+} from "#/server/post-domain";
 
-import { triggerWebhook } from '#/lib/webhooks'
-
-export const Route = createFileRoute('/api/cron/publish')({
+export const Route = createFileRoute("/api/cron/publish")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const url = new URL(request.url)
-        const secret = url.searchParams.get('secret')
-        
-        const expectedSecret = getBinding('CRON_SECRET') || 'dev-secret'
+        const url = new URL(request.url);
+        const secret = url.searchParams.get("secret");
+        const secretConfig = getCronSecretConfig(
+          getBinding<string>("CRON_SECRET") || process.env.CRON_SECRET,
+        );
 
-        if (secret !== expectedSecret) {
-          return new Response('Unauthorized', { status: 401 })
+        if (secretConfig.required && !secretConfig.secret) {
+          return new Response("CRON_SECRET is required in production", { status: 500 });
+        }
+
+        if (!isAuthorizedCronRequest(secret, secretConfig)) {
+          return new Response("Unauthorized", { status: 401 });
         }
 
         try {
-          const now = new Date()
-          
-          // Find posts that are scheduled and whose publication date has passed (or is now)
-          const toPublish: InferSelectModel<typeof posts>[] = await db
-            .select()
-            .from(posts)
-            .where(
-              and(
-                eq(posts.status, 'scheduled'),
-                lte(posts.publishedAt, now)
-              )
-            )
-
-          if (toPublish.length === 0) {
-            return Response.json({ message: 'No posts to publish', count: 0 })
+          const result = await publishScheduledPosts(new Date());
+          if (result.count === 0) {
+            return Response.json({ message: "No posts to publish", count: 0 });
           }
 
-          // Update them to published
-          let publishedCount = 0
-          for (const post of toPublish) {
-            await db
-              .update(posts)
-              .set({ 
-                status: 'published',
-                updatedAt: new Date()
-              })
-              .where(eq(posts.id, post.id))
-            
-            await triggerWebhook('post.published', {
-              id: post.id,
-              title: post.title,
-              slug: post.slug,
-              excerpt: post.excerpt,
-            })
-            
-            publishedCount++
-          }
-
-          return Response.json({ 
-            message: 'Successfully published posts', 
-            count: publishedCount,
-            publishedIds: toPublish.map((p) => p.id)
-          })
+          return Response.json({
+            message: "Successfully published posts",
+            count: result.count,
+            publishedIds: result.publishedIds,
+          });
         } catch (error: unknown) {
-          console.error('Error in cron publish:', error)
-          const message = error instanceof Error ? error.message : 'Internal Server Error'
-          return new Response(message, { status: 500 })
+          console.error("Error in cron publish:", error);
+          const message = error instanceof Error ? error.message : "Internal Server Error";
+          return new Response(message, { status: 500 });
         }
-      }
-    }
-  }
-})
+      },
+    },
+  },
+});

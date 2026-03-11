@@ -4,11 +4,13 @@ export const POST_STATUSES = ["draft", "published", "scheduled", "private"] as c
 export const PAGE_STATUSES = ["draft", "published", "private"] as const;
 export const MENU_KEYS = ["primary", "footer"] as const;
 export const MENU_ITEM_KINDS = ["internal", "external"] as const;
+export const WEBHOOK_EVENTS = ["post.published"] as const;
 
 export const postStatusSchema = z.enum(POST_STATUSES);
 export const pageStatusSchema = z.enum(PAGE_STATUSES);
 export const menuKeySchema = z.enum(MENU_KEYS);
 export const menuItemKindSchema = z.enum(MENU_ITEM_KINDS);
+export const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 function emptyStringToUndefined(value: unknown) {
   if (typeof value !== "string") return value;
@@ -25,6 +27,9 @@ const optionalUrlSchema = z.preprocess(
   emptyStringToUndefined,
   z.string().trim().url("Must be a valid URL").optional(),
 );
+
+const trimmedString = (min: number, message: string, max: number, tooLongMessage: string) =>
+  z.string().trim().min(min, message).max(max, tooLongMessage);
 
 export function slugify(value: string) {
   return value
@@ -43,27 +48,27 @@ export function normalizeSlug(rawSlug: string | undefined, fallback: string) {
 }
 
 export const categorySchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80, "Name is too long"),
-  slug: z.string().trim().min(1, "Slug is required").max(120, "Slug is too long"),
+  name: trimmedString(1, "Name is required", 80, "Name is too long"),
+  slug: trimmedString(1, "Slug is required", 120, "Slug is too long"),
   description: optionalTrimmedString,
 });
 
 export const tagSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80, "Name is too long"),
-  slug: z.string().trim().min(1, "Slug is required").max(120, "Slug is too long"),
+  name: trimmedString(1, "Name is required", 80, "Name is too long"),
+  slug: trimmedString(1, "Slug is required", 120, "Slug is too long"),
 });
 
 export const socialLinkSchema = z.object({
-  platform: z.string().trim().min(1, "Platform is required").max(40, "Platform is too long"),
+  platform: trimmedString(1, "Platform is required", 40, "Platform is too long"),
   url: z.string().trim().url("Must be a valid URL"),
 });
 
 export const settingsSchema = z.object({
-  blogName: z.string().trim().min(1, "Publication Name is required").max(120, "Publication Name is too long"),
+  blogName: trimmedString(1, "Publication Name is required", 120, "Publication Name is too long"),
   blogDescription: z.string().trim().max(300, "Description is too long").catch(""),
   blogLogo: optionalUrlSchema,
-  fontFamily: z.string().trim().min(1, "Font family is required").max(80, "Font family is too long"),
-  themeVariant: z.string().trim().min(1, "Theme is required").max(120, "Theme is too long"),
+  fontFamily: trimmedString(1, "Font family is required", 80, "Font family is too long"),
+  themeVariant: trimmedString(1, "Theme is required", 120, "Theme is too long"),
   socialLinks: z.array(socialLinkSchema).max(20, "Too many social links"),
 });
 
@@ -75,15 +80,42 @@ const scheduledDateSchema = z.preprocess(
   z.coerce.date().optional(),
 );
 
+export const postFormSchema = z
+  .object({
+    title: trimmedString(1, "Title is required", 160, "Title is too long"),
+    slug: z.string().trim().min(1, "Slug is required").max(160, "Slug is too long"),
+    excerpt: trimmedString(1, "Excerpt is required", 320, "Excerpt is too long"),
+    content: trimmedString(1, "Content is required", 500000, "Content is too long"),
+    metaTitle: z.string().trim().max(160, "Meta title is too long").catch(""),
+    metaDescription: z.string().trim().max(320, "Meta description is too long").catch(""),
+    ogImage: z.string().trim().refine((value) => !value || z.string().url().safeParse(value).success, {
+      message: "Must be a valid URL",
+    }),
+    isPremium: z.boolean(),
+    status: postStatusSchema,
+    publishedAt: z.string(),
+    categoryIds: z.array(z.number().int().positive()).max(20, "Too many categories"),
+    tagIds: z.array(z.number().int().positive()).max(50, "Too many tags"),
+  })
+  .superRefine((value, ctx) => {
+    if (value.status === "scheduled" && !value.publishedAt.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["publishedAt"],
+        message: "Scheduled posts require a publication date",
+      });
+    }
+  });
+
 export const postServerSchema = z
   .object({
     id: z.number().int().positive().optional(),
-    title: z.string().trim().min(1, "Title is required").max(160, "Title is too long"),
+    title: trimmedString(1, "Title is required", 160, "Title is too long"),
     slug: optionalTrimmedString,
-    excerpt: z.string().trim().min(1, "Excerpt is required").max(320, "Excerpt is too long"),
-    content: z.string().trim().min(1, "Content is required"),
-    metaTitle: optionalTrimmedString,
-    metaDescription: optionalTrimmedString,
+    excerpt: trimmedString(1, "Excerpt is required", 320, "Excerpt is too long"),
+    content: trimmedString(1, "Content is required", 500000, "Content is too long"),
+    metaTitle: z.preprocess(emptyStringToUndefined, z.string().trim().max(160, "Meta title is too long").optional()),
+    metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
     ogImage: optionalUrlSchema,
     isPremium: z.boolean(),
     status: postStatusSchema,
@@ -103,12 +135,12 @@ export const postServerSchema = z
 
 export const pageServerSchema = z.object({
   id: z.number().int().positive().optional(),
-  title: z.string().trim().min(1, "Title is required").max(160, "Title is too long"),
+  title: trimmedString(1, "Title is required", 160, "Title is too long"),
   slug: optionalTrimmedString,
-  excerpt: optionalTrimmedString,
-  content: z.string().trim().min(1, "Content is required"),
-  metaTitle: optionalTrimmedString,
-  metaDescription: optionalTrimmedString,
+  excerpt: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Excerpt is too long").optional()),
+  content: trimmedString(1, "Content is required", 500000, "Content is too long"),
+  metaTitle: z.preprocess(emptyStringToUndefined, z.string().trim().max(160, "Meta title is too long").optional()),
+  metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
   ogImage: optionalUrlSchema,
   status: pageStatusSchema,
   isHome: z.boolean(),
@@ -126,6 +158,27 @@ export const menuItemSchema = z.object({
 export const menuUpdateSchema = z.object({
   key: menuKeySchema,
   items: z.array(menuItemSchema).max(30, "Too many menu items"),
+});
+
+export const newsletterSubscribeSchema = z.object({
+  email: z.string().trim().email("Must be a valid email").max(320, "Email is too long"),
+});
+
+export const contactFormSchema = z.object({
+  name: trimmedString(1, "Full name required", 120, "Name is too long"),
+  email: z.string().trim().email("Invalid email").max(320, "Email is too long"),
+  subject: trimmedString(3, "Subject too short", 160, "Subject is too long"),
+  message: trimmedString(10, "Message too short", 5000, "Message is too long"),
+});
+
+export const webhookCreateSchema = z.object({
+  name: trimmedString(1, "Name is required", 120, "Name is too long"),
+  url: z.string().trim().url("Must be a valid URL").max(2048, "URL is too long"),
+  event: webhookEventSchema,
+  secret: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(255, "Secret is too long").optional(),
+  ),
 });
 
 export function assertMenuHref(kind: z.infer<typeof menuItemKindSchema>, href: string) {
@@ -146,6 +199,12 @@ export function assertMenuHref(kind: z.infer<typeof menuItemKindSchema>, href: s
 export function getFriendlyDbError(error: unknown, entityName: string) {
   const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
   if (message.includes("unique") || message.includes("duplicate")) {
+    if (message.includes("email")) {
+      return `${entityName} email already exists`;
+    }
+    if (message.includes("url")) {
+      return `${entityName} URL already exists`;
+    }
     return `${entityName} slug already exists`;
   }
   return null;

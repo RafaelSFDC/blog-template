@@ -14,7 +14,6 @@ import {
 import { getAvailableThemes, applyThemeClasses } from "#/lib/theme-utils";
 import { useEffect } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
-import { z } from "zod";
 import {
   Field,
   FieldError,
@@ -33,20 +32,6 @@ import {
 } from "#/components/ui/select";
 import { toast } from "sonner";
 import { settingsSchema } from "#/lib/cms-schema";
-
-const settingsFormSchema = z.object({
-  blogName: z.string().min(1, "Publication Name is required"),
-  blogDescription: z.string(),
-  blogLogo: z.string(),
-  fontFamily: z.string(),
-  themeVariant: z.string(),
-  socialLinks: z.array(
-    z.object({
-      platform: z.string(),
-      url: z.string(),
-    }),
-  ),
-});
 
 const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -146,7 +131,7 @@ function SettingsPage() {
       socialLinks: initialSettings.socialLinks,
     },
     validators: {
-      onChange: settingsFormSchema,
+      onChange: settingsSchema,
     },
     onSubmit: async ({ value }) => {
       setSaving(true);
@@ -162,8 +147,12 @@ function SettingsPage() {
           },
         });
         toast.success("Settings saved successfully!");
-      } catch {
-        toast.error("Failed to save settings. Please try again.");
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to save settings. Please try again.",
+        );
       } finally {
         setSaving(false);
       }

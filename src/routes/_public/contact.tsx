@@ -12,12 +12,10 @@ import { SiteHeader } from "#/components/SiteHeader";
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { IconBox } from "#/components/IconBox";
+import { contactFormSchema } from "#/lib/cms-schema";
 
 const submitContactForm = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: { name: string; email: string; subject: string; message: string }) =>
-      data,
-  )
+  .inputValidator((input: unknown) => contactFormSchema.parse(input))
   .handler(async ({ data }) => {
     await db.insert(contactMessages).values({
       name: data.name,
@@ -52,6 +50,9 @@ function ContactPage() {
       email: "",
       subject: "",
       message: "",
+    },
+    validators: {
+      onChange: contactFormSchema,
     },
     onSubmit: async ({ value }) => {
       try {
@@ -151,13 +152,7 @@ function ContactPage() {
               className="bg-card border shadow-md space-y-6 rounded-md p-6 sm:p-10"
             >
               <div className="grid gap-6 sm:grid-cols-2">
-                <form.Field
-                  name="name"
-                  validators={{
-                    onChange: ({ value }) =>
-                      !value ? "Full name required" : undefined,
-                  }}
-                >
+                <form.Field name="name">
                   {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
@@ -183,17 +178,7 @@ function ContactPage() {
                     );
                   }}
                 </form.Field>
-                <form.Field
-                  name="email"
-                  validators={{
-                    onChange: ({ value }) =>
-                      !value
-                        ? "Email required"
-                        : !/^\S+@\S+$/.test(value)
-                          ? "Invalid email"
-                          : undefined,
-                  }}
-                >
+                <form.Field name="email">
                   {(field) => {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
@@ -221,17 +206,7 @@ function ContactPage() {
                   }}
                 </form.Field>
               </div>
-              <form.Field
-                name="subject"
-                validators={{
-                  onChange: ({ value }) =>
-                    !value
-                      ? "Subject is required"
-                      : value.length < 3
-                        ? "Subject too short"
-                        : undefined,
-                }}
-              >
+              <form.Field name="subject">
                 {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
@@ -255,17 +230,7 @@ function ContactPage() {
                   );
                 }}
               </form.Field>
-              <form.Field
-                name="message"
-                validators={{
-                  onChange: ({ value }) =>
-                    !value
-                      ? "Message required"
-                      : value.length < 10
-                        ? "Message too short"
-                        : undefined,
-                }}
-              >
+              <form.Field name="message">
                 {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (

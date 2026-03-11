@@ -6,12 +6,10 @@ import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
 import { Webhook, Save, ChevronLeft, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { webhookCreateSchema } from "#/lib/cms-schema";
 
 const createWebhook = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: { name: string; url: string; event: string; secret?: string }) =>
-      data,
-  )
+  .inputValidator((input: unknown) => webhookCreateSchema.parse(input))
   .handler(async ({ data }) => {
     await requireAdminSession();
     await db.insert(webhooks).values({
@@ -40,18 +38,24 @@ function NewWebhookPage() {
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name || !url) {
-      setErrorMessage("Name and URL are required.");
+
+    const parsed = webhookCreateSchema.safeParse({ name, url, event, secret });
+    if (!parsed.success) {
+      setErrorMessage(parsed.error.issues[0]?.message ?? "Invalid webhook data.");
       return;
     }
 
     try {
       setSaving(true);
       setErrorMessage("");
-      await createWebhook({ data: { name, url, event, secret } });
+      await createWebhook({ data: parsed.data });
       await navigate({ to: "/dashboard/webhooks" });
-    } catch {
-      setErrorMessage("Failed to create webhook. Please check the data.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to create webhook. Please check the data.",
+      );
     } finally {
       setSaving(false);
     }
