@@ -1,5 +1,4 @@
 import * as schema from "./schema";
-import { getBinding } from "#/lib/cf-env";
 
 let _db: Record<string, unknown> | null = null;
 
@@ -9,7 +8,9 @@ const dbUrl = process.env.DATABASE_URL;
 // Perform top-level initialization based on environment
 if (dbType === "d1") {
   try {
-    const foundD1 = getBinding("DB");
+    // @ts-expect-error - dynamic import in cloudflare workers
+    const { env } = await import("cloudflare:workers");
+    const foundD1 = env?.DB;
     if (foundD1) {
       const { drizzle: drizzleD1 } = await import("drizzle-orm/d1");
       _db = drizzleD1(foundD1, { schema }) as unknown as Record<
