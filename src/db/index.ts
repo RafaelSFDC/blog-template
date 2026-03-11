@@ -27,8 +27,8 @@ if (dbType === "d1") {
   const sql = neon(dbUrl!);
   _db = drizzleNeon(sql, { schema }) as unknown as Record<string, unknown>;
 } else if (dbType === "libsql") {
-  const { createClient } = await import("@libsql/client");
-  const { drizzle: drizzleLibsql } = await import("drizzle-orm/libsql");
+  const { createClient } = await import("@libsql/client/http");
+  const { drizzle: drizzleLibsql } = await import("drizzle-orm/libsql/http");
   const client = createClient({
     url: dbUrl!,
     authToken: process.env.DATABASE_AUTH_TOKEN,
