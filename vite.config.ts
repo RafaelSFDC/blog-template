@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import { devtools } from "@tanstack/devtools-vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
@@ -11,6 +12,7 @@ import { nitro } from "nitro/vite";
 export default defineConfig(() => {
   return {
     plugins: [
+      cloudflare({ viteEnvironment: { name: "ssr" } }),
       nitro(),
       devtools(),
       paraglideVitePlugin({
