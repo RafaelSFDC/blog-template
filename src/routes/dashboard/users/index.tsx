@@ -136,7 +136,7 @@ function UsersManagementPage() {
                 {user.image ? (
                   <img
                     src={user.image}
-                    alt={user.name}
+                    alt={user.name ?? ""}
                     className="h-full w-full object-cover"
                   />
                 ) : (

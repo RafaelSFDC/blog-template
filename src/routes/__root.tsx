@@ -14,7 +14,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import appCss from "../styles.css?url";
 import { ThemeProvider } from "next-themes";
-import { PostHogProvider } from "#/components/analytics/posthog-provider";
+import { LazyPostHogProvider } from "#/components/analytics/lazy-posthog-provider";
 import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "#/components/ui/sonner";
 
@@ -199,7 +199,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TanStackQueryProvider>
-            <PostHogProvider>{children}</PostHogProvider>
+            <LazyPostHogProvider>{children}</LazyPostHogProvider>
             <Toaster closeButton position="bottom-right" />
             <TanStackDevtools
               config={{

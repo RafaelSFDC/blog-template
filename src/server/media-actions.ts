@@ -3,7 +3,7 @@ import { db } from '#/db/index'
 import { media as mediaTable } from '#/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { requireAdminSession } from '#/lib/admin-auth'
-import { getBinding } from '#/lib/cf-env'
+import { deleteObject, putObject } from '#/lib/storage'
 
 export const getMediaItems = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -15,11 +15,6 @@ export const uploadMedia = createServerFn({ method: 'POST' })
   .inputValidator((data: FormData) => data)
   .handler(async ({ data }: { data: FormData }) => {
     await requireAdminSession()
-    const storage = getBinding('STORAGE')
-
-    if (!storage) {
-      throw new Error('Storage not configured')
-    }
 
     const file = data.get('file') as File
     const altText = data.get('altText') as string | null
@@ -29,19 +24,16 @@ export const uploadMedia = createServerFn({ method: 'POST' })
     }
 
     const filename = `${Date.now()}-${file.name}`
-    
-    // Upload to R2
-    await storage.put(filename, file, {
-      httpMetadata: {
-        contentType: file.type,
-      }
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const stored = await putObject({
+      filename,
+      body: buffer,
+      contentType: file.type,
     })
-
-    const url = `/api/media/${filename}`
 
     // Save to DB
     const created = await db.insert(mediaTable).values({
-      url,
+      url: stored.url,
       filename,
       altText: altText || null,
       mimeType: file.type,
@@ -55,14 +47,7 @@ export const deleteMediaItem = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: number, filename: string }) => data)
   .handler(async ({ data }) => {
     await requireAdminSession()
-    const storage = getBinding('STORAGE')
-
-    if (!storage) {
-      throw new Error('Storage not configured')
-    }
-
-    // Delete from R2
-    await storage.delete(data.filename)
+    await deleteObject(data.filename)
 
     // Delete from DB
     await db.delete(mediaTable).where(eq(mediaTable.id, data.id))

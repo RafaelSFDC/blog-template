@@ -7,7 +7,7 @@ import { posts } from "#/db/schema";
 import { eq } from "drizzle-orm";
 import { useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { TiptapEditor } from "#/components/tiptap-editor";
+import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
 import { postCategories, postTags } from "#/db/schema";
 import { getCategories, getTags } from "#/server/taxonomy-actions";
 import { FileText } from "lucide-react";
@@ -449,7 +449,7 @@ function EditPostPage() {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel>Content</FieldLabel>
-                  <TiptapEditor
+                  <LazyTiptapEditor
                     content={field.state.value}
                     onChange={field.handleChange}
                   />
@@ -554,9 +554,9 @@ function EditPostPage() {
             )}
           </form.Field>
 
-          <form.Subscribe selector={(state) => state.values.status}>
-            {(status) => {
-              if (status !== "scheduled") return null;
+          <form.Subscribe selector={(state) => state.values.status === "scheduled"}>
+            {(isScheduled) => {
+              if (!isScheduled) return null;
               return (
                 <form.Field name="publishedAt">
                   {(field) => (

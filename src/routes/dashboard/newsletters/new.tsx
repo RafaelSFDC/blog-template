@@ -6,7 +6,7 @@ import { newsletters, posts } from "#/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { TiptapEditor } from "#/components/tiptap-editor";
+import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
 import { sendNewsletter } from "#/lib/newsletter";
 import { ChevronLeft, Info, Send } from "lucide-react";
 import { format } from "date-fns";
@@ -67,11 +67,14 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
   validateSearch: (search: Record<string, unknown>) => ({
     fromId: search.fromId ? Number(search.fromId) : undefined,
   }),
-  loader: async ({ search }) => {
+  loaderDeps: ({ search }) => ({
+    fromId: search.fromId,
+  }),
+  loader: async ({ deps }) => {
     const posts = await getPostsForTemplate();
     let existing = null;
-    if (search.fromId) {
-      existing = await getNewsletterById({ data: search.fromId });
+    if (deps.fromId) {
+      existing = await getNewsletterById({ data: deps.fromId });
     }
     return { posts, existing };
   },
@@ -169,7 +172,7 @@ function NewNewsletterPage() {
               <label className="mb-2 block text-sm font-semibold text-foreground">
                 Email Body
               </label>
-              <TiptapEditor content={content} onChange={setContent} />
+              <LazyTiptapEditor content={content} onChange={setContent} />
             </div>
 
             {errorMessage && (

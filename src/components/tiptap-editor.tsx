@@ -26,7 +26,7 @@ import LinkExtension from '@tiptap/extension-link'
 import UnderlineExtension from '@tiptap/extension-underline'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import TextAlign from '@tiptap/extension-text-align'
-import { uploadMedia } from '#/lib/storage'
+import { uploadMedia } from '#/server/media-actions'
 import { useRef } from 'react'
 
 

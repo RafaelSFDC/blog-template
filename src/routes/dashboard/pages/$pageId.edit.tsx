@@ -5,7 +5,7 @@ import { Button } from "#/components/ui/button";
 import { getPageById, updatePage } from "#/server/page-actions";
 import { useState } from "react";
 import { Library } from "lucide-react";
-import { TiptapEditor } from "#/components/tiptap-editor";
+import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
@@ -174,7 +174,10 @@ function EditPagePage() {
             {(field) => (
               <Field data-invalid={field.state.meta.errors.length > 0}>
                 <FieldLabel>Content</FieldLabel>
-                <TiptapEditor content={field.state.value} onChange={field.handleChange} />
+                <LazyTiptapEditor
+                  content={field.state.value}
+                  onChange={field.handleChange}
+                />
                 {field.state.meta.errors.length > 0 && (
                   <FieldError errors={field.state.meta.errors} />
                 )}

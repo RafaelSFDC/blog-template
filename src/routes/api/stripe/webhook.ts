@@ -34,7 +34,7 @@ export const Route = createFileRoute('/api/stripe/webhook')({
             const session = event.data.object as Stripe.Checkout.Session
             const subscription = await stripe.subscriptions.retrieve(
                 session.subscription as string
-            )
+            ) as Stripe.Subscription
 
             const userId = session.metadata?.userId
 
@@ -44,7 +44,9 @@ export const Route = createFileRoute('/api/stripe/webhook')({
                         stripeCustomerId: session.customer as string,
                         stripeSubscriptionId: subscription.id,
                         stripePriceId: subscription.items.data[0]?.price.id ?? null,
-                        stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+                        stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
+                          ? new Date(subscription.items.data[0].current_period_end * 1000)
+                          : null,
                     })
                     .where(eq(user.id, userId))
 
@@ -65,14 +67,28 @@ export const Route = createFileRoute('/api/stripe/webhook')({
 
         if (event.type === 'invoice.payment_succeeded') {
             const invoice = event.data.object as Stripe.Invoice
+            const subscriptionId =
+              invoice.parent &&
+              invoice.parent.type === 'subscription_details'
+                ? invoice.parent.subscription_details?.subscription
+                : null
+
+            if (!subscriptionId || typeof subscriptionId !== 'string') {
+              return new Response(JSON.stringify({ received: true }), {
+                headers: { 'Content-Type': 'application/json' },
+              })
+            }
+
             const subscription = await stripe.subscriptions.retrieve(
-                invoice.subscription as string
-            )
+                subscriptionId
+            ) as Stripe.Subscription
 
             await db.update(user)
                 .set({
                     stripePriceId: subscription.items.data[0]?.price.id ?? null,
-                    stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+                    stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
+                      ? new Date(subscription.items.data[0].current_period_end * 1000)
+                      : null,
                 })
                 .where(eq(user.stripeSubscriptionId, subscription.id))
         }

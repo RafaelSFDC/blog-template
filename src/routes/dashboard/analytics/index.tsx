@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/analytics/")({
 });
 
 const LazyAnalyticsCharts = lazy(() =>
-  import("./analytics-charts-client").then((module) => ({
+  import("./-analytics-charts-client").then((module) => ({
     default: module.AnalyticsCharts,
   })),
 );
