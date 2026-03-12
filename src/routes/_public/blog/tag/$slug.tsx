@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { SiteHeader } from "#/components/SiteHeader";
 import { Newsletter } from "#/components/blog/newsletter";
 import { PostCard, type Post } from "#/components/blog/PostCard";
@@ -6,34 +6,81 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { Hash } from "lucide-react";
 import { getPublishedTagBySlug } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildPublicSeo } from "#/lib/seo";
+import { buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
+import { normalizePage } from "#/lib/pagination";
+import { PaginationNav } from "#/components/blog/PaginationNav";
+import { getRedirectByPath } from "#/server/redirect-actions";
 
 export const Route = createFileRoute("/_public/blog/tag/$slug")({
-  loader: async ({ params }) => {
+  validateSearch: (search: Record<string, unknown>) => ({
+    page: normalizePage(search.page),
+  }),
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+  }),
+  loader: async ({ params, deps }) => {
     const [data, site] = await Promise.all([
-      getPublishedTagBySlug(params.slug),
+      getPublishedTagBySlug(params.slug, deps.page),
       getSeoSiteData(),
     ]);
 
     if (!data) {
+      const redirectMatch = await getRedirectByPath(`/blog/tag/${params.slug}`);
+      if (redirectMatch) {
+        throw redirect({
+          href: redirectMatch.destinationPath,
+          statusCode: redirectMatch.statusCode,
+        });
+      }
       throw notFound();
     }
 
-    return { ...data, site };
+    return { ...data, site, page: deps.page };
   },
-  head: ({ loaderData }) =>
-    buildPublicSeo({
+  head: ({ loaderData }) => {
+    const page = loaderData.page || 1;
+    const links = [];
+
+    if (loaderData.pagination.hasPreviousPage) {
+      links.push({
+        rel: "prev",
+        href: buildCanonicalUrl(
+          loaderData.site.siteUrl,
+          `/blog/tag/${loaderData.tag.slug}${page - 1 > 1 ? `?page=${page - 1}` : ""}`,
+        ),
+      });
+    }
+
+    if (loaderData.pagination.hasNextPage) {
+      links.push({
+        rel: "next",
+        href: buildCanonicalUrl(
+          loaderData.site.siteUrl,
+          `/blog/tag/${loaderData.tag.slug}?page=${page + 1}`,
+        ),
+      });
+    }
+
+    return buildPublicSeo({
       site: loaderData.site,
-      path: `/blog/tag/${loaderData.tag.slug}`,
-      title: `#${loaderData.tag.name} | ${loaderData.site.blogName}`,
-      description: `Published stories tagged with ${loaderData.tag.name}.`,
+      path: `/blog/tag/${loaderData.tag.slug}${page > 1 ? `?page=${page}` : ""}`,
+      title:
+        page > 1
+          ? `#${loaderData.tag.name} - Page ${page} | ${loaderData.site.blogName}`
+          : `#${loaderData.tag.name} | ${loaderData.site.blogName}`,
+      description:
+        page > 1
+          ? `Browse page ${page} of stories tagged with ${loaderData.tag.name}.`
+          : `Published stories tagged with ${loaderData.tag.name}.`,
       image: loaderData.site.defaultOgImage,
-    }),
+      links,
+    });
+  },
   component: TagPage,
 });
 
 function TagPage() {
-  const { tag, posts } = Route.useLoaderData();
+  const { tag, posts, pagination } = Route.useLoaderData();
 
   return (
     <main className="pb-20 pt-10">
@@ -59,6 +106,14 @@ function TagPage() {
         )}
 
         <Newsletter />
+
+        <PaginationNav
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          to="/blog/tag/$slug"
+          search={{}}
+          params={{ slug: tag.slug }}
+        />
       </div>
     </main>
   );

@@ -7,20 +7,25 @@ import { Button } from "#/components/ui/button";
 import { Webhook, Save, ChevronLeft, Info } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { webhookCreateSchema } from "#/lib/cms-schema";
+import { getFriendlyDbError } from "#/lib/cms-schema";
 
 const createWebhook = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => webhookCreateSchema.parse(input))
   .handler(async ({ data }) => {
     await requireAdminSession();
-    await db.insert(webhooks).values({
-      name: data.name,
-      url: data.url,
-      event: data.event,
-      secret: data.secret || null,
-      isActive: true,
-      createdAt: new Date(),
-    });
-    return { success: true };
+    try {
+      await db.insert(webhooks).values({
+        name: data.name,
+        url: data.url,
+        event: data.event,
+        secret: data.secret || null,
+        isActive: true,
+        createdAt: new Date(),
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error(getFriendlyDbError(error, "Webhook") || "Failed to create webhook");
+    }
   });
 
 export const Route = createFileRoute("/dashboard/webhooks/new")({

@@ -10,6 +10,8 @@
 
 - Use `pnpm dev:cf` when you want to validate Worker bindings such as D1 or R2.
 - This is the recommended way to test the real binding behavior before deploy.
+- Use `pnpm dev:cf:scheduled` when you want to test native Cloudflare scheduled publishing locally.
+- When `--test-scheduled` is enabled, trigger the cron path at `http://localhost:3000/__scheduled`.
 
 ## Optional R2 API credentials
 

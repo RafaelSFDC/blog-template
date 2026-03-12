@@ -12,6 +12,7 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { Button } from "#/components/ui/button";
+import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
 
 const getComments = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -32,9 +33,7 @@ const getComments = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 const updateCommentStatus = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: { id: number; status: "approved" | "spam" | "pending" }) => data,
-  )
+  .inputValidator((input: unknown) => commentStatusUpdateSchema.parse(input))
   .handler(async ({ data }) => {
     await requireAdminSession();
     await db
@@ -45,10 +44,10 @@ const updateCommentStatus = createServerFn({ method: "POST" })
   });
 
 const deleteComment = createServerFn({ method: "POST" })
-  .inputValidator((id: number) => id)
-  .handler(async ({ data: id }) => {
+  .inputValidator((input: unknown) => recordIdSchema.parse({ id: input }))
+  .handler(async ({ data }) => {
     await requireAdminSession();
-    await db.delete(comments).where(eq(comments.id, id));
+    await db.delete(comments).where(eq(comments.id, data.id));
     return { success: true };
   });
 

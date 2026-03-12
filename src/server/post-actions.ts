@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, lte } from "drizzle-orm";
+import { and, eq, lte, ne } from "drizzle-orm";
 import { notFound } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { postCategories, posts, postTags } from "#/db/schema";
@@ -11,9 +11,27 @@ import {
 } from "#/lib/cms-schema";
 import { triggerWebhook } from "#/lib/webhooks";
 import {
+  getSlugConflictMessage,
+  hasConflictingSlug,
   resolvePostPublishedAt,
   shouldTriggerPublishedWebhook,
 } from "#/server/post-domain";
+
+async function assertPostSlugAvailable(slug: string, currentPostId?: number) {
+  const existing = await db.query.posts.findFirst({
+    where:
+      currentPostId === undefined
+        ? eq(posts.slug, slug)
+        : and(eq(posts.slug, slug), ne(posts.id, currentPostId)),
+    columns: {
+      id: true,
+    },
+  });
+
+  if (hasConflictingSlug(existing?.id, currentPostId)) {
+    throw new Error(getSlugConflictMessage("Post"));
+  }
+}
 
 export const getPostForEdit = createServerFn({ method: "GET" })
   .inputValidator((input: { id: number }) => input)
@@ -48,6 +66,8 @@ export const createPost = createServerFn({ method: "POST" })
     const publishedAt = resolvePostPublishedAt(data.status, data.publishedAt);
 
     try {
+      await assertPostSlugAvailable(slug);
+
       const created = await db.transaction(async (tx) => {
         const [inserted] = await tx
           .insert(posts)
@@ -131,6 +151,8 @@ export const updatePost = createServerFn({ method: "POST" })
     );
 
     try {
+      await assertPostSlugAvailable(slug, data.id);
+
       await db.transaction(async (tx) => {
         await tx
           .update(posts)

@@ -282,6 +282,20 @@ export const webhooks = table("webhooks", {
   createdAt: timestamp("created_at").default(now),
 });
 
+export const redirects = table(
+  "redirects",
+  {
+    id: autoIncrementId("id"),
+    sourcePath: text("source_path").notNull().unique(),
+    destinationPath: text("destination_path").notNull(),
+    statusCode: integer("status_code").notNull().default(301),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [index("redirects_source_path_idx").on(t.sourcePath)],
+);
+
 export const webhookDeliveries = table(
   "webhook_deliveries",
   {

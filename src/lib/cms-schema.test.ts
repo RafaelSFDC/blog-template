@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  commentStatusUpdateSchema,
   contactFormSchema,
   newsletterSubscribeSchema,
   postServerSchema,
+  publicCommentSchema,
+  redirectSchema,
+  recordIdSchema,
   slugify,
   webhookCreateSchema,
 } from "#/lib/cms-schema";
@@ -56,5 +60,44 @@ describe("cms-schema", () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe("Must be a valid URL");
+  });
+
+  it("rejects invalid public comments", () => {
+    const result = publicCommentSchema.safeParse({
+      postId: 0,
+      authorName: "",
+      authorEmail: "not-an-email",
+      content: "ok",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe("Invalid id");
+  });
+
+  it("rejects invalid comment status updates", () => {
+    const result = commentStatusUpdateSchema.safeParse({
+      id: 1,
+      status: "archived",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toContain("Invalid option");
+  });
+
+  it("rejects invalid record ids", () => {
+    const result = recordIdSchema.safeParse({ id: -1 });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe("Invalid id");
+  });
+
+  it("rejects invalid redirects", () => {
+    const result = redirectSchema.safeParse({
+      sourcePath: "old-path",
+      destinationPath: "new-path",
+      statusCode: 307,
+    });
+
+    expect(result.success).toBe(false);
   });
 });

@@ -29,6 +29,14 @@ export function shouldTriggerPublishedWebhook(
   return previousStatus !== "published" && nextStatus === "published";
 }
 
+export function hasConflictingSlug(conflictingPostId: number | undefined, currentPostId?: number) {
+  return conflictingPostId !== undefined && conflictingPostId !== currentPostId;
+}
+
+export function getSlugConflictMessage(entityName: string) {
+  return `${entityName} slug already exists`;
+}
+
 export function isScheduledPostDue(post: Pick<PostRow, "status" | "publishedAt">, now: Date) {
   return (
     post.status === "scheduled" &&

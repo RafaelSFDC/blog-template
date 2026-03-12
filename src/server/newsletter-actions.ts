@@ -7,7 +7,7 @@ import { newsletterSubscribeSchema } from "#/lib/cms-schema";
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => newsletterSubscribeSchema.parse(input))
   .handler(async ({ data }) => {
-    const email = data.email;
+    const email = data.email.toLowerCase();
     try {
       // Check if already subscribed
       const existing = await db.query.subscribers.findFirst({

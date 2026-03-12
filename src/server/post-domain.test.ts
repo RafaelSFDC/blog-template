@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   getCronSecretConfig,
+  getSlugConflictMessage,
+  hasConflictingSlug,
   isAuthorizedCronRequest,
   isScheduledPostDue,
   resolvePostPublishedAt,
@@ -59,5 +61,15 @@ describe("post-domain", () => {
     expect(shouldTriggerPublishedWebhook(undefined, "published")).toBe(true);
     expect(shouldTriggerPublishedWebhook("draft", "published")).toBe(true);
     expect(shouldTriggerPublishedWebhook("published", "published")).toBe(false);
+  });
+
+  it("detects slug conflicts without flagging the same post", () => {
+    expect(hasConflictingSlug(12)).toBe(true);
+    expect(hasConflictingSlug(12, 12)).toBe(false);
+    expect(hasConflictingSlug(undefined, 12)).toBe(false);
+  });
+
+  it("builds a friendly slug conflict message", () => {
+    expect(getSlugConflictMessage("Post")).toBe("Post slug already exists");
   });
 });

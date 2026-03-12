@@ -51,7 +51,15 @@ Navigate to [http://localhost:3000](http://localhost:3000) to see your blog in a
 
 - `pnpm dev` uses local uploads by default when the Cloudflare `STORAGE` binding is not present.
 - `pnpm dev:cf` is the path for validating Cloudflare bindings like D1 and R2 in the Worker runtime.
+- `pnpm dev:cf:scheduled` starts the Worker with Cloudflare scheduled-event testing enabled.
 - `R2_PUBLIC_URL` is optional. If absent, media can still be served through `/api/media/:filename`.
+
+### Scheduled Publishing
+
+- Cloudflare Cron Triggers are configured in [`wrangler.jsonc`](/Users/Win/Documents/GitHub/blog-template/wrangler.jsonc) to run every 5 minutes.
+- The Worker now handles scheduled publishing natively through [`src/server-entry.ts`](/Users/Win/Documents/GitHub/blog-template/src/server-entry.ts).
+- For local verification, run `pnpm dev:cf:scheduled` and open `http://localhost:3000/__scheduled`.
+- The `/api/cron/publish?secret=...` route still exists as a manual fallback/diagnostic trigger. Set `CRON_SECRET` when you want to use it outside local dev.
 
 ### SEO Settings
 

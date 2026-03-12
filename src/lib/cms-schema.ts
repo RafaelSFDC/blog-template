@@ -5,6 +5,8 @@ export const PAGE_STATUSES = ["draft", "published", "private"] as const;
 export const MENU_KEYS = ["primary", "footer"] as const;
 export const MENU_ITEM_KINDS = ["internal", "external"] as const;
 export const WEBHOOK_EVENTS = ["post.published"] as const;
+export const COMMENT_STATUSES = ["approved", "spam", "pending"] as const;
+export const REDIRECT_STATUS_CODES = [301, 302] as const;
 export const MEDIA_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -18,6 +20,8 @@ export const pageStatusSchema = z.enum(PAGE_STATUSES);
 export const menuKeySchema = z.enum(MENU_KEYS);
 export const menuItemKindSchema = z.enum(MENU_ITEM_KINDS);
 export const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
+export const commentStatusSchema = z.enum(COMMENT_STATUSES);
+export const redirectStatusCodeSchema = z.union([z.literal(301), z.literal(302)]);
 export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
 
 function emptyStringToUndefined(value: unknown) {
@@ -38,6 +42,11 @@ const optionalUrlSchema = z.preprocess(
 
 const trimmedString = (min: number, message: string, max: number, tooLongMessage: string) =>
   z.string().trim().min(min, message).max(max, tooLongMessage);
+
+export const positiveIntSchema = z.number().int().positive("Invalid id");
+export const recordIdSchema = z.object({
+  id: positiveIntSchema,
+});
 
 export function slugify(value: string) {
   return value
@@ -194,6 +203,21 @@ export const contactFormSchema = z.object({
   message: trimmedString(10, "Message too short", 5000, "Message is too long"),
 });
 
+export const publicCommentSchema = z.object({
+  postId: positiveIntSchema,
+  authorName: trimmedString(1, "Author name is required", 120, "Author name is too long"),
+  authorEmail: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().email("Must be a valid email").max(320, "Email is too long").optional(),
+  ),
+  content: trimmedString(3, "Comment is too short", 5000, "Comment is too long"),
+});
+
+export const commentStatusUpdateSchema = z.object({
+  id: positiveIntSchema,
+  status: commentStatusSchema,
+});
+
 export const webhookCreateSchema = z.object({
   name: trimmedString(1, "Name is required", 120, "Name is too long"),
   url: z.string().trim().url("Must be a valid URL").max(2048, "URL is too long"),
@@ -203,6 +227,45 @@ export const webhookCreateSchema = z.object({
     z.string().trim().max(255, "Secret is too long").optional(),
   ),
 });
+
+export const webhookToggleSchema = z.object({
+  id: positiveIntSchema,
+  isActive: z.boolean(),
+});
+
+const pathStringSchema = z
+  .string()
+  .trim()
+  .min(1, "Path is required")
+  .max(2048, "Path is too long");
+
+export const redirectSchema = z
+  .object({
+    id: positiveIntSchema.optional(),
+    sourcePath: pathStringSchema,
+    destinationPath: pathStringSchema,
+    statusCode: redirectStatusCodeSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (!value.sourcePath.startsWith("/")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sourcePath"],
+        message: "Source path must start with /",
+      });
+    }
+
+    const isInternalDestination = value.destinationPath.startsWith("/");
+    const isExternalDestination = z.string().url().safeParse(value.destinationPath).success;
+
+    if (!isInternalDestination && !isExternalDestination) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["destinationPath"],
+        message: "Destination must be an internal path or valid URL",
+      });
+    }
+  });
 
 export const mediaUploadSchema = z.object({
   filename: trimmedString(1, "A file is required", 255, "Filename is too long"),

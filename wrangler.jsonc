@@ -3,9 +3,12 @@
   "name": "blog-template",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+  "main": "./src/server-entry.ts",
   "observability": {
     "enabled": true,
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"],
   },
   "d1_databases": [
     {

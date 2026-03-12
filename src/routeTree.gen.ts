@@ -16,6 +16,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redirects'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard/menus'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
@@ -91,6 +92,11 @@ const RssXmlRoute = RssXmlRouteImport.update({
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRedirectsRoute = DashboardRedirectsRouteImport.update({
+  id: '/redirects',
+  path: '/redirects',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -370,6 +377,7 @@ export interface FileRoutesByTo {
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -422,6 +430,7 @@ export interface FileRoutesById {
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
+    | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -523,6 +533,7 @@ export interface FileRouteTypes {
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
+    | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
+    | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/rss/xml'
     | '/sitemap/xml'
@@ -680,6 +692,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/redirects': {
+      id: '/dashboard/redirects'
+      path: '/redirects'
+      fullPath: '/dashboard/redirects'
+      preLoaderRoute: typeof DashboardRedirectsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/messages': {
@@ -1029,6 +1048,7 @@ const PublicRouteWithChildren =
 interface DashboardRouteChildren {
   DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
+  DashboardRedirectsRoute: typeof DashboardRedirectsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
@@ -1053,6 +1073,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardMenusRoute: DashboardMenusRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
+  DashboardRedirectsRoute: DashboardRedirectsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,

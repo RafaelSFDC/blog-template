@@ -1,5 +1,12 @@
 # Setup Cloudflare
 
+## Scheduled publishing
+
+- `wrangler.jsonc` configures a native Cloudflare Cron Trigger with `*/5 * * * *`.
+- The Worker entrypoint handles `scheduled` events in `src/server-entry.ts` and publishes due posts by calling the shared server action flow.
+- Deploy a `CRON_SECRET` secret only if you want to keep using the manual fallback endpoint `/api/cron/publish?secret=...`.
+- After deploy, you can verify the trigger in the Cloudflare dashboard under the Worker Cron Triggers section or with Worker logs.
+
 ## Storage
 
 - The official production media backend is the `STORAGE` R2 binding in `wrangler.jsonc`.

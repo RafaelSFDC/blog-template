@@ -45,6 +45,7 @@ export function buildPublicSeo(params: {
   image?: string;
   type?: "website" | "article";
   indexable?: boolean;
+  links?: Array<{ rel: string; href: string }>;
 }) {
   const defaults = getSeoDefaults(params.site);
   const title = params.title || defaults.title;
@@ -81,7 +82,8 @@ export function buildPublicSeo(params: {
             rel: "canonical",
             href: canonical,
           },
+          ...(params.links || []),
         ]
-      : [],
+      : params.links || [],
   };
 }

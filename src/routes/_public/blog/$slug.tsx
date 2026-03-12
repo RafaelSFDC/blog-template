@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
@@ -42,6 +42,9 @@ import { user } from "#/db/schema";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
 import type { Comment as BlogComment } from "#/components/blog/comment-list";
+import { publicCommentSchema } from "#/lib/cms-schema";
+import { createPendingComment } from "#/server/comment-actions";
+import { getRedirectByPath } from "#/server/redirect-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
 
@@ -55,6 +58,13 @@ const getPostBySlug = createServerFn({ method: "GET" })
     });
 
     if (!post) {
+      const redirectMatch = await getRedirectByPath(`/blog/${slug}`);
+      if (redirectMatch) {
+        throw redirect({
+          href: redirectMatch.destinationPath,
+          statusCode: redirectMatch.statusCode,
+        });
+      }
       throw notFound();
     }
 
@@ -136,22 +146,9 @@ const getPostBySlug = createServerFn({ method: "GET" })
   });
 
 const addComment = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: {
-      postId: number;
-      authorName: string;
-      authorEmail?: string;
-      content: string;
-    }) => data,
-  )
+  .inputValidator((input: unknown) => publicCommentSchema.parse(input))
   .handler(async ({ data }) => {
-    await db.insert(comments).values({
-      postId: data.postId,
-      authorName: data.authorName,
-      authorEmail: data.authorEmail || null,
-      content: data.content,
-      status: "pending",
-    });
+    await createPendingComment(data);
 
     return { success: true };
   });

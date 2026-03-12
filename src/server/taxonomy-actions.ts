@@ -2,8 +2,11 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { categories, postCategories, posts, postTags, tags } from '#/db/schema'
 import { requireAdminSession } from '#/lib/admin-auth'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, count, desc, eq } from 'drizzle-orm'
 import { categorySchema, getFriendlyDbError, normalizeSlug, tagSchema } from '#/lib/cms-schema'
+import { getPaginationMeta } from '#/lib/pagination'
+
+export const BLOG_PAGE_SIZE = 9
 
 // Categories
 export const getCategories = createServerFn({ method: 'GET' })
@@ -113,7 +116,7 @@ export const deleteTag = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
-export async function getPublishedCategoryBySlug(slug: string) {
+export async function getPublishedCategoryBySlug(slug: string, page = 1) {
   const category = await db.query.categories.findFirst({
     where: eq(categories.slug, slug),
   })
@@ -121,6 +124,15 @@ export async function getPublishedCategoryBySlug(slug: string) {
   if (!category) {
     return null
   }
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(postCategories)
+    .innerJoin(posts, eq(postCategories.postId, posts.id))
+    .innerJoin(categories, eq(postCategories.categoryId, categories.id))
+    .where(and(eq(categories.slug, slug), eq(posts.status, 'published')))
+
+  const pagination = getPaginationMeta(total, page, BLOG_PAGE_SIZE)
 
   const categoryPosts = await db
     .select({
@@ -138,14 +150,17 @@ export async function getPublishedCategoryBySlug(slug: string) {
     .innerJoin(categories, eq(postCategories.categoryId, categories.id))
     .where(and(eq(categories.slug, slug), eq(posts.status, 'published')))
     .orderBy(desc(posts.publishedAt))
+    .limit(BLOG_PAGE_SIZE)
+    .offset(pagination.offset)
 
   return {
     category,
     posts: categoryPosts,
+    pagination,
   }
 }
 
-export async function getPublishedTagBySlug(slug: string) {
+export async function getPublishedTagBySlug(slug: string, page = 1) {
   const tag = await db.query.tags.findFirst({
     where: eq(tags.slug, slug),
   })
@@ -153,6 +168,14 @@ export async function getPublishedTagBySlug(slug: string) {
   if (!tag) {
     return null
   }
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(postTags)
+    .innerJoin(posts, eq(postTags.postId, posts.id))
+    .where(and(eq(postTags.tagId, tag.id), eq(posts.status, 'published')))
+
+  const pagination = getPaginationMeta(total, page, BLOG_PAGE_SIZE)
 
   const taggedPosts = await db
     .select({
@@ -167,10 +190,13 @@ export async function getPublishedTagBySlug(slug: string) {
     .innerJoin(posts, eq(postTags.postId, posts.id))
     .where(and(eq(postTags.tagId, tag.id), eq(posts.status, 'published')))
     .orderBy(desc(posts.publishedAt))
+    .limit(BLOG_PAGE_SIZE)
+    .offset(pagination.offset)
 
   return {
     tag,
     posts: taggedPosts,
+    pagination,
   }
 }
 

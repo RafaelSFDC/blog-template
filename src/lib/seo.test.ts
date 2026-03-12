@@ -35,10 +35,12 @@ describe("seo", () => {
       },
       path: "/blog",
       title: "All Stories | Lumina",
+      links: [{ rel: "next", href: "https://blog.example.com/blog?page=2" }],
     });
 
     expect(seo.links).toEqual([
       { rel: "canonical", href: "https://blog.example.com/blog" },
+      { rel: "next", href: "https://blog.example.com/blog?page=2" },
     ]);
     expect(
       seo.meta.find((entry) => "name" in entry && entry.name === "robots"),

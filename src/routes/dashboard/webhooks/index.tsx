@@ -12,6 +12,7 @@ import { useState, useMemo, useCallback } from "react";
 import { cn } from "#/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
+import { recordIdSchema, webhookToggleSchema } from "#/lib/cms-schema";
 
 const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -22,16 +23,16 @@ const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 const deleteWebhook = createServerFn({ method: "POST" })
-  .inputValidator((id: number) => id)
-  .handler(async ({ data: id }) => {
+  .inputValidator((input: unknown) => recordIdSchema.parse({ id: input }))
+  .handler(async ({ data }) => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
-    await db.delete(webhooksSchema).where(eq(webhooksSchema.id, id));
+    await db.delete(webhooksSchema).where(eq(webhooksSchema.id, data.id));
     return { success: true };
   });
 
 const toggleWebhook = createServerFn({ method: "POST" })
-  .inputValidator((data: { id: number; isActive: boolean }) => data)
+  .inputValidator((input: unknown) => webhookToggleSchema.parse(input))
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { db } = await import("#/db/index");
