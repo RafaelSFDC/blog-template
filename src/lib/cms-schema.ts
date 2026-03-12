@@ -139,6 +139,20 @@ export const postFormSchema = z
     }
   });
 
+export const pageFormSchema = z.object({
+  title: trimmedString(1, "Title is required", 160, "Title is too long"),
+  slug: z.string().trim().min(1, "Slug is required").max(160, "Slug is too long"),
+  excerpt: z.string().trim().max(320, "Excerpt is too long").catch(""),
+  content: trimmedString(1, "Content is required", 500000, "Content is too long"),
+  metaTitle: z.string().trim().max(160, "Meta title is too long").catch(""),
+  metaDescription: z.string().trim().max(320, "Meta description is too long").catch(""),
+  ogImage: z.string().trim().refine((value) => !value || z.string().url().safeParse(value).success, {
+    message: "Must be a valid URL",
+  }),
+  status: pageStatusSchema,
+  isHome: z.boolean(),
+});
+
 export const postServerSchema = z
   .object({
     id: z.number().int().positive().optional(),

@@ -72,7 +72,7 @@ const extensions = [
   Typography,
 ];
 
-export function RichTextEditorDemo({ className }: { className?: string }) {
+function ExperimentalRichTextEditorDemo({ className }: { className?: string }) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: extensions as Extension[],
@@ -110,3 +110,11 @@ export function RichTextEditorDemo({ className }: { className?: string }) {
     </div>
   );
 }
+
+// Experimental playground component. The production CMS editor lives in
+// LazyTiptapEditor/TiptapEditor and should be the only editor used by
+// editorial routes.
+export {
+  ExperimentalRichTextEditorDemo,
+  ExperimentalRichTextEditorDemo as RichTextEditorDemo,
+};
