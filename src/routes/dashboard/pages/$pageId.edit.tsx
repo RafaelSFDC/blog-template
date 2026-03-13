@@ -23,6 +23,8 @@ import { Textarea } from "#/components/ui/textarea";
 import { pageFormSchema, slugify } from "#/lib/cms-schema";
 import { buildPagePreviewDraft } from "#/lib/editorial-preview";
 import { getPageById, updatePage } from "#/server/page-actions";
+import { Editor as PuckEditor } from "#/components/cms/Editor";
+import { LayoutPanelTop } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/pages/$pageId/edit")({
   loader: async ({ params }) => {
@@ -58,6 +60,7 @@ function EditPagePage() {
       ogImage: page.ogImage || "",
       status: page.status as "draft" | "published" | "private",
       isHome: page.isHome || false,
+      useVisualBuilder: page.content.startsWith('{"content":') || page.content.startsWith('{"root":'),
     },
     validators: {
       onChange: pageFormSchema,
@@ -167,14 +170,56 @@ function EditPagePage() {
                 )}
               </form.Field>
 
+              <form.Field name="useVisualBuilder">
+                {(field) => (
+                  <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4 mb-6">
+                    <Switch
+                      id={field.name}
+                      checked={field.state.value}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                      <span className="text-sm font-bold text-foreground inline-flex items-center gap-2">
+                        <LayoutPanelTop className="size-4" />
+                        Visual Builder (Puck)
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Enable block-based visual editing for this page.
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </form.Field>
+
               <form.Field name="content">
                 {(field) => (
                   <Field data-invalid={field.state.meta.errors.length > 0}>
                     <FieldLabel>Content</FieldLabel>
-                    <LazyTiptapEditor
-                      content={field.state.value}
-                      onChange={field.handleChange}
-                    />
+                    {form.getFieldValue("useVisualBuilder") ? (
+                      <div className="mt-2">
+                        <PuckEditor
+                          data={(() => {
+                            try {
+                              return JSON.parse(field.state.value);
+                            } catch {
+                              return { content: [], root: {} };
+                            }
+                          })()}
+                          onSave={async (data) => {
+                            field.handleChange(JSON.stringify(data));
+                            toast.info("Puck data updated in form. Click Save Changes to persist.");
+                          }}
+                          onChange={(data) => {
+                            field.handleChange(JSON.stringify(data));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <LazyTiptapEditor
+                        content={field.state.value}
+                        onChange={field.handleChange}
+                      />
+                    )}
                     {field.state.meta.errors.length > 0 ? (
                       <FieldError errors={field.state.meta.errors} />
                     ) : null}

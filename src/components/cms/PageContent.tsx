@@ -1,5 +1,7 @@
-import { MarkdownContent } from "#/components/markdown-content";
 import { SiteHeader } from "#/components/SiteHeader";
+import { Render } from "@puckeditor/core";
+import { config } from "./puck.config";
+import { MarkdownContent } from "#/components/markdown-content";
 
 interface PageContentProps {
   title: string;
@@ -23,8 +25,21 @@ export function PageContent({
           }
         />
 
-        <article className="bg-card border shadow-sm prose-lg rounded-md p-6 sm:p-12">
-          <MarkdownContent content={content} />
+        <article className={(() => {
+          const isPuck = content.startsWith('{"content":') || content.startsWith('{"root":');
+          return isPuck ? "w-full" : "bg-card border shadow-sm prose-lg rounded-md p-6 sm:p-12";
+        })()}>
+          {(() => {
+            const isPuck = content.startsWith('{"content":') || content.startsWith('{"root":');
+            if (isPuck) {
+              try {
+                return <Render config={config} data={JSON.parse(content)} />;
+              } catch (e) {
+                return <div className="text-destructive p-4 border border-destructive rounded-md">Error rendering visual content: {String(e)}</div>;
+              }
+            }
+            return <MarkdownContent content={content} />;
+          })()}
         </article>
       </div>
     </main>

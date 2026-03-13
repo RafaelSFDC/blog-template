@@ -151,6 +151,7 @@ export const pageFormSchema = z.object({
   }),
   status: pageStatusSchema,
   isHome: z.boolean(),
+  useVisualBuilder: z.boolean(),
 });
 
 export const postServerSchema = z
@@ -190,6 +191,7 @@ export const pageServerSchema = z.object({
   ogImage: optionalUrlSchema,
   status: pageStatusSchema,
   isHome: z.boolean(),
+  useVisualBuilder: z.boolean().optional(),
   publishedAt: scheduledDateSchema,
 });
 
