@@ -32,6 +32,10 @@ import {
   slugify,
 } from "#/lib/cms-schema";
 import { buildPostPreviewDraft } from "#/lib/editorial-preview";
+import {
+  normalizePostSubmission,
+  shouldAutoUpdateSlug,
+} from "#/lib/editorial-form-utils";
 import { getPostForEdit, updatePost } from "#/server/post-actions";
 import { getCategories, getTags } from "#/server/taxonomy-actions";
 
@@ -93,8 +97,8 @@ function EditPostPage() {
       onChange: postFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const normalizedSlug = value.slug || slugify(value.title);
-      if (!normalizedSlug) {
+      const normalizedPost = normalizePostSubmission(value);
+      if (!normalizedPost) {
         toast.error("Add a title or slug so the post URL can be generated.");
         return;
       }
@@ -104,23 +108,7 @@ function EditPostPage() {
         await updatePost({
           data: {
             id: post.id,
-            title: value.title.trim(),
-            slug: normalizedSlug,
-            excerpt: value.excerpt.trim(),
-            content: value.content.trim(),
-            metaTitle: value.metaTitle?.trim() || undefined,
-            metaDescription: value.metaDescription?.trim() || undefined,
-            ogImage: value.ogImage?.trim() || undefined,
-            isPremium: value.isPremium,
-            status: value.status,
-            publishedAt:
-              value.status === "scheduled"
-                ? new Date(value.publishedAt || "")
-                : value.status === "published"
-                  ? new Date()
-                  : undefined,
-            categoryIds: value.categoryIds,
-            tagIds: value.tagIds,
+            ...normalizedPost,
           },
         });
         toast.success("Post updated successfully!");
@@ -181,10 +169,7 @@ function EditPostPage() {
                         onChange={(event) => {
                           field.handleChange(event.target.value);
                           const currentSlug = form.getFieldValue("slug");
-                          if (
-                            !currentSlug ||
-                            currentSlug === slugify(field.state.value)
-                          ) {
+                          if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
                             form.setFieldValue("slug", slugify(event.target.value));
                           }
                         }}

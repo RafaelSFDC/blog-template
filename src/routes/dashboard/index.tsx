@@ -1,9 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { QuickAction } from "#/components/dashboard/QuickAction";
+import { DashboardSection } from "#/components/dashboard/DashboardSection";
+import { Button } from "#/components/ui/button";
+import { StatCard } from "#/components/ui/stat-card";
+import { StatusBadge } from "#/components/ui/status-badge";
 import { db } from "#/db/index";
 import { posts, contactMessages } from "#/db/schema";
-import { count, desc, sql, eq } from "drizzle-orm";
 import { requireAdminSession } from "#/lib/admin-auth";
+import { count, desc, eq, sql } from "drizzle-orm";
 import {
   FileText,
   Eye,
@@ -15,9 +22,6 @@ import {
   Pencil,
   Inbox,
 } from "lucide-react";
-import { Button } from "#/components/ui/button";
-import { StatCard } from "#/components/ui/stat-card";
-import { StatusBadge } from "#/components/ui/status-badge";
 
 type PostRow = typeof posts.$inferSelect;
 
@@ -25,25 +29,32 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
 
-    const [postCount] = await db.select({ value: count() }).from(posts);
-    const [unreadMessages] = await db
-      .select({ value: count() })
-      .from(contactMessages)
-      .where(eq(contactMessages.status, "new"));
-    const [totalViews] = await db
-      .select({ value: sql<number>`sum(${posts.viewCount})` })
-      .from(posts);
-
-    const latestPosts = await db
-      .select()
-      .from(posts)
-      .orderBy(desc(posts.updatedAt))
-      .limit(5);
-    const popularPosts = await db
-      .select()
-      .from(posts)
-      .orderBy(desc(posts.viewCount))
-      .limit(5);
+    const [
+      [postCount],
+      [unreadMessages],
+      [totalViews],
+      latestPosts,
+      popularPosts,
+    ] = await Promise.all([
+      db.select({ value: count() }).from(posts),
+      db
+        .select({ value: count() })
+        .from(contactMessages)
+        .where(eq(contactMessages.status, "new")),
+      db
+        .select({ value: sql<number>`sum(${posts.viewCount})` })
+        .from(posts),
+      db
+        .select()
+        .from(posts)
+        .orderBy(desc(posts.updatedAt))
+        .limit(5),
+      db
+        .select()
+        .from(posts)
+        .orderBy(desc(posts.viewCount))
+        .limit(5),
+    ]);
 
     return {
       postCount: postCount.value || 0,
@@ -59,11 +70,6 @@ export const Route = createFileRoute("/dashboard/")({
   loader: () => getDashboardStats(),
   component: DashboardOverview,
 });
-
-import { DashboardHeader } from "#/components/dashboard/Header";
-import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { DashboardSection } from "#/components/dashboard/DashboardSection";
-import { QuickAction } from "#/components/dashboard/QuickAction";
 
 function DashboardOverview() {
   const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } =

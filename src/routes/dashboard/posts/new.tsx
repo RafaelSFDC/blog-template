@@ -33,6 +33,10 @@ import {
   slugify,
 } from "#/lib/cms-schema";
 import { buildPostPreviewDraft } from "#/lib/editorial-preview";
+import {
+  normalizePostSubmission,
+  shouldAutoUpdateSlug,
+} from "#/lib/editorial-form-utils";
 import { createPost } from "#/server/post-actions";
 import { getCategories, getTags } from "#/server/taxonomy-actions";
 
@@ -71,9 +75,9 @@ function NewPostPage() {
       slug: "",
       excerpt: "",
       content: "",
-      metaTitle: "" as string | undefined,
-      metaDescription: "" as string | undefined,
-      ogImage: "" as string | undefined,
+      metaTitle: "",
+      metaDescription: "",
+      ogImage: "",
       isPremium: false,
       status: "published" as "draft" | "published" | "scheduled" | "private",
       publishedAt: new Date().toISOString().slice(0, 16),
@@ -84,8 +88,8 @@ function NewPostPage() {
       onChange: postFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const normalizedSlug = value.slug || slugify(value.title);
-      if (!normalizedSlug) {
+      const normalizedPost = normalizePostSubmission(value);
+      if (!normalizedPost) {
         toast.error("Add a title or slug so the post URL can be generated.");
         return;
       }
@@ -93,31 +97,13 @@ function NewPostPage() {
       try {
         setSaving(true);
         await createPost({
-          data: {
-            title: value.title.trim(),
-            slug: normalizedSlug,
-            excerpt: value.excerpt.trim(),
-            content: value.content.trim(),
-            metaTitle: value.metaTitle?.trim() || undefined,
-            metaDescription: value.metaDescription?.trim() || undefined,
-            ogImage: value.ogImage?.trim() || undefined,
-            isPremium: value.isPremium,
-            status: value.status,
-            publishedAt:
-              value.status === "scheduled"
-                ? new Date(value.publishedAt || "")
-                : value.status === "published"
-                  ? new Date()
-                  : undefined,
-            categoryIds: value.categoryIds,
-            tagIds: value.tagIds,
-          },
+          data: normalizedPost,
         });
         posthog.capture("post_created", {
-          title: value.title.trim(),
-          slug: normalizedSlug,
-          status: value.status,
-          is_premium: value.isPremium,
+          title: normalizedPost.title,
+          slug: normalizedPost.slug,
+          status: normalizedPost.status,
+          is_premium: normalizedPost.isPremium,
         });
         toast.success("Post created successfully!");
         await navigate({ to: "/dashboard" });
@@ -178,10 +164,7 @@ function NewPostPage() {
                         onChange={(event) => {
                           field.handleChange(event.target.value);
                           const currentSlug = form.getFieldValue("slug");
-                          if (
-                            !currentSlug ||
-                            currentSlug === slugify(field.state.value)
-                          ) {
+                          if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
                             form.setFieldValue("slug", slugify(event.target.value));
                           }
                         }}
