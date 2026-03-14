@@ -63,7 +63,7 @@ export const createPage = createServerFn({ method: "POST" })
   });
 
 export const updatePage = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => pageServerSchema.extend({
+  .inputValidator((input: unknown) => pageServerSchema.safeExtend({
     id: pageServerSchema.shape.id.unwrap(),
   }).parse(input))
   .handler(async ({ data }) => {

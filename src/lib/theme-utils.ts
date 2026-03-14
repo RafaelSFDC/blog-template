@@ -43,7 +43,8 @@ export type ThemeVariant =
   | "cappuccinobrutal"
   | "darkmatter"
   | "solardusk"
-  | "rosegarden";
+  | "rosegarden"
+  | "lumina";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -182,6 +183,12 @@ export function getAvailableThemes(): ThemeDefinition[] {
       variant: "vitrine-pro",
       name: "Vitrine Pro",
       description: "Tema profissional para negócios",
+      group: "standard",
+    },
+    {
+      variant: "lumina",
+      name: "Lumina",
+      description: "Tema suave e vibrante com tons de roxo e rosa",
       group: "standard",
     },
 

@@ -236,6 +236,8 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
         heading: {
           levels: [1, 2, 3],
         },
+        link: false,
+        underline: false,
       }),
       Markdown.configure({
         html: false,

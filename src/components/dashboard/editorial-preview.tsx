@@ -39,7 +39,7 @@ function PreviewChrome({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto">{children}</div>
+      <div className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</div>
     </div>
   );
 }
@@ -117,7 +117,7 @@ export function PostEditorialPreview({
         </>
       }
     >
-      <div className={cn("page-wrap py-6", className)}>
+      <div className={cn("w-full min-w-0 px-4 py-6 sm:px-6 lg:px-8", className)}>
         <div className="flex flex-col gap-6">
           <SeoSnapshot title={metaTitle} description={metaDescription} />
 
@@ -181,7 +181,7 @@ export function PageEditorialPreview({
         </>
       }
     >
-      <div className={cn("page-wrap py-6", className)}>
+      <div className={cn("w-full min-w-0 px-4 py-6 sm:px-6 lg:px-8", className)}>
         <div className="flex flex-col gap-6">
           <SeoSnapshot title={metaTitle} description={metaDescription} />
           <PageContent

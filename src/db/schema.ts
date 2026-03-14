@@ -8,6 +8,7 @@ import {
   index,
   now,
 } from "./dialect";
+import { relations } from "drizzle-orm";
 
 export const user = table("users", {
   id: text("id").primaryKey(),
@@ -342,3 +343,46 @@ export const pageViews = table(
     index("page_views_timestamp_idx").on(t.timestamp),
   ],
 );
+
+export const postsRelations = relations(posts, ({ many, one }) => ({
+  author: one(user, {
+    fields: [posts.authorId],
+    references: [user.id],
+  }),
+  featuredImage: one(media, {
+    fields: [posts.featuredImageId],
+    references: [media.id],
+  }),
+  postCategories: many(postCategories),
+  postTags: many(postTags),
+}));
+
+export const postCategoriesRelations = relations(postCategories, ({ one }) => ({
+  post: one(posts, {
+    fields: [postCategories.postId],
+    references: [posts.id],
+  }),
+  category: one(categories, {
+    fields: [postCategories.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+export const postTagsRelations = relations(postTags, ({ one }) => ({
+  post: one(posts, {
+    fields: [postTags.postId],
+    references: [posts.id],
+  }),
+  tag: one(tags, {
+    fields: [postTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  postCategories: many(postCategories),
+}));
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  postTags: many(postTags),
+}));

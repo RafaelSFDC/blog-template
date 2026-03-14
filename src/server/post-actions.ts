@@ -66,9 +66,8 @@ export const createPost = createServerFn({ method: "POST" })
     const publishedAt = resolvePostPublishedAt(data.status, data.publishedAt);
 
     try {
-      await assertPostSlugAvailable(slug);
-
-      const created = await db.transaction(async (tx) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const created = await db.transaction(async (tx: any) => {
         const [inserted] = await tx
           .insert(posts)
           .values({
@@ -105,23 +104,30 @@ export const createPost = createServerFn({ method: "POST" })
       });
 
       if (shouldTriggerPublishedWebhook(undefined, data.status)) {
-        await triggerWebhook("post.published", {
-          id: created.id,
-          title: data.title,
-          slug,
-          excerpt: data.excerpt,
-        });
+        try {
+          await triggerWebhook("post.published", {
+            id: created.id,
+            title: data.title,
+            slug,
+            excerpt: data.excerpt,
+          });
+        } catch (error) {
+          console.error("Post created, but webhook delivery failed:", error);
+        }
       }
 
       return created;
     } catch (error) {
-      throw new Error(getFriendlyDbError(error, "Post") || "Could not create post");
+      throw new Error(
+        getFriendlyDbError(error, "Post") ||
+          (error instanceof Error ? error.message : "Could not create post"),
+      );
     }
   });
 
 export const updatePost = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    postServerSchema.extend({ id: postServerSchema.shape.id.unwrap() }).parse(input),
+    postServerSchema.safeExtend({ id: postServerSchema.shape.id.unwrap() }).parse(input),
   )
   .handler(async ({ data }) => {
     await requireAdminSession();
@@ -153,7 +159,8 @@ export const updatePost = createServerFn({ method: "POST" })
     try {
       await assertPostSlugAvailable(slug, data.id);
 
-      await db.transaction(async (tx) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await db.transaction(async (tx: any) => {
         await tx
           .update(posts)
           .set({
@@ -187,17 +194,24 @@ export const updatePost = createServerFn({ method: "POST" })
       });
 
       if (shouldTriggerPublishedWebhook(existingPost.status as never, data.status)) {
-        await triggerWebhook("post.published", {
-          id: data.id,
-          title: data.title,
-          slug,
-          excerpt: data.excerpt,
-        });
+        try {
+          await triggerWebhook("post.published", {
+            id: data.id,
+            title: data.title,
+            slug,
+            excerpt: data.excerpt,
+          });
+        } catch (error) {
+          console.error("Post updated, but webhook delivery failed:", error);
+        }
       }
 
       return { ok: true as const };
     } catch (error) {
-      throw new Error(getFriendlyDbError(error, "Post") || "Could not update post");
+      throw new Error(
+        getFriendlyDbError(error, "Post") ||
+          (error instanceof Error ? error.message : "Could not update post"),
+      );
     }
   });
 

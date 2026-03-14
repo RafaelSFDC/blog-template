@@ -11,7 +11,6 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
         defaults: "2025-05-24",
         capture_exceptions: true,
         person_profiles: "identified_only",
-        debug: import.meta.env.DEV,
       }}
     >
       {children}
