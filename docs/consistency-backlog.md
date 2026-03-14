@@ -12,8 +12,8 @@ Este backlog deriva diretamente da auditoria tecnica e organiza o trabalho em tr
 
 - reforcar a fronteira entre `src/server` e `src/lib`
 - explicitar o que e `core` vs `experimental`
-- ampliar setup de testes para componentes administrativos mais ricos
-- alinhar visual e handlers das telas administrativas legacy restantes fora do padrao atual
+- ampliar cobertura de testes para auth publico e componentes administrativos mais ricos
+- alinhar as telas administrativas legacy restantes ao padrao atual sem reintroduzir affordances nao implementadas
 
 ## Refatorar Depois
 

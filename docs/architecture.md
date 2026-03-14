@@ -253,8 +253,8 @@ Arquivos centrais:
 A arquitetura ja e suficiente para um CMS editorial funcional, mas ha pontos ainda nao consolidados e que devem ser tratados como tal:
 
 - algumas camadas ainda preservam compatibilidade tecnica com mais de um formato de conteudo em paginas
-- codigo experimental misturado a codigo principal
 - sobreposicao parcial entre responsabilidades de `src/server` e `src/lib`
-- documentacao operacional ainda parcial antes deste pacote
+- cobertura de testes ainda e mais forte em helpers e dominio do que em fluxos completos de UI
+- documentacao operacional ainda e intencionalmente limitada ao escopo do app, sem playbooks completos de incidente
 
 O objetivo desta documentacao e reduzir exatamente essas zonas cinzentas.

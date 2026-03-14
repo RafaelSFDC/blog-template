@@ -191,11 +191,6 @@ function NewsletterIndexPage() {
                   title="Delete campaign?"
                   description="This newsletter campaign will be permanently removed."
                 />
-                {(item.status === "sent" || item.status === "failed") && (
-                  <Button variant="default" size="sm">
-                    View Results
-                  </Button>
-                )}
               </div>
             </div>
           ))

@@ -205,6 +205,23 @@ Recomendacao:
 - item parcialmente corrigido ao padronizar container, header, estados vazios, delete dialog e atualizacao local em listagens prioritarias
 - continuar o mesmo criterio nas telas legacy restantes
 
+### 10.2. Algumas acoes expostas no admin ainda sugeriam capacidades nao implementadas
+
+Sintoma:
+
+- a listagem de usuarios expunha acoes como banimento e exclusao de conta sem backend real associado
+- a listagem de newsletters mostrava CTA de resultados sem tela ou fluxo consolidado
+
+Impacto:
+
+- a UX prometia operacoes que o produto ainda nao concluia
+- aumentava a chance de suporte, confusao operacional e regressao ao tocar nessas telas
+
+Recomendacao:
+
+- item corrigido ao remover affordances sem implementacao real
+- manter a regra de so expor CTA quando houver fluxo funcional de ponta a ponta
+
 ## Riscos Operacionais
 
 ### 11. Observabilidade, backup e recuperacao ainda nao estao maduros
@@ -241,7 +258,22 @@ Recomendacao:
 - reduzir caminhos alternativos
 - definir contratos claros entre edicao, persistencia e renderizacao
 
-### 13. Ha espaco para consolidacao de componentes e formularios administrativos
+### 13. A cobertura de testes ainda precisava proteger melhor normalizadores e regras criticas de submit
+
+Sintoma:
+
+- helpers de formulario e regras de comentario dependiam mais de leitura manual do que de testes automatizados
+
+Impacto:
+
+- refactors pequenos em submit, slug ou compatibilidade de settings podiam gerar regressao silenciosa
+
+Recomendacao:
+
+- item parcialmente corrigido com testes para `comment-actions`, `settings-form` e `editorial-form-utils`
+- continuar expandindo para fluxos de auth e formularios administrativos em nivel de componente
+
+### 14. Ha espaco para consolidacao de componentes e formularios administrativos
 
 Sintoma:
 

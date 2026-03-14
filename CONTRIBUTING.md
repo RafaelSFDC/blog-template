@@ -15,10 +15,12 @@ Arquivos mais importantes para contribuicao:
 ## Regras Minimas
 
 - documentacao de engenharia fica em portugues
+- UI publica e administrativa ficam em ingles
 - novas features devem respeitar a separacao entre `routes`, `server`, `lib`, `components` e `db`
 - codigo experimental nao deve ser adicionado ao core sem rotulo explicito
 - mudancas estruturais relevantes devem atualizar a documentacao correspondente em `docs/`
 - toda feature relevante deve deixar clara a relacao entre schema, route, action e UI
+- posts usam `Tiptap` como fluxo editorial oficial e paginas usam `Puck`
 
 ## Checklist Rapido De PR
 
@@ -26,4 +28,5 @@ Arquivos mais importantes para contribuicao:
 - a validacao esta centralizada no lugar correto?
 - os nomes novos seguem o padrao acordado?
 - testes ou justificativa de ausencia de testes foram incluidos?
+- `pnpm exec tsc --noEmit`, `pnpm lint` e `pnpm test` continuam verdes?
 - a documentacao em `docs/` continua correta?

@@ -123,6 +123,7 @@ pnpm dev:cf
 pnpm dev:cf:scheduled
 pnpm build
 pnpm preview
+pnpm exec tsc --noEmit
 pnpm lint
 pnpm test
 pnpm deploy
@@ -200,3 +201,15 @@ Politica atual:
 
 - documentar explicitamente essas lacunas
 - nao assumir cobertura operacional que o projeto ainda nao tem
+
+## Baseline De Qualidade Antes De Merge
+
+Checks minimos esperados no estado atual:
+
+- `pnpm exec tsc --noEmit`
+- `pnpm lint`
+- `pnpm test`
+
+Observacao:
+
+- `worker-configuration.d.ts` ainda pode emitir warnings de lint por ser artefato gerado

@@ -54,7 +54,10 @@ Areas com testes identificados:
 - SEO
 - paginacao
 - storage
+- settings form helpers
+- editorial form helpers
 - preview editorial helper
+- comentarios no dominio
 - dominio de posts
 - busca de posts
 - utilitarios de Puck
@@ -69,6 +72,8 @@ Areas com testes identificados:
 - assinatura Stripe end-to-end
 - publicacao agendada end-to-end
 - componentes que dependem de APIs de browser mais ricas
+- fluxos completos de auth publico
+- formularios administrativos mais complexos em nivel de componente
 
 ## Criterios Minimos Para Novas Features
 
@@ -78,6 +83,7 @@ Areas com testes identificados:
 - helper puro novo
 - regra de negocio nova em `src/server`
 - logica de validacao de status, slug, SEO ou permissions
+- normalizadores de formulario e adaptadores `view-model -> payload`
 
 ### Quando adicionar teste de componente
 

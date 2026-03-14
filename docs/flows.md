@@ -164,6 +164,7 @@ O foco aqui e o estado atual implementado.
 
 - email e normalizado para lowercase
 - subscriber existente pode ser reativado
+- a interface administrativa so expoe acoes que possuem fluxo implementado no estado atual
 
 ### Renderizacao/admin
 
@@ -171,7 +172,8 @@ O foco aqui e o estado atual implementado.
 
 ### Efeitos colaterais
 
-- hoje o fluxo cobre cadastro e gestao basica; nao ha motor completo de campanhas consolidado
+- hoje o fluxo cobre cadastro publico, exportacao e gestao basica de campanhas
+- nao ha tela consolidada de analytics/resultados de campanha neste repositorio
 
 ## Fluxo De Assinatura Stripe
 

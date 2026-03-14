@@ -7,9 +7,6 @@ import { requireAdminSession } from "#/lib/admin-auth";
 import {
   Shield,
   User as UserIcon,
-  MoreVertical,
-  Trash2,
-  Ban,
   CheckCircle2,
   ChevronRight,
 } from "lucide-react";
@@ -22,7 +19,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -113,15 +109,6 @@ function UsersManagementPage() {
       toast.error("An error occurred");
     }
   }, [currentUserId, fetchUsers]);
-
-  const handleBanUser = useCallback(async (userId: string) => {
-    if (userId === currentUserId) {
-      toast.error("You cannot ban yourself");
-      return;
-    }
-    console.log("Banning user:", userId);
-    toast.info("Ban functionality coming soon");
-  }, [currentUserId]);
 
   const columns = useMemo<ColumnDef<AdminUser>[]>(
     () => [
@@ -217,48 +204,8 @@ function UsersManagementPage() {
           </div>
         ),
       },
-      {
-        id: "actions",
-        cell: ({ row }) => {
-          const user = row.original;
-          return (
-            <div className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  asChild
-                  disabled={user.id === currentUserId}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 text-muted-foreground hover:text-foreground"
-                    disabled={user.id === currentUserId}
-                  >
-                    <MoreVertical size={20} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-48 rounded-xl border shadow-md border-border bg-card"
-                >
-                  <DropdownMenuItem
-                    onClick={() => handleBanUser(user.id)}
-                    className="text-warning-foreground font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-warning/10"
-                  >
-                    <Ban size={16} /> Ban User
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive font-bold flex items-center gap-2 p-3 rounded-lg cursor-pointer hover:bg-destructive/5">
-                    <Trash2 size={16} /> Delete Account
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
-      },
     ],
-    [currentUserId, handleBanUser, handleRoleChange],
+    [currentUserId, handleRoleChange],
   );
 
   return (

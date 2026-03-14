@@ -28,6 +28,7 @@ import YoutubeExtension from '@tiptap/extension-youtube'
 import TextAlign from '@tiptap/extension-text-align'
 import { uploadMedia } from '#/server/media-actions'
 import { useRef } from 'react'
+import { toast } from 'sonner'
 
 
 interface TiptapEditorProps {
@@ -199,7 +200,7 @@ function ImageUploadButton({ editor }: { editor: Editor }) {
       }
     } catch (err) {
       console.error('Upload failed:', err)
-      alert('Upload failed. Check if R2 is configured.')
+      toast.error('Image upload failed. Check your storage configuration and try again.')
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
