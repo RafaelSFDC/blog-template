@@ -41,6 +41,7 @@ import { auth } from "#/lib/auth";
 import { user } from "#/db/schema";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
+import { toast } from "sonner";
 import type { Comment as BlogComment } from "#/components/blog/comment-list";
 import { publicCommentSchema } from "#/lib/cms-schema";
 import { createPendingComment } from "#/server/comment-actions";
@@ -187,9 +188,7 @@ function PostDetail() {
 
   async function handleSubscribe() {
     if (!stripePriceId) {
-      alert(
-        "O checkout do Stripe ainda não foi configurado pelo administrador.",
-      );
+      toast.error("Stripe checkout has not been configured by the administrator yet.");
       return;
     }
 
@@ -226,7 +225,7 @@ function PostDetail() {
     } catch (error) {
       posthog.captureException(error);
       console.error("Checkout error:", error);
-      alert("Ocorreu um erro ao iniciar o checkout. Tente novamente.");
+      toast.error("Something went wrong while starting checkout. Please try again.");
     } finally {
       setSubscribing(false);
     }

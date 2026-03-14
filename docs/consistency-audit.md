@@ -85,23 +85,23 @@ Recomendacao:
 
 ## Inconsistencias Arquiteturais
 
-### 5. Existe sobreposicao entre estrategias de edicao e renderizacao de conteudo
+### 5. A documentacao arquitetural do modulo editorial ainda precisava explicitar melhor a divisao entre ferramentas
 
 Sintoma:
 
 - coexistem `LazyTiptapEditor`, `tiptap-editor`, `cms/Editor`, `PageContent` e helpers de `puck`
-- paginas podem alternar entre builder visual e conteudo textual serializado
+- sem contexto adicional, isso podia parecer sobreposicao de estrategia
 
 Impacto:
 
 - aumenta o custo cognitivo para evoluir a camada editorial
-- dificulta definir qual e a estrategia oficial por tipo de conteudo
+- dificulta perceber que as ferramentas atendem entidades diferentes
 
 Recomendacao:
 
-- documentar a estrategia oficial de edicao por entidade
-- explicitar o que e core, o que e transicional e o que e experimental
-- reduzir sobreposicoes ao longo do tempo
+- documentar explicitamente que `Tiptap` e a ferramenta de posts
+- documentar explicitamente que `Puck` e a ferramenta de paginas
+- tratar formatos legados ou compatibilidades como detalhe tecnico, nao como disputa de produto
 
 ### 6. A fronteira entre `src/server` e `src/lib` ainda nao esta totalmente cristalina
 
@@ -171,11 +171,11 @@ Recomendacao:
 - definir e aplicar um padrao unico para novos arquivos
 - padronizar gradualmente arquivos legacy quando forem tocados
 
-### 10. A UX e a documentacao misturam portugues e ingles
+### 10. A UX e a documentacao misturavam portugues e ingles
 
 Sintoma:
 
-- labels, mensagens e descricoes aparecem em ambos os idiomas
+- labels, mensagens e descricoes apareciam em ambos os idiomas
 
 Impacto:
 
@@ -184,8 +184,8 @@ Impacto:
 
 Recomendacao:
 
-- documentar politica de idioma por camada
-- evitar misturar linguas dentro do mesmo fluxo novo
+- item praticamente corrigido ao consolidar docs em portugues e UI em ingles
+- manter a mesma regra em qualquer tela legacy que voltar a ser tocada
 
 ### 10.1. O dashboard ainda tinha listagens fora do padrao visual e comportamental consolidado
 
@@ -261,7 +261,7 @@ Recomendacao:
 
 O projeto ja tem base forte de produto e arquitetura, mas os principais riscos de consistencia hoje estao em:
 
-- sobreposicao de estrategias de edicao
+- necessidade de documentar com mais clareza a divisao editorial por entidade
 - naming e organizacao pouco uniformes
 - consolidacao arquitetural ainda incompleta
 - padrao de idioma ainda precisa ser aplicado de forma mais sistematica

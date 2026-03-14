@@ -20,15 +20,15 @@
 
 ### UI
 
-Estado atual:
+Politica atual:
 
-- a interface mistura portugues e ingles
+- a interface administrativa e publica usa ingles como idioma principal
+- nao misturar labels, CTA, placeholders e mensagens de erro em mais de um idioma no mesmo fluxo
 
-Padrao recomendado daqui para frente:
+Regra pratica:
 
-- cada fluxo novo deve escolher um idioma principal e manter consistencia interna
-- nao misturar labels, CTA e mensagens de erro no mesmo formulario
-- enquanto o produto ainda nao estiver totalmente localizado, preferir ingles em codigo e manter a decisao de idioma da UI explicitada por tela
+- novas telas e componentes visiveis ao usuario devem usar ingles
+- qualquer excecao deve ser intencional e documentada
 
 ## Naming
 
@@ -79,9 +79,9 @@ Usar para:
 
 Usar para:
 
-- edicao visual
+- edicao visual de paginas
 - renderizacao de pagina CMS
-- builder configuration
+- builder configuration baseada em Puck
 
 ### `components/blog`
 
@@ -116,6 +116,23 @@ Estado atual:
   - schema
   - submit
   - mensagens de erro
+
+## Convencao Editorial
+
+Politica oficial do produto:
+
+- posts usam `Tiptap` para escrita editorial
+- paginas usam `Puck` para composicao estrutural
+
+Interpretacao correta:
+
+- nao sao duas solucoes concorrentes para o mesmo fluxo
+- sao ferramentas complementares para entidades diferentes
+
+Quando houver compatibilidade tecnica com formatos antigos:
+
+- documentar como compatibilidade de implementacao
+- nao apresentar isso como estrategia editorial principal
 
 ## Mensagens De Erro
 

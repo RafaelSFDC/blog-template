@@ -129,10 +129,10 @@ function RegisterPage() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-black tracking-tight text-foreground">
-          Join PlayfulPulse
+          Create your Lumina account
         </h2>
         <p className="text-muted-foreground">
-          Start your journey today with a new account
+          Start publishing, managing, and growing your editorial workflow.
         </p>
       </div>
 

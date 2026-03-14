@@ -43,7 +43,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
       <div className="mb-6 flex items-center gap-3 border-b border-border pb-4 text-foreground">
         <ListIcon className="h-5 w-5" />
         <h2 className="display-title text-xl font-bold tracking-tight">
-          Neste artigo
+          In this article
         </h2>
       </div>
       <ul className="space-y-3">

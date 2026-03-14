@@ -129,6 +129,23 @@ O root route em `src/routes/__root.tsx` centraliza:
 
 As configuracoes globais sao montadas principalmente via `src/lib/cms.ts`, lendo `app_settings`, menus e links sociais.
 
+## Estrategia Editorial Por Entidade
+
+O Lumina usa duas ferramentas editoriais com papeis diferentes e complementares:
+
+- `Tiptap`: editor principal de escrita para posts e conteudo textual editorial
+- `Puck`: page builder principal para paginas institucionais, landing pages e composicoes estruturadas
+
+Essas ferramentas nao competem entre si no produto. A divisao desejada e:
+
+- post = escrita editorial com Tiptap
+- pagina = composicao estrutural com Puck
+
+Observacao importante sobre o estado atual:
+
+- o codigo ainda preserva compatibilidade com conteudo textual serializado em paginas
+- isso deve ser tratado como compatibilidade de implementacao, nao como ambiguidade de produto
+
 ## Persistencia E Modos De Banco
 
 O projeto suporta multiplos modos de banco via `DB_TYPE`:
@@ -235,7 +252,7 @@ Arquivos centrais:
 
 A arquitetura ja e suficiente para um CMS editorial funcional, mas ha pontos ainda nao consolidados e que devem ser tratados como tal:
 
-- coexistencia de mais de uma estrategia de edicao/renderizacao de conteudo
+- algumas camadas ainda preservam compatibilidade tecnica com mais de um formato de conteudo em paginas
 - codigo experimental misturado a codigo principal
 - sobreposicao parcial entre responsabilidades de `src/server` e `src/lib`
 - documentacao operacional ainda parcial antes deste pacote

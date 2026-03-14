@@ -99,7 +99,7 @@ function ContactPage() {
             size="xl"
             className="px-12 rounded-md font-black"
           >
-            <a href="/">BACK TO FEED</a>
+            <a href="/">Back to Home</a>
           </Button>
         </section>
       </main>

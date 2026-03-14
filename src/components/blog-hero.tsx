@@ -42,7 +42,7 @@ export function BlogHero({ post }: BlogHeroProps) {
         {post.readingTime && (
           <div className="hidden items-center gap-1.5 border-l border-border pl-4 sm:flex">
             <Clock className="h-3 w-3" />
-            <span>{post.readingTime} min leitura</span>
+            <span>{post.readingTime} min read</span>
           </div>
         )}
       </div>

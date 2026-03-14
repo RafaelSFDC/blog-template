@@ -108,6 +108,9 @@ export function PageEditorScreen({
   const [saving, setSaving] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
 
+  // Pages use Puck as the primary page-building experience.
+  // Text serialization support is preserved here for compatibility paths.
+
   const form = useForm({
     defaultValues: initialValues,
     validators: {

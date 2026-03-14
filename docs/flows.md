@@ -19,6 +19,10 @@ O foco aqui e o estado atual implementado.
 - dashboard em `src/routes/dashboard/posts/new.tsx`
 - dashboard em `src/routes/dashboard/posts/$postId.edit.tsx`
 
+### Ferramenta editorial oficial
+
+- posts usam `Tiptap` como editor principal de escrita
+
 ### Validacao
 
 - schema principal: `postFormSchema` e `postServerSchema` em `src/lib/cms-schema.ts`
@@ -52,6 +56,11 @@ O foco aqui e o estado atual implementado.
 - dashboard em `src/routes/dashboard/pages/new.tsx`
 - dashboard em `src/routes/dashboard/pages/$pageId.edit.tsx`
 
+### Ferramenta editorial oficial
+
+- paginas usam `Puck` como page builder principal
+- o suporte a conteudo textual serializado permanece por compatibilidade, mas nao muda a decisao de produto
+
 ### Validacao
 
 - `pageFormSchema` e `pageServerSchema`
@@ -64,7 +73,8 @@ O foco aqui e o estado atual implementado.
 
 - pagina pode ser `draft`, `published` ou `private`
 - `isHome` define a homepage gerenciada
-- pagina pode usar editor visual com Puck ou conteudo textual serializado
+- Puck e o fluxo principal para criacao e edicao de paginas
+- conteudo textual serializado em paginas deve ser lido como compatibilidade tecnica, nao como estrategia editorial concorrente
 
 ### Renderizacao publica
 

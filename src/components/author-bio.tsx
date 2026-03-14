@@ -33,7 +33,7 @@ export function AuthorBio({ author }: AuthorBioProps) {
       </div>
       <div className="flex-1">
         <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
-          Sobre o autor
+          About the author
         </p>
         <h3 className="display-title mb-2 text-2xl font-bold">{name}</h3>
         <p className="mb-4 text-sm font-medium text-muted-foreground">{role}</p>

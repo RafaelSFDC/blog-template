@@ -74,6 +74,8 @@ export function PostEditorScreen({
   const [saving, setSaving] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
 
+  // Posts use Tiptap as the primary editorial writing experience.
+
   const form = useForm({
     defaultValues: initialValues,
     validators: {
@@ -328,7 +330,7 @@ export function PostEditorScreen({
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="Se ometido, usará o título do post"
+                          placeholder="If empty, the post title will be used"
                           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                         />
                       </Field>
@@ -346,7 +348,7 @@ export function PostEditorScreen({
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="Descrição curta para os resultados de busca..."
+                          placeholder="Short description for search results..."
                           className="min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                         />
                       </Field>
@@ -362,7 +364,7 @@ export function PostEditorScreen({
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="https://exemplo.com/imagem.jpg"
+                          placeholder="https://example.com/image.jpg"
                           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                         />
                       </Field>
@@ -385,10 +387,10 @@ export function PostEditorScreen({
                     className="flex cursor-pointer flex-col"
                   >
                     <span className="text-sm font-bold text-foreground">
-                      Post Premium
+                      Premium Post
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      Somente assinantes pagos poderão ler o conteúdo completo.
+                      Only paid subscribers can read the full post.
                     </span>
                   </label>
                 </div>

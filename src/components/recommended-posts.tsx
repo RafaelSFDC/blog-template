@@ -13,7 +13,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
       <div className="bg-card border shadow-sm flex items-center justify-between rounded-md px-4 py-3 sm:px-6 transition-transform hover:-translate-y-1">
         <div>
           <h2 className="display-title text-2xl font-bold text-foreground sm:text-3xl">
-            Também pode gostar
+            You may also like
           </h2>
         </div>
         <Button asChild variant="outline" size="sm" className="hidden sm:flex">
@@ -22,7 +22,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
             search={{ q: undefined, page: 1 }}
             className="flex items-center gap-2 "
           >
-            Ver todos
+            View all
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

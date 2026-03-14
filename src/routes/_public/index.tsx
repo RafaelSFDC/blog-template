@@ -157,7 +157,7 @@ function Home() {
               search={{ q: undefined, page: 1 }}
               className="flex items-center gap-2"
             >
-              Ver Todos
+              View All
               <ArrowRight size={16} />
             </Link>
           </Button>
