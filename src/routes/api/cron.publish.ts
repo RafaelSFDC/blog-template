@@ -5,6 +5,7 @@ import {
   getCronSecretConfig,
   isAuthorizedCronRequest,
 } from "#/server/post-domain";
+import { captureServerException } from "#/server/sentry";
 
 export const Route = createFileRoute("/api/cron/publish")({
   server: {
@@ -36,6 +37,15 @@ export const Route = createFileRoute("/api/cron/publish")({
             publishedIds: result.publishedIds,
           });
         } catch (error: unknown) {
+          captureServerException(error, {
+            tags: {
+              area: "api",
+              flow: "cron-publish",
+            },
+            extras: {
+              requestUrl: request.url,
+            },
+          });
           console.error("Error in cron publish:", error);
           const message = error instanceof Error ? error.message : "Internal Server Error";
           return new Response(message, { status: 500 });

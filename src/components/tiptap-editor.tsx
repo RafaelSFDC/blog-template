@@ -29,6 +29,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import { uploadMedia } from '#/server/media-actions'
 import { useRef } from 'react'
 import { toast } from 'sonner'
+import { captureClientException } from '#/lib/sentry-client'
 
 
 interface TiptapEditorProps {
@@ -199,6 +200,16 @@ function ImageUploadButton({ editor }: { editor: Editor }) {
         editor.chain().focus().setImage({ src: res.url, alt: file.name }).run()
       }
     } catch (err) {
+      captureClientException(err, {
+        tags: {
+          area: 'dashboard',
+          flow: 'tiptap-image-upload',
+        },
+        extras: {
+          fileName: file.name,
+          fileType: file.type,
+        },
+      })
       console.error('Upload failed:', err)
       toast.error('Image upload failed. Check your storage configuration and try again.')
     } finally {

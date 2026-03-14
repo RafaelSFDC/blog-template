@@ -205,12 +205,27 @@ Responsavel por:
 - tracking client-side
 - analytics agregadas no dashboard
 - eventos ligados a assinatura
+- eventos de produto e comportamento do usuario
 
 Arquivos centrais:
 
 - `src/components/analytics/*`
 - `src/server/posthog.ts`
 - `src/server/analytics-actions.ts`
+
+### Sentry
+
+Responsavel por:
+
+- error tracking no browser
+- error tracking em APIs, server functions e runtime do Worker
+- contexto tecnico de falhas em fluxos criticos
+
+Arquivos centrais:
+
+- `src/lib/sentry-client.ts`
+- `src/server/sentry.ts`
+- `src/server-entry.ts`
 
 ### Stripe
 
@@ -255,6 +270,6 @@ A arquitetura ja e suficiente para um CMS editorial funcional, mas ha pontos ain
 - algumas camadas ainda preservam compatibilidade tecnica com mais de um formato de conteudo em paginas
 - sobreposicao parcial entre responsabilidades de `src/server` e `src/lib`
 - cobertura de testes ainda e mais forte em helpers e dominio do que em fluxos completos de UI
-- documentacao operacional ainda e intencionalmente limitada ao escopo do app, sem playbooks completos de incidente
+- observabilidade atual e pragmatica: PostHog + Sentry, sem playbooks ou backup nesta fase
 
 O objetivo desta documentacao e reduzir exatamente essas zonas cinzentas.

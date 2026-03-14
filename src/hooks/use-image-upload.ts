@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { captureClientException } from "#/lib/sentry-client";
 
 interface UseImageUploadProps {
   onUpload?: (url: string) => void;
@@ -53,6 +54,16 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
           const uploadedUrl = await dummyUpload(file, localUrl);
           onUpload?.(uploadedUrl);
         } catch (err) {
+          captureClientException(err, {
+            tags: {
+              area: "dashboard",
+              flow: "image-upload-demo",
+            },
+            extras: {
+              fileName: file.name,
+              fileType: file.type,
+            },
+          });
           URL.revokeObjectURL(localUrl);
           setPreviewUrl(null);
           setFileName(null);

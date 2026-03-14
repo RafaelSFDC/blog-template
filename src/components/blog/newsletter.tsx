@@ -6,6 +6,7 @@ import { cn } from "#/lib/utils";
 import { subscribeNewsletter } from "#/server/newsletter-actions";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { captureClientException } from "#/lib/sentry-client";
 
 interface NewsletterProps {
   title?: string;
@@ -44,7 +45,15 @@ export function Newsletter({
           toast.error(res.message);
         }
       } catch (err) {
-        posthog.captureException(err);
+        captureClientException(err, {
+          tags: {
+            area: "public",
+            flow: "newsletter-subscribe",
+          },
+          extras: {
+            email,
+          },
+        });
         toast.error("An error occurred. Please try again.");
       }
     }

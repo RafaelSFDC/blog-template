@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { publicCommentSchema } from "#/lib/cms-schema";
 import { getAuthSession } from "#/lib/admin-auth";
 import { createPendingComment } from "#/server/comment-actions";
+import { captureServerException } from "#/server/sentry";
 
 export const Route = createFileRoute("/api/comments")({
   server: {
@@ -33,6 +34,15 @@ export const Route = createFileRoute("/api/comments")({
             return new Response("Post not found", { status: 404 });
           }
 
+          captureServerException(error, {
+            tags: {
+              area: "api",
+              flow: "comments-create",
+            },
+            extras: {
+              requestUrl: request.url,
+            },
+          });
           console.error("Error creating comment:", error);
           const message = error instanceof Error ? error.message : "Internal Server Error";
           return new Response(message, { status: 500 });

@@ -8,6 +8,7 @@ import {
   normalizeSlug,
   pageServerSchema,
 } from "#/lib/cms-schema";
+import { captureServerException } from "#/server/sentry";
 
 export const getPages = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -58,6 +59,17 @@ export const createPage = createServerFn({ method: "POST" })
 
       return created;
     } catch (error) {
+      captureServerException(error, {
+        tags: {
+          area: "server",
+          flow: "page-create",
+        },
+        extras: {
+          slug,
+          isHome: data.isHome,
+          status: data.status,
+        },
+      });
       throw new Error(getFriendlyDbError(error, "Page") || "Could not create page");
     }
   });
@@ -102,6 +114,18 @@ export const updatePage = createServerFn({ method: "POST" })
 
       return updated;
     } catch (error) {
+      captureServerException(error, {
+        tags: {
+          area: "server",
+          flow: "page-update",
+        },
+        extras: {
+          pageId: data.id,
+          slug,
+          isHome: data.isHome,
+          status: data.status,
+        },
+      });
       throw new Error(getFriendlyDbError(error, "Page") || "Could not update page");
     }
   });

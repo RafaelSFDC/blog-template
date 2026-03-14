@@ -5,6 +5,7 @@ import { comments } from "#/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
+import { captureServerException } from "#/server/sentry";
 
 export const Route = createFileRoute("/api/comments/$id")({
   server: {
@@ -38,6 +39,16 @@ export const Route = createFileRoute("/api/comments/$id")({
             });
           }
 
+          captureServerException(error, {
+            tags: {
+              area: "api",
+              flow: "comments-update",
+            },
+            extras: {
+              requestUrl: request.url,
+              commentId: params.id,
+            },
+          });
           console.error("Error updating comment:", error);
           const err = error as { message?: string; status?: number };
           if (err.message === "Unauthorized" || err.status === 401) {
@@ -72,6 +83,15 @@ export const Route = createFileRoute("/api/comments/$id")({
             });
           }
 
+          captureServerException(error, {
+            tags: {
+              area: "api",
+              flow: "comments-delete",
+            },
+            extras: {
+              commentId: params.id,
+            },
+          });
           console.error("Error deleting comment:", error);
           const err = error as { message?: string; status?: number };
           if (err.message === "Unauthorized" || err.status === 401) {

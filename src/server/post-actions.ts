@@ -16,6 +16,7 @@ import {
   resolvePostPublishedAt,
   shouldTriggerPublishedWebhook,
 } from "#/server/post-domain";
+import { captureServerException } from "#/server/sentry";
 
 async function assertPostSlugAvailable(slug: string, currentPostId?: number) {
   const existing = await db.query.posts.findFirst({
@@ -112,6 +113,17 @@ export const createPost = createServerFn({ method: "POST" })
             excerpt: data.excerpt,
           });
         } catch (error) {
+          captureServerException(error, {
+            tags: {
+              area: "server",
+              flow: "post-published-webhook",
+              operation: "create",
+            },
+            extras: {
+              postId: created.id,
+              slug,
+            },
+          });
           console.error("Post created, but webhook delivery failed:", error);
         }
       }
@@ -202,6 +214,17 @@ export const updatePost = createServerFn({ method: "POST" })
             excerpt: data.excerpt,
           });
         } catch (error) {
+          captureServerException(error, {
+            tags: {
+              area: "server",
+              flow: "post-published-webhook",
+              operation: "update",
+            },
+            extras: {
+              postId: data.id,
+              slug,
+            },
+          });
           console.error("Post updated, but webhook delivery failed:", error);
         }
       }

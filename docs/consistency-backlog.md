@@ -19,6 +19,4 @@ Este backlog deriva diretamente da auditoria tecnica e organiza o trabalho em tr
 
 - simplificar a arquitetura editorial reduzindo compatibilidades tecnicas desnecessarias ao redor de Tiptap, Puck e camada de preview
 - criar uma base administrativa mais padronizada para formularios e CRUDs
-- definir estrategia minima de observabilidade operacional
-- definir estrategia de backup e restauracao
 - ampliar cobertura para integracao e end-to-end em fluxos criticos

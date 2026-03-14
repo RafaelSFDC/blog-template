@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { stripe } from '../../../server/stripe'
 import { auth } from '../../../lib/auth'
 import { getPostHogClient } from '../../../server/posthog'
+import { captureServerException } from '../../../server/sentry'
 
 export const Route = createFileRoute('/api/stripe/checkout')({
   server: {
@@ -58,6 +59,21 @@ export const Route = createFileRoute('/api/stripe/checkout')({
                 headers: { 'Content-Type': 'application/json' },
             })
         } catch (error: unknown) {
+            captureServerException(error, {
+                tags: {
+                    area: 'api',
+                    flow: 'stripe-checkout',
+                },
+                extras: {
+                    requestUrl: request.url,
+                    priceId,
+                    userId: session.user.id,
+                },
+                user: {
+                    id: session.user.id,
+                    email: session.user.email,
+                },
+            })
             console.error('Stripe error:', error)
             const message = error instanceof Error ? error.message : 'Internal Server Error'
             return new Response(message, { status: 500 })

@@ -14,6 +14,7 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { usePostHog } from "@posthog/react";
+import { captureClientException } from "#/lib/sentry-client";
 
 const getSession = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -47,7 +48,12 @@ function LoginPage() {
         posthog.identify(value.email, { email: value.email });
         posthog.capture("user_signed_in", { method: "email" });
       } catch (_err) {
-        posthog.captureException(_err);
+        captureClientException(_err, {
+          tags: {
+            area: "auth",
+            flow: "login",
+          },
+        });
         toast.error("Invalid email or password. Please try again.");
       }
     },

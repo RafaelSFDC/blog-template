@@ -25,6 +25,8 @@ Variaveis centrais:
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - chaves do PostHog
+- `VITE_PUBLIC_SENTRY_DSN`
+- `SENTRY_DSN`
 - segredos do Stripe
 - credenciais opcionais de R2
 
@@ -192,15 +194,16 @@ Fallback:
 Estado atual:
 
 - ha logs basicos em alguns fluxos
+- PostHog cobre analytics de produto
+- Sentry cobre error tracking de browser, APIs e worker quando configurado
 - Cloudflare observability esta habilitado no config
-- nao ha documentacao forte de backup e restauracao
-- nao ha trilha formal de auditoria
-- nao ha playbook de incidente ou rollback documentado neste repositorio
+- backup e playbooks operacionais nao fazem parte desta fase do projeto
 
 Politica atual:
 
-- documentar explicitamente essas lacunas
-- nao assumir cobertura operacional que o projeto ainda nao tem
+- tratar PostHog como analytics de produto
+- tratar Sentry como canal principal de erro tecnico
+- nao assumir readiness operacional enterprise que o projeto ainda nao tem
 
 ## Baseline De Qualidade Antes De Merge
 

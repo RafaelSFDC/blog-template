@@ -5,6 +5,7 @@ import { Github } from "lucide-react";
 import { cn } from "#/lib/utils";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { captureClientException } from "#/lib/sentry-client";
 
 interface SocialLoginProps {
   callbackURL?: string;
@@ -25,7 +26,14 @@ export function SocialLogin({
         callbackURL,
       });
       posthog.capture("user_signed_in", { method: provider });
-    } catch {
+    } catch (error) {
+      captureClientException(error, {
+        tags: {
+          area: "auth",
+          flow: "social-login",
+          provider,
+        },
+      });
       setError(`Failed to sign in with ${provider}.`);
       toast.error(`Failed to sign in with ${provider}. Please try again.`);
     }

@@ -179,6 +179,12 @@ Politica formal:
   - momento em que disparam
   - propriedades principais
 
+Politica oficial:
+
+- `PostHog` mede comportamento e produto
+- `Sentry` recebe erro tecnico e contexto de falha
+- `toast` e mensagens de UI continuam sendo o canal de feedback para o usuario
+
 ## Experimental Vs Core
 
 Politica oficial:

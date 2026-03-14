@@ -3,6 +3,7 @@ import { db } from "#/db/index";
 import { subscribers } from "#/db/schema";
 import { eq } from "drizzle-orm";
 import { newsletterSubscribeSchema } from "#/lib/cms-schema";
+import { captureServerException } from "#/server/sentry";
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => newsletterSubscribeSchema.parse(input))
@@ -33,6 +34,15 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
 
       return { success: true, message: "Thanks for joining the tribe!" };
     } catch (err) {
+      captureServerException(err, {
+        tags: {
+          area: "server",
+          flow: "newsletter-subscribe",
+        },
+        extras: {
+          email,
+        },
+      });
       console.error(err);
       return { success: false, message: "Subscription failed. Try again later." };
     }

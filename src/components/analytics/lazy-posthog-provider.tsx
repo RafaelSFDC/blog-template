@@ -1,22 +1,26 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { useHydrated } from "#/hooks/use-hydrated";
 
-const LazyPostHogProviderImpl = lazy(() =>
-  import("./posthog-provider").then((module) => ({
-    default: module.PostHogProvider,
+const LazyObservabilityProviderImpl = lazy(() =>
+  import("./observability-provider").then((module) => ({
+    default: module.ObservabilityProvider,
   })),
 );
 
 export function LazyPostHogProvider({ children }: { children: ReactNode }) {
   const isHydrated = useHydrated();
 
-  if (!isHydrated || !import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
+  if (
+    !isHydrated ||
+    (!import.meta.env.VITE_PUBLIC_POSTHOG_KEY &&
+      !import.meta.env.VITE_PUBLIC_SENTRY_DSN)
+  ) {
     return <>{children}</>;
   }
 
   return (
     <Suspense fallback={<>{children}</>}>
-      <LazyPostHogProviderImpl>{children}</LazyPostHogProviderImpl>
+      <LazyObservabilityProviderImpl>{children}</LazyObservabilityProviderImpl>
     </Suspense>
   );
 }

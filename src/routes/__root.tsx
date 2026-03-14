@@ -17,6 +17,8 @@ import { ThemeProvider } from "next-themes";
 import { LazyPostHogProvider } from "#/components/analytics/lazy-posthog-provider";
 import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "#/components/ui/sonner";
+import { useEffect } from "react";
+import { captureClientException } from "#/lib/sentry-client";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -43,6 +45,13 @@ const getGlobalSettings = createServerFn({ method: "GET" }).handler(
         siteUrl: resolveSiteUrl(site.siteUrl, request?.url),
       };
     } catch (error) {
+      const { captureServerException } = await import("#/server/sentry");
+      captureServerException(error, {
+        tags: {
+          area: "root",
+          flow: "global-settings",
+        },
+      });
       console.error("Failed to fetch settings from DB, using defaults:", error);
       return DEFAULT_SITE_DATA;
     }
@@ -242,6 +251,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootErrorComponent({ error }: { error: unknown }) {
+  useEffect(() => {
+    captureClientException(error, {
+      tags: {
+        area: "root",
+        flow: "route-render",
+      },
+    });
+  }, [error]);
+
   return (
     <main className="page-wrap px-4 pb-16 pt-14">
       <section className="bg-card border shadow-sm clip-sash rounded-md p-8">

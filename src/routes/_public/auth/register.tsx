@@ -16,6 +16,7 @@ import {
 import { Input } from "#/components/ui/input";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
+import { captureClientException } from "#/lib/sentry-client";
 
 const getRegistrationStatus = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -65,7 +66,12 @@ function RegisterPage() {
         posthog.capture("user_signed_up", { method: "email" });
         setSuccess(true);
       } catch (err) {
-        posthog.captureException(err);
+        captureClientException(err, {
+          tags: {
+            area: "auth",
+            flow: "register",
+          },
+        });
         const msg =
           err instanceof Error ? err.message : "Failed to create account. Please try again.";
         toast.error(msg);

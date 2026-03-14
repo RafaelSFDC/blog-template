@@ -9,6 +9,7 @@ import {
   sanitizeMediaFilename,
 } from '#/lib/storage'
 import { mediaUploadSchema } from '#/lib/cms-schema'
+import { captureServerException } from '#/server/sentry'
 
 export const getMediaItems = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -24,35 +25,48 @@ export const uploadMedia = createServerFn({ method: 'POST' })
     const file = data.get('file') as File
     const altText = data.get('altText') as string | null
 
-    if (!file) {
-      throw new Error('No file provided')
+    try {
+      if (!file) {
+        throw new Error('No file provided')
+      }
+
+      mediaUploadSchema.parse({
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+        altText: altText ?? undefined,
+      })
+
+      const filename = sanitizeMediaFilename(file.name)
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const stored = await putObject({
+        filename,
+        body: buffer,
+        contentType: file.type,
+      })
+
+      const created = await db.insert(mediaTable).values({
+        url: stored.publicUrl,
+        filename,
+        altText: altText?.trim() || null,
+        mimeType: file.type,
+        size: file.size,
+      }).returning()
+
+      return created[0]
+    } catch (error) {
+      captureServerException(error, {
+        tags: {
+          area: 'server',
+          flow: 'media-upload',
+        },
+        extras: {
+          fileName: file?.name,
+          fileType: file?.type,
+        },
+      })
+      throw error
     }
-
-    mediaUploadSchema.parse({
-      filename: file.name,
-      mimeType: file.type,
-      size: file.size,
-      altText: altText ?? undefined,
-    })
-
-    const filename = sanitizeMediaFilename(file.name)
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const stored = await putObject({
-      filename,
-      body: buffer,
-      contentType: file.type,
-    })
-
-    // Save to DB
-    const created = await db.insert(mediaTable).values({
-      url: stored.publicUrl,
-      filename,
-      altText: altText?.trim() || null,
-      mimeType: file.type,
-      size: file.size,
-    }).returning()
-
-    return created[0]
   })
 
 export const deleteMediaItem = createServerFn({ method: 'POST' })

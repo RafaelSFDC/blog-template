@@ -30,6 +30,7 @@ import {
   type NewsletterTemplatePost,
 } from "#/lib/newsletter-form";
 import { sendNewsletter } from "#/lib/newsletter";
+import { captureClientException } from "#/lib/sentry-client";
 
 const saveAndSendNewsletter = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
@@ -54,6 +55,17 @@ const saveAndSendNewsletter = createServerFn({ method: "POST" })
       try {
         await sendNewsletter(created.id);
       } catch (err) {
+        const { captureServerException } = await import("#/server/sentry");
+        captureServerException(err, {
+          tags: {
+            area: "server",
+            flow: "newsletter-send-now",
+          },
+          extras: {
+            newsletterId: created.id,
+            postId: data.postId,
+          },
+        });
         console.error("Failed to send newsletter:", err);
       }
     }
@@ -123,10 +135,21 @@ function NewNewsletterPage() {
             subject: value.subject,
             post_id: value.postId,
           });
+        } else {
+          posthog.capture("newsletter_campaign_saved", {
+            subject: value.subject,
+            post_id: value.postId,
+          });
         }
         await navigate({ to: "/dashboard/newsletters" });
       } catch (err) {
-        posthog.captureException(err);
+        captureClientException(err, {
+          tags: {
+            area: "dashboard",
+            flow: "newsletter-campaign-submit",
+            mode: sendNow ? "send" : "draft",
+          },
+        });
         setErrorMessage("Failed to save newsletter campaign.");
       } finally {
         setSaving(false);

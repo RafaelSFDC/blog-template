@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getObject } from '#/lib/storage'
+import { captureServerException } from '#/server/sentry'
 
 export const Route = createFileRoute('/api/media/$')({
   server: {
@@ -25,6 +26,16 @@ export const Route = createFileRoute('/api/media/$')({
 
           return new Response(object.body, { headers })
         } catch (error) {
+          captureServerException(error, {
+            tags: {
+              area: 'api',
+              flow: 'media-fetch',
+            },
+            extras: {
+              requestUrl: request.url,
+              filename,
+            },
+          })
           console.error('Error fetching media object:', error)
           return new Response('Error fetching file', { status: 500 })
         }

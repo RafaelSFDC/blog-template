@@ -7,6 +7,7 @@ import { User, Shield, CreditCard, LogOut, Save } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
 
 const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -45,7 +46,12 @@ function AccountPage() {
         posthog.capture("profile_updated", { name: value.name });
         toast.success("Profile updated successfully!");
       } catch (error) {
-        posthog.captureException(error);
+        captureClientException(error, {
+          tags: {
+            area: "account",
+            flow: "profile-update",
+          },
+        });
         toast.error("Failed to update profile.");
       }
     },
@@ -68,7 +74,12 @@ function AccountPage() {
         toast.success("Password updated successfully!");
         passwordForm.reset();
       } catch (error) {
-        posthog.captureException(error);
+        captureClientException(error, {
+          tags: {
+            area: "account",
+            flow: "password-change",
+          },
+        });
         const message = error instanceof Error ? error.message : "Failed to update password.";
         toast.error(message);
       }
@@ -77,6 +88,7 @@ function AccountPage() {
 
   const handleLogout = async () => {
     posthog.capture("user_signed_out");
+    setClientSentryUser(null);
     posthog.reset();
     await authClient.signOut({
       fetchOptions: {

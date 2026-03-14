@@ -9,7 +9,7 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
         api_host: "/api/ingest",
         ui_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "https://us.posthog.com",
         defaults: "2025-05-24",
-        capture_exceptions: true,
+        capture_exceptions: false,
         person_profiles: "identified_only",
       }}
     >

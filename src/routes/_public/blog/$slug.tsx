@@ -48,6 +48,7 @@ import { createPendingComment } from "#/server/comment-actions";
 import { getRedirectByPath } from "#/server/redirect-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
+import { captureClientException } from "#/lib/sentry-client";
 
 const getPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -223,7 +224,16 @@ function PostDetail() {
         throw new Error("No checkout URL received");
       }
     } catch (error) {
-      posthog.captureException(error);
+      captureClientException(error, {
+        tags: {
+          area: "public",
+          flow: "subscription-checkout",
+        },
+        extras: {
+          postSlug: post.slug,
+          priceId: stripePriceId,
+        },
+      });
       console.error("Checkout error:", error);
       toast.error("Something went wrong while starting checkout. Please try again.");
     } finally {

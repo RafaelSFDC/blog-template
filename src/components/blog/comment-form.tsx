@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Textarea } from "#/components/ui/textarea";
 import { toast } from "sonner";
+import { captureClientException } from "#/lib/sentry-client";
 
 interface CommentFormProps {
   postId: number;
@@ -49,6 +50,12 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
       setContent("");
       toast.success("Your comment is awaiting moderation!");
     } catch (err) {
+      captureClientException(err, {
+        tags: {
+          area: "public",
+          flow: "comment-submit",
+        },
+      });
       console.error(err);
       toast.error("Failed to submit comment. Please try again.");
     } finally {

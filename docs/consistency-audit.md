@@ -224,21 +224,22 @@ Recomendacao:
 
 ## Riscos Operacionais
 
-### 11. Observabilidade, backup e recuperacao ainda nao estao maduros
+### 11. Observabilidade avancada, backup e recuperacao continuam fora do escopo atual
 
 Sintoma:
 
-- ha logs e deploy funcional, mas nao ha playbook claro de backup/restauracao e auditoria de mudancas
+- o projeto agora usa PostHog para analytics e Sentry para error tracking
+- backup, restauracao e playbooks operacionais continuam sem formalizacao
 
 Impacto:
 
-- risco maior em incidentes
-- operacao depende de conhecimento implicito
+- a camada de app fica observavel o suficiente para evolucao segura
+- a maturidade operacional completa continua para uma fase futura, se um dia fizer sentido
 
 Recomendacao:
 
-- documentar lacunas explicitamente
-- priorizar estrategia minima de backup, restauracao e logs acionaveis
+- manter a separacao `PostHog = produto` e `Sentry = erros`
+- nao reabrir backup/playbook como bloqueio desta fase
 
 ## Oportunidades De Performance E Simplificacao
 

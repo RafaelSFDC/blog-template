@@ -2,6 +2,7 @@ import { db } from '#/db/index';
 import { subscribers, newsletters, newsletterLogs, appSettings } from '#/db/schema';
 import { resend as defaultResend } from './resend';
 import { eq } from 'drizzle-orm';
+import { captureServerException } from '#/server/sentry';
 
 export async function sendNewsletter(newsletterId: number) {
   const { Resend } = await import('resend');
@@ -69,6 +70,16 @@ export async function sendNewsletter(newsletterId: number) {
       successCount++;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      captureServerException(error, {
+        tags: {
+          area: 'server',
+          flow: 'newsletter-send',
+        },
+        extras: {
+          newsletterId,
+          subscriberEmail: subscriber.email,
+        },
+      });
       console.error(`Failed to send newsletter to ${subscriber.email}:`, error);
       await db.insert(newsletterLogs).values({
         newsletterId,

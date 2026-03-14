@@ -5,6 +5,7 @@ import { user } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
 import Stripe from 'stripe'
 import { getPostHogClient } from '../../../server/posthog'
+import { captureServerException } from '../../../server/sentry'
 
 export const Route = createFileRoute('/api/stripe/webhook')({
   server: {
@@ -26,76 +27,99 @@ export const Route = createFileRoute('/api/stripe/webhook')({
             process.env.STRIPE_WEBHOOK_SECRET
           )
         } catch (err: unknown) {
+          captureServerException(err, {
+            tags: {
+              area: 'api',
+              flow: 'stripe-webhook-construct',
+            },
+            extras: {
+              requestUrl: request.url,
+            },
+          })
           const message = err instanceof Error ? err.message : 'Unknown'
           return new Response(`Webhook Error: ${message}`, { status: 400 })
         }
+        try {
+          if (event.type === 'checkout.session.completed') {
+              const session = event.data.object as Stripe.Checkout.Session
+              const subscription = await stripe.subscriptions.retrieve(
+                  session.subscription as string
+              ) as Stripe.Subscription
 
-        if (event.type === 'checkout.session.completed') {
-            const session = event.data.object as Stripe.Checkout.Session
-            const subscription = await stripe.subscriptions.retrieve(
-                session.subscription as string
-            ) as Stripe.Subscription
+              const userId = session.metadata?.userId
 
-            const userId = session.metadata?.userId
+              if (userId) {
+                  await db.update(user)
+                      .set({
+                          stripeCustomerId: session.customer as string,
+                          stripeSubscriptionId: subscription.id,
+                          stripePriceId: subscription.items.data[0]?.price.id ?? null,
+                          stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
+                            ? new Date(subscription.items.data[0].current_period_end * 1000)
+                            : null,
+                      })
+                      .where(eq(user.id, userId))
 
-            if (userId) {
-                await db.update(user)
-                    .set({
-                        stripeCustomerId: session.customer as string,
-                        stripeSubscriptionId: subscription.id,
-                        stripePriceId: subscription.items.data[0]?.price.id ?? null,
-                        stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
-                          ? new Date(subscription.items.data[0].current_period_end * 1000)
-                          : null,
-                    })
-                    .where(eq(user.id, userId))
+                  const posthog = getPostHogClient()
+                  posthog.capture({
+                      distinctId: session.customer_email || userId,
+                      event: 'subscription_activated',
+                      properties: {
+                          user_id: userId,
+                          customer_email: session.customer_email,
+                          stripe_customer_id: session.customer as string,
+                          stripe_subscription_id: subscription.id,
+                          price_id: subscription.items.data[0].price.id,
+                      },
+                  })
+              }
+          }
 
-                const posthog = getPostHogClient()
-                posthog.capture({
-                    distinctId: session.customer_email || userId,
-                    event: 'subscription_activated',
-                    properties: {
-                        user_id: userId,
-                        customer_email: session.customer_email,
-                        stripe_customer_id: session.customer as string,
-                        stripe_subscription_id: subscription.id,
-                        price_id: subscription.items.data[0].price.id,
-                    },
+          if (event.type === 'invoice.payment_succeeded') {
+              const invoice = event.data.object as Stripe.Invoice
+              const subscriptionId =
+                invoice.parent &&
+                invoice.parent.type === 'subscription_details'
+                  ? invoice.parent.subscription_details?.subscription
+                  : null
+
+              if (!subscriptionId || typeof subscriptionId !== 'string') {
+                return new Response(JSON.stringify({ received: true }), {
+                  headers: { 'Content-Type': 'application/json' },
                 })
-            }
+              }
+
+              const subscription = await stripe.subscriptions.retrieve(
+                  subscriptionId
+              ) as Stripe.Subscription
+
+              await db.update(user)
+                  .set({
+                      stripePriceId: subscription.items.data[0]?.price.id ?? null,
+                      stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
+                        ? new Date(subscription.items.data[0].current_period_end * 1000)
+                        : null,
+                  })
+                  .where(eq(user.stripeSubscriptionId, subscription.id))
+          }
+
+          return new Response(JSON.stringify({ received: true }), {
+              headers: { 'Content-Type': 'application/json' },
+          })
+        } catch (error: unknown) {
+          captureServerException(error, {
+            tags: {
+              area: 'api',
+              flow: 'stripe-webhook',
+              eventType: event.type,
+            },
+            extras: {
+              requestUrl: request.url,
+            },
+          })
+          const message = error instanceof Error ? error.message : 'Internal Server Error'
+          return new Response(message, { status: 500 })
         }
-
-        if (event.type === 'invoice.payment_succeeded') {
-            const invoice = event.data.object as Stripe.Invoice
-            const subscriptionId =
-              invoice.parent &&
-              invoice.parent.type === 'subscription_details'
-                ? invoice.parent.subscription_details?.subscription
-                : null
-
-            if (!subscriptionId || typeof subscriptionId !== 'string') {
-              return new Response(JSON.stringify({ received: true }), {
-                headers: { 'Content-Type': 'application/json' },
-              })
-            }
-
-            const subscription = await stripe.subscriptions.retrieve(
-                subscriptionId
-            ) as Stripe.Subscription
-
-            await db.update(user)
-                .set({
-                    stripePriceId: subscription.items.data[0]?.price.id ?? null,
-                    stripeCurrentPeriodEnd: subscription.items.data[0]?.current_period_end
-                      ? new Date(subscription.items.data[0].current_period_end * 1000)
-                      : null,
-                })
-                .where(eq(user.stripeSubscriptionId, subscription.id))
-        }
-
-        return new Response(JSON.stringify({ received: true }), {
-            headers: { 'Content-Type': 'application/json' },
-        })
       },
     }
   }

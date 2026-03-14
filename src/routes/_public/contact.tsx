@@ -15,18 +15,35 @@ import { IconBox } from "#/components/IconBox";
 import { contactFormSchema } from "#/lib/cms-schema";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
+import { usePostHog } from "@posthog/react";
+import { captureClientException } from "#/lib/sentry-client";
 
 const submitContactForm = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => contactFormSchema.parse(input))
   .handler(async ({ data }) => {
-    await db.insert(contactMessages).values({
-      name: data.name,
-      email: data.email,
-      subject: data.subject,
-      message: data.message,
-      status: "new",
-    });
-    return { success: true };
+    try {
+      await db.insert(contactMessages).values({
+        name: data.name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+        status: "new",
+      });
+      return { success: true };
+    } catch (error) {
+      const { captureServerException } = await import("#/server/sentry");
+      captureServerException(error, {
+        tags: {
+          area: "server",
+          flow: "contact-form",
+        },
+        extras: {
+          email: data.email,
+          subject: data.subject,
+        },
+      });
+      throw error;
+    }
   });
 
 export const Route = createFileRoute("/_public/contact")({
@@ -51,6 +68,7 @@ export const Route = createFileRoute("/_public/contact")({
 
 function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const posthog = usePostHog();
 
   const form = useForm({
     defaultValues: {
@@ -65,9 +83,18 @@ function ContactPage() {
     onSubmit: async ({ value }) => {
       try {
         await submitContactForm({ data: value });
+        posthog.capture("contact_message_sent", {
+          subject: value.subject,
+        });
         toast.success("Message sent successfully!");
         setSubmitted(true);
       } catch (err) {
+        captureClientException(err, {
+          tags: {
+            area: "public",
+            flow: "contact-form",
+          },
+        });
         console.error(err);
         toast.error("Failed to send message. Please try again.");
       }
