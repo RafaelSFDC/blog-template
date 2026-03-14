@@ -1,59 +1,9 @@
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useForm } from "@tanstack/react-form";
-import { useState } from "react";
-import { toast } from "sonner";
 import { FileText } from "lucide-react";
-import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { DashboardHeader } from "#/components/dashboard/Header";
-import { EditorialWorkspace } from "#/components/dashboard/editorial-workspace";
-import { PostEditorialPreview } from "#/components/dashboard/editorial-preview";
-import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
-import { Button } from "#/components/ui/button";
-import { Checkbox } from "#/components/ui/checkbox";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "#/components/ui/field";
-import { Input } from "#/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "#/components/ui/select";
-import { Switch } from "#/components/ui/switch";
-import { Textarea } from "#/components/ui/textarea";
-import {
-  postFormSchema,
-  slugify,
-} from "#/lib/cms-schema";
-import { buildPostPreviewDraft } from "#/lib/editorial-preview";
-import {
-  normalizePostSubmission,
-  shouldAutoUpdateSlug,
-} from "#/lib/editorial-form-utils";
+import { toast } from "sonner";
+import { PostEditorScreen } from "#/components/dashboard/post-editor-screen";
+import { normalizePostSubmission } from "#/lib/editorial-form-utils";
 import { getPostForEdit, updatePost } from "#/server/post-actions";
-import { getCategories, getTags } from "#/server/taxonomy-actions";
-
-interface PostFormInput {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  ogImage?: string;
-  isPremium: boolean;
-  status: "draft" | "published" | "scheduled" | "private";
-  publishedAt?: Date;
-  categoryIds: number[];
-  tagIds: number[];
-}
 
 export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
   loader: ({ params }) => {
@@ -61,6 +11,7 @@ export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
     if (!Number.isFinite(id)) {
       throw notFound();
     }
+
     return getPostForEdit({ data: { id } });
   },
   component: EditPostPage,
@@ -69,447 +20,55 @@ export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
 function EditPostPage() {
   const post = Route.useLoaderData();
   const navigate = useNavigate();
-  const [showSEO, setShowSEO] = useState(false);
-  const [saving, setSaving] = useState(false);
 
-  const form = useForm({
-    defaultValues: {
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      content: post.content,
-      metaTitle: post.metaTitle || "",
-      metaDescription: post.metaDescription || "",
-      ogImage: post.ogImage || "",
-      isPremium: post.isPremium || false,
-      status: post.status as "draft" | "published" | "scheduled" | "private",
-      publishedAt: post.publishedAt
-        ? new Date(post.publishedAt).toISOString().slice(0, 16)
-        : new Date().toISOString().slice(0, 16),
-      categoryIds:
-        post.postCategories?.map((pc: { categoryId: number }) => pc.categoryId) ||
-        ([] as number[]),
-      tagIds:
-        post.postTags?.map((pt: { tagId: number }) => pt.tagId) ||
-        ([] as number[]),
-    },
-    validators: {
-      onChange: postFormSchema,
-    },
-    onSubmit: async ({ value }) => {
-      const normalizedPost = normalizePostSubmission(value);
-      if (!normalizedPost) {
-        toast.error("Add a title or slug so the post URL can be generated.");
-        return;
-      }
+  return (
+    <PostEditorScreen
+      title="Edit Post"
+      description="Refine the story and keep your publication up to date."
+      icon={FileText}
+      iconLabel="Editorial Dashboard"
+      initialValues={{
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        metaTitle: post.metaTitle || "",
+        metaDescription: post.metaDescription || "",
+        ogImage: post.ogImage || "",
+        isPremium: post.isPremium || false,
+        status: post.status as "draft" | "published" | "scheduled" | "private",
+        publishedAt: post.publishedAt
+          ? new Date(post.publishedAt).toISOString().slice(0, 16)
+          : new Date().toISOString().slice(0, 16),
+        categoryIds:
+          post.postCategories?.map((item: { categoryId: number }) => item.categoryId) ||
+          [],
+        tagIds: post.postTags?.map((item: { tagId: number }) => item.tagId) || [],
+      }}
+      storageKey={`post-editor-${post.id}`}
+      submitLabel="Save Changes"
+      submitErrorMessage="Could not update this post. Check the slug and try again."
+      previewOptions={{
+        coverImage: post.coverImage,
+      }}
+      onSubmit={async (values) => {
+        const normalizedPost = normalizePostSubmission(values);
+        if (!normalizedPost) {
+          toast.error("Add a title or slug so the post URL can be generated.");
+          return;
+        }
 
-      try {
-        setSaving(true);
         await updatePost({
           data: {
             id: post.id,
             ...normalizedPost,
           },
         });
+
         toast.success("Post updated successfully!");
         await navigate({ to: "/dashboard" });
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Could not update this post. Check the slug and try again.",
-        );
-      } finally {
-        setSaving(false);
-      }
-    },
-  });
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => getCategories(),
-  });
-
-  const { data: tags = [] } = useQuery({
-    queryKey: ["tags"],
-    queryFn: () => getTags(),
-  });
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-    form.handleSubmit();
-  }
-
-  return (
-    <DashboardPageContainer>
-      <DashboardHeader
-        title="Edit Post"
-        description="Refine the story and keep your publication up to date."
-        icon={FileText}
-        iconLabel="Editorial Dashboard"
-      />
-
-      <EditorialWorkspace
-        storageKey={`post-editor-${post.id}`}
-        form={
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <FieldGroup>
-              <form.Field name="title">
-                {(field) => {
-                  const isInvalid = !!field.state.meta.errors.length;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(event) => {
-                          field.handleChange(event.target.value);
-                          const currentSlug = form.getFieldValue("slug");
-                          if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
-                            form.setFieldValue("slug", slugify(event.target.value));
-                          }
-                        }}
-                        placeholder="Designing A Better Publishing Workflow…"
-                      />
-                      {isInvalid ? (
-                        <FieldError errors={field.state.meta.errors} />
-                      ) : null}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              <form.Field name="slug">
-                {(field) => {
-                  const isInvalid = !!field.state.meta.errors.length;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Slug</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(event) =>
-                          field.handleChange(slugify(event.target.value))
-                        }
-                        placeholder="designing-a-better-publishing-workflow…"
-                      />
-                      {isInvalid ? (
-                        <FieldError errors={field.state.meta.errors} />
-                      ) : null}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              <form.Field name="excerpt">
-                {(field) => {
-                  const isInvalid = !!field.state.meta.errors.length;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Excerpt</FieldLabel>
-                      <Textarea
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(event) => field.handleChange(event.target.value)}
-                        placeholder="Summarize the key argument of this post in 1 short paragraph…"
-                      />
-                      {isInvalid ? (
-                        <FieldError errors={field.state.meta.errors} />
-                      ) : null}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              <div className="grid grid-cols-1 gap-6 border-t border-border pt-4 md:grid-cols-2">
-                <form.Field name="categoryIds">
-                  {(field) => (
-                    <Field>
-                      <FieldLabel>Categories</FieldLabel>
-                      <div className="flex flex-wrap gap-2 rounded-xl border border-input bg-muted/30 p-3">
-                        {categories.length === 0 ? (
-                          <p className="text-xs italic text-muted-foreground">
-                            No categories available.
-                          </p>
-                        ) : (
-                          categories.map((category: { id: number; name: string }) => (
-                            <label
-                              key={category.id}
-                              className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 transition-colors hover:border-primary"
-                            >
-                              <Checkbox
-                                checked={field.state.value.includes(category.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    field.handleChange([
-                                      ...field.state.value,
-                                      category.id,
-                                    ]);
-                                    return;
-                                  }
-
-                                  field.handleChange(
-                                    field.state.value.filter(
-                                      (id: number) => id !== category.id,
-                                    ),
-                                  );
-                                }}
-                              />
-                              <span className="text-sm font-medium">
-                                {category.name}
-                              </span>
-                            </label>
-                          ))
-                        )}
-                      </div>
-                    </Field>
-                  )}
-                </form.Field>
-
-                <form.Field name="tagIds">
-                  {(field) => (
-                    <Field>
-                      <FieldLabel>Tags</FieldLabel>
-                      <div className="flex flex-wrap gap-2 rounded-xl border border-input bg-muted/30 p-3">
-                        {tags.length === 0 ? (
-                          <p className="text-xs italic text-muted-foreground">
-                            No tags available.
-                          </p>
-                        ) : (
-                          tags.map((tag: { id: number; name: string }) => (
-                            <label
-                              key={tag.id}
-                              className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 transition-colors hover:border-primary"
-                            >
-                              <Checkbox
-                                checked={field.state.value.includes(tag.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    field.handleChange([
-                                      ...field.state.value,
-                                      tag.id,
-                                    ]);
-                                    return;
-                                  }
-
-                                  field.handleChange(
-                                    field.state.value.filter(
-                                      (id: number) => id !== tag.id,
-                                    ),
-                                  );
-                                }}
-                              />
-                              <span className="text-sm font-medium">
-                                #{tag.name}
-                              </span>
-                            </label>
-                          ))
-                        )}
-                      </div>
-                    </Field>
-                  )}
-                </form.Field>
-              </div>
-
-              <form.Field name="content">
-                {(field) => {
-                  const isInvalid = !!field.state.meta.errors.length;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel>Content</FieldLabel>
-                      <LazyTiptapEditor
-                        content={field.state.value}
-                        onChange={field.handleChange}
-                      />
-                      {isInvalid ? (
-                        <FieldError errors={field.state.meta.errors} />
-                      ) : null}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-            </FieldGroup>
-
-            <div className="border-t border-border pt-6">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSEO(!showSEO)}
-                className="flex items-center gap-2 font-bold text-foreground hover:bg-muted"
-              >
-                {showSEO ? "▼" : "▶"} SEO Settings
-              </Button>
-
-              {showSEO ? (
-                <div className="mt-4 space-y-4 rounded-xl bg-muted/50 p-6">
-                  <form.Field name="metaTitle">
-                    {(field) => (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>
-                          Meta Title (Google Title)
-                        </FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="Se ometido, usará o título do post"
-                          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    )}
-                  </form.Field>
-                  <form.Field name="metaDescription">
-                    {(field) => (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>
-                          Meta Description
-                        </FieldLabel>
-                        <Textarea
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="Descrição curta para os resultados de busca..."
-                          className="min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    )}
-                  </form.Field>
-                  <form.Field name="ogImage">
-                    {(field) => (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>OG Image URL</FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(event) => field.handleChange(event.target.value)}
-                          placeholder="https://exemplo.com/imagem.jpg"
-                          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    )}
-                  </form.Field>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 border-t border-border pt-6 sm:grid-cols-2">
-              <form.Field name="status">
-                {(field) => (
-                  <Field>
-                    <FieldLabel htmlFor={field.name}>Status</FieldLabel>
-                    <Select
-                      value={field.state.value}
-                      onValueChange={(value) =>
-                        field.handleChange(value as PostFormInput["status"])
-                      }
-                    >
-                      <SelectTrigger id={field.name}>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="scheduled">Scheduled</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              </form.Field>
-
-              <form.Subscribe selector={(state) => state.values.status === "scheduled"}>
-                {(isScheduled) => {
-                  if (!isScheduled) return null;
-                  return (
-                    <form.Field name="publishedAt">
-                      {(field) => (
-                        <Field>
-                          <FieldLabel htmlFor={field.name}>
-                            Publication Date
-                          </FieldLabel>
-                          <Input
-                            id={field.name}
-                            type="datetime-local"
-                            value={field.state.value}
-                            onChange={(event) => field.handleChange(event.target.value)}
-                          />
-                        </Field>
-                      )}
-                    </form.Field>
-                  );
-                }}
-              </form.Subscribe>
-            </div>
-
-            <form.Field name="isPremium">
-              {(field) => (
-                <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <Switch
-                    id={field.name}
-                    checked={field.state.value}
-                    onCheckedChange={(value) =>
-                      field.handleChange(value === true)
-                    }
-                  />
-                  <label
-                    htmlFor={field.name}
-                    className="flex cursor-pointer flex-col"
-                  >
-                    <span className="text-sm font-bold text-foreground">
-                      Post Premium
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Somente assinantes pagos poderão ler o conteúdo completo.
-                    </span>
-                  </label>
-                </div>
-              )}
-            </form.Field>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button type="submit" disabled={saving} variant="default" size="lg">
-                {saving ? "Saving…" : "Save Changes"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => void navigate({ to: "/dashboard" })}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        }
-        preview={
-          <form.Subscribe selector={(state) => state.values}>
-            {(values) => (
-              <PostEditorialPreview
-                draft={buildPostPreviewDraft(values, {
-                  categories,
-                  tags,
-                  coverImage: post.coverImage,
-                })}
-              />
-            )}
-          </form.Subscribe>
-        }
-      />
-    </DashboardPageContainer>
+      }}
+      onCancel={() => void navigate({ to: "/dashboard" })}
+    />
   );
 }

@@ -12,7 +12,6 @@ import { nitro } from "nitro/vite";
 export default defineConfig(() => {
   return {
     plugins: [
-      cloudflare({ viteEnvironment: { name: "ssr" } }),
       nitro(),
       devtools(),
       paraglideVitePlugin({
