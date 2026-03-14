@@ -5,6 +5,8 @@ import { posts } from "#/db/schema";
 import { getGlobalSiteData } from "#/lib/cms";
 import { resolveSiteUrl } from "#/lib/seo";
 
+type RssPost = Awaited<ReturnType<typeof db.query.posts.findMany>>[number];
+
 function escapeXml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -38,7 +40,7 @@ export const Route = createFileRoute("/rss/xml")({
   <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
   ${latestPosts
     .map(
-      (post) => `
+      (post: RssPost) => `
   <item>
     <title>${escapeXml(post.title || "")}</title>
     <link>${baseUrl}/blog/${post.slug}</link>

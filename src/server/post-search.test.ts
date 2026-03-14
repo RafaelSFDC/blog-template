@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { normalizeSearchQuery, rankSearchPosts, tokenizeSearchQuery } from "#/server/post-search";
+import {
+  type SearchablePostRecord,
+  normalizeSearchQuery,
+  rankSearchPosts,
+  tokenizeSearchQuery,
+} from "#/server/post-search";
 
-const records = [
+const records: SearchablePostRecord[] = [
   {
     id: 1,
     slug: "seo-foundations",
@@ -38,7 +43,7 @@ const records = [
     categorySlug: "seo",
     tag: "Search",
   },
-] as const;
+];
 
 describe("post-search", () => {
   it("normalizes and tokenizes user queries", () => {

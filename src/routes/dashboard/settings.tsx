@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { appSettings } from "#/db/schema";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import {
   Settings as SettingsIcon,
   Save,
@@ -12,8 +15,6 @@ import {
   Plus,
 } from "lucide-react";
 import { getAvailableThemes, applyThemeClasses } from "#/lib/theme-utils";
-import { useEffect } from "react";
-import { useForm, useStore } from "@tanstack/react-form";
 import {
   Field,
   FieldError,
@@ -33,61 +34,20 @@ import {
 } from "#/components/ui/select";
 import { toast } from "sonner";
 import { settingsSchema } from "#/lib/cms-schema";
+import {
+  mapSettingsRowsToFormValues,
+  normalizeSettingsFormValues,
+  settingsFormSchema,
+} from "#/lib/settings-form";
 
 const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   const { db } = await import("#/db/index");
   const settings = await db.select().from(appSettings);
 
-  // Convert array to a more useful object
-  const settingsObj: Record<string, string> = {};
-  settings.forEach((s: typeof appSettings.$inferSelect) => {
-    settingsObj[s.key] = s.value;
-  });
-
-  let socialLinks: { platform: string; url: string }[] = [];
-  try {
-    socialLinks = settingsObj["socialLinks"]
-      ? JSON.parse(settingsObj["socialLinks"])
-      : [];
-  } catch (e) {
-    console.error("Failed to parse socialLinks", e);
-  }
-
-  // Backward compatibility migration
-  if (socialLinks.length === 0) {
-    if (settingsObj["twitterProfile"])
-      socialLinks.push({
-        platform: "x",
-        url: settingsObj["twitterProfile"],
-      });
-    if (settingsObj["githubProfile"])
-      socialLinks.push({
-        platform: "github",
-        url: settingsObj["githubProfile"],
-      });
-    if (settingsObj["linkedinProfile"])
-      socialLinks.push({
-        platform: "linkedin",
-        url: settingsObj["linkedinProfile"],
-      });
-  }
-
-  return {
-    blogName: settingsObj["blogName"] || "Lumina",
-    blogDescription:
-      settingsObj["blogDescription"] || "An elegant premium blog for creators.",
-    blogLogo: settingsObj["blogLogo"] || "",
-    fontFamily: settingsObj["fontFamily"] || "Inter",
-    themeVariant: settingsObj["themeVariant"] || "default",
-    siteUrl: settingsObj["siteUrl"] || "",
-    defaultMetaTitle: settingsObj["defaultMetaTitle"] || "",
-    defaultMetaDescription: settingsObj["defaultMetaDescription"] || "",
-    defaultOgImage: settingsObj["defaultOgImage"] || "",
-    twitterHandle: settingsObj["twitterHandle"] || "",
-    robotsIndexingEnabled: settingsObj["robotsIndexingEnabled"] !== "false",
-    socialLinks,
-  };
+  return mapSettingsRowsToFormValues(
+    settings as Array<{ key: string; value: string }>,
+  );
 });
 
 const updateAppSettings = createServerFn({ method: "POST" })
@@ -127,9 +87,6 @@ export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsPage,
 });
 
-import { DashboardHeader } from "#/components/dashboard/Header";
-import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-
 function SettingsPage() {
   const initialSettings = Route.useLoaderData();
   const [saving, setSaving] = useState(false);
@@ -150,20 +107,14 @@ function SettingsPage() {
       socialLinks: initialSettings.socialLinks,
     },
     validators: {
-      onChange: settingsSchema,
+      onChange: settingsFormSchema,
     },
     onSubmit: async ({ value }) => {
       setSaving(true);
 
       try {
         await updateAppSettings({
-          data: {
-            ...value,
-            socialLinks: value.socialLinks.map((link) => ({
-              ...link,
-              url: link.url.trim(),
-            })),
-          },
+          data: normalizeSettingsFormValues(value),
         });
         toast.success("Settings saved successfully!");
       } catch (error) {

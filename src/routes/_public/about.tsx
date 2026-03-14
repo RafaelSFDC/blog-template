@@ -9,15 +9,21 @@ import { buildPublicSeo } from "#/lib/seo";
 
 export const Route = createFileRoute("/_public/about")({
   loader: () => getSeoSiteData(),
-  head: ({ loaderData }) =>
-    buildPublicSeo({
-      site: loaderData,
+  head: ({ loaderData }) => {
+    const site = loaderData;
+    if (!site) {
+      return {};
+    }
+
+    return buildPublicSeo({
+      site,
       path: "/about",
-      title: `About | ${loaderData.blogName}`,
+      title: `About | ${site.blogName}`,
       description:
         "Learn about the editorial vision, cadence, and values behind Lumina.",
-      image: loaderData.defaultOgImage,
-    }),
+      image: site.defaultOgImage,
+    });
+  },
   component: About,
 });
 

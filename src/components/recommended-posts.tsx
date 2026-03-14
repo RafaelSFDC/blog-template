@@ -19,7 +19,7 @@ export function RecommendedPosts({ posts }: RecommendedPostsProps) {
         <Button asChild variant="outline" size="sm" className="hidden sm:flex">
           <Link
             to="/blog"
-            search={{ q: "", category: "" }}
+            search={{ q: undefined, page: 1 }}
             className="flex items-center gap-2 "
           >
             Ver todos

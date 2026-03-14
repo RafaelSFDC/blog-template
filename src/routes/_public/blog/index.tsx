@@ -237,7 +237,7 @@ function BlogIndex() {
 
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="default" className="rounded-md px-6 py-2 shadow-sm">
-              <Link to="/blog">All Stories</Link>
+              <Link to="/blog" search={{ q: undefined, page: 1 }}>All Stories</Link>
             </Button>
             {dbCategories.map((cat: Category) => (
               <Button
@@ -246,7 +246,11 @@ function BlogIndex() {
                 variant="outline"
                 className="rounded-md border border-border px-6 py-2 shadow-sm transition-all"
               >
-                <Link to="/blog/category/$slug" params={{ slug: cat.slug }}>
+                <Link
+                  to="/blog/category/$slug"
+                  params={{ slug: cat.slug }}
+                  search={{ page: 1 }}
+                >
                   {cat.name}
                 </Link>
               </Button>

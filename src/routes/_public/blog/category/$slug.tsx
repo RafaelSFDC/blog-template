@@ -11,6 +11,13 @@ import { normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { getRedirectByPath } from "#/server/redirect-actions";
 
+type CategoryPageLoaderData = NonNullable<
+  Awaited<ReturnType<typeof getPublishedCategoryBySlug>>
+> & {
+  site: Awaited<ReturnType<typeof getSeoSiteData>>;
+  page: number;
+};
+
 export const Route = createFileRoute("/_public/blog/category/$slug")({
   validateSearch: (search: Record<string, unknown>) => ({
     page: normalizePage(search.page),
@@ -39,42 +46,47 @@ export const Route = createFileRoute("/_public/blog/category/$slug")({
     return { ...data, site, page };
   },
   head: ({ loaderData }) => {
-    const page = loaderData.page || 1;
-    const links = [];
+    const data = loaderData as CategoryPageLoaderData | undefined;
+    if (!data) {
+      return {};
+    }
 
-    if (loaderData.pagination.hasPreviousPage) {
+    const page = data.page || 1;
+    const links: Array<{ rel: "prev" | "next"; href: string }> = [];
+
+    if (data.pagination.hasPreviousPage) {
       links.push({
         rel: "prev",
         href: buildCanonicalUrl(
-          loaderData.site.siteUrl,
-          `/blog/category/${loaderData.category.slug}${page - 1 > 1 ? `?page=${page - 1}` : ""}`,
+          data.site.siteUrl,
+          `/blog/category/${data.category.slug}${page - 1 > 1 ? `?page=${page - 1}` : ""}`,
         ),
       });
     }
 
-    if (loaderData.pagination.hasNextPage) {
+    if (data.pagination.hasNextPage) {
       links.push({
         rel: "next",
         href: buildCanonicalUrl(
-          loaderData.site.siteUrl,
-          `/blog/category/${loaderData.category.slug}?page=${page + 1}`,
+          data.site.siteUrl,
+          `/blog/category/${data.category.slug}?page=${page + 1}`,
         ),
       });
     }
 
     return buildPublicSeo({
-      site: loaderData.site,
-      path: `/blog/category/${loaderData.category.slug}${page > 1 ? `?page=${page}` : ""}`,
+      site: data.site,
+      path: `/blog/category/${data.category.slug}${page > 1 ? `?page=${page}` : ""}`,
       title:
         page > 1
-          ? `${loaderData.category.name} - Page ${page} | ${loaderData.site.blogName}`
-          : `${loaderData.category.name} | ${loaderData.site.blogName}`,
+          ? `${data.category.name} - Page ${page} | ${data.site.blogName}`
+          : `${data.category.name} | ${data.site.blogName}`,
       description:
-        loaderData.category.description ||
+        data.category.description ||
         (page > 1
-          ? `Browse page ${page} of published stories in ${loaderData.category.name}.`
-          : `Browse every published story in ${loaderData.category.name}.`),
-      image: loaderData.site.defaultOgImage,
+          ? `Browse page ${page} of published stories in ${data.category.name}.`
+          : `Browse every published story in ${data.category.name}.`),
+      image: data.site.defaultOgImage,
       links,
     });
   },
@@ -82,7 +94,8 @@ export const Route = createFileRoute("/_public/blog/category/$slug")({
 });
 
 function CategoryPage() {
-  const { category, posts, pagination } = Route.useLoaderData();
+  const { category, posts, pagination } =
+    Route.useLoaderData() as CategoryPageLoaderData;
 
   return (
     <main className="pb-20 pt-10">
@@ -98,7 +111,7 @@ function CategoryPage() {
 
         {posts.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {posts.map((post) => (
+            {posts.map((post: Post) => (
               <PostCard key={post.id} post={post as Post} />
             ))}
           </div>

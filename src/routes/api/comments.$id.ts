@@ -13,9 +13,10 @@ export const Route = createFileRoute("/api/comments/$id")({
         try {
           await requireAdminSession();
 
-          const body = await request.json();
+          const body = (await request.json()) as Record<string, unknown>;
+          const routeParams = params as { id: string };
           const parsed = commentStatusUpdateSchema.parse({
-            id: Number(params.id),
+            id: Number(routeParams.id),
             status: body?.status,
           });
 
@@ -49,8 +50,9 @@ export const Route = createFileRoute("/api/comments/$id")({
         try {
           await requireAdminSession();
 
+          const routeParams = params as { id: string };
           const parsed = recordIdSchema.parse({
-            id: Number(params.id),
+            id: Number(routeParams.id),
           });
 
           const [deletedComment] = await db

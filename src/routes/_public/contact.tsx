@@ -31,15 +31,21 @@ const submitContactForm = createServerFn({ method: "POST" })
 
 export const Route = createFileRoute("/_public/contact")({
   loader: () => getSeoSiteData(),
-  head: ({ loaderData }) =>
-    buildPublicSeo({
-      site: loaderData,
+  head: ({ loaderData }) => {
+    const site = loaderData;
+    if (!site) {
+      return {};
+    }
+
+    return buildPublicSeo({
+      site,
       path: "/contact",
-      title: `Contact | ${loaderData.blogName}`,
+      title: `Contact | ${site.blogName}`,
       description:
         "Get in touch with the Lumina team for support, feedback, or collaborations.",
-      image: loaderData.defaultOgImage,
-    }),
+      image: site.defaultOgImage,
+    });
+  },
   component: ContactPage,
 });
 

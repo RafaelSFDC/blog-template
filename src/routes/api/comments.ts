@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/comments")({
     handlers: {
       POST: async ({ request }) => {
         try {
-          const body = await request.json();
+          const body = (await request.json()) as Record<string, unknown>;
           const session = await getAuthSession();
 
           const parsed = publicCommentSchema.parse({

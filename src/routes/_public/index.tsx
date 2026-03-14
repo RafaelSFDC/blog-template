@@ -132,7 +132,7 @@ function Home() {
           <div className="mt-8 flex flex-wrap gap-4 border-t pt-8 border-border">
             <Link
               to="/blog"
-              search={{ q: "", category: "" }}
+              search={{ q: undefined, page: 1 }}
               className="group flex items-center gap-2 font-medium text-foreground  hover:text-primary transition-colors"
             >
               Learn More About Our Vision
@@ -154,7 +154,7 @@ function Home() {
           <Button asChild variant="outline" size="sm">
             <Link
               to="/blog"
-              search={{ q: "", category: "" }}
+              search={{ q: undefined, page: 1 }}
               className="flex items-center gap-2"
             >
               Ver Todos
