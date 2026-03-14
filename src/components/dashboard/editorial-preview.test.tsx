@@ -25,6 +25,7 @@ function PagePreviewHarness() {
           ogImage: "",
           status: "draft",
           isHome: false,
+          useVisualBuilder: false,
         })}
       />
     </div>

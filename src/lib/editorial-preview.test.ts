@@ -46,6 +46,7 @@ describe("editorial preview builders", () => {
       ogImage: "",
       status: "published",
       isHome: true,
+      useVisualBuilder: false,
     });
 
     const pageDraft = buildPagePreviewDraft({
@@ -58,6 +59,7 @@ describe("editorial preview builders", () => {
       ogImage: "",
       status: "draft",
       isHome: false,
+      useVisualBuilder: false,
     });
 
     expect(homepageDraft.permalink).toBe("/");
