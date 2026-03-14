@@ -4,6 +4,11 @@ import { DashboardHeader } from "#/components/dashboard/Header";
 import { Button } from "#/components/ui/button";
 import { FieldLabel } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import {
+  createEmptyMenuItem,
+  mapMenusToEditorState,
+  normalizeMenuItemsForSave,
+} from "#/lib/menu-form";
 import { saveMenu, getMenusForDashboard } from "#/server/menu-actions";
 import { Navigation, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -16,14 +21,6 @@ import {
   SelectValue,
 } from "#/components/ui/select";
 
-type EditableItem = {
-  id?: number;
-  label: string;
-  href: string;
-  kind: "internal" | "external";
-  sortOrder: number;
-};
-
 export const Route = createFileRoute("/dashboard/menus")({
   loader: () => getMenusForDashboard(),
   component: MenusPage,
@@ -31,19 +28,8 @@ export const Route = createFileRoute("/dashboard/menus")({
 
 function MenusPage() {
   const data = Route.useLoaderData();
-  const [menusState, setMenusState] = useState(
-    Object.fromEntries(
-      data.menus.map((menu: (typeof data.menus)[number]) => [
-        menu.key,
-        menu.items.map((item: (typeof menu.items)[number]) => ({
-          id: item.id,
-          label: item.label,
-          href: item.href,
-          kind: item.kind as "internal" | "external",
-          sortOrder: item.sortOrder,
-        })),
-      ]),
-    ) as Record<string, EditableItem[]>,
+  const [menusState, setMenusState] = useState(() =>
+    mapMenusToEditorState(data.menus),
   );
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
@@ -66,12 +52,7 @@ function MenusPage() {
       ...prev,
       [menuKey]: [
         ...prev[menuKey],
-        {
-          label: "",
-          href: "/",
-          kind: "internal",
-          sortOrder: prev[menuKey].length,
-        },
+        createEmptyMenuItem(prev[menuKey].length),
       ],
     }));
   }
@@ -91,12 +72,7 @@ function MenusPage() {
       await saveMenu({
         data: {
           key: menuKey as "primary" | "footer",
-          items: menusState[menuKey].map((item, index) => ({
-            ...item,
-            label: item.label.trim(),
-            href: item.href.trim(),
-            sortOrder: index,
-          })),
+          items: normalizeMenuItemsForSave(menusState[menuKey]),
         },
       });
       toast.success("Menu saved successfully");

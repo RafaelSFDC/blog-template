@@ -1,18 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { DashboardHeader } from "#/components/dashboard/Header";
 import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
+import { desc, eq, type InferSelectModel } from "drizzle-orm";
+import { Activity, Globe, Plus, Webhook } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { DataTable } from "#/components/dashboard/DataTable";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
+import { EmptyState } from "#/components/dashboard/EmptyState";
+import { Button } from "#/components/ui/button";
 import { webhooks as webhooksSchema } from "#/db/schema";
-import { eq, desc, type InferSelectModel } from "drizzle-orm";
+import { recordIdSchema, webhookToggleSchema } from "#/lib/cms-schema";
+import { requireAdminSession } from "#/lib/admin-auth";
+import { cn } from "#/lib/utils";
 
 type WebhookType = InferSelectModel<typeof webhooksSchema>;
-import { requireAdminSession } from "#/lib/admin-auth";
-import { Button } from "#/components/ui/button";
-import { Webhook, Plus, Trash2, Activity, Globe } from "lucide-react";
-import { useState, useMemo, useCallback } from "react";
-import { cn } from "#/lib/utils";
-import type { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "#/components/dashboard/DataTable";
-import { recordIdSchema, webhookToggleSchema } from "#/lib/cms-schema";
 
 const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -53,7 +56,6 @@ function WebhooksPage() {
   const [list, setList] = useState<WebhookType[]>(initialWebhooks);
 
   const handleDelete = useCallback(async (id: number) => {
-    if (!confirm("Are you sure you want to delete this webhook?")) return;
     await deleteWebhook({ data: id });
     setList((prev) => prev.filter((w) => w.id !== id));
   }, []);
@@ -129,13 +131,11 @@ function WebhooksPage() {
         id: "actions",
         cell: ({ row }) => (
           <div className="text-right">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDelete(row.original.id)}
-            >
-              <Trash2 size={18} />
-            </Button>
+            <DeleteButton
+              onConfirm={() => handleDelete(row.original.id)}
+              title="Delete webhook?"
+              description="This webhook endpoint will be removed permanently. This action cannot be undone."
+            />
           </div>
         ),
       },
@@ -144,7 +144,7 @@ function WebhooksPage() {
   );
 
   return (
-    <div className="space-y-10">
+    <DashboardPageContainer>
       <DashboardHeader
         title="Webhooks"
         description="Notify external services when posts are published."
@@ -152,19 +152,32 @@ function WebhooksPage() {
         iconLabel="Integrations"
       >
         <Button asChild variant="default" size="default">
-          <a href="/dashboard/webhooks/new">
+          <Link to="/dashboard/webhooks/new">
             <Plus size={20} className="mr-2" strokeWidth={3} />
             New Webhook
-          </a>
+          </Link>
         </Button>
       </DashboardHeader>
 
-      <DataTable
-        columns={columns}
-        data={list}
-        searchKey="name"
-        searchPlaceholder="Filter webhooks..."
-      />
+      {list.length > 0 ? (
+        <DataTable
+          columns={columns}
+          data={list}
+          searchKey="name"
+          searchPlaceholder="Search webhooks..."
+        />
+      ) : (
+        <EmptyState
+          icon={Webhook}
+          title="No webhooks yet"
+          description="Create your first endpoint to notify automation tools and external services when content is published."
+          action={
+            <Button asChild variant="outline">
+              <Link to="/dashboard/webhooks/new">Create your first webhook</Link>
+            </Button>
+          }
+        />
+      )}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="border shadow-sm rounded-md bg-muted/50 p-6 border-border/30">
@@ -189,6 +202,6 @@ function WebhooksPage() {
           </p>
         </div>
       </div>
-    </div>
+    </DashboardPageContainer>
   );
 }

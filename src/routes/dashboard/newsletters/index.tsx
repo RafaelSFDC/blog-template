@@ -1,18 +1,20 @@
+import { createServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { desc, eq, type InferSelectModel } from "drizzle-orm";
+import { format } from "date-fns";
+import { Download, Mail, Plus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { createServerFn } from "@tanstack/react-start";
-import { newsletters } from "#/db/schema";
-import { desc, eq, type InferSelectModel } from "drizzle-orm";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
+import { EmptyState } from "#/components/dashboard/EmptyState";
+import { Button } from "#/components/ui/button";
+import { newsletters, subscribers } from "#/db/schema";
+import { requireAdminSession } from "#/lib/admin-auth";
 
 type Newsletter = InferSelectModel<typeof newsletters>;
-import { Button } from "#/components/ui/button";
-import { requireAdminSession } from "#/lib/admin-auth";
-import { format } from "date-fns";
-import { Mail, Plus, Trash2, Download } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { EmptyState } from "#/components/dashboard/EmptyState";
+type SubscriberRow = typeof subscribers.$inferSelect;
 
 const getNewsletters = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -36,9 +38,6 @@ export const Route = createFileRoute("/dashboard/newsletters/")({
   component: NewsletterIndexPage,
 });
 
-import { subscribers } from "#/db/schema";
-type SubscriberRow = typeof subscribers.$inferSelect;
-
 const exportSubscribers = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
@@ -58,18 +57,17 @@ const exportSubscribers = createServerFn({ method: "GET" }).handler(
 );
 
 function NewsletterIndexPage() {
-  const data = Route.useLoaderData() as Newsletter[];
-  const navigate = useNavigate();
+  const initialCampaigns = Route.useLoaderData() as Newsletter[];
+  const [campaigns, setCampaigns] = useState(initialCampaigns);
   const [deleting, setDeleting] = useState<number | null>(null);
 
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this campaign?")) return;
     try {
       setDeleting(id);
       await deleteNewsletter({ data: id });
-      navigate({ to: "." }); // Refresh
+      setCampaigns((current) => current.filter((campaign) => campaign.id !== id));
     } catch {
-      alert("Failed to delete newsletter.");
+      toast.error("Failed to delete campaign.");
     } finally {
       setDeleting(null);
     }
@@ -88,13 +86,18 @@ function NewsletterIndexPage() {
             variant="outline"
             size="lg"
             onClick={async () => {
-              const csv = await exportSubscribers();
-              const blob = new Blob([csv], { type: "text/csv" });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `subscribers-${new Date().toISOString().split("T")[0]}.csv`;
-              a.click();
+              try {
+                const csv = await exportSubscribers();
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `subscribers-${new Date().toISOString().split("T")[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+              } catch {
+                toast.error("Failed to export subscribers.");
+              }
             }}
           >
             <Download className="mr-2 h-5 w-5" />
@@ -113,7 +116,7 @@ function NewsletterIndexPage() {
       </DashboardHeader>
 
       <div className="mt-0 space-y-4">
-        {data.length === 0 ? (
+        {campaigns.length === 0 ? (
           <EmptyState
             icon={Mail}
             title="No campaigns yet"
@@ -130,7 +133,7 @@ function NewsletterIndexPage() {
             }
           />
         ) : (
-          data.map((item: Newsletter) => (
+          campaigns.map((item: Newsletter) => (
             <div
               key={item.id}
               className="bg-card border shadow-sm group flex flex-col items-start justify-between gap-4 rounded-[1.6rem] p-6 transition-all hover:bg-muted/50 sm:flex-row sm:items-center sm:p-8"
@@ -182,14 +185,12 @@ function NewsletterIndexPage() {
                     </Link>
                   </Button>
                 )}
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDelete(item.id)}
-                  disabled={deleting === item.id}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <DeleteButton
+                  onConfirm={() => handleDelete(item.id)}
+                  isLoading={deleting === item.id}
+                  title="Delete campaign?"
+                  description="This newsletter campaign will be permanently removed."
+                />
                 {(item.status === "sent" || item.status === "failed") && (
                   <Button variant="default" size="sm">
                     View Results

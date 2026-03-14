@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { subscribers } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
-import { Users, Download, CheckCircle2 } from "lucide-react";
-import { Button } from "#/components/ui/button";
+import type { ColumnDef } from "@tanstack/react-table";
 import { desc } from "drizzle-orm";
 import { format } from "date-fns";
-import { useMemo } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
+import { subscribers } from "#/db/schema";
+import { requireAdminSession } from "#/lib/admin-auth";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { DataTable } from "#/components/dashboard/DataTable";
+import { EmptyState } from "#/components/dashboard/EmptyState";
+import { Users, Download, CheckCircle2 } from "lucide-react";
+import { Button } from "#/components/ui/button";
+import { useMemo } from "react";
+import { toast } from "sonner";
 
 const getSubscribers = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -87,11 +91,11 @@ function SubscribersPage() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       } else {
-        alert(result?.error || "Failed to export subscribers.");
+        toast.error(result?.error || "Failed to export subscribers.");
       }
     } catch (e) {
       console.error("Export failed:", e);
-      alert("An error occurred during export.");
+      toast.error("An error occurred during export.");
     }
   };
 
@@ -110,7 +114,7 @@ function SubscribersPage() {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-          const status = row.getValue("status") as (typeof subs)[0]["status"];
+          const status = row.getValue("status") as SubscriberRow["status"];
           return (
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
@@ -139,39 +143,39 @@ function SubscribersPage() {
   );
 
   return (
-    <div className="space-y-10">
-      <header className="bg-card border shadow-sm rounded-xl p-8 sm:p-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-        <div>
-          <div className="mb-4 flex items-center gap-2 text-primary">
-            <Users size={20} strokeWidth={3} />
-            <p className="island-kicker mb-0">Audience</p>
-          </div>
-          <h1 className="display-title text-5xl text-foreground sm:text-6xl uppercase">
-            Subscribers
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground font-medium">
-            Manage your newsletter audience and export your list.
-          </p>
-        </div>
-
+    <DashboardPageContainer>
+      <DashboardHeader
+        title="Subscribers"
+        description="Manage your newsletter audience and export active subscriber data when needed."
+        icon={Users}
+        iconLabel="Audience"
+      >
         <Button
           onClick={handleExport}
           disabled={subs.length === 0}
           variant="default"
           size="lg"
-          className="whitespace-nowrap rounded-xl font-bold"
+          className="whitespace-nowrap"
         >
           <Download size={18} />
           Export CSV ({subs.length})
         </Button>
-      </header>
+      </DashboardHeader>
 
-      <DataTable
-        columns={columns}
-        data={subs}
-        searchKey="email"
-        searchPlaceholder="Filter subscribers..."
-      />
-    </div>
+      {subs.length > 0 ? (
+        <DataTable
+          columns={columns}
+          data={subs}
+          searchKey="email"
+          searchPlaceholder="Search subscribers..."
+        />
+      ) : (
+        <EmptyState
+          icon={Users}
+          title="No subscribers yet"
+          description="Subscriber records will appear here as readers join your newsletter."
+        />
+      )}
+    </DashboardPageContainer>
   );
 }

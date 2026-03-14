@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { FolderTree, Plus, Pencil, Trash2 } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
 import { Button } from "#/components/ui/button";
@@ -24,6 +25,7 @@ import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
+import { slugify } from "#/lib/cms-schema";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -34,15 +36,6 @@ const categorySchema = z.object({
 export const Route = createFileRoute("/dashboard/categories/")({
   component: CategoriesPage,
 });
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 function CategoriesPage() {
   const queryClient = useQueryClient();
@@ -168,23 +161,21 @@ function CategoriesPage() {
               >
                 <Pencil size={18} />
               </Button>
-              <Button
+              <DeleteButton
+                onConfirm={() =>
+                  deleteMutation.mutate({
+                    data: { id: category.id },
+                  })
+                }
+                isLoading={deleteMutation.isPending}
+                title="Delete category?"
+                description="This category will be removed permanently."
                 variant="ghost"
-                size="icon-sm"
-                onClick={() => {
-                  if (
-                    confirm("Are you sure you want to delete this category?")
-                  ) {
-                    deleteMutation.mutate({
-                      data: { id: category.id },
-                    });
-                  }
-                }}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                title="Delete"
+                size="icon"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-0 bg-transparent"
               >
                 <Trash2 size={18} />
-              </Button>
+              </DeleteButton>
             </div>
           );
         },
@@ -323,7 +314,7 @@ function CategoriesPage() {
         data={categories}
         isLoading={isLoading}
         searchKey="name"
-        searchPlaceholder="Filter categories..."
+        searchPlaceholder="Search categories..."
       />
     </DashboardPageContainer>
   );

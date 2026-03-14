@@ -6,7 +6,7 @@ import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { Check, X, MessageSquare } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
@@ -59,21 +59,27 @@ export const Route = createFileRoute("/dashboard/comments/")({
 type CommentRow = Awaited<ReturnType<typeof getComments>>[number];
 
 function CommentsPage() {
-  const commentsList = Route.useLoaderData();
-  const navigate = useNavigate();
+  const initialComments = Route.useLoaderData();
+  const [commentsList, setCommentsList] = useState<CommentRow[]>(initialComments);
 
-  async function handleStatus(
+  const handleStatus = useCallback(async (
     id: number,
     status: "approved" | "spam" | "pending",
-  ) {
+  ) => {
     await updateCommentStatus({ data: { id, status } });
-    navigate({ to: "." }); // Refresh
-  }
+    setCommentsList((current: CommentRow[]) =>
+      current.map((comment: CommentRow) =>
+        comment.id === id ? { ...comment, status } : comment,
+      ),
+    );
+  }, []);
 
-  async function handleDelete(id: number) {
+  const handleDelete = useCallback(async (id: number) => {
     await deleteComment({ data: id });
-    navigate({ to: "." }); // Refresh
-  }
+    setCommentsList((current: CommentRow[]) =>
+      current.filter((comment: CommentRow) => comment.id !== id),
+    );
+  }, []);
 
   return (
     <DashboardPageContainer>
@@ -106,7 +112,8 @@ function CommentsPage() {
                             : "warning"
                       }
                     >
-                      {comment.status}
+                      {comment.status.charAt(0).toUpperCase() +
+                        comment.status.slice(1)}
                     </StatusBadge>
                   </div>
                   <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">

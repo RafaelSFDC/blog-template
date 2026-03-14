@@ -264,8 +264,8 @@ function UsersManagementPage() {
   return (
     <DashboardPageContainer>
       <DashboardHeader
-        title="Identity Control"
-        description="Manage your editorial team and community members. Audit access levels and identities."
+        title="Users"
+        description="Manage your editorial team, review access levels, and keep account permissions consistent."
         icon={Shield}
         iconLabel="Security & Access"
       />

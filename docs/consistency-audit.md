@@ -51,11 +51,11 @@ Recomendacao:
 
 ## Duplicacao De Codigo
 
-### 3. As telas de criar e editar pagina possuem duplicacao forte
+### 3. As telas de criar e editar pagina possuiam duplicacao forte
 
 Sintoma:
 
-- `src/routes/dashboard/pages/new.tsx` e `src/routes/dashboard/pages/$pageId.edit.tsx` compartilham estrutura, campos, alternancia entre Tiptap/Puck, preview, SEO e submit com poucas variacoes
+- `src/routes/dashboard/pages/new.tsx` e `src/routes/dashboard/pages/$pageId.edit.tsx` compartilhavam estrutura, campos, alternancia entre Tiptap/Puck, preview, SEO e submit com poucas variacoes
 
 Impacto:
 
@@ -64,14 +64,14 @@ Impacto:
 
 Recomendacao:
 
-- extrair uma camada compartilhada de formulario/editor de pagina
-- deixar apenas carregamento inicial e submit especifico nas rotas
+- item corrigido com um screen compartilhado para paginas
+- manter o mesmo padrao para futuras entidades administrativas
 
-### 4. Ha indicios de duplicacao equivalente no fluxo de posts
+### 4. Havia indicios de duplicacao equivalente no fluxo de posts
 
 Sintoma:
 
-- o padrao de create/edit de posts segue uma composicao similar a paginas, com grande chance de repeticao estrutural
+- o padrao de create/edit de posts seguia uma composicao similar a paginas, com grande chance de repeticao estrutural
 
 Impacto:
 
@@ -80,7 +80,8 @@ Impacto:
 
 Recomendacao:
 
-- confirmar a repeticao no par create/edit de posts e consolidar se o diagnostico se mantiver
+- item corrigido com um screen compartilhado para posts
+- manter helpers puros como fonte de verdade para slug, preview e submit
 
 ## Inconsistencias Arquiteturais
 
@@ -186,6 +187,24 @@ Recomendacao:
 - documentar politica de idioma por camada
 - evitar misturar linguas dentro do mesmo fluxo novo
 
+### 10.1. O dashboard ainda tinha listagens fora do padrao visual e comportamental consolidado
+
+Sintoma:
+
+- algumas telas administrativas usavam headers ad hoc, confirmacoes nativas com `confirm`, `alert` ou refresh por navegacao
+- `subscribers`, `webhooks`, `newsletters`, `messages` e `comments` eram os sinais mais claros
+
+Impacto:
+
+- experiencia administrativa irregular
+- menor previsibilidade de manutencao
+- acoes destrutivas e estados vazios variavam entre rotas
+
+Recomendacao:
+
+- item parcialmente corrigido ao padronizar container, header, estados vazios, delete dialog e atualizacao local em listagens prioritarias
+- continuar o mesmo criterio nas telas legacy restantes
+
 ## Riscos Operacionais
 
 ### 11. Observabilidade, backup e recuperacao ainda nao estao maduros
@@ -242,9 +261,10 @@ Recomendacao:
 
 O projeto ja tem base forte de produto e arquitetura, mas os principais riscos de consistencia hoje estao em:
 
-- duplicacao em formularios editoriais
 - sobreposicao de estrategias de edicao
 - naming e organizacao pouco uniformes
 - consolidacao arquitetural ainda incompleta
+- padrao de idioma ainda precisa ser aplicado de forma mais sistematica
+- algumas telas administrativas legacy ainda podem ser refinadas visualmente quando voltarem a ser tocadas
 
 O backlog derivado desta auditoria esta em [`consistency-backlog.md`](./consistency-backlog.md).

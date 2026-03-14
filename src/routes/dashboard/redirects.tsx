@@ -14,8 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "#/components/ui/select";
+import {
+  createEmptyRedirectDraft,
+  mapRedirectToFormValues,
+  validateRedirectFormValues,
+  type RedirectFormValues,
+} from "#/lib/redirect-form";
 import { deleteRedirect, getRedirects, saveRedirect } from "#/server/redirect-actions";
-import { redirectSchema } from "#/lib/cms-schema";
 
 type RedirectRow = Awaited<ReturnType<typeof getRedirects>>[number];
 
@@ -28,20 +33,13 @@ function RedirectsPage() {
   const initialRedirects = Route.useLoaderData();
   const [rows, setRows] = useState<RedirectRow[]>(initialRedirects);
   const [savingId, setSavingId] = useState<number | "new" | null>(null);
-  const [draft, setDraft] = useState({
-    sourcePath: "",
-    destinationPath: "",
-    statusCode: 301 as 301 | 302,
-  });
+  const [draft, setDraft] = useState<RedirectFormValues>(() =>
+    createEmptyRedirectDraft(),
+  );
   const [draftError, setDraftError] = useState("");
 
-  async function handleSave(row: {
-    id?: number;
-    sourcePath: string;
-    destinationPath: string;
-    statusCode: 301 | 302;
-  }) {
-    const parsed = redirectSchema.safeParse(row);
+  async function handleSave(row: RedirectFormValues) {
+    const parsed = validateRedirectFormValues(row);
     if (!parsed.success) {
       const message = parsed.error.issues[0]?.message || "Invalid redirect";
       if (row.id) {
@@ -62,7 +60,7 @@ function RedirectsPage() {
         }
         return [...prev, saved].sort((a, b) => a.sourcePath.localeCompare(b.sourcePath));
       });
-      setDraft({ sourcePath: "", destinationPath: "", statusCode: 301 });
+      setDraft(createEmptyRedirectDraft());
       setDraftError("");
       toast.success("Redirect saved");
     } catch (error) {
@@ -170,21 +168,18 @@ function RedirectsPage() {
 function RedirectRowEditor(props: {
   row: RedirectRow;
   saving: boolean;
-  onSave: (row: {
-    id?: number;
-    sourcePath: string;
-    destinationPath: string;
-    statusCode: 301 | 302;
-  }) => Promise<void>;
+  onSave: (row: RedirectFormValues) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }) {
   const { row, saving, onSave, onDelete } = props;
-  const [form, setForm] = useState({
-    id: row.id,
-    sourcePath: row.sourcePath,
-    destinationPath: row.destinationPath,
-    statusCode: row.statusCode as 301 | 302,
-  });
+  const [form, setForm] = useState<RedirectFormValues>(() =>
+    mapRedirectToFormValues({
+      id: row.id,
+      sourcePath: row.sourcePath,
+      destinationPath: row.destinationPath,
+      statusCode: row.statusCode as 301 | 302,
+    }),
+  );
 
   return (
     <article className="grid gap-4 rounded-md border border-border bg-card p-5 shadow-sm md:grid-cols-[1fr_1fr_140px_auto_auto]">

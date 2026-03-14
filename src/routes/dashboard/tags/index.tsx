@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { Tags, Plus, Pencil, Trash2 } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
 import { Button } from "#/components/ui/button";
@@ -23,6 +24,7 @@ import {
 import { Input } from "#/components/ui/input";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
+import { slugify } from "#/lib/cms-schema";
 
 const tagSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -32,15 +34,6 @@ const tagSchema = z.object({
 export const Route = createFileRoute("/dashboard/tags/")({
   component: TagsPage,
 });
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 function TagsPage() {
   const queryClient = useQueryClient();
@@ -154,19 +147,17 @@ function TagsPage() {
               >
                 <Pencil size={18} />
               </Button>
-              <Button
+              <DeleteButton
+                onConfirm={() => deleteMutation.mutate({ data: { id: tag.id } })}
+                isLoading={deleteMutation.isPending}
+                title="Delete tag?"
+                description="This tag will be removed permanently."
                 variant="ghost"
-                size="icon-sm"
-                onClick={() => {
-                  if (confirm("Are you sure you want to delete this tag?")) {
-                    deleteMutation.mutate({ data: { id: tag.id } });
-                  }
-                }}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                title="Delete"
+                size="icon"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-0 bg-transparent"
               >
                 <Trash2 size={18} />
-              </Button>
+              </DeleteButton>
             </div>
           );
         },
@@ -285,7 +276,7 @@ function TagsPage() {
         data={tags}
         isLoading={isLoading}
         searchKey="name"
-        searchPlaceholder="Filter tags..."
+        searchPlaceholder="Search tags..."
       />
     </DashboardPageContainer>
   );

@@ -1,25 +1,39 @@
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button } from "#/components/ui/button";
 import { createServerFn } from "@tanstack/react-start";
+import { usePostHog } from "@posthog/react";
+import { format } from "date-fns";
+import { desc, eq } from "drizzle-orm";
+import { ChevronLeft, Info, Send } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
+import { Button } from "#/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
 import { db } from "#/db/index";
 import { newsletters, posts } from "#/db/schema";
-import { desc, eq } from "drizzle-orm";
-import { useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
+import {
+  buildNewsletterTemplateFromPost,
+  mapNewsletterToFormValues,
+  newsletterCampaignFormSchema,
+  newsletterCampaignSubmissionSchema,
+  normalizeNewsletterCampaignSubmission,
+  type NewsletterTemplatePost,
+} from "#/lib/newsletter-form";
 import { sendNewsletter } from "#/lib/newsletter";
-import { ChevronLeft, Info, Send } from "lucide-react";
-import { format } from "date-fns";
-import { usePostHog } from "@posthog/react";
 
 const saveAndSendNewsletter = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: {
-      subject: string;
-      content: string;
-      postId?: number;
-      sendNow: boolean;
-    }) => input,
+  .inputValidator((input: unknown) =>
+    newsletterCampaignSubmissionSchema.parse(input),
   )
   .handler(async ({ data }) => {
     await requireAdminSession();
@@ -71,109 +85,132 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
     fromId: search.fromId,
   }),
   loader: async ({ deps }) => {
-    const posts = await getPostsForTemplate();
-    let existing = null;
-    if (deps.fromId) {
-      existing = await getNewsletterById({ data: deps.fromId });
-    }
+    const [posts, existing] = await Promise.all([
+      getPostsForTemplate(),
+      deps.fromId
+        ? getNewsletterById({ data: deps.fromId })
+        : Promise.resolve(null),
+    ]);
     return { posts, existing };
   },
   component: NewNewsletterPage,
 });
 
-type RecentPost = Awaited<ReturnType<typeof getPostsForTemplate>>[number];
-
 function NewNewsletterPage() {
   const { posts: recentPosts, existing } = Route.useLoaderData();
   const navigate = useNavigate();
   const posthog = usePostHog();
-  const [subject, setSubject] = useState(existing?.subject || "");
-  const [content, setContent] = useState(existing?.content || "");
   const [saving, setSaving] = useState(false);
-  const [postId, setPostId] = useState<number | undefined>(
-    existing?.postId || undefined,
-  );
   const [errorMessage, setErrorMessage] = useState("");
+  const submitModeRef = useRef<"send" | "draft">("draft");
 
-  const handlePostTemplate = (pId: number) => {
-    const post = recentPosts.find((p: RecentPost) => p.id === pId);
-    if (post) {
-      setSubject(`New post: ${post.title}`);
-      setContent(
-        `<h2>${post.title}</h2><p>${post.excerpt}</p><a href="/blog/${post.slug}">Read more</a>`,
-      );
-      setPostId(pId);
-    }
-  };
+  const form = useForm({
+    defaultValues: mapNewsletterToFormValues(existing),
+    validators: {
+      onChange: newsletterCampaignFormSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const sendNow = submitModeRef.current === "send";
 
-  async function submitCampaign(sendNow: boolean) {
-    if (!subject || !content) {
-      setErrorMessage("Subject and Content are required.");
-      return;
-    }
-
-    try {
-      setSaving(true);
-      setErrorMessage("");
-      await saveAndSendNewsletter({
-        data: { subject, content, postId, sendNow },
-      });
-      if (sendNow) {
-        posthog.capture("newsletter_campaign_sent", { subject, post_id: postId });
+      try {
+        setSaving(true);
+        setErrorMessage("");
+        await saveAndSendNewsletter({
+          data: normalizeNewsletterCampaignSubmission(value, sendNow),
+        });
+        if (sendNow) {
+          posthog.capture("newsletter_campaign_sent", {
+            subject: value.subject,
+            post_id: value.postId,
+          });
+        }
+        await navigate({ to: "/dashboard/newsletters" });
+      } catch (err) {
+        posthog.captureException(err);
+        setErrorMessage("Failed to save newsletter campaign.");
+      } finally {
+        setSaving(false);
       }
-      await navigate({ to: "/dashboard/newsletters" });
-    } catch (err) {
-      posthog.captureException(err);
-      setErrorMessage("Failed to save newsletter campaign.");
-    } finally {
-      setSaving(false);
+    }
+  });
+
+  function handlePostTemplate(postId: number) {
+    const post = recentPosts.find(
+      (candidate: NewsletterTemplatePost) => candidate.id === postId,
+    );
+    if (post) {
+      const template = buildNewsletterTemplateFromPost(post);
+      form.setFieldValue("subject", template.subject);
+      form.setFieldValue("content", template.content);
+      form.setFieldValue("postId", template.postId);
     }
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    void form.handleSubmit();
+  }
+
   return (
-    <main className="page-wrap px-4 pb-16 pt-14">
-      <div className="mb-8">
+    <DashboardPageContainer className="px-4 pt-14">
+      <DashboardHeader
+        title="New Campaign"
+        description="Compose a newsletter, reuse recent posts as a starting point, and send when ready."
+        icon={Send}
+        iconLabel="Composer"
+      >
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-3 text-muted-foreground hover:text-foreground flex items-center gap-1"
+          className="flex items-center gap-1"
           onClick={() => window.history.back()}
         >
           <ChevronLeft className="h-4 w-4" />
           Back to Campaigns
         </Button>
-      </div>
-
-      <section className="bg-card border shadow-sm rounded-xl p-8 sm:p-10">
-        <p className="island-kicker mb-4">Composer</p>
-        <h1 className="display-title text-5xl text-foreground sm:text-6xl">
-          New Campaign
-        </h1>
-      </section>
+      </DashboardHeader>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form className="bg-card border shadow-sm space-y-6 rounded-[1.6rem] p-6 sm:p-8">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-                Email Subject
-              </label>
-              <input
-                type="text"
-                required
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="Check out our latest news…"
-                className="w-full rounded-xl border border-input bg-muted px-4 py-3 text-sm text-foreground"
-              />
-            </div>
+          <form
+            onSubmit={handleSubmit}
+            className="bg-card border shadow-sm space-y-6 rounded-[1.6rem] p-6 sm:p-8"
+          >
+            <FieldGroup>
+              <form.Field name="subject">
+                {(field) => (
+                  <Field data-invalid={field.state.meta.errors.length > 0}>
+                    <FieldLabel htmlFor={field.name}>Email Subject</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      placeholder="Check out our latest news..."
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                )}
+              </form.Field>
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-                Email Body
-              </label>
-              <LazyTiptapEditor content={content} onChange={setContent} />
-            </div>
+              <form.Field name="content">
+                {(field) => (
+                  <Field data-invalid={field.state.meta.errors.length > 0}>
+                    <FieldLabel htmlFor={field.name}>Email Body</FieldLabel>
+                    <LazyTiptapEditor
+                      content={field.state.value}
+                      onChange={field.handleChange}
+                    />
+                    <FieldDescription>
+                      You can write freely or start from a recent post template.
+                    </FieldDescription>
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                )}
+              </form.Field>
+            </FieldGroup>
 
             {errorMessage && (
               <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -187,7 +224,10 @@ function NewNewsletterPage() {
                 disabled={saving}
                 variant="default"
                 size="lg"
-                onClick={() => void submitCampaign(true)}
+                onClick={() => {
+                  submitModeRef.current = "send";
+                  void form.handleSubmit();
+                }}
               >
                 <Send className="mr-2 h-5 w-5" />
                 {saving ? "Processing…" : "Save & Send Now"}
@@ -197,7 +237,10 @@ function NewNewsletterPage() {
                 disabled={saving}
                 variant="outline"
                 size="lg"
-                onClick={() => void submitCampaign(false)}
+                onClick={() => {
+                  submitModeRef.current = "draft";
+                  void form.handleSubmit();
+                }}
               >
                 Save as Draft
               </Button>
@@ -212,7 +255,7 @@ function NewNewsletterPage() {
               Use Post as Template
             </h3>
             <div className="space-y-3">
-              {recentPosts.map((post: RecentPost) => (
+              {recentPosts.map((post: NewsletterTemplatePost) => (
                 <Button
                   key={post.id}
                   variant="outline"
@@ -239,6 +282,6 @@ function NewNewsletterPage() {
           </section>
         </div>
       </div>
-    </main>
+    </DashboardPageContainer>
   );
 }

@@ -6,7 +6,7 @@ import { contactMessages } from "#/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { Button } from "#/components/ui/button";
 import { Mail, Check, Archive, Inbox } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
 import { requireAdminSession } from "#/lib/admin-auth";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
@@ -51,18 +51,25 @@ export const Route = createFileRoute("/dashboard/messages")({
 });
 
 function MessagesPage() {
-  const messages = Route.useLoaderData();
-  const navigate = useNavigate();
+  const initialMessages = Route.useLoaderData();
+  const [messages, setMessages] = useState(initialMessages);
 
-  async function handleStatus(id: number, status: "read" | "archived" | "new") {
+  const handleStatus = useCallback(async (
+    id: number,
+    status: "read" | "archived" | "new",
+  ) => {
     await updateMessageStatus({ data: { id, status } });
-    navigate({ to: "." });
-  }
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === id ? { ...message, status } : message,
+      ),
+    );
+  }, []);
 
-  async function handleDelete(id: number) {
+  const handleDelete = useCallback(async (id: number) => {
     await deleteMessage({ data: id });
-    navigate({ to: "." });
-  }
+    setMessages((current) => current.filter((message) => message.id !== id));
+  }, []);
 
   return (
     <DashboardPageContainer>
@@ -110,7 +117,7 @@ function MessagesPage() {
                             : "info"
                       }
                     >
-                      {msg.status}
+                      {msg.status.charAt(0).toUpperCase() + msg.status.slice(1)}
                     </StatusBadge>
                   </div>
 
