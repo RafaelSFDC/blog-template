@@ -33,6 +33,10 @@ export const Route = createFileRoute("/_public/auth/login")({
 
 function LoginPage() {
   const posthog = usePostHog();
+  const callbackURL =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("callbackUrl") || "/dashboard"
+      : "/dashboard";
   const form = useForm({
     defaultValues: {
       email: "",
@@ -43,7 +47,7 @@ function LoginPage() {
         await authClient.signIn.email({
           email: value.email,
           password: value.password,
-          callbackURL: "/dashboard",
+          callbackURL,
         });
         posthog.identify(value.email, { email: value.email });
         posthog.capture("user_signed_in", { method: "email" });

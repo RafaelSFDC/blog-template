@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { db } from "#/db/index";
 import { comments } from "#/db/schema";
 import { eq } from "drizzle-orm";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireCommentModerationAccess } from "#/lib/editorial-access";
 import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
 import { captureServerException } from "#/server/sentry";
 
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/comments/$id")({
     handlers: {
       PATCH: async ({ params, request }) => {
         try {
-          await requireAdminSession();
+          await requireCommentModerationAccess();
 
           const body = (await request.json()) as Record<string, unknown>;
           const routeParams = params as { id: string };
@@ -59,7 +59,7 @@ export const Route = createFileRoute("/api/comments/$id")({
       },
       DELETE: async ({ params }) => {
         try {
-          await requireAdminSession();
+          await requireCommentModerationAccess();
 
           const routeParams = params as { id: string };
           const parsed = recordIdSchema.parse({

@@ -46,6 +46,10 @@ function RegisterPage() {
   const { locked } = Route.useLoaderData();
   const [success, setSuccess] = useState(false);
   const posthog = usePostHog();
+  const callbackURL =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("callbackUrl") || "/dashboard"
+      : "/dashboard";
 
   const form = useForm({
     defaultValues: {
@@ -60,7 +64,7 @@ function RegisterPage() {
           email: value.email,
           password: value.password,
           name: value.name,
-          callbackURL: "/dashboard",
+          callbackURL,
         });
         posthog.identify(value.email, { email: value.email, name: value.name });
         posthog.capture("user_signed_up", { method: "email" });

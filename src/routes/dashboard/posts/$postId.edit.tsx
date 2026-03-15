@@ -51,6 +51,8 @@ function EditPostPage() {
       previewOptions={{
         coverImage: post.coverImage,
       }}
+      entityId={post.id}
+      initialRevisions={post.revisions || []}
       onSubmit={async (values) => {
         const normalizedPost = normalizePostSubmission(values);
         if (!normalizedPost) {

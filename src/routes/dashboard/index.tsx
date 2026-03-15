@@ -9,7 +9,7 @@ import { StatCard } from "#/components/ui/stat-card";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { db } from "#/db/index";
 import { posts, contactMessages } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireDashboardAccess } from "#/lib/admin-auth";
 import { count, desc, eq, sql } from "drizzle-orm";
 import {
   FileText,
@@ -27,7 +27,12 @@ type PostRow = typeof posts.$inferSelect;
 
 const getDashboardStats = createServerFn({ method: "GET" }).handler(
   async () => {
-    await requireAdminSession();
+    const session = await requireDashboardAccess();
+    const isAuthor = session.user.role === "author";
+    const canReadMessages =
+      session.user.role === "admin" ||
+      session.user.role === "super-admin" ||
+      session.user.role === "editor";
 
     const [
       [postCount],
@@ -36,24 +41,39 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
       latestPosts,
       popularPosts,
     ] = await Promise.all([
-      db.select({ value: count() }).from(posts),
-      db
-        .select({ value: count() })
-        .from(contactMessages)
-        .where(eq(contactMessages.status, "new")),
-      db
-        .select({ value: sql<number>`sum(${posts.viewCount})` })
-        .from(posts),
-      db
-        .select()
-        .from(posts)
-        .orderBy(desc(posts.updatedAt))
-        .limit(5),
-      db
-        .select()
-        .from(posts)
-        .orderBy(desc(posts.viewCount))
-        .limit(5),
+      isAuthor
+        ? db.select({ value: count() }).from(posts).where(eq(posts.authorId, session.user.id))
+        : db.select({ value: count() }).from(posts),
+      canReadMessages
+        ? db
+            .select({ value: count() })
+            .from(contactMessages)
+            .where(eq(contactMessages.status, "new"))
+        : Promise.resolve([{ value: 0 }]),
+      isAuthor
+        ? db
+            .select({ value: sql<number>`sum(${posts.viewCount})` })
+            .from(posts)
+            .where(eq(posts.authorId, session.user.id))
+        : db
+            .select({ value: sql<number>`sum(${posts.viewCount})` })
+            .from(posts),
+      isAuthor
+        ? db
+            .select()
+            .from(posts)
+            .where(eq(posts.authorId, session.user.id))
+            .orderBy(desc(posts.updatedAt))
+            .limit(5)
+        : db.select().from(posts).orderBy(desc(posts.updatedAt)).limit(5),
+      isAuthor
+        ? db
+            .select()
+            .from(posts)
+            .where(eq(posts.authorId, session.user.id))
+            .orderBy(desc(posts.viewCount))
+            .limit(5)
+        : db.select().from(posts).orderBy(desc(posts.viewCount)).limit(5),
     ]);
 
     return {

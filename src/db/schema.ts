@@ -103,6 +103,7 @@ export const media = table("media", {
   filename: text("filename").notNull(),
   mimeType: text("mime_type"),
   size: integer("size"),
+  ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").default(now),
 });
 
@@ -344,6 +345,125 @@ export const pageViews = table(
   ],
 );
 
+export const postRevisions = table(
+  "post_revisions",
+  {
+    id: autoIncrementId("id"),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    excerpt: text("excerpt").notNull(),
+    content: text("content").notNull(),
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    ogImage: text("og_image"),
+    isPremium: boolean("is_premium").default(false),
+    status: text("status").notNull(),
+    publishedAt: timestamp("published_at"),
+    categoryIdsSnapshot: text("category_ids_snapshot").notNull().default("[]"),
+    tagIdsSnapshot: text("tag_ids_snapshot").notNull().default("[]"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    source: text("source").notNull().default("manual"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("post_revisions_post_id_idx").on(t.postId),
+    index("post_revisions_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const pageRevisions = table(
+  "page_revisions",
+  {
+    id: autoIncrementId("id"),
+    pageId: integer("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    excerpt: text("excerpt"),
+    content: text("content").notNull(),
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    ogImage: text("og_image"),
+    status: text("status").notNull(),
+    isHome: boolean("is_home").notNull().default(false),
+    publishedAt: timestamp("published_at"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    source: text("source").notNull().default("manual"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("page_revisions_page_id_idx").on(t.pageId),
+    index("page_revisions_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const activityLogs = table(
+  "activity_logs",
+  {
+    id: autoIncrementId("id"),
+    actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    action: text("action").notNull(),
+    summary: text("summary").notNull(),
+    metadataJson: text("metadata_json"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("activity_logs_actor_user_id_idx").on(t.actorUserId),
+    index("activity_logs_entity_idx").on(t.entityType, t.entityId),
+    index("activity_logs_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const invitations = table(
+  "invitations",
+  {
+    id: autoIncrementId("id"),
+    email: text("email").notNull(),
+    role: text("role").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    invitedBy: text("invited_by").references(() => user.id, { onDelete: "set null" }),
+    expiresAt: timestamp("expires_at").notNull(),
+    acceptedAt: timestamp("accepted_at"),
+    revokedAt: timestamp("revoked_at"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("invitations_email_idx").on(t.email),
+    index("invitations_expires_at_idx").on(t.expiresAt),
+  ],
+);
+
+export const contentLocks = table(
+  "content_locks",
+  {
+    id: autoIncrementId("id"),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    acquiredAt: timestamp("acquired_at").default(now),
+    expiresAt: timestamp("expires_at").notNull(),
+    lastHeartbeatAt: timestamp("last_heartbeat_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("content_locks_entity_idx").on(t.entityType, t.entityId),
+    index("content_locks_user_id_idx").on(t.userId),
+    index("content_locks_expires_at_idx").on(t.expiresAt),
+  ],
+);
+
 export const postsRelations = relations(posts, ({ many, one }) => ({
   author: one(user, {
     fields: [posts.authorId],
@@ -355,6 +475,7 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   }),
   postCategories: many(postCategories),
   postTags: many(postTags),
+  revisions: many(postRevisions),
 }));
 
 export const postCategoriesRelations = relations(postCategories, ({ one }) => ({
@@ -385,4 +506,33 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
 
 export const tagsRelations = relations(tags, ({ many }) => ({
   postTags: many(postTags),
+}));
+
+export const mediaRelations = relations(media, ({ one }) => ({
+  owner: one(user, {
+    fields: [media.ownerId],
+    references: [user.id],
+  }),
+}));
+
+export const postRevisionsRelations = relations(postRevisions, ({ one }) => ({
+  post: one(posts, {
+    fields: [postRevisions.postId],
+    references: [posts.id],
+  }),
+  createdByUser: one(user, {
+    fields: [postRevisions.createdBy],
+    references: [user.id],
+  }),
+}));
+
+export const pageRevisionsRelations = relations(pageRevisions, ({ one }) => ({
+  page: one(pages, {
+    fields: [pageRevisions.pageId],
+    references: [pages.id],
+  }),
+  createdByUser: one(user, {
+    fields: [pageRevisions.createdBy],
+    references: [user.id],
+  }),
 }));

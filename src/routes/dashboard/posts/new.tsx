@@ -29,13 +29,13 @@ function NewPostPage() {
         metaDescription: "",
         ogImage: "",
         isPremium: false,
-        status: "published",
+        status: "draft",
         publishedAt: new Date().toISOString().slice(0, 16),
         categoryIds: [],
         tagIds: [],
       }}
       storageKey="post-editor"
-      submitLabel="Publish Post"
+      submitLabel="Create Draft"
       submitErrorMessage="Could not create this post. Check the slug and try again."
       onSubmit={async (values) => {
         const normalizedPost = normalizePostSubmission(values);

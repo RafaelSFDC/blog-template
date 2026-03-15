@@ -124,10 +124,7 @@ export function DashboardSidebar() {
     if (role === "moderator") {
       return [
         "Overview",
-        "Analytics",
         "Comments",
-        "Users",
-        "Messages",
       ].includes(link.label);
     }
 

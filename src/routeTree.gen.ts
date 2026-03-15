@@ -55,10 +55,13 @@ import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/au
 import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
+import { Route as DashboardPreviewPostPostIdRouteImport } from './routes/dashboard/preview/post.$postId'
+import { Route as DashboardPreviewPagePageIdRouteImport } from './routes/dashboard/preview/page.$pageId'
 import { Route as DashboardPostsPostIdEditRouteImport } from './routes/dashboard/posts/$postId.edit'
 import { Route as DashboardPagesPageIdEditRouteImport } from './routes/dashboard/pages/$pageId.edit'
 import { Route as PublicBlogTagSlugRouteImport } from './routes/_public/blog/tag/$slug'
 import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public/blog/category/$slug'
+import { Route as PublicAuthInviteTokenRouteImport } from './routes/_public/auth/invite.$token'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -294,6 +297,18 @@ const PublicAuthForgotPasswordRoute =
     path: '/forgot-password',
     getParentRoute: () => PublicAuthRoute,
   } as any)
+const DashboardPreviewPostPostIdRoute =
+  DashboardPreviewPostPostIdRouteImport.update({
+    id: '/preview/post/$postId',
+    path: '/preview/post/$postId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardPreviewPagePageIdRoute =
+  DashboardPreviewPagePageIdRouteImport.update({
+    id: '/preview/page/$pageId',
+    path: '/preview/page/$pageId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardPostsPostIdEditRoute =
   DashboardPostsPostIdEditRouteImport.update({
     id: '/posts/$postId/edit',
@@ -315,6 +330,11 @@ const PublicBlogCategorySlugRoute = PublicBlogCategorySlugRouteImport.update({
   id: '/blog/category/$slug',
   path: '/blog/category/$slug',
   getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthInviteTokenRoute = PublicAuthInviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => PublicAuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -363,10 +383,13 @@ export interface FileRoutesByFullPath {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/auth/invite/$token': typeof PublicAuthInviteTokenRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
+  '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
+  '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof PublicSplatRoute
@@ -413,10 +436,13 @@ export interface FileRoutesByTo {
   '/dashboard/tags': typeof DashboardTagsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks': typeof DashboardWebhooksIndexRoute
+  '/auth/invite/$token': typeof PublicAuthInviteTokenRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
+  '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
+  '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -466,10 +492,13 @@ export interface FileRoutesById {
   '/dashboard/tags/': typeof DashboardTagsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/dashboard/webhooks/': typeof DashboardWebhooksIndexRoute
+  '/_public/auth/invite/$token': typeof PublicAuthInviteTokenRoute
   '/_public/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/_public/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/dashboard/pages/$pageId/edit': typeof DashboardPagesPageIdEditRoute
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
+  '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
+  '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -519,10 +548,13 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/auth/invite/$token'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
+    | '/dashboard/preview/page/$pageId'
+    | '/dashboard/preview/post/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -569,10 +601,13 @@ export interface FileRouteTypes {
     | '/dashboard/tags'
     | '/dashboard/users'
     | '/dashboard/webhooks'
+    | '/auth/invite/$token'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
+    | '/dashboard/preview/page/$pageId'
+    | '/dashboard/preview/post/$postId'
   id:
     | '__root__'
     | '/_public'
@@ -621,10 +656,13 @@ export interface FileRouteTypes {
     | '/dashboard/tags/'
     | '/dashboard/users/'
     | '/dashboard/webhooks/'
+    | '/_public/auth/invite/$token'
     | '/_public/blog/category/$slug'
     | '/_public/blog/tag/$slug'
     | '/dashboard/pages/$pageId/edit'
     | '/dashboard/posts/$postId/edit'
+    | '/dashboard/preview/page/$pageId'
+    | '/dashboard/preview/post/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -967,6 +1005,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAuthForgotPasswordRouteImport
       parentRoute: typeof PublicAuthRoute
     }
+    '/dashboard/preview/post/$postId': {
+      id: '/dashboard/preview/post/$postId'
+      path: '/preview/post/$postId'
+      fullPath: '/dashboard/preview/post/$postId'
+      preLoaderRoute: typeof DashboardPreviewPostPostIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/preview/page/$pageId': {
+      id: '/dashboard/preview/page/$pageId'
+      path: '/preview/page/$pageId'
+      fullPath: '/dashboard/preview/page/$pageId'
+      preLoaderRoute: typeof DashboardPreviewPagePageIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/posts/$postId/edit': {
       id: '/dashboard/posts/$postId/edit'
       path: '/posts/$postId/edit'
@@ -995,6 +1047,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogCategorySlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/auth/invite/$token': {
+      id: '/_public/auth/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/auth/invite/$token'
+      preLoaderRoute: typeof PublicAuthInviteTokenRouteImport
+      parentRoute: typeof PublicAuthRoute
+    }
   }
 }
 
@@ -1003,6 +1062,7 @@ interface PublicAuthRouteChildren {
   PublicAuthLoginRoute: typeof PublicAuthLoginRoute
   PublicAuthRegisterRoute: typeof PublicAuthRegisterRoute
   PublicAuthResetPasswordRoute: typeof PublicAuthResetPasswordRoute
+  PublicAuthInviteTokenRoute: typeof PublicAuthInviteTokenRoute
 }
 
 const PublicAuthRouteChildren: PublicAuthRouteChildren = {
@@ -1010,6 +1070,7 @@ const PublicAuthRouteChildren: PublicAuthRouteChildren = {
   PublicAuthLoginRoute: PublicAuthLoginRoute,
   PublicAuthRegisterRoute: PublicAuthRegisterRoute,
   PublicAuthResetPasswordRoute: PublicAuthResetPasswordRoute,
+  PublicAuthInviteTokenRoute: PublicAuthInviteTokenRoute,
 }
 
 const PublicAuthRouteWithChildren = PublicAuthRoute._addFileChildren(
@@ -1068,6 +1129,8 @@ interface DashboardRouteChildren {
   DashboardWebhooksIndexRoute: typeof DashboardWebhooksIndexRoute
   DashboardPagesPageIdEditRoute: typeof DashboardPagesPageIdEditRoute
   DashboardPostsPostIdEditRoute: typeof DashboardPostsPostIdEditRoute
+  DashboardPreviewPagePageIdRoute: typeof DashboardPreviewPagePageIdRoute
+  DashboardPreviewPostPostIdRoute: typeof DashboardPreviewPostPostIdRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -1093,6 +1156,8 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardWebhooksIndexRoute: DashboardWebhooksIndexRoute,
   DashboardPagesPageIdEditRoute: DashboardPagesPageIdEditRoute,
   DashboardPostsPostIdEditRoute: DashboardPostsPostIdEditRoute,
+  DashboardPreviewPagePageIdRoute: DashboardPreviewPagePageIdRoute,
+  DashboardPreviewPostPostIdRoute: DashboardPreviewPostPostIdRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -1129,3 +1194,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -9,6 +9,9 @@ import {
   User as UserIcon,
   CheckCircle2,
   ChevronRight,
+  MailPlus,
+  Copy,
+  Ban,
 } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { StatusBadge } from "#/components/ui/status-badge";
@@ -23,6 +26,10 @@ import {
 } from "#/components/ui/dropdown-menu";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
+import { createInvitation, listInvitations, revokeInvitation } from "#/server/invitation-actions";
+import { Input } from "#/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
+import { Field, FieldLabel } from "#/components/ui/field";
 
 const ensureAdmin = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
@@ -37,6 +44,7 @@ export const Route = createFileRoute("/dashboard/users/")({
       throw redirect({ to: "/dashboard" });
     }
   },
+  loader: () => listInvitations(),
   component: UsersManagementPage,
 });
 
@@ -58,11 +66,18 @@ type AdminUser = {
   createdAt: string | Date | null;
 };
 
+type Invitation = Awaited<ReturnType<typeof listInvitations>>[number];
+
 function UsersManagementPage() {
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user?.id;
+  const initialInvitations = Route.useLoaderData() as Invitation[];
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [invitationEmail, setInvitationEmail] = useState("");
+  const [invitationRole, setInvitationRole] = useState("author");
+  const [inviting, setInviting] = useState(false);
+  const [invitations, setInvitations] = useState(initialInvitations);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -80,6 +95,15 @@ function UsersManagementPage() {
       toast.error("An error occurred");
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const refreshInvitations = useCallback(async () => {
+    try {
+      const nextInvitations = await listInvitations();
+      setInvitations(nextInvitations);
+    } catch {
+      toast.error("Could not refresh invitations");
     }
   }, []);
 
@@ -218,6 +242,124 @@ function UsersManagementPage() {
       />
 
       <div className="grid gap-6">
+        <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <MailPlus className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-black text-foreground">Invite team member</h2>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px_auto]">
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <Input
+                value={invitationEmail}
+                onChange={(event) => setInvitationEmail(event.target.value)}
+                placeholder="name@example.com"
+              />
+            </Field>
+            <Field>
+              <FieldLabel>Role</FieldLabel>
+              <Select value={invitationRole} onValueChange={setInvitationRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="author">author</SelectItem>
+                  <SelectItem value="editor">editor</SelectItem>
+                  <SelectItem value="moderator">moderator</SelectItem>
+                  <SelectItem value="admin">admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                disabled={inviting || !invitationEmail.trim()}
+                onClick={async () => {
+                  try {
+                    setInviting(true);
+                    const result = await createInvitation({
+                      data: {
+                        email: invitationEmail,
+                        role: invitationRole as "author" | "editor" | "moderator" | "admin",
+                        expiresInDays: 7,
+                      },
+                    });
+                    setInvitationEmail("");
+                    toast.success("Invitation sent");
+                    await refreshInvitations();
+                    if (navigator.clipboard?.writeText) {
+                      await navigator.clipboard.writeText(result.inviteUrl);
+                    }
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "Could not send invitation");
+                  } finally {
+                    setInviting(false);
+                  }
+                }}
+              >
+                {inviting ? "Sending..." : "Send Invite"}
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {invitations.map((invitation) => (
+              <div
+                key={invitation.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3"
+              >
+                <div>
+                  <p className="font-semibold text-foreground">{invitation.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {invitation.role} • expires{" "}
+                    {invitation.expiresAt ? new Date(invitation.expiresAt).toLocaleString() : "unknown"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const next = await createInvitation({
+                        data: {
+                          email: invitation.email,
+                          role: invitation.role as "author" | "editor" | "moderator" | "admin",
+                          expiresInDays: 7,
+                        },
+                      });
+                      if (navigator.clipboard?.writeText) {
+                        await navigator.clipboard.writeText(next.inviteUrl);
+                      }
+                      toast.success("A fresh invitation was created");
+                      await refreshInvitations();
+                    }}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Resend
+                  </Button>
+                  {!invitation.revokedAt && !invitation.acceptedAt ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        await revokeInvitation({ data: { id: invitation.id } });
+                        toast.success("Invitation revoked");
+                        await refreshInvitations();
+                      }}
+                    >
+                      <Ban className="mr-2 h-4 w-4" />
+                      Revoke
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <DataTable
           columns={columns}
           data={users}

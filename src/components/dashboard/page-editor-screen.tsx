@@ -1,6 +1,7 @@
+import { Link } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
-import { type LucideIcon, LayoutPanelTop } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type LucideIcon, History, LayoutPanelTop, Lock, LockOpen, RefreshCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Editor as PuckEditor } from "#/components/cms/Editor";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
@@ -11,25 +12,24 @@ import { LazyTiptapEditor } from "#/components/lazy-tiptap-editor";
 import { Button } from "#/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "#/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { pageFormSchema, slugify } from "#/lib/cms-schema";
 import { buildPagePreviewDraft, type PageEditorFormValues } from "#/lib/editorial-preview";
 import { shouldAutoUpdateSlug } from "#/lib/editorial-form-utils";
+import { getPageBuilderData, isPuckPageContent, serializePuckData } from "#/lib/puck";
 import {
-  getPageBuilderData,
-  isPuckPageContent,
-  serializePuckData,
-} from "#/lib/puck";
+  acquirePageLock,
+  autosavePage,
+  getPageRevisionsForEditor,
+  heartbeatPageLock,
+  releasePageLock,
+  restorePageRevision,
+} from "#/server/page-actions";
 
 type PageStatus = PageEditorFormValues["status"];
+type PageRevision = Awaited<ReturnType<typeof getPageRevisionsForEditor>>[number];
 
 interface PageEditorScreenProps {
   title: string;
@@ -42,6 +42,13 @@ interface PageEditorScreenProps {
   submitErrorMessage: string;
   onSubmit: (values: PageEditorFormValues) => Promise<void>;
   onCancel: () => void;
+  entityId?: number;
+  initialRevisions?: PageRevision[];
+}
+
+function formatRevisionDate(date: Date | string | null) {
+  if (!date) return "Unknown";
+  return new Date(date).toLocaleString();
 }
 
 function PageContentField({
@@ -104,12 +111,15 @@ export function PageEditorScreen({
   submitErrorMessage,
   onSubmit,
   onCancel,
+  entityId,
+  initialRevisions = [],
 }: PageEditorScreenProps) {
   const [saving, setSaving] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
-
-  // Pages use Puck as the primary page-building experience.
-  // Text serialization support is preserved here for compatibility paths.
+  const [autosaveStatus, setAutosaveStatus] = useState("Not saved yet");
+  const [lockState, setLockState] = useState<"idle" | "acquired" | "held_by_other">("idle");
+  const [revisions, setRevisions] = useState<PageRevision[]>(initialRevisions);
+  const lastAutosavedRef = useRef(JSON.stringify(initialValues));
 
   const form = useForm({
     defaultValues: initialValues,
@@ -120,10 +130,10 @@ export function PageEditorScreen({
       try {
         setSaving(true);
         await onSubmit(value);
+        lastAutosavedRef.current = JSON.stringify(value);
+        setAutosaveStatus("Saved");
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : submitErrorMessage,
-        );
+        toast.error(error instanceof Error ? error.message : submitErrorMessage);
       } finally {
         setSaving(false);
       }
@@ -147,56 +157,144 @@ export function PageEditorScreen({
         }),
       ),
     );
-  }, [
-    form,
-    values.content,
-    values.excerpt,
-    values.title,
-    values.useVisualBuilder,
-  ]);
+  }, [form, values.content, values.excerpt, values.title, values.useVisualBuilder]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-    form.handleSubmit();
+  useEffect(() => {
+    if (!entityId) return;
+
+    let active = true;
+    void acquirePageLock({ data: { pageId: entityId } })
+      .then((result) => {
+        if (!active) return;
+        setLockState(result.state === "held_by_other" ? "held_by_other" : "acquired");
+      })
+      .catch((error) => {
+        if (!active) return;
+        toast.error(error instanceof Error ? error.message : "Could not acquire editor lock");
+      });
+
+    const heartbeat = window.setInterval(() => {
+      void heartbeatPageLock({ data: { pageId: entityId } })
+        .then((result) => {
+          if (!active) return;
+          setLockState(result.state === "held_by_other" ? "held_by_other" : "acquired");
+        })
+        .catch(() => undefined);
+    }, 60_000);
+
+    return () => {
+      active = false;
+      window.clearInterval(heartbeat);
+      void releasePageLock({ data: { pageId: entityId } }).catch(() => undefined);
+    };
+  }, [entityId]);
+
+  useEffect(() => {
+    if (!entityId || lockState !== "acquired") return;
+
+    const autosaveTimer = window.setInterval(() => {
+      const serialized = JSON.stringify(values);
+      if (serialized === lastAutosavedRef.current || saving) {
+        return;
+      }
+
+      setAutosaveStatus("Autosaving...");
+      void autosavePage({
+        data: {
+          id: entityId,
+          ...values,
+        },
+      })
+        .then(async () => {
+          lastAutosavedRef.current = serialized;
+          setAutosaveStatus("Autosaved");
+          const nextRevisions = await getPageRevisionsForEditor({ data: { pageId: entityId } });
+          setRevisions(nextRevisions);
+        })
+        .catch((error) => {
+          setAutosaveStatus("Autosave failed");
+          toast.error(error instanceof Error ? error.message : "Autosave failed");
+        });
+    }, 20_000);
+
+    return () => window.clearInterval(autosaveTimer);
+  }, [entityId, lockState, saving, values]);
+
+  async function handleRestoreRevision(revisionId: number) {
+    if (!entityId) return;
+
+    try {
+      await restorePageRevision({ data: { revisionId } });
+      const nextRevisions = await getPageRevisionsForEditor({ data: { pageId: entityId } });
+      setRevisions(nextRevisions);
+      toast.success("Revision restored as a draft");
+      window.location.reload();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not restore revision");
+    }
   }
 
   return (
     <DashboardPageContainer>
-      <DashboardHeader
-        title={title}
-        description={description}
-        icon={icon}
-        iconLabel={iconLabel}
-      />
+      <DashboardHeader title={title} description={description} icon={icon} iconLabel={iconLabel}>
+        {entityId ? (
+          <Button asChild variant="outline">
+            <Link to="/dashboard/preview/page/$pageId" params={{ pageId: String(entityId) }} target="_blank">
+              Authenticated Preview
+            </Link>
+          </Button>
+        ) : null}
+      </DashboardHeader>
+
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/30 p-3 text-sm">
+        <div className="flex items-center gap-2">
+          {lockState === "held_by_other" ? (
+            <Lock className="h-4 w-4 text-destructive" />
+          ) : lockState === "acquired" ? (
+            <LockOpen className="h-4 w-4 text-primary" />
+          ) : null}
+          <span className="font-semibold">
+            {lockState === "held_by_other"
+              ? "Another editor currently holds the lock"
+              : lockState === "acquired"
+                ? "Editing lock acquired"
+                : "No active lock"}
+          </span>
+        </div>
+        <span className="text-muted-foreground">{autosaveStatus}</span>
+      </div>
 
       <EditorialWorkspace
         storageKey={storageKey}
         form={
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              form.handleSubmit();
+            }}
+            className="space-y-6"
+          >
             <FieldGroup>
               <form.Field name="title">
-                {(field) => {
-                  const invalid = field.state.meta.errors.length > 0;
-                  return (
-                    <Field data-invalid={invalid}>
-                      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                      <Input
-                        id={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(event) => {
-                          field.handleChange(event.target.value);
-                          const currentSlug = form.getFieldValue("slug");
-                          if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
-                            form.setFieldValue("slug", slugify(event.target.value));
-                          }
-                        }}
-                      />
-                      {invalid ? <FieldError errors={field.state.meta.errors} /> : null}
-                    </Field>
-                  );
-                }}
+                {(field) => (
+                  <Field data-invalid={field.state.meta.errors.length > 0}>
+                    <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                    <Input
+                      id={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => {
+                        field.handleChange(event.target.value);
+                        const currentSlug = form.getFieldValue("slug");
+                        if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
+                          form.setFieldValue("slug", slugify(event.target.value));
+                        }
+                      }}
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                )}
               </form.Field>
 
               <form.Field name="slug">
@@ -207,13 +305,9 @@ export function PageEditorScreen({
                       id={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(slugify(event.target.value))
-                      }
+                      onChange={(event) => field.handleChange(slugify(event.target.value))}
                     />
-                    {field.state.meta.errors.length > 0 ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
+                    <FieldError errors={field.state.meta.errors} />
                   </Field>
                 )}
               </form.Field>
@@ -270,7 +364,7 @@ export function PageEditorScreen({
                         useVisualBuilder={editorValues.useVisualBuilder}
                         onChange={field.handleChange}
                         errors={field.state.meta.errors}
-                        saveToastMessage={`Puck data updated in form. Click ${submitLabel} to persist.`}
+                        saveToastMessage={`Puck data updated. Click ${submitLabel} to persist.`}
                       />
                     )}
                   </form.Field>
@@ -279,12 +373,7 @@ export function PageEditorScreen({
             </FieldGroup>
 
             <div className="border-t border-border pt-6">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSeo((current) => !current)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => setShowSeo((current) => !current)}>
                 {showSeo ? "▼" : "▶"} SEO Settings
               </Button>
               {showSeo ? (
@@ -373,8 +462,41 @@ export function PageEditorScreen({
               </form.Field>
             </div>
 
+            {entityId ? (
+              <section className="space-y-3 border-t border-border pt-6">
+                <div className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-primary" />
+                  <h3 className="font-bold text-foreground">Revisions</h3>
+                </div>
+                <div className="space-y-2">
+                  {revisions.map((revision) => (
+                    <div
+                      key={revision.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{revision.source}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatRevisionDate(revision.createdAt)}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleRestoreRevision(revision.id)}
+                      >
+                        <RefreshCcw className="mr-2 h-4 w-4" />
+                        Restore as Draft
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
             <div className="flex flex-wrap items-center gap-3">
-              <Button type="submit" disabled={saving} size="lg">
+              <Button type="submit" disabled={saving || lockState === "held_by_other"} size="lg">
                 {saving ? "Saving…" : submitLabel}
               </Button>
               <Button type="button" variant="outline" size="lg" onClick={onCancel}>
@@ -383,13 +505,7 @@ export function PageEditorScreen({
             </div>
           </form>
         }
-        preview={
-          <form.Subscribe selector={(state) => state.values}>
-            {(previewValues) => (
-              <PageEditorialPreview draft={buildPagePreviewDraft(previewValues)} />
-            )}
-          </form.Subscribe>
-        }
+        preview={<PageEditorialPreview draft={buildPagePreviewDraft(values)} />}
       />
     </DashboardPageContainer>
   );

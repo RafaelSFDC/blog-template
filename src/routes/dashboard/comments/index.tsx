@@ -7,7 +7,7 @@ import { comments, posts } from "#/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { Check, X, MessageSquare } from "lucide-react";
 import { useCallback, useState } from "react";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireCommentModerationAccess } from "#/lib/editorial-access";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
@@ -15,7 +15,7 @@ import { Button } from "#/components/ui/button";
 import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
 
 const getComments = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
+  await requireCommentModerationAccess();
   return await db
     .select({
       id: comments.id,
@@ -35,7 +35,7 @@ const getComments = createServerFn({ method: "GET" }).handler(async () => {
 const updateCommentStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => commentStatusUpdateSchema.parse(input))
   .handler(async ({ data }) => {
-    await requireAdminSession();
+    await requireCommentModerationAccess();
     await db
       .update(comments)
       .set({ status: data.status })
@@ -46,7 +46,7 @@ const updateCommentStatus = createServerFn({ method: "POST" })
 const deleteComment = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => recordIdSchema.parse({ id: input }))
   .handler(async ({ data }) => {
-    await requireAdminSession();
+    await requireCommentModerationAccess();
     await db.delete(comments).where(eq(comments.id, data.id));
     return { success: true };
   });

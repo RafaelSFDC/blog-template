@@ -1,41 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
-import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db/index";
-import { posts } from "#/db/schema";
-import { desc, eq } from "drizzle-orm";
 import { useState } from "react";
 import { useRouter, useLoaderData } from "@tanstack/react-router";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { FileText, Plus, Eye, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "#/components/dashboard/EmptyState";
+import { deletePost, getDashboardPosts } from "#/server/post-actions";
 
-type DashboardPost = typeof posts.$inferSelect;
+type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "2-digit",
   year: "numeric",
 });
-
-const getDashboardPosts = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await requireAdminSession();
-    return await db
-      .select()
-      .from(posts)
-      .orderBy(desc(posts.updatedAt), desc(posts.publishedAt));
-  },
-);
-
-const deletePost = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: number }) => input)
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    await db.delete(posts).where(eq(posts.id, data.id));
-    return { ok: true as const };
-  });
 
 export const Route = createFileRoute("/dashboard/posts/")({
   loader: () => getDashboardPosts(),
@@ -108,14 +86,19 @@ function PostsManagementPage() {
                     >
                       {post.publishedAt ? "Published" : "Draft"}
                     </span>
-                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                      {post.publishedAt
-                        ? dateFormatter.format(new Date(post.publishedAt))
-                        : "Last updated " +
+                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                    {post.publishedAt
+                      ? dateFormatter.format(new Date(post.publishedAt))
+                      : "Last updated " +
                           dateFormatter.format(
                             new Date(post.updatedAt || Date.now()),
                           )}
                     </p>
+                    {post.authorName ? (
+                      <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                        {post.authorName}
+                      </p>
+                    ) : null}
                   </div>
                   <h2 className="display-title wrap-break-word text-2xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
                     {post.title}

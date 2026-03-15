@@ -7,6 +7,15 @@ export const MENU_ITEM_KINDS = ["internal", "external"] as const;
 export const WEBHOOK_EVENTS = ["post.published"] as const;
 export const COMMENT_STATUSES = ["approved", "spam", "pending"] as const;
 export const REDIRECT_STATUS_CODES = [301, 302] as const;
+export const USER_ROLES = [
+  "reader",
+  "author",
+  "editor",
+  "moderator",
+  "admin",
+  "super-admin",
+] as const;
+export const REVISION_SOURCES = ["manual", "autosave", "restore", "publish"] as const;
 export const MEDIA_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -22,6 +31,8 @@ export const menuItemKindSchema = z.enum(MENU_ITEM_KINDS);
 export const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
 export const commentStatusSchema = z.enum(COMMENT_STATUSES);
 export const redirectStatusCodeSchema = z.union([z.literal(301), z.literal(302)]);
+export const userRoleSchema = z.enum(USER_ROLES);
+export const revisionSourceSchema = z.enum(REVISION_SOURCES);
 export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
 
 function emptyStringToUndefined(value: unknown) {
@@ -291,6 +302,16 @@ export const mediaUploadSchema = z.object({
     emptyStringToUndefined,
     z.string().trim().max(255, "Alt text is too long").optional(),
   ),
+});
+
+export const invitationCreateSchema = z.object({
+  email: z.string().trim().email("Must be a valid email").max(320, "Email is too long"),
+  role: z.enum(["author", "editor", "moderator", "admin", "super-admin"]),
+  expiresInDays: z.number().int().min(1).max(30).default(7),
+});
+
+export const invitationAcceptSchema = z.object({
+  token: z.string().trim().min(16, "Invalid invitation token"),
 });
 
 export function assertMenuHref(kind: z.infer<typeof menuItemKindSchema>, href: string) {

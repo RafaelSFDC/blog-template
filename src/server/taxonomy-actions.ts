@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { categories, postCategories, posts, postTags, tags } from '#/db/schema'
-import { requireAdminSession } from '#/lib/admin-auth'
+import { requireTaxonomyAccess } from '#/lib/editorial-access'
 import { and, count, desc, eq } from 'drizzle-orm'
 import { categorySchema, getFriendlyDbError, normalizeSlug, tagSchema } from '#/lib/cms-schema'
 import { getPaginationMeta } from '#/lib/pagination'
@@ -11,14 +11,14 @@ export const BLOG_PAGE_SIZE = 9
 // Categories
 export const getCategories = createServerFn({ method: 'GET' })
   .handler(async () => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     return await db.select().from(categories)
   })
 
 export const createCategory = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => categorySchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     try {
       const result = await db.insert(categories).values({
         ...data,
@@ -39,7 +39,7 @@ export const updateCategory = createServerFn({ method: 'POST' })
     }
   })
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     try {
       const result = await db.update(categories)
         .set({
@@ -57,7 +57,7 @@ export const updateCategory = createServerFn({ method: 'POST' })
 export const deleteCategory = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: number }) => data)
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     await db.delete(categories).where(eq(categories.id, data.id))
     return { success: true }
   })
@@ -65,14 +65,14 @@ export const deleteCategory = createServerFn({ method: 'POST' })
 // Tags
 export const getTags = createServerFn({ method: 'GET' })
   .handler(async () => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     return await db.select().from(tags)
   })
 
 export const createTag = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => tagSchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     try {
       const result = await db.insert(tags).values({
         ...data,
@@ -93,7 +93,7 @@ export const updateTag = createServerFn({ method: 'POST' })
     }
   })
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     try {
       const result = await db.update(tags)
         .set({
@@ -111,7 +111,7 @@ export const updateTag = createServerFn({ method: 'POST' })
 export const deleteTag = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: number }) => data)
   .handler(async ({ data }) => {
-    await requireAdminSession()
+    await requireTaxonomyAccess()
     await db.delete(tags).where(eq(tags.id, data.id))
     return { success: true }
   })

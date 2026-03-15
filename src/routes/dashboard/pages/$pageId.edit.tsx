@@ -48,6 +48,8 @@ function EditPagePage() {
       storageKey={`page-editor-${page.id}`}
       submitLabel="Save Changes"
       submitErrorMessage="Could not update page"
+      entityId={page.id}
+      initialRevisions={page.revisions || []}
       onSubmit={async (values) => {
         await updatePage({
           data: {
