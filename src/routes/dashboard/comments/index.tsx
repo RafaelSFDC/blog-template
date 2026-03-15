@@ -12,7 +12,9 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { Button } from "#/components/ui/button";
-import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
+import { bulkCommentActionSchema, commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
+import { Checkbox } from "#/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 
 const getComments = createServerFn({ method: "GET" }).handler(async () => {
   await requireCommentModerationAccess();
@@ -51,6 +53,31 @@ const deleteComment = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+const bulkModerateComments = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => bulkCommentActionSchema.parse(input))
+  .handler(async ({ data }) => {
+    await requireCommentModerationAccess();
+
+    if (data.action === "delete") {
+      await db.delete(comments).where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
+      return { success: true };
+    }
+
+    const nextStatus =
+      data.action === "approve"
+        ? "approved"
+        : data.action === "spam"
+          ? "spam"
+          : "pending";
+
+    await db
+      .update(comments)
+      .set({ status: nextStatus })
+      .where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
+
+    return { success: true };
+  });
+
 export const Route = createFileRoute("/dashboard/comments/")({
   loader: () => getComments(),
   component: CommentsPage,
@@ -61,6 +88,8 @@ type CommentRow = Awaited<ReturnType<typeof getComments>>[number];
 function CommentsPage() {
   const initialComments = Route.useLoaderData();
   const [commentsList, setCommentsList] = useState<CommentRow[]>(initialComments);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkAction, setBulkAction] = useState("approve");
 
   const handleStatus = useCallback(async (
     id: number,
@@ -81,6 +110,39 @@ function CommentsPage() {
     );
   }, []);
 
+  const handleBulkAction = useCallback(async () => {
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    await bulkModerateComments({
+      data: {
+        ids: selectedIds,
+        action: bulkAction as never,
+      },
+    });
+
+    if (bulkAction === "delete") {
+      setCommentsList((current) =>
+        current.filter((comment: CommentRow) => !selectedIds.includes(comment.id)),
+      );
+    } else {
+      const nextStatus =
+        bulkAction === "approve"
+          ? "approved"
+          : bulkAction === "spam"
+            ? "spam"
+            : "pending";
+      setCommentsList((current) =>
+        current.map((comment: CommentRow) =>
+          selectedIds.includes(comment.id) ? { ...comment, status: nextStatus } : comment,
+        ),
+      );
+    }
+
+    setSelectedIds([]);
+  }, [bulkAction, selectedIds]);
+
   return (
     <DashboardPageContainer>
       <DashboardHeader
@@ -90,6 +152,32 @@ function CommentsPage() {
         iconLabel="Community Management"
       />
 
+      <div className="mb-4 grid gap-3 rounded-xl border border-border bg-card p-4 md:grid-cols-[auto,1fr,auto]">
+        <label className="flex items-center gap-2">
+          <Checkbox
+            checked={commentsList.length > 0 && selectedIds.length === commentsList.length}
+            onCheckedChange={(checked) =>
+              setSelectedIds(checked === true ? commentsList.map((comment) => comment.id) : [])
+            }
+          />
+          <span className="text-sm font-medium">Select all</span>
+        </label>
+        <Select value={bulkAction} onValueChange={setBulkAction}>
+          <SelectTrigger>
+            <SelectValue placeholder="Bulk action" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="approve">Approve</SelectItem>
+            <SelectItem value="spam">Mark as spam</SelectItem>
+            <SelectItem value="pending">Move to pending</SelectItem>
+            <SelectItem value="delete">Delete</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button type="button" variant="outline" onClick={() => void handleBulkAction()}>
+          Run Bulk Action
+        </Button>
+      </div>
+
       <div className="grid gap-6">
         {commentsList.length > 0 ? (
           commentsList.map((comment: CommentRow) => (
@@ -98,7 +186,18 @@ function CommentsPage() {
               className="bg-card border shadow-sm rounded-xl p-6 border-border/10 hover:border-border transition-colors group"
             >
               <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <div className="space-y-2">
+                <div className="flex gap-3">
+                  <Checkbox
+                    checked={selectedIds.includes(comment.id)}
+                    onCheckedChange={(checked) =>
+                      setSelectedIds((current) =>
+                        checked === true
+                          ? [...current, comment.id]
+                          : current.filter((id) => id !== comment.id),
+                      )
+                    }
+                  />
+                  <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <span className="font-black text-foreground uppercase tracking-wider text-sm">
                       {comment.authorName}
@@ -129,6 +228,7 @@ function CommentsPage() {
                   <p className="text-foreground leading-relaxed mt-3 border-l-3 border-primary/20 pl-4 py-1 italic">
                     &quot;{comment.content}&quot;
                   </p>
+                </div>
                 </div>
 
                 <div className="flex items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start">

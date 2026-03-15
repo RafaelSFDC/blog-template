@@ -2,14 +2,18 @@ import { and, desc, eq, gt, lt } from "drizzle-orm";
 import { db } from "#/db/index";
 import {
   contentLocks,
+  editorialChecklists,
+  editorialComments,
   pageRevisions,
   pages,
   postCategories,
   postRevisions,
   posts,
   postTags,
+  user,
 } from "#/db/schema";
 import type { ContentLockState, RevisionSource } from "#/lib/editorial-access";
+import { EDITORIAL_CHECKLIST_ITEMS } from "#/lib/editorial-workflow";
 
 export const LOCK_TTL_MS = 2 * 60 * 1000;
 
@@ -39,6 +43,7 @@ export async function createPostRevision(input: {
     metaDescription?: string | null;
     ogImage?: string | null;
     isPremium: boolean;
+    teaserMode: string;
     status: string;
     publishedAt?: Date | null;
     categoryIds: number[];
@@ -74,6 +79,7 @@ export async function createPostRevision(input: {
       metaDescription: post.metaDescription,
       ogImage: post.ogImage,
       isPremium: Boolean(post.isPremium),
+      teaserMode: post.teaserMode ?? "excerpt",
       status: post.status,
       publishedAt: post.publishedAt,
       categoryIds: categoryRows.map((row) => row.categoryId),
@@ -93,6 +99,7 @@ export async function createPostRevision(input: {
       metaDescription: snapshot.metaDescription,
       ogImage: snapshot.ogImage,
       isPremium: snapshot.isPremium,
+      teaserMode: snapshot.teaserMode,
       status: snapshot.status,
       publishedAt: snapshot.publishedAt,
       categoryIdsSnapshot: toJsonArray(snapshot.categoryIds),
@@ -118,6 +125,8 @@ export async function createPageRevision(input: {
     metaTitle?: string | null;
     metaDescription?: string | null;
     ogImage?: string | null;
+    isPremium: boolean;
+    teaserMode: string;
     status: string;
     isHome: boolean;
     publishedAt?: Date | null;
@@ -142,6 +151,8 @@ export async function createPageRevision(input: {
       metaTitle: page.metaTitle,
       metaDescription: page.metaDescription,
       ogImage: page.ogImage,
+      isPremium: Boolean(page.isPremium),
+      teaserMode: page.teaserMode ?? "excerpt",
       status: page.status,
       isHome: Boolean(page.isHome),
       publishedAt: page.publishedAt,
@@ -159,6 +170,8 @@ export async function createPageRevision(input: {
       metaTitle: snapshot.metaTitle,
       metaDescription: snapshot.metaDescription,
       ogImage: snapshot.ogImage,
+      isPremium: snapshot.isPremium,
+      teaserMode: snapshot.teaserMode,
       status: snapshot.status,
       isHome: snapshot.isHome,
       publishedAt: snapshot.publishedAt,
@@ -206,7 +219,16 @@ export async function restorePostRevisionToDraft(revisionId: number) {
         metaDescription: revision.metaDescription,
         ogImage: revision.ogImage,
         isPremium: revision.isPremium,
+        teaserMode: revision.teaserMode,
         status: "draft",
+        reviewRequestedAt: null,
+        reviewRequestedBy: null,
+        lastReviewedAt: null,
+        lastReviewedBy: null,
+        approvedAt: null,
+        approvedBy: null,
+        scheduledAt: null,
+        archivedAt: null,
         publishedAt: null,
         updatedAt: new Date(),
       })
@@ -257,6 +279,8 @@ export async function restorePageRevisionToDraft(revisionId: number) {
       metaTitle: revision.metaTitle,
       metaDescription: revision.metaDescription,
       ogImage: revision.ogImage,
+      isPremium: revision.isPremium,
+      teaserMode: revision.teaserMode,
       status: "draft",
       isHome: revision.isHome,
       publishedAt: null,
@@ -392,4 +416,84 @@ export async function getContentLock(input: {
 
 export async function cleanupExpiredContentLocks() {
   await db.delete(contentLocks).where(lt(contentLocks.expiresAt, new Date()));
+}
+
+export async function ensurePostChecklist(postId: number) {
+  const existing = await db.query.editorialChecklists.findMany({
+    where: eq(editorialChecklists.postId, postId),
+  });
+
+  const existingKeys = new Set(existing.map((item) => item.itemKey));
+  const missingItems = EDITORIAL_CHECKLIST_ITEMS.filter((item) => !existingKeys.has(item.key));
+
+  if (missingItems.length > 0) {
+    await db.insert(editorialChecklists).values(
+      missingItems.map((item) => ({
+        postId,
+        itemKey: item.key,
+        isCompleted: false,
+        updatedAt: new Date(),
+      })),
+    );
+  }
+}
+
+export async function listEditorialChecklist(postId: number) {
+  await ensurePostChecklist(postId);
+  const rows = await db.query.editorialChecklists.findMany({
+    where: eq(editorialChecklists.postId, postId),
+    orderBy: [desc(editorialChecklists.updatedAt)],
+    with: {
+      completedByUser: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return EDITORIAL_CHECKLIST_ITEMS.map((definition) => {
+    const item = rows.find((row) => row.itemKey === definition.key);
+    return {
+      key: definition.key,
+      label: definition.label,
+      isCompleted: Boolean(item?.isCompleted),
+      completedAt: item?.completedAt ?? null,
+      completedBy: item?.completedByUser ?? null,
+    };
+  });
+}
+
+export async function listEditorialComments(postId: number) {
+  return db.query.editorialComments.findMany({
+    where: eq(editorialComments.postId, postId),
+    orderBy: [desc(editorialComments.createdAt)],
+    with: {
+      author: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+      resolver: {
+        columns: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+}
+
+export async function listAssignableEditors() {
+  return db.query.user.findMany({
+    where: (users, { inArray }) => inArray(users.role, ["editor", "admin", "super-admin"]),
+    columns: {
+      id: true,
+      name: true,
+      role: true,
+    },
+    orderBy: [user.name],
+  });
 }

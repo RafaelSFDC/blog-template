@@ -347,6 +347,50 @@ export function PageEditorScreen({
                 )}
               </form.Field>
 
+              <form.Field name="isPremium">
+                {(field) => (
+                  <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <Switch
+                      id={field.name}
+                      checked={field.state.value}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                      <span className="text-sm font-bold text-foreground">Premium Page</span>
+                      <span className="text-xs text-muted-foreground">
+                        Only members can read the full page content.
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Subscribe selector={(state) => state.values.isPremium}>
+                {(isPremium) =>
+                  isPremium ? (
+                    <form.Field name="teaserMode">
+                      {(field) => (
+                        <Field>
+                          <FieldLabel htmlFor={field.name}>Premium Teaser</FieldLabel>
+                          <Select
+                            value={field.state.value}
+                            onValueChange={(value) => field.handleChange(value as typeof field.state.value)}
+                          >
+                            <SelectTrigger id={field.name}>
+                              <SelectValue placeholder="Select teaser mode" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="excerpt">Use excerpt</SelectItem>
+                              <SelectItem value="truncate">Truncate page body</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                      )}
+                    </form.Field>
+                  ) : null
+                }
+              </form.Subscribe>
+
               <form.Subscribe
                 selector={(state) => ({
                   excerpt: state.values.excerpt,

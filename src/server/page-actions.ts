@@ -72,6 +72,8 @@ export const createPage = createServerFn({ method: "POST" })
           title: data.title.trim(),
           excerpt: data.excerpt,
           content: data.content.trim(),
+          isPremium: data.isPremium,
+          teaserMode: data.teaserMode,
           status: data.status,
           metaTitle: data.metaTitle,
           metaDescription: data.metaDescription,
@@ -99,6 +101,7 @@ export const createPage = createServerFn({ method: "POST" })
           slug,
           status: created.status,
           isHome: created.isHome,
+          isPremium: created.isPremium,
         },
       });
 
@@ -148,6 +151,8 @@ export const updatePage = createServerFn({ method: "POST" })
           title: data.title.trim(),
           excerpt: data.excerpt,
           content: data.content.trim(),
+          isPremium: data.isPremium,
+          teaserMode: data.teaserMode,
           status: data.status,
           metaTitle: data.metaTitle,
           metaDescription: data.metaDescription,
@@ -179,6 +184,7 @@ export const updatePage = createServerFn({ method: "POST" })
           slug,
           status: updated.status,
           isHome: updated.isHome,
+          isPremium: updated.isPremium,
         },
       });
 
@@ -221,6 +227,8 @@ export const autosavePage = createServerFn({ method: "POST" })
         metaTitle: data.metaTitle ?? null,
         metaDescription: data.metaDescription ?? null,
         ogImage: data.ogImage ?? null,
+        isPremium: data.isPremium,
+        teaserMode: data.teaserMode,
         status: data.status,
         isHome: data.isHome,
         publishedAt: data.publishedAt ?? null,
@@ -359,6 +367,8 @@ export const getPagePreviewData = createServerFn({ method: "GET" })
       metaTitle: latestRevision?.metaTitle ?? page.metaTitle ?? "",
       metaDescription: latestRevision?.metaDescription ?? page.metaDescription ?? "",
       ogImage: latestRevision?.ogImage ?? page.ogImage ?? "",
+      isPremium: latestRevision?.isPremium ?? page.isPremium,
+      teaserMode: latestRevision?.teaserMode ?? page.teaserMode,
       status: latestRevision?.status ?? page.status,
       isHome: latestRevision?.isHome ?? page.isHome,
       useVisualBuilder: false,

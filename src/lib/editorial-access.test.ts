@@ -21,10 +21,10 @@ describe("editorial access helpers", () => {
 
   it("blocks authors from publishing or scheduling posts", async () => {
     await expect(ensurePostTransitionAllowed("author", "published")).rejects.toThrow(
-      "Only editors can publish or schedule posts",
+      "Only editors can publish, schedule, or archive posts",
     );
     await expect(ensurePostTransitionAllowed("author", "scheduled")).rejects.toThrow(
-      "Only editors can publish or schedule posts",
+      "Only editors can publish, schedule, or archive posts",
     );
     await expect(ensurePostTransitionAllowed("author", "draft")).resolves.toBeUndefined();
   });

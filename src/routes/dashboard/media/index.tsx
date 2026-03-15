@@ -5,12 +5,14 @@ import { Image, Upload, Trash2, Copy, Check } from "lucide-react";
 import { useState, useRef } from "react";
 import { Button } from "#/components/ui/button";
 import {
+  bulkDeleteMedia,
   getMediaItems,
   uploadMedia,
   deleteMediaItem,
 } from "#/server/media-actions";
 import { toast } from "sonner";
 import { EmptyState } from "#/components/dashboard/EmptyState";
+import { Checkbox } from "#/components/ui/checkbox";
 
 export const Route = createFileRoute("/dashboard/media/")({
   loader: () => getMediaItems(),
@@ -28,6 +30,7 @@ function MediaLibraryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -63,6 +66,19 @@ function MediaLibraryPage() {
     }
   }
 
+  async function onBulkDelete() {
+    if (selectedIds.length === 0) return;
+    if (!confirm("Delete all selected media files?")) return;
+
+    try {
+      await bulkDeleteMedia({ data: { ids: selectedIds } });
+      toast.success("Selected media deleted");
+      window.location.reload();
+    } catch (error) {
+      toast.error(getErrorMessage(error) || "Bulk delete failed");
+    }
+  }
+
   function copyToClipboard(text: string, id: number) {
     const absoluteUrl =
       typeof window !== "undefined" && text.startsWith("/")
@@ -83,6 +99,22 @@ function MediaLibraryPage() {
         iconLabel="Assets"
       >
         <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
+            <Checkbox
+              checked={mediaItems.length > 0 && selectedIds.length === mediaItems.length}
+              onCheckedChange={(checked) =>
+                setSelectedIds(checked === true ? mediaItems.map((item) => item.id) : [])
+              }
+            />
+            <span className="text-sm font-medium">Select all</span>
+          </label>
+          <Button
+            onClick={() => void onBulkDelete()}
+            disabled={selectedIds.length === 0}
+            variant="outline"
+          >
+            Delete Selected
+          </Button>
           <input
             type="file"
             ref={fileInputRef}
@@ -114,6 +146,18 @@ function MediaLibraryPage() {
               key={item.id}
               className="group bg-card border shadow-sm relative aspect-square overflow-hidden rounded-xl p-0 hover:border-primary/50"
             >
+              <div className="absolute left-2 top-2 z-10 rounded-md bg-background/90 p-1">
+                <Checkbox
+                  checked={selectedIds.includes(item.id)}
+                  onCheckedChange={(checked) =>
+                    setSelectedIds((current) =>
+                      checked === true
+                        ? [...current, item.id]
+                        : current.filter((id) => id !== item.id),
+                    )
+                  }
+                />
+              </div>
               <img
                 src={item.url}
                 alt={item.altText || item.filename}

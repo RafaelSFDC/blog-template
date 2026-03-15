@@ -1,11 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "#/components/ui/button";
-import { useState } from "react";
-import { useRouter, useLoaderData } from "@tanstack/react-router";
-import { FileText, Plus, Eye, Pencil, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { FileText, Plus, Eye, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "#/components/dashboard/EmptyState";
-import { deletePost, getDashboardPosts } from "#/server/post-actions";
+import { DashboardHeader } from "#/components/dashboard/Header";
+import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { Button } from "#/components/ui/button";
+import { Checkbox } from "#/components/ui/checkbox";
+import { Input } from "#/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
+import { StatusBadge } from "#/components/ui/status-badge";
+import { authClient } from "#/lib/auth-client";
+import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
+import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/post-actions";
 
 type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];
 
@@ -16,43 +23,109 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export const Route = createFileRoute("/dashboard/posts/")({
-  loader: () => getDashboardPosts(),
+  loader: () => getDashboardPosts({ data: {} }),
   component: PostsManagementPage,
 });
 
-import { DashboardHeader } from "#/components/dashboard/Header";
-import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+function getStatusVariant(status: string) {
+  if (status === "published") return "success" as const;
+  if (status === "in_review") return "warning" as const;
+  if (status === "archived") return "secondary" as const;
+  return "default" as const;
+}
 
 function PostsManagementPage() {
-  const postList = useLoaderData({ from: "/dashboard/posts/" }) as DashboardPost[];
-  const router = useRouter();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const initialPosts = Route.useLoaderData() as DashboardPost[];
+  const { data: session } = authClient.useSession();
+  const [postList, setPostList] = useState<DashboardPost[]>(initialPosts);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("all");
+  const [visibility, setVisibility] = useState(session?.user.role === "author" ? "mine" : "all");
+  const [bulkAction, setBulkAction] = useState("request_review");
+  const [scheduledFor, setScheduledFor] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const authorOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const post of postList) {
+      if (post.authorId && post.authorName) {
+        seen.set(post.authorId, post.authorName);
+      }
+    }
+    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
+  }, [postList]);
+
+  async function refresh(filters?: { query?: string; status?: string; visibility?: string }) {
+    setLoading(true);
+    try {
+      const next = await getDashboardPosts({
+        data: {
+          query: filters?.query ?? (query || undefined),
+          status: filters?.status && filters.status !== "all" ? (filters.status as never) : undefined,
+          visibility: filters?.visibility && filters.visibility !== "all" ? (filters.visibility as never) : undefined,
+        },
+      });
+      setPostList(next);
+      setSelectedIds([]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not refresh posts");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleDelete(id: number) {
-    const confirmed = window.confirm(
-      "Delete this post? This action cannot be undone.",
-    );
+    const confirmed = window.confirm("Delete this post? This action cannot be undone.");
     if (!confirmed) {
       return;
     }
 
     try {
-      setDeletingId(id);
       await deletePost({ data: { id } });
-      await router.invalidate();
       toast.success("Post deleted successfully");
-    } catch {
-      toast.error("Could not delete the post. Try again in a few seconds.");
-    } finally {
-      setDeletingId(null);
+      await refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete the post");
     }
+  }
+
+  async function handleBulkAction() {
+    if (selectedIds.length === 0) {
+      toast.error("Select at least one post");
+      return;
+    }
+
+    try {
+      await bulkUpdatePosts({
+        data: {
+          ids: selectedIds,
+          action: bulkAction as never,
+          scheduledFor: bulkAction === "schedule" && scheduledFor ? new Date(scheduledFor) : undefined,
+        },
+      });
+      toast.success("Bulk action applied");
+      await refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not run bulk action");
+    }
+  }
+
+  function toggleSelected(id: number, checked: boolean) {
+    setSelectedIds((current) =>
+      checked ? [...current, id] : current.filter((currentId) => currentId !== id),
+    );
+  }
+
+  function toggleSelectAll(checked: boolean) {
+    setSelectedIds(checked ? postList.map((post) => post.id) : []);
   }
 
   return (
     <DashboardPageContainer>
       <DashboardHeader
-        title="Manage Posts"
-        description="Create drafts, edit published articles, and maintain your blog archive."
+        title="Editorial Queue"
+        description="Filter the newsroom, review drafts, and run operational actions across posts."
         icon={FileText}
         iconLabel="Content Library"
       >
@@ -67,73 +140,154 @@ function PostsManagementPage() {
         </Button>
       </DashboardHeader>
 
+      <div className="grid gap-4 rounded-2xl border border-border bg-card p-4">
+        <div className="grid gap-3 md:grid-cols-[1.5fr,0.8fr,0.8fr,auto]">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="pl-9"
+              placeholder="Search by title, slug, or author"
+            />
+          </div>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger>
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="in_review">In Review</SelectItem>
+              <SelectItem value="scheduled">Scheduled</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+          {session?.user.role !== "author" ? (
+            <Select value={visibility} onValueChange={setVisibility}>
+              <SelectTrigger>
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All posts</SelectItem>
+                <SelectItem value="mine">Mine</SelectItem>
+                <SelectItem value="team">Team</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <div />
+          )}
+          <Button type="button" onClick={() => void refresh({ query, status, visibility })} disabled={loading}>
+            {loading ? "Filtering..." : "Apply"}
+          </Button>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-[auto,1fr,auto]">
+          <label className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
+            <Checkbox
+              checked={postList.length > 0 && selectedIds.length === postList.length}
+              onCheckedChange={(checked) => toggleSelectAll(checked === true)}
+            />
+            <span className="text-sm font-medium">Select all</span>
+          </label>
+          <div className="text-sm text-muted-foreground">
+            {selectedIds.length} selected
+          </div>
+          <div className="grid gap-3 md:grid-cols-[1fr,auto,auto]">
+            <Select value={bulkAction} onValueChange={setBulkAction}>
+              <SelectTrigger>
+                <SelectValue placeholder="Bulk action" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="request_review">Submit for review</SelectItem>
+                <SelectItem value="move_to_draft">Move to draft</SelectItem>
+                <SelectItem value="publish">Publish</SelectItem>
+                <SelectItem value="schedule">Schedule</SelectItem>
+                <SelectItem value="archive">Archive</SelectItem>
+                <SelectItem value="delete">Delete</SelectItem>
+              </SelectContent>
+            </Select>
+            {bulkAction === "schedule" ? (
+              <Input
+                type="datetime-local"
+                value={scheduledFor}
+                onChange={(event) => setScheduledFor(event.target.value)}
+              />
+            ) : null}
+            <Button type="button" variant="outline" onClick={() => void handleBulkAction()}>
+              Run Bulk Action
+            </Button>
+          </div>
+        </div>
+
+        {authorOptions.length > 0 ? (
+          <p className="text-xs text-muted-foreground">
+            Authors in queue: {authorOptions.map((author) => author.name).join(", ")}
+          </p>
+        ) : null}
+      </div>
+
       <div className="grid gap-4">
         {postList.length > 0 ? (
-          postList.map((post: DashboardPost) => (
+          postList.map((post) => (
             <article
               key={post.id}
-              className="bg-card border shadow-sm hover:border-primary/30 transition-all group overflow-hidden rounded-xl p-5 sm:p-6 border-border/50"
+              className="rounded-xl border border-border/50 bg-card p-5 shadow-sm transition-all hover:border-primary/30"
             >
-              <div className="flex flex-wrap items-center justify-between gap-6">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span
-                      className={
-                        post.publishedAt
-                          ? "rounded-md bg-green-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-green-600 border border-green-500/20"
-                          : "rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-amber-600 border border-amber-500/20"
-                      }
-                    >
-                      {post.publishedAt ? "Published" : "Draft"}
-                    </span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                    {post.publishedAt
-                      ? dateFormatter.format(new Date(post.publishedAt))
-                      : "Last updated " +
-                          dateFormatter.format(
-                            new Date(post.updatedAt || Date.now()),
-                          )}
-                    </p>
-                    {post.authorName ? (
-                      <p className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                        {post.authorName}
-                      </p>
-                    ) : null}
+              <div className="flex flex-wrap items-start justify-between gap-6">
+                <div className="flex min-w-0 flex-1 gap-4">
+                  <Checkbox
+                    checked={selectedIds.includes(post.id)}
+                    onCheckedChange={(checked) => toggleSelected(post.id, checked === true)}
+                    className="mt-1"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <StatusBadge variant={getStatusVariant(post.status)}>
+                        {getEditorialStatusCopy(post.status)}
+                      </StatusBadge>
+                      {post.reviewRequestedAt ? (
+                        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                          Review requested {dateFormatter.format(new Date(post.reviewRequestedAt))}
+                        </span>
+                      ) : null}
+                      {post.scheduledAt ? (
+                        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                          Scheduled {dateFormatter.format(new Date(post.scheduledAt))}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h2 className="wrap-break-word text-2xl font-black text-foreground line-clamp-1">
+                      {post.title}
+                    </h2>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">/{post.slug}</p>
+                    <div className="mt-3 flex flex-wrap gap-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                      <span>{post.authorName || "Editorial Team"}</span>
+                      {post.editorOwnerName ? <span>Editor: {post.editorOwnerName}</span> : null}
+                      <span>
+                        Updated {dateFormatter.format(new Date(post.updatedAt || Date.now()))}
+                      </span>
+                    </div>
                   </div>
-                  <h2 className="display-title wrap-break-word text-2xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                    {post.title}
-                  </h2>
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">
-                    /{post.slug}
-                  </p>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg h-10 border hover:border-primary hover:text-primary transition-all"
-                  >
+                  <Button asChild variant="outline" size="sm">
                     <Link
                       to="/blog/$slug"
                       params={{ slug: post.slug }}
-                      className="no-underline flex items-center gap-2"
+                      className="flex items-center gap-2 no-underline"
                     >
                       <Eye size={16} />
                       <span className="hidden sm:inline">View</span>
                     </Link>
                   </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg h-10 border hover:border-primary hover:text-primary transition-all"
-                  >
+                  <Button asChild variant="outline" size="sm">
                     <Link
                       to="/dashboard/posts/$postId/edit"
                       params={{ postId: String(post.id) }}
-                      className="no-underline flex items-center gap-2"
+                      className="flex items-center gap-2 no-underline"
                     >
                       <Pencil size={16} />
                       <span className="hidden sm:inline">Edit</span>
@@ -144,13 +298,9 @@ function PostsManagementPage() {
                     variant="destructive"
                     size="sm"
                     onClick={() => void handleDelete(post.id)}
-                    disabled={deletingId === post.id}
-                    className="rounded-lg h-10 bg-destructive/5 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all"
                   >
                     <Trash2 size={16} />
-                    <span className="ml-2 hidden sm:inline">
-                      {deletingId === post.id ? "Deleting…" : "Delete"}
-                    </span>
+                    <span className="ml-2 hidden sm:inline">Delete</span>
                   </Button>
                 </div>
               </div>
@@ -159,11 +309,11 @@ function PostsManagementPage() {
         ) : (
           <EmptyState
             icon={FileText}
-            title="No Stories Shared Yet"
-            description="Your content archive is empty. Begin your blog journey by creating your first post."
+            title="No stories found"
+            description="Try adjusting the editorial filters or create a new story."
             action={
               <Button asChild variant="default">
-                <Link to="/dashboard/posts/new">Create First Post</Link>
+                <Link to="/dashboard/posts/new">Create New Post</Link>
               </Button>
             }
           />

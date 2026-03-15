@@ -20,6 +20,7 @@ import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redir
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard/menus'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
+import { Route as PublicPricingRouteImport } from './routes/_public/pricing'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAuthRouteImport } from './routes/_public/auth'
 import { Route as PublicAccountRouteImport } from './routes/_public/account'
@@ -43,6 +44,7 @@ import { Route as DashboardPagesNewRouteImport } from './routes/dashboard/pages/
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
+import { Route as ApiStripeBillingPortalRouteImport } from './routes/api/stripe/billing-portal'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest.$'
@@ -116,6 +118,11 @@ const ApiCommentsRoute = ApiCommentsRouteImport.update({
   id: '/api/comments',
   path: '/api/comments',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PublicPricingRoute = PublicPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => PublicRoute,
 } as any)
 const PublicContactRoute = PublicContactRouteImport.update({
   id: '/contact',
@@ -235,6 +242,11 @@ const ApiStripeCheckoutRoute = ApiStripeCheckoutRouteImport.update({
   path: '/api/stripe/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStripeBillingPortalRoute = ApiStripeBillingPortalRouteImport.update({
+  id: '/api/stripe/billing-portal',
+  path: '/api/stripe/billing-portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNewsletterUnsubscribeRoute =
   ApiNewsletterUnsubscribeRouteImport.update({
     id: '/api/newsletter/unsubscribe',
@@ -345,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
+  '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -365,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -397,6 +411,7 @@ export interface FileRoutesByTo {
   '/account': typeof PublicAccountRoute
   '/auth': typeof PublicAuthRouteWithChildren
   '/contact': typeof PublicContactRoute
+  '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -418,6 +433,7 @@ export interface FileRoutesByTo {
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -453,6 +469,7 @@ export interface FileRoutesById {
   '/_public/account': typeof PublicAccountRoute
   '/_public/auth': typeof PublicAuthRouteWithChildren
   '/_public/contact': typeof PublicContactRoute
+  '/_public/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -474,6 +491,7 @@ export interface FileRoutesById {
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
@@ -510,6 +528,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/contact'
+    | '/pricing'
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
@@ -530,6 +549,7 @@ export interface FileRouteTypes {
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
+    | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -562,6 +582,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/contact'
+    | '/pricing'
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
@@ -583,6 +604,7 @@ export interface FileRouteTypes {
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
+    | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -617,6 +639,7 @@ export interface FileRouteTypes {
     | '/_public/account'
     | '/_public/auth'
     | '/_public/contact'
+    | '/_public/pricing'
     | '/api/comments'
     | '/dashboard/menus'
     | '/dashboard/messages'
@@ -638,6 +661,7 @@ export interface FileRouteTypes {
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/unsubscribe'
+    | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
     | '/dashboard/newsletters/new'
@@ -677,6 +701,7 @@ export interface RootRouteChildren {
   ApiIngestSplatRoute: typeof ApiIngestSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
+  ApiStripeBillingPortalRoute: typeof ApiStripeBillingPortalRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
@@ -759,6 +784,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/comments'
       preLoaderRoute: typeof ApiCommentsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_public/pricing': {
+      id: '/_public/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PublicPricingRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/_public/contact': {
       id: '/_public/contact'
@@ -919,6 +951,13 @@ declare module '@tanstack/react-router' {
       path: '/api/stripe/checkout'
       fullPath: '/api/stripe/checkout'
       preLoaderRoute: typeof ApiStripeCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/stripe/billing-portal': {
+      id: '/api/stripe/billing-portal'
+      path: '/api/stripe/billing-portal'
+      fullPath: '/api/stripe/billing-portal'
+      preLoaderRoute: typeof ApiStripeBillingPortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/newsletter/unsubscribe': {
@@ -1083,6 +1122,7 @@ interface PublicRouteChildren {
   PublicAccountRoute: typeof PublicAccountRoute
   PublicAuthRoute: typeof PublicAuthRouteWithChildren
   PublicContactRoute: typeof PublicContactRoute
+  PublicPricingRoute: typeof PublicPricingRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
@@ -1096,6 +1136,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicAccountRoute: PublicAccountRoute,
   PublicAuthRoute: PublicAuthRouteWithChildren,
   PublicContactRoute: PublicContactRoute,
+  PublicPricingRoute: PublicPricingRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
@@ -1188,6 +1229,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiIngestSplatRoute: ApiIngestSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
+  ApiStripeBillingPortalRoute: ApiStripeBillingPortalRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }

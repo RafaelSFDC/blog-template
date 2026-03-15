@@ -1,4 +1,5 @@
 import { SiteHeader } from "#/components/SiteHeader";
+import { Paywall } from "#/components/blog/paywall";
 import { Render } from "@puckeditor/core";
 import { config } from "./puck.config";
 import { MarkdownContent } from "#/components/markdown-content";
@@ -8,12 +9,22 @@ interface PageContentProps {
   title: string;
   description?: string | null;
   content: string;
+  showPaywall?: boolean;
+  onSubscribe?: () => void;
+  isSubscribing?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
 export function PageContent({
   title,
   description,
   content,
+  showPaywall = false,
+  onSubscribe,
+  isSubscribing = false,
+  ctaHref,
+  ctaLabel,
 }: PageContentProps) {
   const puckData = parsePuckData(content);
 
@@ -40,6 +51,14 @@ export function PageContent({
           ) : (
             <MarkdownContent content={content} />
           )}
+          {showPaywall ? (
+            <Paywall
+              onSubscribe={onSubscribe}
+              isLoading={isSubscribing}
+              ctaHref={ctaHref}
+              ctaLabel={ctaLabel}
+            />
+          ) : null}
         </article>
       </div>
     </main>

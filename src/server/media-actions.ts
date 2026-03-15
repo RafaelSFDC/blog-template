@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "#/db/index";
 import { media as mediaTable } from "#/db/schema";
 import { requireMediaAccess, requireMediaReadAccess } from "#/lib/editorial-access";
 import { deleteObject, putObject, sanitizeMediaFilename } from "#/lib/storage";
-import { mediaUploadSchema } from "#/lib/cms-schema";
+import { bulkMediaDeleteSchema, mediaUploadSchema } from "#/lib/cms-schema";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
 
@@ -96,4 +96,37 @@ export const deleteMediaItem = createServerFn({ method: "POST" })
     });
 
     return { success: true };
+  });
+
+export const bulkDeleteMedia = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => bulkMediaDeleteSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { session } = await requireMediaAccess("delete");
+    const items = await db.query.media.findMany({
+      where: inArray(mediaTable.id, data.ids),
+      columns: {
+        id: true,
+        filename: true,
+      },
+    });
+
+    for (const item of items) {
+      const { item: scopedItem } = await requireMediaAccess("delete", item.id);
+      await deleteObject(scopedItem.filename);
+    }
+
+    await db.delete(mediaTable).where(inArray(mediaTable.id, items.map((item) => item.id)));
+
+    await logActivity({
+      actorUserId: session.user.id,
+      entityType: "media",
+      entityId: data.ids.join(","),
+      action: "media.bulk_delete",
+      summary: `${items.length} media items deleted`,
+      metadata: {
+        ids: items.map((item) => item.id),
+      },
+    });
+
+    return { success: true, count: items.length };
   });

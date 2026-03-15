@@ -5,9 +5,16 @@ import { Lock } from "lucide-react";
 interface PaywallProps {
   onSubscribe?: () => void;
   isLoading?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
-export function Paywall({ onSubscribe, isLoading }: PaywallProps) {
+export function Paywall({
+  onSubscribe,
+  isLoading,
+  ctaHref = "/pricing",
+  ctaLabel = "See plans",
+}: PaywallProps) {
   return (
     <div className="relative mt-8">
       <div className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-transparent z-10 h-64 -top-64" />
@@ -39,7 +46,7 @@ export function Paywall({ onSubscribe, isLoading }: PaywallProps) {
             {isLoading ? "Please wait..." : "Subscribe now"}
           </Button>
           <Button variant="outline" size="lg" asChild>
-            <Link to="/auth/login">Sign in to my account</Link>
+            <Link to={ctaHref}>{ctaLabel}</Link>
           </Button>
         </div>
 

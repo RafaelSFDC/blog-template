@@ -1,84 +1,103 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { stripe } from '../../../server/stripe'
-import { auth } from '../../../lib/auth'
-import { getPostHogClient } from '../../../server/posthog'
-import { captureServerException } from '../../../server/sentry'
+import { createFileRoute } from "@tanstack/react-router";
+import { getPostHogClient } from "#/server/posthog";
+import { captureServerException } from "#/server/sentry";
+import { getPricingPlansData } from "#/server/membership-actions";
+import { stripe } from "#/server/stripe";
+import { auth } from "#/lib/auth";
+import { stripeCheckoutSchema } from "#/lib/cms-schema";
 
-export const Route = createFileRoute('/api/stripe/checkout')({
+export const Route = createFileRoute("/api/stripe/checkout")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         const session = await auth.api.getSession({
-            headers: request.headers
-        })
+          headers: request.headers,
+        });
 
-        if (!session || !session.user) {
-          return new Response('Unauthorized', { status: 401 })
+        if (!session?.user) {
+          return new Response("Unauthorized", { status: 401 });
         }
 
-        const { priceId } = await request.json() as { priceId: string }
+        const payload = stripeCheckoutSchema.parse(await request.json());
+        const plans = await getPricingPlansData();
+        const selectedPlan =
+          (payload.planSlug
+            ? plans.find((plan) => plan.slug === payload.planSlug)
+            : payload.priceId
+              ? plans.find((plan) => plan.stripePriceId === payload.priceId)
+              : plans.find((plan) => plan.isDefault && plan.isActive)) ??
+          plans.find((plan) => plan.isActive);
 
-        if (!priceId) {
-            return new Response('Price ID is required', { status: 400 })
+        if (!selectedPlan?.stripePriceId) {
+          return new Response(
+            JSON.stringify({ error: "No membership plan is configured for checkout" }),
+            { status: 400, headers: { "Content-Type": "application/json" } },
+          );
         }
 
-        const sessionId = request.headers.get('X-PostHog-Session-Id')
-        const distinctId = request.headers.get('X-PostHog-Distinct-Id') || session.user.email
+        const sessionId = request.headers.get("X-PostHog-Session-Id");
+        const distinctId = request.headers.get("X-PostHog-Distinct-Id") || session.user.email;
 
         try {
-            const checkoutSession = await stripe.checkout.sessions.create({
-                customer_email: session.user.email,
-                line_items: [
-                    {
-                        price: priceId,
-                        quantity: 1,
-                    },
-                ],
-                mode: 'subscription',
-                success_url: `${new URL(request.url).origin}/dashboard/settings?success=true`,
-                cancel_url: `${new URL(request.url).origin}/dashboard/settings?canceled=true`,
-                metadata: {
-                    userId: session.user.id,
-                },
-            })
+          const origin = new URL(request.url).origin;
+          const checkoutSession = await stripe.checkout.sessions.create({
+            customer_email: session.user.email,
+            line_items: [
+              {
+                price: selectedPlan.stripePriceId,
+                quantity: 1,
+              },
+            ],
+            mode: "subscription",
+            success_url: `${origin}/account?success=true`,
+            cancel_url: `${origin}/pricing?canceled=true`,
+            metadata: {
+              userId: session.user.id,
+              planSlug: selectedPlan.slug,
+            },
+          });
 
-            const posthog = getPostHogClient()
-            posthog.capture({
-                distinctId,
-                event: 'subscription_checkout_created',
-                properties: {
-                    $session_id: sessionId || undefined,
-                    price_id: priceId,
-                    user_id: session.user.id,
-                    user_email: session.user.email,
-                    checkout_session_id: checkoutSession.id,
-                },
-            })
+          getPostHogClient().capture({
+            distinctId,
+            event: "subscription_checkout_created",
+            properties: {
+              $session_id: sessionId || undefined,
+              user_id: session.user.id,
+              user_email: session.user.email,
+              checkout_session_id: checkoutSession.id,
+              plan_slug: selectedPlan.slug,
+              price_id: selectedPlan.stripePriceId,
+            },
+          });
 
-            return new Response(JSON.stringify({ url: checkoutSession.url }), {
-                headers: { 'Content-Type': 'application/json' },
-            })
+          return new Response(JSON.stringify({ url: checkoutSession.url }), {
+            headers: { "Content-Type": "application/json" },
+          });
         } catch (error: unknown) {
-            captureServerException(error, {
-                tags: {
-                    area: 'api',
-                    flow: 'stripe-checkout',
-                },
-                extras: {
-                    requestUrl: request.url,
-                    priceId,
-                    userId: session.user.id,
-                },
-                user: {
-                    id: session.user.id,
-                    email: session.user.email,
-                },
-            })
-            console.error('Stripe error:', error)
-            const message = error instanceof Error ? error.message : 'Internal Server Error'
-            return new Response(message, { status: 500 })
+          captureServerException(error, {
+            tags: {
+              area: "api",
+              flow: "stripe-checkout",
+            },
+            extras: {
+              requestUrl: request.url,
+              planSlug: selectedPlan.slug,
+              priceId: selectedPlan.stripePriceId,
+              userId: session.user.id,
+            },
+            user: {
+              id: session.user.id,
+              email: session.user.email,
+            },
+          });
+
+          const message = error instanceof Error ? error.message : "Internal Server Error";
+          return new Response(JSON.stringify({ error: message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
-    }
-  }
-})
+    },
+  },
+});

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const POST_STATUSES = ["draft", "published", "scheduled", "private"] as const;
+export const POST_STATUSES = ["draft", "in_review", "scheduled", "published", "archived"] as const;
 export const PAGE_STATUSES = ["draft", "published", "private"] as const;
 export const MENU_KEYS = ["primary", "footer"] as const;
 export const MENU_ITEM_KINDS = ["internal", "external"] as const;
@@ -16,6 +16,31 @@ export const USER_ROLES = [
   "super-admin",
 ] as const;
 export const REVISION_SOURCES = ["manual", "autosave", "restore", "publish"] as const;
+export const TEASER_MODES = ["excerpt", "truncate"] as const;
+export const SUBSCRIPTION_STATUSES = [
+  "inactive",
+  "active",
+  "past_due",
+  "canceled",
+  "expired",
+] as const;
+export const EDITORIAL_WORKFLOW_ACTIONS = [
+  "request_review",
+  "approve",
+  "send_back",
+  "schedule",
+  "publish",
+  "archive",
+] as const;
+export const POST_BULK_ACTIONS = [
+  "request_review",
+  "move_to_draft",
+  "archive",
+  "delete",
+  "publish",
+  "schedule",
+] as const;
+export const COMMENT_BULK_ACTIONS = ["approve", "spam", "pending", "delete"] as const;
 export const MEDIA_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -33,7 +58,12 @@ export const commentStatusSchema = z.enum(COMMENT_STATUSES);
 export const redirectStatusCodeSchema = z.union([z.literal(301), z.literal(302)]);
 export const userRoleSchema = z.enum(USER_ROLES);
 export const revisionSourceSchema = z.enum(REVISION_SOURCES);
+export const editorialWorkflowActionSchema = z.enum(EDITORIAL_WORKFLOW_ACTIONS);
+export const postBulkActionSchema = z.enum(POST_BULK_ACTIONS);
+export const commentBulkActionSchema = z.enum(COMMENT_BULK_ACTIONS);
 export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
+export const teaserModeSchema = z.enum(TEASER_MODES);
+export const subscriptionStatusSchema = z.enum(SUBSCRIPTION_STATUSES);
 
 function emptyStringToUndefined(value: unknown) {
   if (typeof value !== "string") return value;
@@ -111,6 +141,15 @@ export const settingsSchema = z.object({
     emptyStringToUndefined,
     z.string().trim().max(50, "Twitter handle is too long").optional(),
   ),
+  stripeMonthlyPriceId: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(255, "Monthly Stripe Price ID is too long").optional(),
+  ),
+  stripeAnnualPriceId: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(255, "Annual Stripe Price ID is too long").optional(),
+  ),
+  membershipGracePeriodDays: z.number().int().min(0).max(30),
   robotsIndexingEnabled: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(20, "Too many social links"),
 });
@@ -135,8 +174,10 @@ export const postFormSchema = z
       message: "Must be a valid URL",
     }),
     isPremium: z.boolean(),
+    teaserMode: teaserModeSchema,
     status: postStatusSchema,
     publishedAt: z.string(),
+    editorOwnerId: z.string().trim().optional().catch(""),
     categoryIds: z.array(z.number().int().positive()).max(20, "Too many categories"),
     tagIds: z.array(z.number().int().positive()).max(50, "Too many tags"),
   })
@@ -160,6 +201,8 @@ export const pageFormSchema = z.object({
   ogImage: z.string().trim().refine((value) => !value || z.string().url().safeParse(value).success, {
     message: "Must be a valid URL",
   }),
+  isPremium: z.boolean(),
+  teaserMode: teaserModeSchema,
   status: pageStatusSchema,
   isHome: z.boolean(),
   useVisualBuilder: z.boolean(),
@@ -176,8 +219,10 @@ export const postServerSchema = z
     metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
     ogImage: optionalUrlSchema,
     isPremium: z.boolean(),
+    teaserMode: teaserModeSchema,
     status: postStatusSchema,
     publishedAt: scheduledDateSchema,
+    editorOwnerId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
     categoryIds: z.array(z.number().int().positive()).max(20, "Too many categories"),
     tagIds: z.array(z.number().int().positive()).max(50, "Too many tags"),
   })
@@ -200,6 +245,8 @@ export const pageServerSchema = z.object({
   metaTitle: z.preprocess(emptyStringToUndefined, z.string().trim().max(160, "Meta title is too long").optional()),
   metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
   ogImage: optionalUrlSchema,
+  isPremium: z.boolean(),
+  teaserMode: teaserModeSchema,
   status: pageStatusSchema,
   isHome: z.boolean(),
   useVisualBuilder: z.boolean().optional(),
@@ -312,6 +359,70 @@ export const invitationCreateSchema = z.object({
 
 export const invitationAcceptSchema = z.object({
   token: z.string().trim().min(16, "Invalid invitation token"),
+});
+
+export const postWorkflowActionInputSchema = z.object({
+  id: positiveIntSchema,
+  action: editorialWorkflowActionSchema,
+  scheduledFor: scheduledDateSchema,
+  editorOwnerId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+});
+
+export const bulkPostActionSchema = z
+  .object({
+    ids: z.array(positiveIntSchema).min(1, "Select at least one post").max(100),
+    action: postBulkActionSchema,
+    scheduledFor: scheduledDateSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (value.action === "schedule" && !value.scheduledFor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["scheduledFor"],
+        message: "Scheduled posts require a publication date",
+      });
+    }
+  });
+
+export const editorialCommentCreateSchema = z.object({
+  postId: positiveIntSchema,
+  content: trimmedString(2, "Comment is too short", 5000, "Comment is too long"),
+});
+
+export const editorialCommentResolveSchema = z.object({
+  commentId: positiveIntSchema,
+});
+
+export const editorialChecklistUpdateSchema = z.object({
+  postId: positiveIntSchema,
+  itemKey: trimmedString(1, "Checklist item required", 80, "Checklist item is too long"),
+  isCompleted: z.boolean(),
+});
+
+export const dashboardPostsFilterSchema = z.object({
+  status: z.preprocess(emptyStringToUndefined, postStatusSchema.optional()),
+  authorId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  editorOwnerId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  taxonomyId: z.preprocess((value) => (value === "" ? undefined : value), z.coerce.number().int().positive().optional()),
+  taxonomyType: z.preprocess(emptyStringToUndefined, z.enum(["category", "tag"]).optional()),
+  visibility: z.preprocess(emptyStringToUndefined, z.enum(["mine", "team", "all"]).optional()),
+  query: z.preprocess(emptyStringToUndefined, z.string().trim().max(120).optional()),
+  from: scheduledDateSchema,
+  to: scheduledDateSchema,
+});
+
+export const bulkCommentActionSchema = z.object({
+  ids: z.array(positiveIntSchema).min(1, "Select at least one comment").max(100),
+  action: commentBulkActionSchema,
+});
+
+export const bulkMediaDeleteSchema = z.object({
+  ids: z.array(positiveIntSchema).min(1, "Select at least one media item").max(100),
+});
+
+export const stripeCheckoutSchema = z.object({
+  planSlug: z.enum(["monthly", "annual"]).optional(),
+  priceId: z.preprocess(emptyStringToUndefined, z.string().trim().min(1).optional()),
 });
 
 export function assertMenuHref(kind: z.infer<typeof menuItemKindSchema>, href: string) {

@@ -29,8 +29,10 @@ function NewPostPage() {
         metaDescription: "",
         ogImage: "",
         isPremium: false,
+        teaserMode: "excerpt",
         status: "draft",
         publishedAt: new Date().toISOString().slice(0, 16),
+        editorOwnerId: "",
         categoryIds: [],
         tagIds: [],
       }}

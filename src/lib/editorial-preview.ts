@@ -4,6 +4,7 @@ import {
   postFormSchema,
   slugify,
 } from "#/lib/cms-schema";
+import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
 
 export type PostEditorFormValues = z.infer<typeof postFormSchema>;
 export type PageEditorFormValues = z.infer<typeof pageFormSchema>;
@@ -75,15 +76,4 @@ export function buildPagePreviewDraft(
   };
 }
 
-export function getEditorialStatusCopy(status: string) {
-  switch (status) {
-    case "published":
-      return "Published";
-    case "scheduled":
-      return "Scheduled";
-    case "private":
-      return "Private";
-    default:
-      return "Draft";
-  }
-}
+export { getEditorialStatusCopy };

@@ -81,8 +81,17 @@ export async function requirePostAccess(action: ContentAction, postId: number) {
     columns: {
       id: true,
       authorId: true,
+      editorOwnerId: true,
       status: true,
+      scheduledAt: true,
+      archivedAt: true,
       publishedAt: true,
+      reviewRequestedAt: true,
+      reviewRequestedBy: true,
+      lastReviewedAt: true,
+      lastReviewedBy: true,
+      approvedAt: true,
+      approvedBy: true,
       slug: true,
       title: true,
     },
@@ -104,8 +113,8 @@ export async function requirePostAccess(action: ContentAction, postId: number) {
     throw new Error("Only editors can publish or restore posts");
   }
 
-  if ((action === "update" || action === "delete") && post.status === "published") {
-    throw new Error("Authors cannot modify posts after publication");
+  if ((action === "update" || action === "delete") && post.status !== "draft") {
+    throw new Error("Authors can only modify their own draft posts");
   }
 
   return { session, post };
@@ -158,11 +167,23 @@ export async function ensurePostTransitionAllowed(
 ) {
   const normalized = normalizeRole(sessionRole);
 
-  if (status === "published" || status === "scheduled") {
+  if (status === "published" || status === "scheduled" || status === "archived") {
     if (!isEditorRole(normalized)) {
-      throw new Error("Only editors can publish or schedule posts");
+      throw new Error("Only editors can publish, schedule, or archive posts");
     }
   }
+
+  if (status === "in_review" && !normalized) {
+    throw new Error("A signed-in user is required to request review");
+  }
+}
+
+export function canManagePostWorkflow(role: string | null | undefined) {
+  return isEditorRole(role);
+}
+
+export function canResolveEditorialComments(role: string | null | undefined) {
+  return isEditorRole(role);
 }
 
 export async function getEditablePostByIdForCurrentUser(postId: number) {

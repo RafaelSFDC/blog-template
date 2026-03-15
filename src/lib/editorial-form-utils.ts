@@ -19,8 +19,10 @@ type PostSubmissionValues = {
   metaDescription?: string;
   ogImage?: string;
   isPremium: boolean;
+  teaserMode: PostSubmissionInput["teaserMode"];
   status: PostSubmissionInput["status"];
   publishedAt?: string;
+  editorOwnerId?: string;
   categoryIds: number[];
   tagIds: number[];
 };
@@ -41,6 +43,8 @@ export function normalizePageSubmission(
     metaTitle: values.metaTitle.trim() || undefined,
     metaDescription: values.metaDescription.trim() || undefined,
     ogImage: values.ogImage.trim() || undefined,
+    isPremium: values.isPremium,
+    teaserMode: values.teaserMode,
     publishedAt: undefined,
   };
 }
@@ -63,7 +67,9 @@ export function normalizePostSubmission(
     metaDescription: values.metaDescription?.trim() || undefined,
     ogImage: values.ogImage?.trim() || undefined,
     isPremium: values.isPremium,
+    teaserMode: values.teaserMode,
     status: values.status,
+    editorOwnerId: values.editorOwnerId?.trim() || undefined,
     publishedAt:
       values.status === "scheduled"
         ? new Date(values.publishedAt || "")

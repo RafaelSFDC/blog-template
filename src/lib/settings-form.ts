@@ -49,6 +49,9 @@ export const settingsFormSchema = z.object({
     { message: "Must be a valid URL" },
   ),
   twitterHandle: trimmedOptionalString(50, "Twitter handle is too long"),
+  stripeMonthlyPriceId: trimmedOptionalString(255, "Monthly Stripe Price ID is too long"),
+  stripeAnnualPriceId: trimmedOptionalString(255, "Annual Stripe Price ID is too long"),
+  membershipGracePeriodDays: z.number().int().min(0).max(30),
   robotsIndexingEnabled: z.boolean(),
   socialLinks: z
     .array(
@@ -137,6 +140,9 @@ export function mapSettingsRowsToFormValues(rows: SettingsRow[]): SettingsFormVa
     defaultMetaDescription: settingsRecord.defaultMetaDescription || "",
     defaultOgImage: settingsRecord.defaultOgImage || "",
     twitterHandle: settingsRecord.twitterHandle || "",
+    stripeMonthlyPriceId: settingsRecord.stripeMonthlyPriceId || settingsRecord.stripePriceId || "",
+    stripeAnnualPriceId: settingsRecord.stripeAnnualPriceId || "",
+    membershipGracePeriodDays: Number(settingsRecord.membershipGracePeriodDays || "3"),
     robotsIndexingEnabled: settingsRecord.robotsIndexingEnabled !== "false",
     socialLinks,
   };
@@ -156,6 +162,9 @@ export function normalizeSettingsFormValues(
     defaultMetaDescription: values.defaultMetaDescription.trim(),
     defaultOgImage: values.defaultOgImage.trim(),
     twitterHandle: values.twitterHandle.trim(),
+    stripeMonthlyPriceId: values.stripeMonthlyPriceId?.trim() ?? "",
+    stripeAnnualPriceId: values.stripeAnnualPriceId?.trim() ?? "",
+    membershipGracePeriodDays: values.membershipGracePeriodDays ?? 3,
     robotsIndexingEnabled: values.robotsIndexingEnabled,
     socialLinks: values.socialLinks.map((link) => ({
       platform: link.platform.trim(),

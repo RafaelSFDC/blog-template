@@ -6,6 +6,7 @@ import {
   isAuthorizedCronRequest,
   isScheduledPostDue,
   resolvePostPublishedAt,
+  resolvePostScheduledAt,
   shouldTriggerPublishedWebhook,
 } from "#/server/post-domain";
 
@@ -21,7 +22,7 @@ describe("post-domain", () => {
   it("keeps scheduled publication date intact", () => {
     const scheduledFor = new Date("2026-03-12T10:00:00.000Z");
 
-    expect(resolvePostPublishedAt("scheduled", scheduledFor, undefined)).toEqual(scheduledFor);
+    expect(resolvePostScheduledAt("scheduled", scheduledFor)).toEqual(scheduledFor);
   });
 
   it("detects due scheduled posts only", () => {
@@ -29,14 +30,14 @@ describe("post-domain", () => {
 
     expect(
       isScheduledPostDue(
-        { status: "scheduled", publishedAt: new Date("2026-03-11T11:59:00.000Z") },
+        { status: "scheduled", scheduledAt: new Date("2026-03-11T11:59:00.000Z") },
         now,
       ),
     ).toBe(true);
 
     expect(
       isScheduledPostDue(
-        { status: "published", publishedAt: new Date("2026-03-11T11:59:00.000Z") },
+        { status: "published", scheduledAt: new Date("2026-03-11T11:59:00.000Z") },
         now,
       ),
     ).toBe(false);

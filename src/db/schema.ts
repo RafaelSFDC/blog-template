@@ -122,7 +122,17 @@ export const posts = table("posts", {
   metaDescription: text("meta_description"),
   ogImage: text("og_image"),
   authorId: text("author_id").references(() => user.id),
+  editorOwnerId: text("editor_owner_id").references(() => user.id, { onDelete: "set null" }),
   isPremium: boolean("is_premium").default(false),
+  teaserMode: text("teaser_mode").notNull().default("excerpt"),
+  reviewRequestedAt: timestamp("review_requested_at"),
+  reviewRequestedBy: text("review_requested_by").references(() => user.id, { onDelete: "set null" }),
+  lastReviewedAt: timestamp("last_reviewed_at"),
+  lastReviewedBy: text("last_reviewed_by").references(() => user.id, { onDelete: "set null" }),
+  approvedAt: timestamp("approved_at"),
+  approvedBy: text("approved_by").references(() => user.id, { onDelete: "set null" }),
+  scheduledAt: timestamp("scheduled_at"),
+  archivedAt: timestamp("archived_at"),
   publishedAt: timestamp("published_at"),
   updatedAt: timestamp("updated_at").default(now),
 });
@@ -139,6 +149,8 @@ export const pages = table(
     metaTitle: text("meta_title"),
     metaDescription: text("meta_description"),
     ogImage: text("og_image"),
+    isPremium: boolean("is_premium").notNull().default(false),
+    teaserMode: text("teaser_mode").notNull().default("excerpt"),
     isHome: boolean("is_home").notNull().default(false),
     publishedAt: timestamp("published_at"),
     createdAt: timestamp("created_at").default(now),
@@ -253,6 +265,83 @@ export const newsletters = table("newsletters", {
   createdAt: timestamp("created_at").default(now),
 });
 
+export const membershipPlans = table(
+  "membership_plans",
+  {
+    id: autoIncrementId("id"),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    description: text("description"),
+    interval: text("interval").notNull(),
+    stripePriceId: text("stripe_price_id").unique(),
+    priceCents: integer("price_cents"),
+    currency: text("currency").notNull().default("usd"),
+    isActive: boolean("is_active").notNull().default(true),
+    isDefault: boolean("is_default").notNull().default(false),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("membership_plans_slug_idx").on(t.slug),
+    index("membership_plans_active_idx").on(t.isActive),
+  ],
+);
+
+export const subscriptions = table(
+  "subscriptions",
+  {
+    id: autoIncrementId("id"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    membershipPlanId: integer("membership_plan_id").references(() => membershipPlans.id, {
+      onDelete: "set null",
+    }),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+    stripePriceId: text("stripe_price_id"),
+    status: text("status").notNull().default("inactive"),
+    currentPeriodStart: timestamp("current_period_start"),
+    currentPeriodEnd: timestamp("current_period_end"),
+    cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+    canceledAt: timestamp("canceled_at"),
+    endedAt: timestamp("ended_at"),
+    gracePeriodEndsAt: timestamp("grace_period_ends_at"),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("subscriptions_user_id_idx").on(t.userId),
+    index("subscriptions_status_idx").on(t.status),
+    index("subscriptions_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
+  ],
+);
+
+export const subscriptionEvents = table(
+  "subscription_events",
+  {
+    id: autoIncrementId("id"),
+    subscriptionId: integer("subscription_id").references(() => subscriptions.id, {
+      onDelete: "set null",
+    }),
+    stripeEventId: text("stripe_event_id").notNull().unique(),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    type: text("type").notNull(),
+    payloadJson: text("payload_json").notNull(),
+    processedAt: timestamp("processed_at").default(now),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("subscription_events_subscription_id_idx").on(t.subscriptionId),
+    index("subscription_events_type_idx").on(t.type),
+    index("subscription_events_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
+  ],
+);
+
 export const newsletterLogs = table("newsletter_logs", {
   id: autoIncrementId("id"),
   newsletterId: integer("newsletter_id")
@@ -356,11 +445,12 @@ export const postRevisions = table(
     slug: text("slug").notNull(),
     excerpt: text("excerpt").notNull(),
     content: text("content").notNull(),
-    metaTitle: text("meta_title"),
-    metaDescription: text("meta_description"),
-    ogImage: text("og_image"),
-    isPremium: boolean("is_premium").default(false),
-    status: text("status").notNull(),
+      metaTitle: text("meta_title"),
+      metaDescription: text("meta_description"),
+      ogImage: text("og_image"),
+      isPremium: boolean("is_premium").default(false),
+      teaserMode: text("teaser_mode").notNull().default("excerpt"),
+      status: text("status").notNull(),
     publishedAt: timestamp("published_at"),
     categoryIdsSnapshot: text("category_ids_snapshot").notNull().default("[]"),
     tagIdsSnapshot: text("tag_ids_snapshot").notNull().default("[]"),
@@ -386,10 +476,12 @@ export const pageRevisions = table(
     slug: text("slug").notNull(),
     excerpt: text("excerpt"),
     content: text("content").notNull(),
-    metaTitle: text("meta_title"),
-    metaDescription: text("meta_description"),
-    ogImage: text("og_image"),
-    status: text("status").notNull(),
+      metaTitle: text("meta_title"),
+      metaDescription: text("meta_description"),
+      ogImage: text("og_image"),
+      isPremium: boolean("is_premium").notNull().default(false),
+      teaserMode: text("teaser_mode").notNull().default("excerpt"),
+      status: text("status").notNull(),
     isHome: boolean("is_home").notNull().default(false),
     publishedAt: timestamp("published_at"),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
@@ -464,9 +556,68 @@ export const contentLocks = table(
   ],
 );
 
+export const editorialComments = table(
+  "editorial_comments",
+  {
+    id: autoIncrementId("id"),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    authorUserId: text("author_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    resolvedAt: timestamp("resolved_at"),
+    resolvedBy: text("resolved_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("editorial_comments_post_id_idx").on(t.postId),
+    index("editorial_comments_author_user_id_idx").on(t.authorUserId),
+    index("editorial_comments_resolved_at_idx").on(t.resolvedAt),
+  ],
+);
+
+export const editorialChecklists = table(
+  "editorial_checklists",
+  {
+    id: autoIncrementId("id"),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    isCompleted: boolean("is_completed").notNull().default(false),
+    completedAt: timestamp("completed_at"),
+    completedBy: text("completed_by").references(() => user.id, { onDelete: "set null" }),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("editorial_checklists_post_id_idx").on(t.postId),
+    index("editorial_checklists_post_item_idx").on(t.postId, t.itemKey),
+  ],
+);
+
 export const postsRelations = relations(posts, ({ many, one }) => ({
   author: one(user, {
     fields: [posts.authorId],
+    references: [user.id],
+  }),
+  editorOwner: one(user, {
+    fields: [posts.editorOwnerId],
+    references: [user.id],
+  }),
+  reviewRequester: one(user, {
+    fields: [posts.reviewRequestedBy],
+    references: [user.id],
+  }),
+  lastReviewer: one(user, {
+    fields: [posts.lastReviewedBy],
+    references: [user.id],
+  }),
+  approver: one(user, {
+    fields: [posts.approvedBy],
     references: [user.id],
   }),
   featuredImage: one(media, {
@@ -476,6 +627,8 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   postCategories: many(postCategories),
   postTags: many(postTags),
   revisions: many(postRevisions),
+  editorialComments: many(editorialComments),
+  editorialChecklistItems: many(editorialChecklists),
 }));
 
 export const postCategoriesRelations = relations(postCategories, ({ one }) => ({
@@ -534,5 +687,54 @@ export const pageRevisionsRelations = relations(pageRevisions, ({ one }) => ({
   createdByUser: one(user, {
     fields: [pageRevisions.createdBy],
     references: [user.id],
+  }),
+}));
+
+export const editorialCommentsRelations = relations(editorialComments, ({ one }) => ({
+  post: one(posts, {
+    fields: [editorialComments.postId],
+    references: [posts.id],
+  }),
+  author: one(user, {
+    fields: [editorialComments.authorUserId],
+    references: [user.id],
+  }),
+  resolver: one(user, {
+    fields: [editorialComments.resolvedBy],
+    references: [user.id],
+  }),
+}));
+
+export const editorialChecklistsRelations = relations(editorialChecklists, ({ one }) => ({
+  post: one(posts, {
+    fields: [editorialChecklists.postId],
+    references: [posts.id],
+  }),
+  completedByUser: one(user, {
+    fields: [editorialChecklists.completedBy],
+    references: [user.id],
+  }),
+}));
+
+export const membershipPlansRelations = relations(membershipPlans, ({ many }) => ({
+  subscriptions: many(subscriptions),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ many, one }) => ({
+  user: one(user, {
+    fields: [subscriptions.userId],
+    references: [user.id],
+  }),
+  membershipPlan: one(membershipPlans, {
+    fields: [subscriptions.membershipPlanId],
+    references: [membershipPlans.id],
+  }),
+  events: many(subscriptionEvents),
+}));
+
+export const subscriptionEventsRelations = relations(subscriptionEvents, ({ one }) => ({
+  subscription: one(subscriptions, {
+    fields: [subscriptionEvents.subscriptionId],
+    references: [subscriptions.id],
   }),
 }));

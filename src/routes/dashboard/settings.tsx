@@ -76,6 +76,9 @@ const updateAppSettings = createServerFn({ method: "POST" })
     await upsert("defaultMetaDescription", data.defaultMetaDescription || "");
     await upsert("defaultOgImage", data.defaultOgImage || "");
     await upsert("twitterHandle", data.twitterHandle || "");
+    await upsert("stripeMonthlyPriceId", data.stripeMonthlyPriceId || "");
+    await upsert("stripeAnnualPriceId", data.stripeAnnualPriceId || "");
+    await upsert("membershipGracePeriodDays", String(data.membershipGracePeriodDays));
     await upsert("robotsIndexingEnabled", String(data.robotsIndexingEnabled));
     await upsert("socialLinks", JSON.stringify(data.socialLinks));
 
@@ -103,6 +106,9 @@ function SettingsPage() {
       defaultMetaDescription: initialSettings.defaultMetaDescription,
       defaultOgImage: initialSettings.defaultOgImage,
       twitterHandle: initialSettings.twitterHandle,
+      stripeMonthlyPriceId: initialSettings.stripeMonthlyPriceId,
+      stripeAnnualPriceId: initialSettings.stripeAnnualPriceId,
+      membershipGracePeriodDays: initialSettings.membershipGracePeriodDays,
       robotsIndexingEnabled: initialSettings.robotsIndexingEnabled,
       socialLinks: initialSettings.socialLinks,
     },
@@ -459,6 +465,83 @@ function SettingsPage() {
                           </span>
                         </label>
                       </div>
+                    )}
+                  </form.Field>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Membership Billing
+                </h3>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <form.Field name="stripeMonthlyPriceId">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Stripe Monthly Price ID
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="price_monthly_..."
+                        />
+                        {field.state.meta.errors.length > 0 ? (
+                          <FieldError errors={field.state.meta.errors} />
+                        ) : null}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="stripeAnnualPriceId">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Stripe Annual Price ID
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="price_annual_..."
+                        />
+                        {field.state.meta.errors.length > 0 ? (
+                          <FieldError errors={field.state.meta.errors} />
+                        ) : null}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="membershipGracePeriodDays">
+                    {(field) => (
+                      <Field className="sm:col-span-2">
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Grace Period (days)
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="number"
+                          min={0}
+                          max={30}
+                          value={String(field.state.value)}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(Number(e.target.value || 0))}
+                          placeholder="3"
+                        />
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Members in `past_due` keep access until this window ends.
+                        </p>
+                        {field.state.meta.errors.length > 0 ? (
+                          <FieldError errors={field.state.meta.errors} />
+                        ) : null}
+                      </Field>
                     )}
                   </form.Field>
                 </div>

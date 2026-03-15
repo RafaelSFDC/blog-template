@@ -24,6 +24,7 @@ describe("cms-schema", () => {
       content: "Some content",
       status: "scheduled",
       isPremium: false,
+      teaserMode: "excerpt",
       categoryIds: [],
       tagIds: [],
     });

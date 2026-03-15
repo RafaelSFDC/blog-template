@@ -36,10 +36,12 @@ function EditPostPage() {
         metaDescription: post.metaDescription || "",
         ogImage: post.ogImage || "",
         isPremium: post.isPremium || false,
-        status: post.status as "draft" | "published" | "scheduled" | "private",
+        teaserMode: post.teaserMode || "excerpt",
+        status: post.status as "draft" | "in_review" | "published" | "scheduled" | "archived",
         publishedAt: post.publishedAt
           ? new Date(post.publishedAt).toISOString().slice(0, 16)
           : new Date().toISOString().slice(0, 16),
+        editorOwnerId: post.editorOwnerId || "",
         categoryIds:
           post.postCategories?.map((item: { categoryId: number }) => item.categoryId) ||
           [],
@@ -53,6 +55,7 @@ function EditPostPage() {
       }}
       entityId={post.id}
       initialRevisions={post.revisions || []}
+      initialWorkflow={post.workflow}
       onSubmit={async (values) => {
         const normalizedPost = normalizePostSubmission(values);
         if (!normalizedPost) {

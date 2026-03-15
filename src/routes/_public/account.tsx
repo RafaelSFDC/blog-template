@@ -1,13 +1,15 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { authClient } from "#/lib/auth-client";
-import { Button } from "#/components/ui/button";
-import { Input } from "#/components/ui/input";
-import { User, Shield, CreditCard, LogOut, Save } from "lucide-react";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { useForm } from "@tanstack/react-form";
+import { CreditCard, LogOut, Save, Shield, User } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "#/components/ui/button";
+import { Field, FieldError, FieldLabel } from "#/components/ui/field";
+import { Input } from "#/components/ui/input";
+import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
+import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
 
 const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { getAuthSession } = await import("#/lib/admin-auth");
@@ -25,13 +27,26 @@ export const Route = createFileRoute("/_public/account")({
       throw redirect({ to: "/auth/login" });
     }
   },
+  loader: () => getCurrentSubscriptionSummary(),
   component: AccountPage,
 });
 
-import { Field, FieldError, FieldLabel } from "#/components/ui/field";
+function formatDate(value?: Date | string | null) {
+  if (!value) return "Not available";
+  return new Date(value).toLocaleDateString();
+}
+
+function formatMoney(amount?: number | null, currency = "usd") {
+  if (!amount) return null;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount / 100);
+}
 
 function AccountPage() {
   const { data: session } = authClient.useSession();
+  const { subscription, plans } = Route.useLoaderData();
   const posthog = usePostHog();
 
   const profileForm = useForm({
@@ -99,29 +114,52 @@ function AccountPage() {
     });
   };
 
+  async function openBillingPortal() {
+    try {
+      const response = await fetch("/api/stripe/billing-portal", {
+        method: "POST",
+      });
+      const data = (await response.json()) as { url?: string; error?: string };
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || "Could not open billing portal");
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      captureClientException(error, {
+        tags: {
+          area: "account",
+          flow: "billing-portal",
+        },
+      });
+      toast.error(error instanceof Error ? error.message : "Could not open billing portal.");
+    }
+  }
+
+  const activePlan = subscription?.membershipPlan ?? plans.find((plan) => plan.isDefault) ?? null;
+  const activePrice = activePlan ? formatMoney(activePlan.priceCents, activePlan.currency) : null;
+  const showBillingPortal = Boolean(subscription?.stripeCustomerId || session?.user?.stripeCustomerId);
+
   return (
     <div className="page-wrap space-y-10 py-10 pb-20">
-      <header className="bg-card border shadow-sm rounded-md p-8 sm:p-12">
+      <header className="rounded-md border bg-card p-8 shadow-sm sm:p-12">
         <div className="mb-4 flex items-center gap-2 text-primary">
           <User size={20} strokeWidth={3} />
-          <p className="island-kicker mb-0 font-black  text-primary/80">
-            Account
-          </p>
+          <p className="mb-0 font-black text-primary/80">Account</p>
         </div>
         <h1 className="display-title text-5xl text-foreground sm:text-7xl">
           Profile Settings
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground font-medium leading-relaxed">
-          Manage your personal identity, security credentials, and premium
-          subscription.
+        <p className="mt-4 max-w-2xl text-lg font-medium leading-relaxed text-muted-foreground">
+          Manage your personal identity, security credentials, and premium subscription.
         </p>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-8">
-          {/* Profile Section */}
-          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
-            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
+        <div className="space-y-8 lg:col-span-2">
+          <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
+            <h2 className="mb-8 flex items-center gap-2 text-xl font-black text-foreground">
               <User size={20} className="text-primary" strokeWidth={3} />
               Personal Info
             </h2>
@@ -149,10 +187,7 @@ function AccountPage() {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="text-xs text-foreground"
-                      >
+                      <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
                         Display Name
                       </FieldLabel>
                       <Input
@@ -163,35 +198,24 @@ function AccountPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="Your full name"
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
+                      {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
                   );
                 }}
               </profileForm.Field>
 
               <Field className="opacity-90">
-                <FieldLabel className="text-xs text-foreground">
-                  Email Address
-                </FieldLabel>
+                <FieldLabel className="text-xs text-foreground">Email Address</FieldLabel>
                 <Input value={session?.user?.email || ""} disabled />
-                <p className="text-xs text-muted-foreground font-medium">
-                  Note: Email updates are handled via security verification
+                <p className="text-xs font-medium text-muted-foreground">
+                  Email changes are handled through verification.
                 </p>
               </Field>
 
               <div className="pt-4">
-                <profileForm.Subscribe
-                  selector={(state) => [state.canSubmit, state.isSubmitting]}
-                >
+                <profileForm.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                   {([canSubmit, isSubmitting]) => (
-                    <Button
-                      type="submit"
-                      variant="default"
-                      size="lg"
-                      disabled={!canSubmit || isSubmitting}
-                    >
+                    <Button type="submit" variant="default" size="lg" disabled={!canSubmit || isSubmitting}>
                       <Save size={20} className="mr-3" strokeWidth={3} />
                       {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
@@ -201,9 +225,8 @@ function AccountPage() {
             </form>
           </section>
 
-          {/* Security / Password Section */}
-          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
-            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
+          <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
+            <h2 className="mb-8 flex items-center gap-2 text-xl font-black text-foreground">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Security
             </h2>
@@ -219,18 +242,14 @@ function AccountPage() {
               <passwordForm.Field
                 name="currentPassword"
                 validators={{
-                  onChange: ({ value }) =>
-                    !value ? "Current password is required" : undefined,
+                  onChange: ({ value }) => (!value ? "Current password is required" : undefined),
                 }}
               >
                 {(field) => {
                   const isInvalid = !!field.state.meta.errors.length;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="text-xs text-foreground"
-                      >
+                      <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
                         Current Password
                       </FieldLabel>
                       <Input
@@ -242,9 +261,7 @@ function AccountPage() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         placeholder="••••••••"
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
+                      {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
                   );
                 }}
@@ -266,10 +283,7 @@ function AccountPage() {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs text-foreground"
-                        >
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
                           New Password
                         </FieldLabel>
                         <Input
@@ -281,7 +295,7 @@ function AccountPage() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
                         />
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                        {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                       </Field>
                     );
                   }}
@@ -291,8 +305,9 @@ function AccountPage() {
                   validators={{
                     onChange: ({ value, fieldApi }) => {
                       if (!value) return "Confirm your password";
-                      if (value !== fieldApi.form.getFieldValue("newPassword"))
+                      if (value !== fieldApi.form.getFieldValue("newPassword")) {
                         return "Passwords do not match";
+                      }
                       return undefined;
                     },
                   }}
@@ -301,10 +316,7 @@ function AccountPage() {
                     const isInvalid = !!field.state.meta.errors.length;
                     return (
                       <Field data-invalid={isInvalid}>
-                        <FieldLabel
-                          htmlFor={field.name}
-                          className="text-xs text-foreground"
-                        >
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
                           Confirm Password
                         </FieldLabel>
                         <Input
@@ -316,7 +328,7 @@ function AccountPage() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="••••••••"
                         />
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                        {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                       </Field>
                     );
                   }}
@@ -324,16 +336,9 @@ function AccountPage() {
               </div>
 
               <div className="pt-4">
-                <passwordForm.Subscribe
-                  selector={(state) => [state.canSubmit, state.isSubmitting]}
-                >
+                <passwordForm.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                   {([canSubmit, isSubmitting]) => (
-                    <Button
-                      type="submit"
-                      variant="default"
-                      size="lg"
-                      disabled={!canSubmit || isSubmitting}
-                    >
+                    <Button type="submit" variant="default" size="lg" disabled={!canSubmit || isSubmitting}>
                       <Save size={20} className="mr-3" strokeWidth={3} />
                       {isSubmitting ? "Updating..." : "Update Password"}
                     </Button>
@@ -343,22 +348,19 @@ function AccountPage() {
             </form>
           </section>
 
-          {/* Security / Role Section */}
-          <section className="bg-card border shadow-sm rounded-md p-6 sm:p-10">
-            <h2 className="text-xl font-black  text-foreground mb-8 flex items-center gap-2">
+          <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
+            <h2 className="mb-8 flex items-center gap-2 text-xl font-black text-foreground">
               <Shield size={20} className="text-primary" strokeWidth={3} />
               Access Level
             </h2>
-            <div className="flex items-center justify-between p-6 rounded-2xl border border-border bg-muted/20">
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-muted/20 p-6">
               <div>
-                <p className="text-xs font-black  text-muted-foreground mb-1">
-                  Authenticated As
-                </p>
-                <p className="text-2xl font-black text-foreground tracking-tight">
+                <p className="mb-1 text-xs font-black text-muted-foreground">Authenticated As</p>
+                <p className="text-2xl font-black tracking-tight text-foreground">
                   {session?.user?.role || "Reader"}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
                 <Shield size={24} />
               </div>
             </div>
@@ -366,34 +368,48 @@ function AccountPage() {
         </div>
 
         <aside className="space-y-8">
-          {/* Subscription Section */}
-          <section className="border shadow-sm rounded-md p-8 bg-secondary/10 border-secondary/20">
-            <h3 className="font-black  text-foreground mb-6 flex items-center gap-2 text-sm">
+          <section className="rounded-md border border-secondary/20 bg-secondary/10 p-8 shadow-sm">
+            <h3 className="mb-6 flex items-center gap-2 text-sm font-black text-foreground">
               <CreditCard size={18} className="text-primary" strokeWidth={3} />
-              Subscription
+              Membership
             </h3>
-            <div className="mb-8">
-              <p className="text-sm font-bold text-muted-foreground mb-1 tracking-wider">
+            <div className="mb-5">
+              <p className="mb-1 text-sm font-bold tracking-wider text-muted-foreground">
                 Current Plan
               </p>
-              <p className="text-3xl font-black text-foreground tracking-tighter">
-                Free Tier
+              <p className="text-3xl font-black tracking-tighter text-foreground">
+                {activePlan?.name || "Free Tier"}
               </p>
+              {activePrice ? (
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
+                  {activePrice} / {activePlan?.interval === "year" ? "year" : "month"}
+                </p>
+              ) : null}
             </div>
-            <p className="text-sm font-medium text-muted-foreground/80 mb-8 leading-relaxed">
-              Unlock exclusive deep-dives, early access stories, and a premium
-              ad-free experience.
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>Status: <span className="font-semibold capitalize text-foreground">{subscription?.effectiveStatus || "inactive"}</span></p>
+              <p>Renews or ends: <span className="font-semibold text-foreground">{formatDate(subscription?.currentPeriodEnd)}</span></p>
+              {subscription?.gracePeriodEndsAt ? (
+                <p>Grace period: <span className="font-semibold text-foreground">{formatDate(subscription.gracePeriodEndsAt)}</span></p>
+              ) : null}
+            </div>
+            <p className="mb-8 mt-6 text-sm font-medium leading-relaxed text-muted-foreground/80">
+              Full-site entitlement unlocks every premium post and premium page.
             </p>
-            <Button variant="outline" className="w-full">
-              Upgrade Now
-            </Button>
+            <div className="space-y-3">
+              {showBillingPortal ? (
+                <Button variant="default" className="w-full" onClick={() => void openBillingPortal()}>
+                  Manage Billing
+                </Button>
+              ) : null}
+              <Button variant={showBillingPortal ? "outline" : "default"} className="w-full" asChild>
+                <Link to="/pricing">View Plans</Link>
+              </Button>
+            </div>
           </section>
 
-          {/* Danger Zone */}
-          <section className="border shadow-sm rounded-md p-8 border-destructive/30 bg-destructive/10">
-            <h3 className="font-black  text-destructive mb-6 text-sm">
-              Session Management
-            </h3>
+          <section className="rounded-md border border-destructive/30 bg-destructive/10 p-8 shadow-sm">
+            <h3 className="mb-6 text-sm font-black text-destructive">Session Management</h3>
             <Button
               variant="destructive"
               className="w-full justify-center gap-3"

@@ -47,6 +47,9 @@ describe("settings-form", () => {
       defaultMetaDescription: "  Better publishing workflows.  ",
       defaultOgImage: "  https://cdn.example.com/og.png  ",
       twitterHandle: "  @lumina  ",
+      stripeMonthlyPriceId: "  price_monthly_123  ",
+      stripeAnnualPriceId: "  price_annual_456  ",
+      membershipGracePeriodDays: 5,
       robotsIndexingEnabled: true,
       socialLinks: [
         { platform: "  x  ", url: "  https://x.com/lumina  " },
@@ -64,6 +67,9 @@ describe("settings-form", () => {
       defaultMetaDescription: "Better publishing workflows.",
       defaultOgImage: "https://cdn.example.com/og.png",
       twitterHandle: "@lumina",
+      stripeMonthlyPriceId: "price_monthly_123",
+      stripeAnnualPriceId: "price_annual_456",
+      membershipGracePeriodDays: 5,
       robotsIndexingEnabled: true,
       socialLinks: [{ platform: "x", url: "https://x.com/lumina" }],
     });
