@@ -15,14 +15,19 @@ import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { auth } from "#/lib/auth";
 import { resolveTeaserContent } from "#/lib/membership";
-import { buildPublicSeo } from "#/lib/seo";
+import {
+  buildOrganizationJsonLd,
+  buildPublicSeo,
+  getPrivateCacheControl,
+  getPublicCacheControl,
+} from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
 import { getPublishedHomepage } from "#/server/page-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 
 const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
-  setResponseHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+  setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
   return db
     .select()
     .from(posts)
@@ -40,9 +45,9 @@ const getHomepage = createServerFn({ method: "GET" }).handler(async () => {
     : null;
 
   if (session) {
-    setResponseHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+    setResponseHeader("Cache-Control", getPrivateCacheControl());
   } else {
-    setResponseHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+    setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
   }
 
   const homepage = await getPublishedHomepage();
@@ -116,7 +121,11 @@ export const Route = createFileRoute("/_public/")({
         title: homepage.metaTitle || homepage.title,
         description: homepage.metaDescription || homepage.excerpt || site.blogDescription,
         image: homepage.ogImage || site.defaultOgImage,
-        indexable: site.robotsIndexingEnabled && (!homepage.isPremium || homepage.hasAccess),
+        indexable:
+          site.robotsIndexingEnabled &&
+          !homepage.seoNoIndex &&
+          (!homepage.isPremium || homepage.hasAccess),
+        jsonLd: [buildOrganizationJsonLd(site)],
       });
     }
 
@@ -128,6 +137,7 @@ export const Route = createFileRoute("/_public/")({
         site.defaultMetaDescription ||
         "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
       image: site.defaultOgImage,
+      jsonLd: [buildOrganizationJsonLd(site)],
     });
   },
   component: Home,

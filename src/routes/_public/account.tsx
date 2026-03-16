@@ -3,12 +3,14 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { CreditCard, LogOut, Save, Shield, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
+import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
 import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
 
 const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
@@ -48,6 +50,45 @@ function AccountPage() {
   const { data: session } = authClient.useSession();
   const { subscription, plans } = Route.useLoaderData();
   const posthog = usePostHog();
+  const [savingAuthorProfile, setSavingAuthorProfile] = useState(false);
+
+  const authorProfileForm = useForm({
+    defaultValues: {
+      publicAuthorSlug: session?.user?.name ? session.user.name.toLowerCase().replace(/\s+/g, "-") : "",
+      authorHeadline: "",
+      authorBio: "",
+      authorSeoTitle: "",
+      authorSeoDescription: "",
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        setSavingAuthorProfile(true);
+        await updateCurrentAuthorProfile({ data: value });
+        posthog.capture("author_profile_updated");
+        toast.success("Public author profile updated.");
+      } catch (error) {
+        captureClientException(error, {
+          tags: {
+            area: "account",
+            flow: "author-profile-update",
+          },
+        });
+        toast.error(error instanceof Error ? error.message : "Failed to update public author profile.");
+      } finally {
+        setSavingAuthorProfile(false);
+      }
+    },
+  });
+
+  useEffect(() => {
+    void getCurrentAuthorProfile().then((profile) => {
+      authorProfileForm.setFieldValue("publicAuthorSlug", profile.publicAuthorSlug || "");
+      authorProfileForm.setFieldValue("authorHeadline", profile.authorHeadline || "");
+      authorProfileForm.setFieldValue("authorBio", profile.authorBio || "");
+      authorProfileForm.setFieldValue("authorSeoTitle", profile.authorSeoTitle || "");
+      authorProfileForm.setFieldValue("authorSeoDescription", profile.authorSeoDescription || "");
+    }).catch(() => undefined);
+  }, [authorProfileForm]);
 
   const profileForm = useForm({
     defaultValues: {
@@ -364,6 +405,117 @@ function AccountPage() {
                 <Shield size={24} />
               </div>
             </div>
+          </section>
+
+          <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
+            <h2 className="mb-8 flex items-center gap-2 text-xl font-black text-foreground">
+              <User size={20} className="text-primary" strokeWidth={3} />
+              Public Author Profile
+            </h2>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                authorProfileForm.handleSubmit();
+              }}
+              className="space-y-6"
+            >
+              <authorProfileForm.Field name="publicAuthorSlug">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                      Public author slug
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="your-name"
+                    />
+                  </Field>
+                )}
+              </authorProfileForm.Field>
+
+              <authorProfileForm.Field name="authorHeadline">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                      Headline
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Reporter, editor, essayist"
+                    />
+                  </Field>
+                )}
+              </authorProfileForm.Field>
+
+              <authorProfileForm.Field name="authorBio">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                      Bio
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Short bio for your public archive page"
+                    />
+                  </Field>
+                )}
+              </authorProfileForm.Field>
+
+              <authorProfileForm.Field name="authorSeoTitle">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                      Author SEO title
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Optional override for the author page title"
+                    />
+                  </Field>
+                )}
+              </authorProfileForm.Field>
+
+              <authorProfileForm.Field name="authorSeoDescription">
+                {(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                      Author SEO description
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Optional override for the author page description"
+                    />
+                  </Field>
+                )}
+              </authorProfileForm.Field>
+
+              <Button type="submit" variant="outline" size="lg" disabled={savingAuthorProfile}>
+                <Save size={20} className="mr-3" strokeWidth={3} />
+                {savingAuthorProfile ? "Saving..." : "Save Author Profile"}
+              </Button>
+            </form>
           </section>
         </div>
 

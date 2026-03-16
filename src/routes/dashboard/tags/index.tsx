@@ -22,6 +22,7 @@ import {
   FieldLabel,
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import { Switch } from "#/components/ui/switch";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
 import { slugify } from "#/lib/cms-schema";
@@ -29,6 +30,7 @@ import { slugify } from "#/lib/cms-schema";
 const tagSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
+  seoNoIndex: z.boolean(),
 });
 
 export const Route = createFileRoute("/dashboard/tags/")({
@@ -44,6 +46,7 @@ function TagsPage() {
     defaultValues: {
       name: "",
       slug: "",
+      seoNoIndex: false,
     },
     validators: {
       onChange: tagSchema,
@@ -101,6 +104,7 @@ function TagsPage() {
     setEditingId(tag.id);
     form.setFieldValue("name", tag.name);
     form.setFieldValue("slug", tag.slug);
+    form.setFieldValue("seoNoIndex", Boolean(tag.seoNoIndex));
     setIsAdding(false);
   }, [form]);
 
@@ -246,6 +250,23 @@ function TagsPage() {
                   }}
                 </form.Field>
               </div>
+              <form.Field name="seoNoIndex">
+                {(field) => (
+                  <div className="flex items-center space-x-3 rounded-xl border border-border bg-muted/20 p-4">
+                    <Switch
+                      id={field.name}
+                      checked={field.state.value}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                      <span className="text-sm font-bold text-foreground">Noindex tag archive</span>
+                      <span className="text-xs text-muted-foreground">
+                        Search engines will not index this tag landing page.
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </form.Field>
             </FieldGroup>
             <div className="flex gap-2">
               <Button

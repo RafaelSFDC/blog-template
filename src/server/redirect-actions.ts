@@ -27,6 +27,36 @@ function normalizeDestinationPath(path: string) {
   return normalizeRedirectPath(path);
 }
 
+function isInternalPath(path: string) {
+  return path.startsWith("/");
+}
+
+async function assertRedirectIsValid(input: {
+  id?: number;
+  sourcePath: string;
+  destinationPath: string;
+}) {
+  if (input.sourcePath === input.destinationPath) {
+    throw new Error("Redirect source and destination cannot be the same");
+  }
+
+  if (!isInternalPath(input.destinationPath)) {
+    return;
+  }
+
+  const destinationRedirect = await db.query.redirects.findFirst({
+    where: eq(redirects.sourcePath, input.destinationPath),
+  });
+
+  if (destinationRedirect && destinationRedirect.destinationPath === input.sourcePath) {
+    throw new Error("This redirect would create a loop");
+  }
+
+  if (destinationRedirect && destinationRedirect.id === input.id) {
+    throw new Error("Redirect source and destination cannot be the same");
+  }
+}
+
 export const getRedirects = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   return db.select().from(redirects).orderBy(asc(redirects.sourcePath));
@@ -43,6 +73,12 @@ export const saveRedirect = createServerFn({ method: "POST" })
       statusCode: data.statusCode,
       updatedAt: new Date(),
     };
+
+    await assertRedirectIsValid({
+      id: data.id,
+      sourcePath: values.sourcePath,
+      destinationPath: values.destinationPath,
+    });
 
     try {
       if (data.id) {

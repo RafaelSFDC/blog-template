@@ -1,3 +1,5 @@
+import { buildExcerptFromContent } from "#/lib/seo";
+
 export type SearchablePostRecord = {
   id: number;
   slug: string;
@@ -9,10 +11,15 @@ export type SearchablePostRecord = {
   category?: string | null;
   categorySlug?: string | null;
   tag?: string | null;
+  authorName?: string | null;
+  authorHeadline?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 };
 
-export type RankedSearchPost = Omit<SearchablePostRecord, "content" | "tag"> & {
+export type RankedSearchPost = Omit<SearchablePostRecord, "content" | "tag" | "authorHeadline" | "metaTitle" | "metaDescription"> & {
   score: number;
+  snippet: string;
 };
 
 export function normalizeSearchQuery(query: string | undefined) {
@@ -50,6 +57,18 @@ function buildAggregate(records: SearchablePostRecord[]) {
         existing.category = record.category;
         existing.categorySlug = record.categorySlug;
       }
+      if (!existing.authorName && record.authorName) {
+        existing.authorName = record.authorName;
+      }
+      if (!existing.authorHeadline && record.authorHeadline) {
+        existing.authorHeadline = record.authorHeadline;
+      }
+      if (!existing.metaTitle && record.metaTitle) {
+        existing.metaTitle = record.metaTitle;
+      }
+      if (!existing.metaDescription && record.metaDescription) {
+        existing.metaDescription = record.metaDescription;
+      }
       if (record.tag) {
         existing.tags.add(record.tag);
       }
@@ -65,9 +84,37 @@ function buildAggregate(records: SearchablePostRecord[]) {
   return [...byId.values()];
 }
 
+function buildSearchSnippet(
+  post: SearchablePostRecord & { tags: Set<string> },
+  normalizedQuery: string,
+  tokens: string[],
+) {
+  const source = post.excerpt || post.metaDescription || stripHtml(post.content);
+  if (!source) {
+    return "";
+  }
+
+  const plain = source.replace(/\s+/g, " ").trim();
+  if (!plain) {
+    return "";
+  }
+
+  const lowerPlain = normalizeSearchText(plain);
+  const needle = normalizedQuery || tokens[0] || "";
+  const matchIndex = needle ? lowerPlain.indexOf(needle) : -1;
+  if (matchIndex === -1) {
+    return buildExcerptFromContent(plain, 180);
+  }
+
+  const start = Math.max(0, matchIndex - 60);
+  const end = Math.min(plain.length, matchIndex + 120);
+  return `${start > 0 ? "…" : ""}${plain.slice(start, end).trim()}${end < plain.length ? "…" : ""}`;
+}
+
 function toRankedSearchPost(
   post: SearchablePostRecord & { tags: Set<string> },
   score: number,
+  snippet: string,
 ): RankedSearchPost {
   return {
     id: post.id,
@@ -78,7 +125,9 @@ function toRankedSearchPost(
     publishedAt: post.publishedAt,
     category: post.category,
     categorySlug: post.categorySlug,
+    authorName: post.authorName,
     score,
+    snippet,
   };
 }
 
@@ -92,7 +141,11 @@ function getSearchScore(
   const content = normalizeSearchText(stripHtml(post.content));
   const category = normalizeSearchText(post.category);
   const tags = normalizeSearchText([...post.tags].join(" "));
-  const combined = `${title} ${excerpt} ${content} ${category} ${tags}`;
+  const authorName = normalizeSearchText(post.authorName);
+  const authorHeadline = normalizeSearchText(post.authorHeadline);
+  const metaTitle = normalizeSearchText(post.metaTitle);
+  const metaDescription = normalizeSearchText(post.metaDescription);
+  const combined = `${title} ${excerpt} ${content} ${category} ${tags} ${authorName} ${authorHeadline} ${metaTitle} ${metaDescription}`;
 
   if (!tokens.every((token) => combined.includes(token))) {
     return 0;
@@ -100,21 +153,24 @@ function getSearchScore(
 
   let score = 0;
 
-  if (normalizedQuery && title.includes(normalizedQuery)) {
-    score += 12;
-  }
-  if (normalizedQuery && excerpt.includes(normalizedQuery)) {
-    score += 8;
-  }
-  if (normalizedQuery && content.includes(normalizedQuery)) {
-    score += 4;
-  }
+  if (normalizedQuery && title.includes(normalizedQuery)) score += 20;
+  if (normalizedQuery && metaTitle.includes(normalizedQuery)) score += 16;
+  if (normalizedQuery && excerpt.includes(normalizedQuery)) score += 12;
+  if (normalizedQuery && authorName.includes(normalizedQuery)) score += 10;
+  if (normalizedQuery && category.includes(normalizedQuery)) score += 8;
+  if (normalizedQuery && tags.includes(normalizedQuery)) score += 8;
+  if (normalizedQuery && metaDescription.includes(normalizedQuery)) score += 6;
+  if (normalizedQuery && content.includes(normalizedQuery)) score += 4;
 
   for (const token of tokens) {
-    if (title.includes(token)) score += 6;
-    if (excerpt.includes(token)) score += 4;
+    if (title.includes(token)) score += 8;
+    if (metaTitle.includes(token)) score += 7;
+    if (excerpt.includes(token)) score += 5;
+    if (authorName.includes(token)) score += 5;
+    if (authorHeadline.includes(token)) score += 4;
     if (category.includes(token)) score += 4;
-    if (tags.includes(token)) score += 3;
+    if (tags.includes(token)) score += 4;
+    if (metaDescription.includes(token)) score += 3;
     if (content.includes(token)) score += 2;
   }
 
@@ -132,7 +188,7 @@ export function rankSearchPosts(records: SearchablePostRecord[], query: string |
         const bDate = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
         return bDate - aDate;
       })
-      .map((post) => toRankedSearchPost(post, 0));
+      .map((post) => toRankedSearchPost(post, 0, buildSearchSnippet(post, normalizedQuery, tokens)));
   }
 
   return buildAggregate(records)
@@ -150,5 +206,5 @@ export function rankSearchPosts(records: SearchablePostRecord[], query: string |
       const bDate = b.post.publishedAt ? new Date(b.post.publishedAt).getTime() : 0;
       return bDate - aDate;
     })
-    .map(({ post, score }) => toRankedSearchPost(post, score));
+    .map(({ post, score }) => toRankedSearchPost(post, score, buildSearchSnippet(post, normalizedQuery, tokens)));
 }

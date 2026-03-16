@@ -42,6 +42,7 @@ export async function createPostRevision(input: {
     metaTitle?: string | null;
     metaDescription?: string | null;
     ogImage?: string | null;
+    seoNoIndex: boolean;
     isPremium: boolean;
     teaserMode: string;
     status: string;
@@ -78,6 +79,7 @@ export async function createPostRevision(input: {
       metaTitle: post.metaTitle,
       metaDescription: post.metaDescription,
       ogImage: post.ogImage,
+      seoNoIndex: Boolean(post.seoNoIndex),
       isPremium: Boolean(post.isPremium),
       teaserMode: post.teaserMode ?? "excerpt",
       status: post.status,
@@ -98,6 +100,7 @@ export async function createPostRevision(input: {
       metaTitle: snapshot.metaTitle,
       metaDescription: snapshot.metaDescription,
       ogImage: snapshot.ogImage,
+      seoNoIndex: snapshot.seoNoIndex,
       isPremium: snapshot.isPremium,
       teaserMode: snapshot.teaserMode,
       status: snapshot.status,
@@ -125,6 +128,7 @@ export async function createPageRevision(input: {
     metaTitle?: string | null;
     metaDescription?: string | null;
     ogImage?: string | null;
+    seoNoIndex: boolean;
     isPremium: boolean;
     teaserMode: string;
     status: string;
@@ -151,6 +155,7 @@ export async function createPageRevision(input: {
       metaTitle: page.metaTitle,
       metaDescription: page.metaDescription,
       ogImage: page.ogImage,
+      seoNoIndex: Boolean(page.seoNoIndex),
       isPremium: Boolean(page.isPremium),
       teaserMode: page.teaserMode ?? "excerpt",
       status: page.status,
@@ -170,6 +175,7 @@ export async function createPageRevision(input: {
       metaTitle: snapshot.metaTitle,
       metaDescription: snapshot.metaDescription,
       ogImage: snapshot.ogImage,
+      seoNoIndex: snapshot.seoNoIndex,
       isPremium: snapshot.isPremium,
       teaserMode: snapshot.teaserMode,
       status: snapshot.status,
@@ -218,6 +224,7 @@ export async function restorePostRevisionToDraft(revisionId: number) {
         metaTitle: revision.metaTitle,
         metaDescription: revision.metaDescription,
         ogImage: revision.ogImage,
+        seoNoIndex: revision.seoNoIndex,
         isPremium: revision.isPremium,
         teaserMode: revision.teaserMode,
         status: "draft",
@@ -279,6 +286,7 @@ export async function restorePageRevisionToDraft(revisionId: number) {
       metaTitle: revision.metaTitle,
       metaDescription: revision.metaDescription,
       ogImage: revision.ogImage,
+      seoNoIndex: revision.seoNoIndex,
       isPremium: revision.isPremium,
       teaserMode: revision.teaserMode,
       status: "draft",

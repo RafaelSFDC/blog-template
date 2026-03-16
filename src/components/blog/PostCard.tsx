@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { buildResponsiveMediaSet, getMediaFallbackLabel } from "#/lib/media";
 
 export interface Post {
   id: number;
@@ -8,6 +9,8 @@ export interface Post {
   publishedAt: Date | string | null;
   coverImage?: string | null;
   category?: string | null;
+  authorName?: string | null;
+  snippet?: string;
 }
 
 export const cardThemes = [
@@ -44,29 +47,39 @@ export const cardThemes = [
 ];
 
 export function PostCard({ post }: { post: Post }) {
+  const media = buildResponsiveMediaSet(post.coverImage);
+
   return (
     <Link
       to="/blog/$slug"
       params={{ slug: post.slug }}
       className="bg-card border shadow-sm group block overflow-hidden rounded-md p-6 transition-all hover:-translate-y-2 hover:shadow-2xl"
     >
-      {post.coverImage && (
-        <div className="relative mb-6 aspect-video overflow-hidden rounded-md border border-border">
+      <div className="relative mb-6 aspect-video overflow-hidden rounded-md border border-border bg-muted">
+        {media?.src ? (
           <img
-            src={post.coverImage}
+            src={media.src}
+            srcSet={media.srcSet}
+            sizes={media.sizes}
             alt={post.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-        </div>
-      )}
+        ) : (
+          <div className="flex h-full w-full items-end bg-linear-to-br from-primary/15 via-background to-secondary/20 p-4">
+            <span className="rounded-md border border-border bg-background/80 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-foreground">
+              {getMediaFallbackLabel(post.title, post.category)}
+            </span>
+          </div>
+        )}
+      </div>
       <div className="mb-4 inline-block rounded border border-primary bg-muted px-3 py-1 text-xs font-bold text-primary">
         {post.category || "General"}
       </div>
       <h3 className="mb-3 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
         {post.title}
       </h3>
-      <p className="line-clamp-2 text-sm text-muted-foreground">
-        {post.excerpt}
+      <p className="line-clamp-3 text-sm text-muted-foreground">
+        {post.snippet || post.excerpt}
       </p>
     </Link>
   );

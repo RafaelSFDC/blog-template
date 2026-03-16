@@ -7,7 +7,12 @@ import { toast } from "sonner";
 import { PageContent } from "#/components/cms/PageContent";
 import { auth } from "#/lib/auth";
 import { resolveTeaserContent } from "#/lib/membership";
-import { buildPublicSeo } from "#/lib/seo";
+import {
+  buildOrganizationJsonLd,
+  buildPublicSeo,
+  getPrivateCacheControl,
+  getPublicCacheControl,
+} from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
 import { getRedirectByPath } from "#/server/redirect-actions";
@@ -25,9 +30,9 @@ const getPageBySlug = createServerFn({ method: "GET" })
       : null;
 
     if (session) {
-      setResponseHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+      setResponseHeader("Cache-Control", getPrivateCacheControl());
     } else {
-      setResponseHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+      setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
     }
 
     const page = await getPublishedPageBySlug(data);
@@ -90,6 +95,7 @@ export const Route = createFileRoute("/_public/$")({
             metaDescription?: string | null;
             ogImage?: string | null;
             isPremium?: boolean | null;
+            seoNoIndex?: boolean | null;
           };
           hasAccess: boolean;
           site: Awaited<ReturnType<typeof getSeoSiteData>>;
@@ -108,7 +114,11 @@ export const Route = createFileRoute("/_public/$")({
       title: page.metaTitle || page.title,
       description: page.metaDescription || page.excerpt || site.blogDescription,
       image: page.ogImage || site.defaultOgImage,
-      indexable: site.robotsIndexingEnabled && (!page.isPremium || data.hasAccess),
+      indexable:
+        site.robotsIndexingEnabled &&
+        !page.seoNoIndex &&
+        (!page.isPremium || data.hasAccess),
+      jsonLd: [buildOrganizationJsonLd(site)],
     });
   },
   component: CmsPage,

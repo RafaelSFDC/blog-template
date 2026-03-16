@@ -6,6 +6,7 @@ interface AuthorBioProps {
     image?: string | null;
     bio?: string;
     role?: string;
+    slug?: string | null;
   };
 }
 
@@ -38,6 +39,14 @@ export function AuthorBio({ author }: AuthorBioProps) {
         <h3 className="display-title mb-2 text-2xl font-bold">{name}</h3>
         <p className="mb-4 text-sm font-medium text-muted-foreground">{role}</p>
         <p className="text-sm leading-relaxed text-foreground/80">{bio}</p>
+        {author?.slug ? (
+          <a
+            href={`/author/${author.slug}`}
+            className="mt-4 inline-flex text-sm font-bold text-primary transition-colors hover:text-primary/80"
+          >
+            View author archive
+          </a>
+        ) : null}
       </div>
     </section>
   );

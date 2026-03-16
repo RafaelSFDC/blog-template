@@ -461,6 +461,23 @@ export function PageEditorScreen({
                       </Field>
                     )}
                   </form.Field>
+                  <form.Field name="seoNoIndex">
+                    {(field) => (
+                      <div className="flex items-center space-x-3 rounded-xl border border-border bg-background p-4">
+                        <Switch
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        />
+                        <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                          <span className="text-sm font-bold text-foreground">Noindex this page</span>
+                          <span className="text-xs text-muted-foreground">
+                            Useful for thank-you pages, promos, or utility pages that should stay out of search.
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </form.Field>
                 </div>
               ) : null}
             </div>

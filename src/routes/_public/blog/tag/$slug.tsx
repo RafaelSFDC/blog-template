@@ -6,7 +6,7 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { Hash } from "lucide-react";
 import { getPublishedTagBySlug } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
+import { buildBreadcrumbJsonLd, buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
 import { normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { getRedirectByPath } from "#/server/redirect-actions";
@@ -85,7 +85,14 @@ export const Route = createFileRoute("/_public/blog/tag/$slug")({
           ? `Browse page ${page} of stories tagged with ${data.tag.name}.`
           : `Published stories tagged with ${data.tag.name}.`,
       image: data.site.defaultOgImage,
+      indexable: data.site.robotsIndexingEnabled && !data.tag.seoNoIndex && page === 1,
       links,
+      jsonLd: [
+        buildBreadcrumbJsonLd(data.site.siteUrl, [
+          { name: "Stories", path: "/blog" },
+          { name: `#${data.tag.name}`, path: `/blog/tag/${data.tag.slug}` },
+        ]),
+      ],
     });
   },
   component: TagPage,

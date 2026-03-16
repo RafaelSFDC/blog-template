@@ -6,7 +6,7 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { FolderOpen } from "lucide-react";
 import { getPublishedCategoryBySlug } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
+import { buildBreadcrumbJsonLd, buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
 import { normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { getRedirectByPath } from "#/server/redirect-actions";
@@ -87,7 +87,14 @@ export const Route = createFileRoute("/_public/blog/category/$slug")({
           ? `Browse page ${page} of published stories in ${data.category.name}.`
           : `Browse every published story in ${data.category.name}.`),
       image: data.site.defaultOgImage,
+      indexable: data.site.robotsIndexingEnabled && !data.category.seoNoIndex && page === 1,
       links,
+      jsonLd: [
+        buildBreadcrumbJsonLd(data.site.siteUrl, [
+          { name: "Stories", path: "/blog" },
+          { name: data.category.name, path: `/blog/category/${data.category.slug}` },
+        ]),
+      ],
     });
   },
   component: CategoryPage,

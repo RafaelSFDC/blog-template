@@ -1,23 +1,36 @@
 import { Calendar, Clock, Tag, User } from "lucide-react";
 import { postDateFormatter } from "#/lib/utils";
 import { Breadcrumbs } from "#/components/breadcrumbs";
+import { buildResponsiveMediaSet, getMediaFallbackLabel } from "#/lib/media";
 
 interface BlogHeroProps {
   post: {
+    slug?: string;
     title: string;
     excerpt: string;
     coverImage?: string | null;
     category?: string | null;
+    categorySlug?: string | null;
     publishedAt?: Date | string | null;
     readingTime?: number | null;
     authorName?: string | null;
+    authorSlug?: string | null;
   };
 }
 
 export function BlogHero({ post }: BlogHeroProps) {
+  const media = buildResponsiveMediaSet(post.coverImage);
+  const crumbs = [
+    { label: "Stories", href: "/blog" },
+    ...(post.category && post.categorySlug
+      ? [{ label: post.category, href: `/blog/category/${post.categorySlug}` }]
+      : []),
+    { label: post.title },
+  ];
+
   return (
     <header className="bg-card border shadow-sm rounded-md px-4 py-3 sm:px-6 text-center sm:text-left">
-      <Breadcrumbs />
+      <Breadcrumbs items={crumbs} />
 
       {/* Metadata Bar */}
       <div className="mb-6 flex flex-wrap items-center justify-center gap-4 text-xs font-bold  text-muted-foreground sm:justify-start">
@@ -37,7 +50,7 @@ export function BlogHero({ post }: BlogHeroProps) {
         </div>
         <div className="flex items-center gap-1.5 border-l border-border pl-4">
           <User className="h-3 w-3" />
-          <span>{post.authorName || "Editorial Team"}</span>
+          <span>{post.authorSlug ? <a href={`/author/${post.authorSlug}`}>{post.authorName || "Editorial Team"}</a> : post.authorName || "Editorial Team"}</span>
         </div>
         {post.readingTime && (
           <div className="hidden items-center gap-1.5 border-l border-border pl-4 sm:flex">
@@ -56,15 +69,23 @@ export function BlogHero({ post }: BlogHeroProps) {
       </p>
 
       {/* Hero Image */}
-      {post.coverImage && (
-        <div className="relative mb-16 aspect-video overflow-hidden rounded-md border border-border shadow-2xl">
+      <div className="relative mb-16 aspect-video overflow-hidden rounded-md border border-border shadow-2xl bg-muted">
+        {media?.src ? (
           <img
-            src={post.coverImage}
+            src={media.src}
+            srcSet={media.srcSet}
+            sizes="100vw"
             alt={post.title}
             className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
           />
-        </div>
-      )}
+        ) : (
+          <div className="flex h-full w-full items-end bg-linear-to-br from-primary/10 via-background to-secondary/20 p-6">
+            <span className="rounded-md border border-border bg-background/80 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-foreground">
+              {getMediaFallbackLabel(post.title, post.category)}
+            </span>
+          </div>
+        )}
+      </div>
     </header>
   );
 }

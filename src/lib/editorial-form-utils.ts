@@ -18,6 +18,7 @@ type PostSubmissionValues = {
   metaTitle?: string;
   metaDescription?: string;
   ogImage?: string;
+  seoNoIndex: boolean;
   isPremium: boolean;
   teaserMode: PostSubmissionInput["teaserMode"];
   status: PostSubmissionInput["status"];
@@ -43,6 +44,7 @@ export function normalizePageSubmission(
     metaTitle: values.metaTitle.trim() || undefined,
     metaDescription: values.metaDescription.trim() || undefined,
     ogImage: values.ogImage.trim() || undefined,
+    seoNoIndex: values.seoNoIndex,
     isPremium: values.isPremium,
     teaserMode: values.teaserMode,
     publishedAt: undefined,
@@ -66,6 +68,7 @@ export function normalizePostSubmission(
     metaTitle: values.metaTitle?.trim() || undefined,
     metaDescription: values.metaDescription?.trim() || undefined,
     ogImage: values.ogImage?.trim() || undefined,
+    seoNoIndex: values.seoNoIndex,
     isPremium: values.isPremium,
     teaserMode: values.teaserMode,
     status: values.status,

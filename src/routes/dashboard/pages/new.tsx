@@ -26,6 +26,7 @@ function NewPagePage() {
         metaTitle: "",
         metaDescription: "",
         ogImage: "",
+        seoNoIndex: false,
         isPremium: false,
         teaserMode: "excerpt",
         status: "draft",

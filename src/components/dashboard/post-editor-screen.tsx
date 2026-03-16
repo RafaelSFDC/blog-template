@@ -507,6 +507,23 @@ export function PostEditorScreen({
                       </Field>
                     )}
                   </form.Field>
+                  <form.Field name="seoNoIndex">
+                    {(field) => (
+                      <div className="flex items-center space-x-3 rounded-xl border border-border bg-background p-4">
+                        <Switch
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        />
+                        <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                          <span className="text-sm font-bold text-foreground">Noindex this post</span>
+                          <span className="text-xs text-muted-foreground">
+                            Search engines will receive `noindex, nofollow` for this URL.
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </form.Field>
                 </div>
               ) : null}
             </div>

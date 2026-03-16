@@ -149,11 +149,13 @@ export const categorySchema = z.object({
   name: trimmedString(1, "Name is required", 80, "Name is too long"),
   slug: trimmedString(1, "Slug is required", 120, "Slug is too long"),
   description: optionalTrimmedString,
+  seoNoIndex: z.boolean().default(false),
 });
 
 export const tagSchema = z.object({
   name: trimmedString(1, "Name is required", 80, "Name is too long"),
   slug: trimmedString(1, "Slug is required", 120, "Slug is too long"),
+  seoNoIndex: z.boolean().default(false),
 });
 
 export const socialLinkSchema = z.object({
@@ -218,6 +220,7 @@ export const postFormSchema = z
     ogImage: z.string().trim().refine((value) => !value || z.string().url().safeParse(value).success, {
       message: "Must be a valid URL",
     }),
+    seoNoIndex: z.boolean(),
     isPremium: z.boolean(),
     teaserMode: teaserModeSchema,
     status: postStatusSchema,
@@ -246,6 +249,7 @@ export const pageFormSchema = z.object({
   ogImage: z.string().trim().refine((value) => !value || z.string().url().safeParse(value).success, {
     message: "Must be a valid URL",
   }),
+  seoNoIndex: z.boolean(),
   isPremium: z.boolean(),
   teaserMode: teaserModeSchema,
   status: pageStatusSchema,
@@ -263,6 +267,7 @@ export const postServerSchema = z
     metaTitle: z.preprocess(emptyStringToUndefined, z.string().trim().max(160, "Meta title is too long").optional()),
     metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
     ogImage: optionalUrlSchema,
+    seoNoIndex: z.boolean().default(false),
     isPremium: z.boolean(),
     teaserMode: teaserModeSchema,
     status: postStatusSchema,
@@ -290,6 +295,7 @@ export const pageServerSchema = z.object({
   metaTitle: z.preprocess(emptyStringToUndefined, z.string().trim().max(160, "Meta title is too long").optional()),
   metaDescription: z.preprocess(emptyStringToUndefined, z.string().trim().max(320, "Meta description is too long").optional()),
   ogImage: optionalUrlSchema,
+  seoNoIndex: z.boolean().default(false),
   isPremium: z.boolean(),
   teaserMode: teaserModeSchema,
   status: pageStatusSchema,
@@ -482,6 +488,29 @@ export const bulkCommentActionSchema = z.object({
 
 export const bulkMediaDeleteSchema = z.object({
   ids: z.array(positiveIntSchema).min(1, "Select at least one media item").max(100),
+});
+
+export const authorProfileSchema = z.object({
+  publicAuthorSlug: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().min(2, "Author slug is too short").max(120, "Author slug is too long").optional(),
+  ),
+  authorBio: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(600, "Author bio is too long").optional(),
+  ),
+  authorHeadline: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(120, "Author headline is too long").optional(),
+  ),
+  authorSeoTitle: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(160, "Author SEO title is too long").optional(),
+  ),
+  authorSeoDescription: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(320, "Author SEO description is too long").optional(),
+  ),
 });
 
 export const stripeCheckoutSchema = z.object({

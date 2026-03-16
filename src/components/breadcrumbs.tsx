@@ -1,17 +1,34 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
-export function Breadcrumbs() {
+interface BreadcrumbsProps {
+  items?: Array<{
+    label: string;
+    href?: string;
+  }>;
+}
+
+export function Breadcrumbs({ items }: BreadcrumbsProps) {
+  const trail = items?.length
+    ? items
+    : [{ label: "Stories", href: "/blog" }];
+
   return (
-    <nav className="mb-8 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-      <Link
-        to="/blog"
-        search={{ q: undefined, page: 1 }}
-        className="flex items-center gap-1 transition-colors hover:text-primary"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to stories
-      </Link>
+    <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
+      {trail.map((item, index) => (
+        <span key={`${item.label}-${index}`} className="flex items-center gap-2">
+          {item.href ? (
+            <a
+              href={item.href}
+              className="transition-colors hover:text-primary"
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span className="text-foreground">{item.label}</span>
+          )}
+          {index < trail.length - 1 ? <ChevronRight className="h-4 w-4" /> : null}
+        </span>
+      ))}
     </nav>
   );
 }

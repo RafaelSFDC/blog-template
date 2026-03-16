@@ -2,7 +2,7 @@ import { usePostHog } from "@posthog/react";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthorBio } from "#/components/author-bio";
@@ -22,10 +22,18 @@ import type { Comment as BlogComment } from "#/components/blog/comment-list";
 import { auth } from "#/lib/auth";
 import { publicCommentSchema } from "#/lib/cms-schema";
 import { resolveTeaserContent } from "#/lib/membership";
-import { buildPublicSeo } from "#/lib/seo";
+import {
+  buildArticleJsonLd,
+  buildBreadcrumbJsonLd,
+  buildOrganizationJsonLd,
+  buildPublicSeo,
+  getPrivateCacheControl,
+  getPublicCacheControl,
+} from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
 import { createPendingComment } from "#/server/comment-actions";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
+import { getRelatedPostsByTaxonomy } from "#/server/public-discovery";
 import { getRedirectByPath } from "#/server/redirect-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 
@@ -36,6 +44,12 @@ type PostWithExtras = PostSummary & {
   status: string;
   readingTime?: number | null;
   authorName?: string | null;
+  authorSlug?: string | null;
+  authorBio?: string | null;
+  authorHeadline?: string | null;
+  categorySlug?: string | null;
+  updatedAt?: Date | string | null;
+  seoNoIndex?: boolean;
   metaTitle?: string | null;
   metaDescription?: string | null;
   ogImage?: string | null;
@@ -63,6 +77,27 @@ const getPostBySlug = createServerFn({ method: "GET" })
 
     const post = await db.query.posts.findFirst({
       where: eq(posts.slug, slug),
+      with: {
+        author: {
+          columns: {
+            name: true,
+            publicAuthorSlug: true,
+            authorBio: true,
+            authorHeadline: true,
+          },
+        },
+        postCategories: {
+          with: {
+            category: {
+              columns: {
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          limit: 1,
+        },
+      },
     });
 
     if (!post) {
@@ -77,9 +112,9 @@ const getPostBySlug = createServerFn({ method: "GET" })
     }
 
     if (session) {
-      setResponseHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+      setResponseHeader("Cache-Control", getPrivateCacheControl());
     } else {
-      setResponseHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+      setResponseHeader("Cache-Control", getPublicCacheControl(3600, 86400));
     }
 
     if (post.status !== "published" && session?.user?.role !== "admin" && session?.user?.role !== "super-admin") {
@@ -101,6 +136,12 @@ const getPostBySlug = createServerFn({ method: "GET" })
 
     const postForView = {
       ...post,
+      authorName: post.author?.name ?? "Editorial Team",
+      authorSlug: post.author?.publicAuthorSlug ?? null,
+      authorBio: post.author?.authorBio ?? null,
+      authorHeadline: post.author?.authorHeadline ?? null,
+      category: post.postCategories[0]?.category?.name ?? null,
+      categorySlug: post.postCategories[0]?.category?.slug ?? null,
       content: hasAccess
         ? post.content
         : resolveTeaserContent({
@@ -117,10 +158,7 @@ const getPostBySlug = createServerFn({ method: "GET" })
       })
       .catch(() => []);
 
-    const recommended = await db.query.posts.findMany({
-      where: and(ne(posts.slug, slug), eq(posts.status, "published")),
-      limit: 3,
-    });
+    const recommended = await getRelatedPostsByTaxonomy(post.id);
 
     const site = await getSeoSiteData();
 
@@ -160,7 +198,39 @@ export const Route = createFileRoute("/_public/blog/$slug")({
       description: post.metaDescription || post.excerpt || site.blogDescription,
       image: post.ogImage || post.coverImage || site.defaultOgImage,
       type: "article",
-      indexable: site.robotsIndexingEnabled && (!post.isPremium || data.hasAccess),
+      indexable:
+        site.robotsIndexingEnabled &&
+        !post.seoNoIndex &&
+        (!post.isPremium || data.hasAccess),
+      jsonLd: [
+        buildOrganizationJsonLd(site),
+        buildBreadcrumbJsonLd(site.siteUrl, [
+          { name: "Stories", path: "/blog" },
+          ...(post.category && post.categorySlug
+            ? [{ name: post.category, path: `/blog/category/${post.categorySlug}` }]
+            : []),
+          { name: post.title, path: `/blog/${post.slug}` },
+        ]),
+        buildArticleJsonLd({
+          site,
+          post: {
+            title: post.title,
+            excerpt: post.excerpt,
+            content: post.content,
+            slug: post.slug,
+            publishedAt: post.publishedAt,
+            updatedAt: post.updatedAt,
+            coverImage: post.coverImage,
+            ogImage: post.ogImage,
+            author: post.authorName
+              ? {
+                  name: post.authorName,
+                  slug: post.authorSlug,
+                }
+              : null,
+          },
+        }),
+      ],
     });
   },
   component: PostDetail,
@@ -244,7 +314,15 @@ function PostDetail() {
           ) : null}
         </article>
 
-        <AuthorBio />
+        <AuthorBio
+          author={{
+            name: post.authorName || "Lumina Editorial Team",
+            image: undefined,
+            bio: post.authorBio || undefined,
+            role: post.authorHeadline || "Content Strategist",
+            slug: post.authorSlug || undefined,
+          }}
+        />
 
         <section className="rounded-md border bg-card p-6 shadow-sm sm:p-12">
           <h3 className="mb-6 text-2xl font-bold tracking-tight text-foreground">

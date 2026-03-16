@@ -35,6 +35,7 @@ function EditPostPage() {
         metaTitle: post.metaTitle || "",
         metaDescription: post.metaDescription || "",
         ogImage: post.ogImage || "",
+        seoNoIndex: post.seoNoIndex || false,
         isPremium: post.isPremium || false,
         teaserMode: post.teaserMode || "excerpt",
         status: post.status as "draft" | "in_review" | "published" | "scheduled" | "archived",

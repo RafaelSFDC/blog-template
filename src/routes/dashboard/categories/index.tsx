@@ -23,6 +23,7 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
+import { Switch } from "#/components/ui/switch";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
 import { slugify } from "#/lib/cms-schema";
@@ -31,6 +32,7 @@ const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   description: z.string().catch(""),
+  seoNoIndex: z.boolean(),
 });
 
 export const Route = createFileRoute("/dashboard/categories/")({
@@ -47,6 +49,7 @@ function CategoriesPage() {
       name: "",
       slug: "",
       description: "",
+      seoNoIndex: false,
     },
     validators: {
       onChange: categorySchema,
@@ -56,6 +59,7 @@ function CategoriesPage() {
         name: value.name,
         slug: value.slug,
         description: value.description || "",
+        seoNoIndex: value.seoNoIndex,
       };
       if (editingId) {
         updateMutation.mutate({ data: { id: editingId, data: data } });
@@ -110,6 +114,7 @@ function CategoriesPage() {
     form.setFieldValue("name", category.name);
     form.setFieldValue("slug", category.slug);
     form.setFieldValue("description", category.description || "");
+    form.setFieldValue("seoNoIndex", Boolean(category.seoNoIndex));
     setIsAdding(false);
   }, [form]);
 
@@ -283,6 +288,23 @@ function CategoriesPage() {
                     </Field>
                   );
                 }}
+              </form.Field>
+              <form.Field name="seoNoIndex">
+                {(field) => (
+                  <div className="flex items-center space-x-3 rounded-xl border border-border bg-muted/20 p-4">
+                    <Switch
+                      id={field.name}
+                      checked={field.state.value}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                      <span className="text-sm font-bold text-foreground">Noindex category archive</span>
+                      <span className="text-xs text-muted-foreground">
+                        Prevent this category page from appearing in search engines.
+                      </span>
+                    </label>
+                  </div>
+                )}
               </form.Field>
             </FieldGroup>
             <div className="flex gap-2">

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { db } from "#/db/index";
 import { count, desc, eq } from "drizzle-orm";
 import { useEffect, useState } from "react";
@@ -10,11 +11,11 @@ import { Button } from "#/components/ui/button";
 import { SiteHeader } from "#/components/SiteHeader";
 import { Input } from "#/components/ui/input";
 import { IconBox } from "#/components/IconBox";
-import { categories, postCategories, posts, postTags, tags } from "#/db/schema";
+import { categories, postCategories, posts, postTags, tags, user } from "#/db/schema";
 import { type InferSelectModel } from "drizzle-orm";
 import { BLOG_PAGE_SIZE } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
+import { buildCanonicalUrl, buildPublicSeo, getPublicCacheControl } from "#/lib/seo";
 import { getPaginationMeta, normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { normalizeSearchQuery, rankSearchPosts } from "#/server/post-search";
@@ -37,6 +38,8 @@ const getLatestPosts = createServerFn({ method: "GET" })
     };
   })
   .handler(async ({ data }) => {
+    setResponseHeader("Cache-Control", getPublicCacheControl(600, 3600));
+
     if (data.q) {
       const searchRows = await db
         .select({
@@ -50,8 +53,13 @@ const getLatestPosts = createServerFn({ method: "GET" })
           category: categories.name,
           categorySlug: categories.slug,
           tag: tags.name,
+          authorName: user.name,
+          authorHeadline: user.authorHeadline,
+          metaTitle: posts.metaTitle,
+          metaDescription: posts.metaDescription,
         })
         .from(posts)
+        .leftJoin(user, eq(posts.authorId, user.id))
         .leftJoin(postCategories, eq(posts.id, postCategories.postId))
         .leftJoin(categories, eq(postCategories.categoryId, categories.id))
         .leftJoin(postTags, eq(posts.id, postTags.postId))
@@ -76,14 +84,16 @@ const getLatestPosts = createServerFn({ method: "GET" })
       .select({
         id: posts.id,
         slug: posts.slug,
-        title: posts.title,
-        excerpt: posts.excerpt,
-        coverImage: posts.coverImage,
-        publishedAt: posts.publishedAt,
-        category: categories.name,
-        categorySlug: categories.slug,
-      })
+      title: posts.title,
+      excerpt: posts.excerpt,
+      coverImage: posts.coverImage,
+      publishedAt: posts.publishedAt,
+      category: categories.name,
+      categorySlug: categories.slug,
+      authorName: user.name,
+    })
       .from(posts)
+      .leftJoin(user, eq(posts.authorId, user.id))
       .leftJoin(postCategories, eq(posts.id, postCategories.postId))
       .leftJoin(categories, eq(postCategories.categoryId, categories.id))
       .where(eq(posts.status, "published"))
@@ -173,7 +183,7 @@ export const Route = createFileRoute("/_public/blog/")({
           : data.site.defaultMetaDescription ||
             "Browse all articles on design, tech, and cultural experiments.",
       image: data.site.defaultOgImage,
-      indexable: !hasQuery && data.site.robotsIndexingEnabled,
+      indexable: !hasQuery && page === 1 && data.site.robotsIndexingEnabled,
       links,
     });
   },

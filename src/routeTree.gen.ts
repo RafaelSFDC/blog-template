@@ -58,6 +58,7 @@ import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public/blog/$slug'
+import { Route as PublicAuthorSlugRouteImport } from './routes/_public/author/$slug'
 import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
 import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
@@ -69,6 +70,8 @@ import { Route as DashboardPagesPageIdEditRouteImport } from './routes/dashboard
 import { Route as PublicBlogTagSlugRouteImport } from './routes/_public/blog/tag/$slug'
 import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public/blog/category/$slug'
 import { Route as PublicAuthInviteTokenRouteImport } from './routes/_public/auth/invite.$token'
+import { Route as PublicBlogArchiveYearIndexRouteImport } from './routes/_public/blog/archive/$year/index'
+import { Route as PublicBlogArchiveYearMonthRouteImport } from './routes/_public/blog/archive/$year/$month'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -319,6 +322,11 @@ const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicAuthorSlugRoute = PublicAuthorSlugRouteImport.update({
+  id: '/author/$slug',
+  path: '/author/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicAuthResetPasswordRoute = PublicAuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -379,6 +387,18 @@ const PublicAuthInviteTokenRoute = PublicAuthInviteTokenRouteImport.update({
   path: '/invite/$token',
   getParentRoute: () => PublicAuthRoute,
 } as any)
+const PublicBlogArchiveYearIndexRoute =
+  PublicBlogArchiveYearIndexRouteImport.update({
+    id: '/blog/archive/$year/',
+    path: '/blog/archive/$year/',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicBlogArchiveYearMonthRoute =
+  PublicBlogArchiveYearMonthRouteImport.update({
+    id: '/blog/archive/$year/$month',
+    path: '/blog/archive/$year/$month',
+    getParentRoute: () => PublicRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
@@ -401,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
+  '/author/$slug': typeof PublicAuthorSlugRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
@@ -440,6 +461,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
   '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
   '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
+  '/blog/archive/$year/$month': typeof PublicBlogArchiveYearMonthRoute
+  '/blog/archive/$year/': typeof PublicBlogArchiveYearIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof PublicSplatRoute
@@ -461,6 +484,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
+  '/author/$slug': typeof PublicAuthorSlugRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
@@ -500,6 +524,8 @@ export interface FileRoutesByTo {
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
   '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
   '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
+  '/blog/archive/$year/$month': typeof PublicBlogArchiveYearMonthRoute
+  '/blog/archive/$year': typeof PublicBlogArchiveYearIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -524,6 +550,7 @@ export interface FileRoutesById {
   '/_public/auth/login': typeof PublicAuthLoginRoute
   '/_public/auth/register': typeof PublicAuthRegisterRoute
   '/_public/auth/reset-password': typeof PublicAuthResetPasswordRoute
+  '/_public/author/$slug': typeof PublicAuthorSlugRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/comments/$id': typeof ApiCommentsIdRoute
@@ -563,6 +590,8 @@ export interface FileRoutesById {
   '/dashboard/posts/$postId/edit': typeof DashboardPostsPostIdEditRoute
   '/dashboard/preview/page/$pageId': typeof DashboardPreviewPagePageIdRoute
   '/dashboard/preview/post/$postId': typeof DashboardPreviewPostPostIdRoute
+  '/_public/blog/archive/$year/$month': typeof PublicBlogArchiveYearMonthRoute
+  '/_public/blog/archive/$year/': typeof PublicBlogArchiveYearIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -587,6 +616,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/author/$slug'
     | '/blog/$slug'
     | '/api/auth/$'
     | '/api/comments/$id'
@@ -626,6 +656,8 @@ export interface FileRouteTypes {
     | '/dashboard/posts/$postId/edit'
     | '/dashboard/preview/page/$pageId'
     | '/dashboard/preview/post/$postId'
+    | '/blog/archive/$year/$month'
+    | '/blog/archive/$year/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -647,6 +679,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/author/$slug'
     | '/blog/$slug'
     | '/api/auth/$'
     | '/api/comments/$id'
@@ -686,6 +719,8 @@ export interface FileRouteTypes {
     | '/dashboard/posts/$postId/edit'
     | '/dashboard/preview/page/$pageId'
     | '/dashboard/preview/post/$postId'
+    | '/blog/archive/$year/$month'
+    | '/blog/archive/$year'
   id:
     | '__root__'
     | '/_public'
@@ -709,6 +744,7 @@ export interface FileRouteTypes {
     | '/_public/auth/login'
     | '/_public/auth/register'
     | '/_public/auth/reset-password'
+    | '/_public/author/$slug'
     | '/_public/blog/$slug'
     | '/api/auth/$'
     | '/api/comments/$id'
@@ -748,6 +784,8 @@ export interface FileRouteTypes {
     | '/dashboard/posts/$postId/edit'
     | '/dashboard/preview/page/$pageId'
     | '/dashboard/preview/post/$postId'
+    | '/_public/blog/archive/$year/$month'
+    | '/_public/blog/archive/$year/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1116,6 +1154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicBlogSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/author/$slug': {
+      id: '/_public/author/$slug'
+      path: '/author/$slug'
+      fullPath: '/author/$slug'
+      preLoaderRoute: typeof PublicAuthorSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/auth/reset-password': {
       id: '/_public/auth/reset-password'
       path: '/reset-password'
@@ -1193,6 +1238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAuthInviteTokenRouteImport
       parentRoute: typeof PublicAuthRoute
     }
+    '/_public/blog/archive/$year/': {
+      id: '/_public/blog/archive/$year/'
+      path: '/blog/archive/$year'
+      fullPath: '/blog/archive/$year/'
+      preLoaderRoute: typeof PublicBlogArchiveYearIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/archive/$year/$month': {
+      id: '/_public/blog/archive/$year/$month'
+      path: '/blog/archive/$year/$month'
+      fullPath: '/blog/archive/$year/$month'
+      preLoaderRoute: typeof PublicBlogArchiveYearMonthRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
@@ -1224,10 +1283,13 @@ interface PublicRouteChildren {
   PublicContactRoute: typeof PublicContactRoute
   PublicPricingRoute: typeof PublicPricingRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicAuthorSlugRoute: typeof PublicAuthorSlugRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicBlogCategorySlugRoute: typeof PublicBlogCategorySlugRoute
   PublicBlogTagSlugRoute: typeof PublicBlogTagSlugRoute
+  PublicBlogArchiveYearMonthRoute: typeof PublicBlogArchiveYearMonthRoute
+  PublicBlogArchiveYearIndexRoute: typeof PublicBlogArchiveYearIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
@@ -1238,10 +1300,13 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicContactRoute: PublicContactRoute,
   PublicPricingRoute: PublicPricingRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicAuthorSlugRoute: PublicAuthorSlugRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicBlogCategorySlugRoute: PublicBlogCategorySlugRoute,
   PublicBlogTagSlugRoute: PublicBlogTagSlugRoute,
+  PublicBlogArchiveYearMonthRoute: PublicBlogArchiveYearMonthRoute,
+  PublicBlogArchiveYearIndexRoute: PublicBlogArchiveYearIndexRoute,
 }
 
 const PublicRouteWithChildren =

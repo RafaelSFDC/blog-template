@@ -41,6 +41,7 @@ function EditPagePage() {
         metaTitle: page.metaTitle || "",
         metaDescription: page.metaDescription || "",
         ogImage: page.ogImage || "",
+        seoNoIndex: page.seoNoIndex || false,
         isPremium: page.isPremium || false,
         teaserMode: page.teaserMode || "excerpt",
         status: page.status as "draft" | "published" | "private",

@@ -8,6 +8,7 @@ export const Route = createFileRoute('/api/media/$')({
       GET: async ({ request }) => {
         const url = new URL(request.url)
         const filename = url.pathname.split('/').pop()
+        const preset = url.searchParams.get('preset')
 
         if (!filename) {
           return new Response('File not found', { status: 404 })
@@ -21,6 +22,8 @@ export const Route = createFileRoute('/api/media/$')({
 
           const headers = new Headers()
           headers.set('cache-control', 'public, max-age=31536000')
+          headers.set('vary', 'accept')
+          if (preset) headers.set('x-lumina-image-preset', preset)
           if (object.contentType) headers.set('content-type', object.contentType)
           if (object.etag) headers.set('etag', object.etag)
 
