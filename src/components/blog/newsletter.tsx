@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Input } from "#/components/ui/input";
 import { Mail } from "lucide-react";
 import { cn } from "#/lib/utils";
@@ -28,6 +29,7 @@ export function Newsletter({
   className,
 }: NewsletterProps) {
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +38,9 @@ export function Newsletter({
       onSubscribe(email);
     } else {
       try {
-        const res = await subscribeNewsletter({ data: { email, source: "site_form" } });
+        const res = await subscribeNewsletter({
+          data: { email, source: "site_form", turnstileToken },
+        });
         if (res.success) {
           posthog.capture(
             res.state === "pending_confirmation"
@@ -46,6 +50,7 @@ export function Newsletter({
           );
           toast.success(res.message);
           setEmail("");
+          setTurnstileToken("");
         } else {
           toast.error(res.message);
         }
@@ -84,6 +89,11 @@ export function Newsletter({
             className="pl-11 pr-4"
           />
         </div>
+        <TurnstileField
+          action="newsletter_subscribe"
+          value={turnstileToken}
+          onTokenChange={setTurnstileToken}
+        />
         <Button type="submit" variant="default">
           {buttonText === "Subscribe!" ? "Join" : buttonText}
         </Button>
@@ -117,6 +127,11 @@ export function Newsletter({
             placeholder={placeholder}
             required
             className="flex-1"
+          />
+          <TurnstileField
+            action="newsletter_subscribe"
+            value={turnstileToken}
+            onTokenChange={setTurnstileToken}
           />
           <Button type="submit" variant="default" size="default">
             {buttonText}

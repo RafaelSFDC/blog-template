@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Mail, User, Lock } from "lucide-react";
 import { SocialLogin } from "#/components/auth/social-login";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/_public/auth/register")({
 function RegisterPage() {
   const { locked } = Route.useLoaderData();
   const [success, setSuccess] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
   const callbackURL =
     typeof window !== "undefined"
@@ -54,7 +56,12 @@ function RegisterPage() {
           password: value.password,
           name: value.name,
           callbackURL,
-        });
+          fetchOptions: {
+            headers: {
+              "x-turnstile-token": turnstileToken,
+            },
+          },
+        } as Parameters<typeof authClient.signUp.email>[0]);
         posthog.identify(value.email, { email: value.email, name: value.name });
         posthog.capture("user_signed_up", { method: "email" });
         setSuccess(true);
@@ -237,6 +244,12 @@ function RegisterPage() {
             </Field>
           )}
         </form.Field>
+
+        <TurnstileField
+          action="register"
+          value={turnstileToken}
+          onTokenChange={setTurnstileToken}
+        />
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}

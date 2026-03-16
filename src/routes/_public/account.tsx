@@ -1,7 +1,7 @@
 import { usePostHog } from "@posthog/react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
-import { CreditCard, LogOut, Save, Shield, User } from "lucide-react";
+import { CreditCard, Download, LogOut, Save, Shield, Trash2, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
@@ -11,6 +11,7 @@ import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
 import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
 import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
+import { deleteCurrentUserData, exportCurrentUserData } from "#/server/security/privacy";
 import { checkAuthenticatedUserAccess } from "#/server/system/dashboard-access";
 
 export const Route = createFileRoute("/_public/account")({
@@ -42,6 +43,8 @@ function AccountPage() {
   const { subscription, plans } = Route.useLoaderData();
   const posthog = usePostHog();
   const [savingAuthorProfile, setSavingAuthorProfile] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const authorProfileForm = useForm({
     defaultValues: {
@@ -166,6 +169,69 @@ function AccountPage() {
         },
       });
       toast.error(error instanceof Error ? error.message : "Could not open billing portal.");
+    }
+  }
+
+  async function handleExportData() {
+    try {
+      setExportingData(true);
+      const payload = await exportCurrentUserData();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `lumina-account-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Your account export is ready.");
+    } catch (error) {
+      captureClientException(error, {
+        tags: {
+          area: "account",
+          flow: "privacy-export",
+        },
+      });
+      toast.error(error instanceof Error ? error.message : "Could not export your data.");
+    } finally {
+      setExportingData(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm(
+      "This permanently deletes your account. Continue only if you are sure.",
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeletingAccount(true);
+      await deleteCurrentUserData();
+      toast.success("Your account has been deleted.");
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/";
+          },
+        },
+      });
+    } catch (error) {
+      captureClientException(error, {
+        tags: {
+          area: "account",
+          flow: "privacy-delete",
+        },
+      });
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not delete your account.",
+      );
+    } finally {
+      setDeletingAccount(false);
     }
   }
 
@@ -561,6 +627,33 @@ function AccountPage() {
               <LogOut size={20} />
               Sign Out
             </Button>
+          </section>
+
+          <section className="rounded-md border bg-card p-8 shadow-sm">
+            <h3 className="mb-6 text-sm font-black text-foreground">Privacy & Data</h3>
+            <p className="mb-6 text-sm font-medium leading-relaxed text-muted-foreground">
+              Export your account data as JSON or request immediate deletion if this account does not own editorial content.
+            </p>
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-3"
+                onClick={() => void handleExportData()}
+                disabled={exportingData}
+              >
+                <Download size={18} />
+                {exportingData ? "Preparing export..." : "Export My Data"}
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-full justify-center gap-3"
+                onClick={() => void handleDeleteAccount()}
+                disabled={deletingAccount}
+              >
+                <Trash2 size={18} />
+                {deletingAccount ? "Deleting..." : "Delete My Account"}
+              </Button>
+            </div>
           </section>
         </aside>
       </div>

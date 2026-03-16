@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { newsletters, subscribers } from "#/db/schema";
 import {
   newsletterCampaignActionSchema,
   newsletterCampaignSchema,
-  newsletterSubscribeSchema,
+  newsletterSubscribeSubmissionSchema,
   positiveIntSchema,
   recordIdSchema,
 } from "#/schemas";
@@ -22,14 +23,65 @@ import {
   unsubscribeNewsletterToken,
 } from "#/server/newsletter-campaigns";
 import { captureServerException } from "#/server/sentry";
+import { enforceRateLimit } from "#/server/security/rate-limit";
+import { getSecurityRequestMetadata } from "#/server/security/request";
+import { verifyTurnstileToken } from "#/server/integrations/turnstile";
+import { logSecurityEvent } from "#/server/security/events";
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => newsletterSubscribeSchema.parse(input))
+  .inputValidator((input: unknown) => newsletterSubscribeSubmissionSchema.parse(input))
   .handler(async ({ data }) => {
     try {
+      const request = getRequest();
+      if (!request) {
+        throw new Error("Request context unavailable");
+      }
+
+      const decision = await enforceRateLimit({
+        scope: "newsletter.subscribe",
+        request,
+        keyParts: [data.email.toLowerCase()],
+        limit: 6,
+        windowMs: 15 * 60 * 1000,
+      });
+
+      if (!decision.allowed) {
+        return {
+          success: false,
+          state: "error" as const,
+          message: "Too many subscription attempts. Please try again later.",
+        };
+      }
+
+      const metadata = getSecurityRequestMetadata(request);
+      const verification = await verifyTurnstileToken({
+        token: data.turnstileToken,
+        ip: metadata.ip,
+      });
+
+      if (!verification.success) {
+        await logSecurityEvent({
+          type: "turnstile.failed",
+          scope: "newsletter.subscribe",
+          ipHash: metadata.ipHash,
+          userAgent: metadata.userAgentShort,
+          metadata: {
+            email: data.email.toLowerCase(),
+            errors: verification.errors ?? [],
+          },
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
+        return {
+          success: false,
+          state: "error" as const,
+          message: "Security verification failed. Please try again.",
+        };
+      }
+
       return await subscribeNewsletterAddress({
         email: data.email,
         source: data.source ?? "site_form",
+        requestMetadata: metadata,
       });
     } catch (error) {
       captureServerException(error, {

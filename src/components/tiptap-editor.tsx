@@ -30,6 +30,7 @@ import { uploadMedia } from '#/server/media-actions'
 import { useRef } from 'react'
 import { toast } from 'sonner'
 import { captureClientException } from '#/lib/sentry-client'
+import { sanitizeEditorLink, sanitizeYoutubeUrl } from '#/lib/url-security'
 
 
 interface TiptapEditorProps {
@@ -80,7 +81,12 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       action: () => {
         const url = window.prompt('URL')
         if (url) {
-          editor.chain().focus().setLink({ href: url }).run()
+          const sanitized = sanitizeEditorLink(url)
+          if (!sanitized) {
+            toast.error('Only secure https or mailto links are allowed.')
+            return
+          }
+          editor.chain().focus().setLink({ href: sanitized }).run()
         }
       },
       isActive: () => editor.isActive('link'),
@@ -127,7 +133,12 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       action: () => {
         const url = window.prompt('YouTube URL')
         if (url) {
-          editor.chain().focus().setYoutubeVideo({ src: url }).run()
+          const sanitized = sanitizeYoutubeUrl(url)
+          if (!sanitized) {
+            toast.error('Use a valid secure YouTube URL.')
+            return
+          }
+          editor.chain().focus().setYoutubeVideo({ src: sanitized }).run()
         }
       },
       isActive: () => editor.isActive('youtube'),

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { KeyRound, Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_public/auth/reset-password")({
 function ResetPasswordPage() {
   const { token } = Route.useSearch();
   const [success, setSuccess] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -44,7 +46,12 @@ function ResetPasswordPage() {
         await authClient.resetPassword({
           newPassword: value.password,
           token: token,
-        });
+          fetchOptions: {
+            headers: {
+              "x-turnstile-token": turnstileToken,
+            },
+          },
+        } as Parameters<typeof authClient.resetPassword>[0]);
         setSuccess(true);
       } catch (err) {
         const msg =
@@ -147,6 +154,12 @@ function ResetPasswordPage() {
             </Field>
           )}
         </form.Field>
+
+        <TurnstileField
+          action="reset_password"
+          value={turnstileToken}
+          onTokenChange={setTurnstileToken}
+        />
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}

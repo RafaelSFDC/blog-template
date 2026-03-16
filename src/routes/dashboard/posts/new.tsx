@@ -30,6 +30,7 @@ function NewPostPage() {
         ogImage: "",
         seoNoIndex: false,
         isPremium: false,
+        commentsEnabled: true,
         teaserMode: "excerpt",
         status: "draft",
         publishedAt: new Date().toISOString().slice(0, 16),

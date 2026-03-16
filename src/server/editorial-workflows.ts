@@ -44,6 +44,7 @@ export async function createPostRevision(input: {
     ogImage?: string | null;
     seoNoIndex: boolean;
     isPremium: boolean;
+    commentsEnabled?: boolean;
     teaserMode: string;
     status: string;
     publishedAt?: Date | null;

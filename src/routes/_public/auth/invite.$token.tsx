@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
 import { acceptInvitation, getInvitationByToken } from "#/server/invitation-actions";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Input } from "#/components/ui/input";
 import { Field, FieldContent, FieldError, FieldLabel } from "#/components/ui/field";
 import { useForm } from "@tanstack/react-form";
@@ -18,6 +19,7 @@ function AcceptInvitationPage() {
   const { token } = Route.useParams();
   const { data: session } = authClient.useSession();
   const [accepting, setAccepting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -32,7 +34,12 @@ function AcceptInvitationPage() {
           password: value.password,
           name: value.name,
           callbackURL: window.location.href,
-        });
+          fetchOptions: {
+            headers: {
+              "x-turnstile-token": turnstileToken,
+            },
+          },
+        } as Parameters<typeof authClient.signUp.email>[0]);
         toast.success("Account created. You can accept the invitation now.");
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Could not create account");
@@ -168,8 +175,14 @@ function AcceptInvitationPage() {
                     <FieldError errors={field.state.meta.errors} />
                   </FieldContent>
                 </Field>
-              )}
+                )}
             </form.Field>
+
+            <TurnstileField
+              action="invite_signup"
+              value={turnstileToken}
+              onTokenChange={setTurnstileToken}
+            />
 
             <Button type="submit" className="w-full">
               Create Account

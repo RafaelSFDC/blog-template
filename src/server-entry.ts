@@ -9,6 +9,7 @@ import {
   type NewsletterQueueMessage,
 } from "#/server/newsletter-campaigns";
 import { publishScheduledPosts } from "#/server/post-actions";
+import { cleanupExpiredRateLimitEvents } from "#/server/security/rate-limit";
 import {
   captureServerException,
   getWorkerSentryOptions,
@@ -18,9 +19,10 @@ const fetch = createStartHandler(defaultStreamHandler);
 
 async function runScheduledPublish() {
   try {
-    const [postResult, queuedCampaigns] = await Promise.all([
+    const [postResult, queuedCampaigns, rateLimitCleanup] = await Promise.all([
       publishScheduledPosts(new Date()),
       enqueueDueNewsletterCampaigns(new Date()),
+      cleanupExpiredRateLimitEvents(),
     ]);
 
     console.log(
@@ -29,6 +31,7 @@ async function runScheduledPublish() {
         publishedCount: postResult.count,
         publishedIds: postResult.publishedIds,
         queuedCampaigns,
+        cleanedRateLimitEvents: rateLimitCleanup,
       }),
     );
   } catch (error) {

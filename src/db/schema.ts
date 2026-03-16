@@ -137,6 +137,7 @@ export const posts = table("posts", {
   editorOwnerId: text("editor_owner_id").references(() => user.id, { onDelete: "set null" }),
   isPremium: boolean("is_premium").default(false),
   teaserMode: text("teaser_mode").notNull().default("excerpt"),
+  commentsEnabled: boolean("comments_enabled").notNull().default(true),
   reviewRequestedAt: timestamp("review_requested_at"),
   reviewRequestedBy: text("review_requested_by").references(() => user.id, { onDelete: "set null" }),
   lastReviewedAt: timestamp("last_reviewed_at"),
@@ -187,6 +188,9 @@ export const comments = table(
     authorId: text("author_id").references(() => user.id),
     authorName: text("author_name").notNull(),
     authorEmail: text("author_email"),
+    sourceIpHash: text("source_ip_hash"),
+    userAgent: text("user_agent"),
+    spamReason: text("spam_reason"),
     content: text("content").notNull(),
     status: text("status").notNull().default("pending"),
     createdAt: timestamp("created_at").default(now),
@@ -348,6 +352,70 @@ export const subscriberEvents = table(
     index("subscriber_events_subscriber_id_idx").on(t.subscriberId),
     index("subscriber_events_type_idx").on(t.type),
     index("subscriber_events_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const newsletterConsents = table(
+  "newsletter_consents",
+  {
+    id: autoIncrementId("id"),
+    subscriberId: integer("subscriber_id").references(() => subscribers.id, {
+      onDelete: "set null",
+    }),
+    email: text("email").notNull(),
+    source: text("source"),
+    status: text("status").notNull(),
+    lawfulBasis: text("lawful_basis").notNull().default("consent"),
+    ipHash: text("ip_hash"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("newsletter_consents_subscriber_id_idx").on(t.subscriberId),
+    index("newsletter_consents_email_idx").on(t.email),
+    index("newsletter_consents_status_idx").on(t.status),
+    index("newsletter_consents_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const rateLimitEvents = table(
+  "rate_limit_events",
+  {
+    id: autoIncrementId("id"),
+    scope: text("scope").notNull(),
+    identifierHash: text("identifier_hash").notNull(),
+    keyJson: text("key_json"),
+    createdAt: timestamp("created_at").default(now),
+    expiresAt: timestamp("expires_at").notNull(),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("rate_limit_events_scope_identifier_idx").on(t.scope, t.identifierHash),
+    index("rate_limit_events_expires_at_idx").on(t.expiresAt),
+    index("rate_limit_events_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const securityEvents = table(
+  "security_events",
+  {
+    id: autoIncrementId("id"),
+    type: text("type").notNull(),
+    scope: text("scope"),
+    identifierHash: text("identifier_hash"),
+    ipHash: text("ip_hash"),
+    userAgent: text("user_agent"),
+    metadataJson: text("metadata_json"),
+    createdAt: timestamp("created_at").default(now),
+    expiresAt: timestamp("expires_at"),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("security_events_type_idx").on(t.type),
+    index("security_events_scope_idx").on(t.scope),
+    index("security_events_expires_at_idx").on(t.expiresAt),
+    index("security_events_created_at_idx").on(t.createdAt),
   ],
 );
 
@@ -807,6 +875,7 @@ export const editorialChecklistsRelations = relations(editorialChecklists, ({ on
 export const subscribersRelations = relations(subscribers, ({ many }) => ({
   deliveries: many(newsletterDeliveries),
   events: many(subscriberEvents),
+  consents: many(newsletterConsents),
 }));
 
 export const newslettersRelations = relations(newsletters, ({ many, one }) => ({
@@ -832,6 +901,13 @@ export const newsletterDeliveriesRelations = relations(newsletterDeliveries, ({ 
 export const subscriberEventsRelations = relations(subscriberEvents, ({ one }) => ({
   subscriber: one(subscribers, {
     fields: [subscriberEvents.subscriberId],
+    references: [subscribers.id],
+  }),
+}));
+
+export const newsletterConsentsRelations = relations(newsletterConsents, ({ one }) => ({
+  subscriber: one(subscribers, {
+    fields: [newsletterConsents.subscriberId],
     references: [subscribers.id],
   }),
 }));

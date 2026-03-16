@@ -7,6 +7,30 @@ import { deleteObject, putObject, sanitizeMediaFilename } from "#/server/system/
 import { bulkMediaDeleteSchema, mediaUploadSchema } from "#/schemas/system";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
+import { logSecurityEvent } from "#/server/security/events";
+import { getCurrentSecurityRequestMetadata } from "#/server/security/request";
+
+const MIME_EXTENSION_ALLOWLIST: Record<string, string[]> = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+  "image/gif": [".gif"],
+  "video/mp4": [".mp4"],
+  "audio/mpeg": [".mp3"],
+  "application/pdf": [".pdf"],
+};
+
+function getFileExtension(filename: string) {
+  const match = /\.([a-z0-9]+)$/i.exec(filename);
+  return match ? `.${match[1].toLowerCase()}` : "";
+}
+
+function getMaxUploadSize(mimeType: string) {
+  if (mimeType.startsWith("image/")) return 8 * 1024 * 1024;
+  if (mimeType.startsWith("video/")) return 25 * 1024 * 1024;
+  if (mimeType.startsWith("audio/")) return 15 * 1024 * 1024;
+  return 10 * 1024 * 1024;
+}
 
 export const getMediaItems = createServerFn({ method: "GET" }).handler(async () => {
   const { session, canReadAll } = await requireMediaReadAccess();
@@ -42,6 +66,47 @@ export const uploadMedia = createServerFn({ method: "POST" })
       });
 
       const filename = sanitizeMediaFilename(file.name);
+      const fileExtension = getFileExtension(file.name);
+      const expectedExtensions = MIME_EXTENSION_ALLOWLIST[file.type] ?? [];
+      const requestMetadata = getCurrentSecurityRequestMetadata();
+
+      if (!filename || !/\.[a-z0-9]+$/i.test(filename)) {
+        throw new Error("Invalid file name after sanitization");
+      }
+
+      if (expectedExtensions.length === 0 || !expectedExtensions.includes(fileExtension)) {
+        await logSecurityEvent({
+          type: "upload.invalid",
+          scope: "media.upload",
+          ipHash: requestMetadata?.ipHash ?? null,
+          userAgent: requestMetadata?.userAgentShort ?? null,
+          metadata: {
+            fileName: file.name,
+            mimeType: file.type,
+            reason: "extension_mismatch",
+          },
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
+        throw new Error("File extension does not match the uploaded file type");
+      }
+
+      if (file.size > getMaxUploadSize(file.type)) {
+        await logSecurityEvent({
+          type: "upload.invalid",
+          scope: "media.upload",
+          ipHash: requestMetadata?.ipHash ?? null,
+          userAgent: requestMetadata?.userAgentShort ?? null,
+          metadata: {
+            fileName: file.name,
+            mimeType: file.type,
+            size: file.size,
+            reason: "file_too_large",
+          },
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
+        throw new Error("This file is larger than the allowed limit for its type");
+      }
+
       const buffer = Buffer.from(await file.arrayBuffer());
       const stored = await putObject({
         filename,

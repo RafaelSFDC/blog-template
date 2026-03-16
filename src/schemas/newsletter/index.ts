@@ -11,5 +11,6 @@ export {
   newsletterDeliveryStatusSchema,
   newsletterSegmentSchema,
   newsletterSubscribeSchema,
+  newsletterSubscribeSubmissionSchema,
   subscriberStatusSchema,
 } from "#/schemas/core";

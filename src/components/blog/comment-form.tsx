@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 
 import React, { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Textarea } from "#/components/ui/textarea";
 import { toast } from "sonner";
 import { captureClientException } from "#/lib/sentry-client";
@@ -14,6 +15,7 @@ interface CommentFormProps {
     authorName: string;
     authorEmail: string | undefined;
     content: string;
+    turnstileToken: string;
   }) => Promise<void>;
 }
 
@@ -22,6 +24,7 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
   const [content, setContent] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Effect to pre-fill if session exists
@@ -46,8 +49,10 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
         authorName: finalName,
         authorEmail: finalEmail || undefined,
         content: content.trim(),
+        turnstileToken,
       });
       setContent("");
+      setTurnstileToken("");
       toast.success("Your comment is awaiting moderation!");
     } catch (err) {
       captureClientException(err, {
@@ -119,6 +124,11 @@ export function CommentForm({ onSubmit }: Omit<CommentFormProps, "postId">) {
           className="min-h-[120px]  border-input bg-background font-bold focus:border-primary/50 transition-all p-4"
         />
       </div>
+      <TurnstileField
+        action="comment_submit"
+        value={turnstileToken}
+        onTokenChange={setTurnstileToken}
+      />
       <Button type="submit" disabled={isSubmitting} variant="default" size="lg">
         {isSubmitting ? "Posting..." : "Post Comment"}
       </Button>

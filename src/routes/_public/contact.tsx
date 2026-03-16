@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
 import { Mail, Send, CheckCircle2 } from "lucide-react";
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/_public/contact")({
 
 function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
 
   const form = useForm({
@@ -46,6 +48,7 @@ function ContactPage() {
       email: "",
       subject: "",
       message: "",
+      turnstileToken: "",
     },
     validators: {
       onChange: contactFormSchema,
@@ -58,6 +61,7 @@ function ContactPage() {
         });
         toast.success("Message sent successfully!");
         setSubmitted(true);
+        setTurnstileToken("");
       } catch (err) {
         captureClientException(err, {
           tags: {
@@ -260,6 +264,15 @@ function ContactPage() {
                   );
                 }}
               </form.Field>
+
+              <TurnstileField
+                action="contact_submit"
+                value={turnstileToken}
+                onTokenChange={(token) => {
+                  setTurnstileToken(token);
+                  form.setFieldValue("turnstileToken", token);
+                }}
+              />
 
               <div className="pt-4">
                 <form.Subscribe

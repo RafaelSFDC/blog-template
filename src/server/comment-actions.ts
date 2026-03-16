@@ -2,8 +2,13 @@ import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { eq } from "drizzle-orm";
 import { publicCommentSchema } from "#/schemas/editorial";
+import { evaluateCommentSpam } from "#/server/security/comments";
+import { logSecurityEvent } from "#/server/security/events";
 
-export type CreatePendingCommentInput = Parameters<typeof publicCommentSchema.parse>[0];
+export type CreatePendingCommentInput = Parameters<typeof publicCommentSchema.parse>[0] & {
+  sourceIpHash?: string | null;
+  userAgent?: string | null;
+};
 
 export async function createPendingComment(input: CreatePendingCommentInput) {
   const data = publicCommentSchema.parse(input);
@@ -12,11 +17,39 @@ export async function createPendingComment(input: CreatePendingCommentInput) {
     where: eq(posts.id, data.postId),
     columns: {
       id: true,
+      commentsEnabled: true,
     },
   });
 
   if (!post) {
     throw new Error("Post not found");
+  }
+
+  if (post.commentsEnabled === false) {
+    throw new Error("Comments are disabled for this post");
+  }
+
+  const spamCheck = await evaluateCommentSpam({
+    postId: data.postId,
+    authorEmail: data.authorEmail ?? null,
+    content: data.content,
+    sourceIpHash: input.sourceIpHash ?? null,
+  });
+
+  if (spamCheck.decision === "blocked") {
+    await logSecurityEvent({
+      type: "comment.blocked",
+      scope: "comment.create",
+      ipHash: input.sourceIpHash ?? null,
+      userAgent: input.userAgent ?? null,
+      metadata: {
+        reason: spamCheck.reason,
+        postId: data.postId,
+        authorEmail: data.authorEmail ?? null,
+      },
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+    throw new Error("Your comment looks suspicious and was blocked.");
   }
 
   const [created] = await db
@@ -25,10 +58,28 @@ export async function createPendingComment(input: CreatePendingCommentInput) {
       postId: data.postId,
       authorName: data.authorName,
       authorEmail: data.authorEmail || null,
+      sourceIpHash: input.sourceIpHash ?? null,
+      userAgent: input.userAgent ?? null,
+      spamReason: spamCheck.reason,
       content: data.content,
-      status: "pending",
+      status: spamCheck.decision === "spam" ? "spam" : "pending",
     })
     .returning();
+
+  if (spamCheck.decision === "spam") {
+    await logSecurityEvent({
+      type: "comment.spam",
+      scope: "comment.create",
+      ipHash: input.sourceIpHash ?? null,
+      userAgent: input.userAgent ?? null,
+      metadata: {
+        reason: spamCheck.reason,
+        postId: data.postId,
+        commentId: created.id,
+      },
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+  }
 
   return created;
 }

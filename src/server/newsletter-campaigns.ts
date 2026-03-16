@@ -3,6 +3,7 @@ import { and, desc, eq, lte } from "drizzle-orm";
 import { db } from "#/db/index";
 import {
   newsletterDeliveries,
+  newsletterConsents,
   newsletterLogs,
   newsletters,
   subscribers,
@@ -17,6 +18,8 @@ import { logActivity } from "#/server/activity-log";
 import { getSettingValue, getSettingValues, parseBooleanSetting } from "#/server/app-settings";
 import { getPostHogClient } from "#/server/posthog";
 import { captureServerException } from "#/server/sentry";
+import type { ConsentStatus } from "#/types/security";
+import type { SecurityRequestMetadata } from "#/server/security/request";
 
 const MAX_NEWSLETTER_ATTEMPTS = 3;
 const NEWSLETTER_QUEUE_NAME = "NEWSLETTER_QUEUE";
@@ -156,6 +159,25 @@ async function createSubscriberEvent(
     subscriberId,
     type,
     metadataJson: metadata ? JSON.stringify(metadata) : null,
+    createdAt: new Date(),
+  });
+}
+
+export async function recordNewsletterConsent(input: {
+  subscriberId?: number | null;
+  email: string;
+  source?: string | null;
+  status: ConsentStatus;
+  requestMetadata?: Pick<SecurityRequestMetadata, "ipHash" | "userAgentShort"> | null;
+}) {
+  await db.insert(newsletterConsents).values({
+    subscriberId: input.subscriberId ?? null,
+    email: input.email.toLowerCase(),
+    source: input.source ?? null,
+    status: input.status,
+    lawfulBasis: "consent",
+    ipHash: input.requestMetadata?.ipHash ?? null,
+    userAgent: input.requestMetadata?.userAgentShort ?? null,
     createdAt: new Date(),
   });
 }
@@ -813,6 +835,7 @@ async function sendDoubleOptInEmail(subscriber: typeof subscribers.$inferSelect)
 export async function subscribeNewsletterAddress(input: {
   email: string;
   source?: string | null;
+  requestMetadata?: Pick<SecurityRequestMetadata, "ipHash" | "userAgentShort"> | null;
 }) {
   const email = input.email.toLowerCase();
   const settings = await getNewsletterSettings();
@@ -838,6 +861,13 @@ export async function subscribeNewsletterAddress(input: {
       source: input.source ?? null,
       reused: true,
       status: desiredStatus,
+    });
+    await recordNewsletterConsent({
+      subscriberId: existing.id,
+      email,
+      source: input.source ?? null,
+      status: "subscribed",
+      requestMetadata: input.requestMetadata,
     });
 
     if (desiredStatus === "pending") {
@@ -877,6 +907,13 @@ export async function subscribeNewsletterAddress(input: {
   await createSubscriberEvent(created.id, "subscribe", {
     source: input.source ?? null,
     status: desiredStatus,
+  });
+  await recordNewsletterConsent({
+    subscriberId: created.id,
+    email,
+    source: input.source ?? null,
+    status: "subscribed",
+    requestMetadata: input.requestMetadata,
   });
 
   if (desiredStatus === "pending") {
@@ -927,6 +964,12 @@ export async function confirmNewsletterSubscriptionToken(token: string) {
   await createSubscriberEvent(subscriberId, "confirm", {
     email: subscriber.email,
   });
+  await recordNewsletterConsent({
+    subscriberId,
+    email: subscriber.email,
+    source: subscriber.source ?? null,
+    status: "confirmed",
+  });
   await trackNewsletterEvent(subscriber.email, "newsletter_confirmed", {
     subscriber_id: subscriberId,
   });
@@ -960,6 +1003,12 @@ export async function unsubscribeNewsletterToken(token: string) {
 
   await createSubscriberEvent(subscriberId, "unsubscribe", {
     email: subscriber.email,
+  });
+  await recordNewsletterConsent({
+    subscriberId,
+    email: subscriber.email,
+    source: subscriber.source ?? null,
+    status: "unsubscribed",
   });
   await trackNewsletterEvent(subscriber.email, "newsletter_unsubscribed", {
     subscriber_id: subscriberId,

@@ -27,6 +27,7 @@ export {
   postStatusSchema,
   postWorkflowActionInputSchema,
   publicCommentSchema,
+  publicCommentSubmissionSchema,
   revisionSourceSchema,
   tagSchema,
   teaserModeSchema,

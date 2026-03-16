@@ -33,7 +33,7 @@ describe("comment-actions", () => {
   });
 
   it("creates a pending comment for an existing post", async () => {
-    mocks.findFirst.mockResolvedValue({ id: 42 });
+    mocks.findFirst.mockResolvedValue({ id: 42, commentsEnabled: true });
     mocks.returning.mockResolvedValue([
       {
         id: 9,
@@ -58,6 +58,9 @@ describe("comment-actions", () => {
       postId: 42,
       authorName: "Reader One",
       authorEmail: "reader@example.com",
+      sourceIpHash: null,
+      userAgent: null,
+      spamReason: null,
       content: "Loved this article.",
       status: "pending",
     });
@@ -69,7 +72,7 @@ describe("comment-actions", () => {
   });
 
   it("stores a null email when the public form leaves it blank", async () => {
-    mocks.findFirst.mockResolvedValue({ id: 7 });
+    mocks.findFirst.mockResolvedValue({ id: 7, commentsEnabled: true });
     mocks.returning.mockResolvedValue([
       {
         id: 10,
@@ -92,6 +95,9 @@ describe("comment-actions", () => {
       postId: 7,
       authorName: "Reader Two",
       authorEmail: null,
+      sourceIpHash: null,
+      userAgent: null,
+      spamReason: null,
       content: "Great walkthrough.",
       status: "pending",
     });

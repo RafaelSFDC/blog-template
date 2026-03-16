@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Mail } from "lucide-react";
 import { SocialLogin } from "#/components/auth/social-login";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import {
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { usePostHog } from "@posthog/react";
+import { useState } from "react";
 import { captureClientException } from "#/lib/sentry-client";
 import { getCurrentAuthSession } from "#/server/public/auth";
 
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/_public/auth/login")({
 
 function LoginPage() {
   const posthog = usePostHog();
+  const [turnstileToken, setTurnstileToken] = useState("");
   const callbackURL =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("callbackUrl") || "/dashboard"
@@ -43,7 +46,12 @@ function LoginPage() {
           email: value.email,
           password: value.password,
           callbackURL,
-        });
+          fetchOptions: {
+            headers: {
+              "x-turnstile-token": turnstileToken,
+            },
+          },
+        } as Parameters<typeof authClient.signIn.email>[0]);
         posthog.identify(value.email, { email: value.email });
         posthog.capture("user_signed_in", { method: "email" });
       } catch (_err) {
@@ -149,6 +157,12 @@ function LoginPage() {
             </Field>
           )}
         </form.Field>
+
+        <TurnstileField
+          action="login"
+          value={turnstileToken}
+          onTokenChange={setTurnstileToken}
+        />
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}

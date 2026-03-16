@@ -81,8 +81,8 @@ export const MEDIA_IMAGE_MIME_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ] as const;
+export const CONSENT_STATUSES = ["subscribed", "confirmed", "unsubscribed"] as const;
 
 export const postStatusSchema = z.enum(POST_STATUSES);
 export const pageStatusSchema = z.enum(PAGE_STATUSES);
@@ -97,6 +97,7 @@ export const editorialWorkflowActionSchema = z.enum(EDITORIAL_WORKFLOW_ACTIONS);
 export const postBulkActionSchema = z.enum(POST_BULK_ACTIONS);
 export const commentBulkActionSchema = z.enum(COMMENT_BULK_ACTIONS);
 export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
+export const consentStatusSchema = z.enum(CONSENT_STATUSES);
 export const teaserModeSchema = z.enum(TEASER_MODES);
 export const subscriptionStatusSchema = z.enum(SUBSCRIPTION_STATUSES);
 export const newsletterCampaignStatusSchema = z.enum(NEWSLETTER_CAMPAIGN_STATUSES);
@@ -120,6 +121,8 @@ const optionalUrlSchema = z.preprocess(
   emptyStringToUndefined,
   z.string().trim().url("Must be a valid URL").optional(),
 );
+
+export const turnstileTokenSchema = z.string().trim().min(1, "Security verification is required");
 
 const trimmedString = (min: number, message: string, max: number, tooLongMessage: string) =>
   z.string().trim().min(min, message).max(max, tooLongMessage);
@@ -223,6 +226,7 @@ export const postFormSchema = z
     seoNoIndex: z.boolean(),
     isPremium: z.boolean(),
     teaserMode: teaserModeSchema,
+    commentsEnabled: z.boolean(),
     status: postStatusSchema,
     publishedAt: z.string(),
     editorOwnerId: z.string().trim().optional().catch(""),
@@ -270,6 +274,7 @@ export const postServerSchema = z
     seoNoIndex: z.boolean().default(false),
     isPremium: z.boolean(),
     teaserMode: teaserModeSchema,
+    commentsEnabled: z.boolean().default(true),
     status: postStatusSchema,
     publishedAt: scheduledDateSchema,
     editorOwnerId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
@@ -322,6 +327,10 @@ export const newsletterSubscribeSchema = z.object({
   source: z.preprocess(emptyStringToUndefined, z.string().trim().max(120).optional()),
 });
 
+export const newsletterSubscribeSubmissionSchema = newsletterSubscribeSchema.extend({
+  turnstileToken: turnstileTokenSchema,
+});
+
 export const newsletterCampaignSchema = z.object({
   subject: trimmedString(1, "Subject is required", 200, "Subject is too long"),
   preheader: z.preprocess(
@@ -347,6 +356,10 @@ export const contactFormSchema = z.object({
   message: trimmedString(10, "Message too short", 5000, "Message is too long"),
 });
 
+export const contactFormSubmissionSchema = contactFormSchema.extend({
+  turnstileToken: turnstileTokenSchema,
+});
+
 export const publicCommentSchema = z.object({
   postId: positiveIntSchema,
   authorName: trimmedString(1, "Author name is required", 120, "Author name is too long"),
@@ -355,6 +368,10 @@ export const publicCommentSchema = z.object({
     z.string().trim().email("Must be a valid email").max(320, "Email is too long").optional(),
   ),
   content: trimmedString(3, "Comment is too short", 5000, "Comment is too long"),
+});
+
+export const publicCommentSubmissionSchema = publicCommentSchema.extend({
+  turnstileToken: turnstileTokenSchema,
 });
 
 export const commentStatusUpdateSchema = z.object({

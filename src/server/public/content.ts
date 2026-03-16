@@ -7,13 +7,17 @@ import { comments, posts } from "#/db/schema";
 import { auth } from "#/server/auth/auth";
 import { resolveTeaserContent } from "#/lib/membership";
 import { resolvePublicCacheControl } from "#/lib/seo";
-import { publicCommentSchema } from "#/schemas/editorial";
+import { publicCommentSubmissionSchema } from "#/schemas/editorial";
 import { createPendingComment } from "#/server/comment-actions";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
 import { getPublishedPageBySlug } from "#/server/page-actions";
 import { getRelatedPostsByTaxonomy } from "#/server/public-discovery";
 import { getRedirectByPath } from "#/server/redirect-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
+import { enforceRateLimit } from "#/server/security/rate-limit";
+import { getSecurityRequestMetadata } from "#/server/security/request";
+import { verifyTurnstileToken } from "#/server/integrations/turnstile";
+import { logSecurityEvent } from "#/server/security/events";
 
 export const getPublicPageBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
@@ -168,6 +172,7 @@ export const getPublicPostBySlug = createServerFn({ method: "GET" })
         authorHeadline: post.author?.authorHeadline ?? null,
         category: post.postCategories[0]?.category?.name ?? null,
         categorySlug: post.postCategories[0]?.category?.slug ?? null,
+        commentsEnabled: post.commentsEnabled,
         content: hasAccess
           ? post.content
           : resolveTeaserContent({
@@ -186,8 +191,50 @@ export const getPublicPostBySlug = createServerFn({ method: "GET" })
   });
 
 export const addPublicComment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => publicCommentSchema.parse(input))
+  .inputValidator((input: unknown) => publicCommentSubmissionSchema.parse(input))
   .handler(async ({ data }) => {
-    await createPendingComment(data);
+    const request = getRequest();
+    if (!request) {
+      throw new Error("Request context unavailable");
+    }
+
+    const decision = await enforceRateLimit({
+      scope: "comment.create",
+      request,
+      keyParts: [data.authorEmail?.toLowerCase() ?? null],
+      limit: 5,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    if (!decision.allowed) {
+      throw new Error("Too many comments. Please try again later.");
+    }
+
+    const metadata = getSecurityRequestMetadata(request);
+    const verification = await verifyTurnstileToken({
+      token: data.turnstileToken,
+      ip: metadata.ip,
+    });
+
+    if (!verification.success) {
+      await logSecurityEvent({
+        type: "turnstile.failed",
+        scope: "comment.create",
+        ipHash: metadata.ipHash,
+        userAgent: metadata.userAgentShort,
+        metadata: {
+          email: data.authorEmail?.toLowerCase() ?? null,
+          errors: verification.errors ?? [],
+        },
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+      throw new Error("Security verification failed. Please try again.");
+    }
+
+    await createPendingComment({
+      ...data,
+      sourceIpHash: metadata.ipHash,
+      userAgent: metadata.userAgentShort,
+    });
     return { success: true };
   });

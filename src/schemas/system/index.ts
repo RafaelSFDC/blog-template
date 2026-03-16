@@ -8,6 +8,7 @@ export {
   assertMenuHref,
   authorProfileSchema,
   bulkMediaDeleteSchema,
+  contactFormSubmissionSchema,
   contactFormSchema,
   getFriendlyDbError,
   invitationAcceptSchema,

@@ -551,6 +551,24 @@ export function PostEditorScreen({
               )}
             </form.Field>
 
+            <form.Field name="commentsEnabled">
+              {(field) => (
+                <div className="flex items-center space-x-3 rounded-xl border border-border bg-background p-4">
+                  <Switch
+                    id={field.name}
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                  />
+                  <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                    <span className="text-sm font-bold text-foreground">Enable comments</span>
+                    <span className="text-xs text-muted-foreground">
+                      Allow readers to submit public comments on this post.
+                    </span>
+                  </label>
+                </div>
+              )}
+            </form.Field>
+
             <form.Subscribe selector={(state) => state.values.isPremium}>
               {(isPremium) =>
                 isPremium ? (

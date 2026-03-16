@@ -20,6 +20,7 @@ type PostSubmissionValues = {
   ogImage?: string;
   seoNoIndex: boolean;
   isPremium: boolean;
+  commentsEnabled: boolean;
   teaserMode: PostSubmissionInput["teaserMode"];
   status: PostSubmissionInput["status"];
   publishedAt?: string;
@@ -86,6 +87,7 @@ export function normalizePostSubmission(
     ogImage: values.ogImage?.trim() || undefined,
     seoNoIndex: values.seoNoIndex,
     isPremium: values.isPremium,
+    commentsEnabled: values.commentsEnabled,
     teaserMode: values.teaserMode,
     status: values.status,
     editorOwnerId: values.editorOwnerId?.trim() || undefined,

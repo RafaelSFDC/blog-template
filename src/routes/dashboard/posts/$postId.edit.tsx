@@ -37,6 +37,7 @@ function EditPostPage() {
         ogImage: post.ogImage || "",
         seoNoIndex: post.seoNoIndex || false,
         isPremium: post.isPremium || false,
+        commentsEnabled: post.commentsEnabled ?? true,
         teaserMode: post.teaserMode || "excerpt",
         status: post.status as "draft" | "in_review" | "published" | "scheduled" | "archived",
         publishedAt: post.publishedAt

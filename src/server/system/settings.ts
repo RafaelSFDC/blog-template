@@ -7,15 +7,20 @@ import {
   normalizeSettingsFormValues,
 } from "#/lib/settings-form";
 import { settingsSchema } from "#/schemas";
+import { getSecurityConfigAudit } from "#/server/security/config";
 
 export const getDashboardSettings = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
     const settings = await db.select().from(appSettings);
+    const securityAudit = getSecurityConfigAudit();
 
-    return mapSettingsRowsToFormValues(
-      settings as Array<{ key: string; value: string }>,
-    );
+    return {
+      settings: mapSettingsRowsToFormValues(
+        settings as Array<{ key: string; value: string }>,
+      ),
+      securityAudit,
+    };
   },
 );
 

@@ -174,17 +174,23 @@ function PostDetail() {
           <h3 className="mb-6 text-2xl font-bold tracking-tight text-foreground">
             Leave a Comment
           </h3>
-          <div className="mb-10 border-b border-border pb-10">
-            <CommentForm
-              onSubmit={async (data) => {
-                await addPublicComment({ data: { ...data, postId: post.id } });
-                posthog.capture("post_comment_submitted", {
-                  post_slug: post.slug,
-                  post_title: post.title,
-                });
-              }}
-            />
-          </div>
+          {post.commentsEnabled ? (
+            <div className="mb-10 border-b border-border pb-10">
+              <CommentForm
+                onSubmit={async (data) => {
+                  await addPublicComment({ data: { ...data, postId: post.id } });
+                  posthog.capture("post_comment_submitted", {
+                    post_slug: post.slug,
+                    post_title: post.title,
+                  });
+                }}
+              />
+            </div>
+          ) : (
+            <div className="mb-10 rounded-md border border-dashed border-border/60 bg-muted/20 p-6 text-sm font-medium text-muted-foreground">
+              Comments are currently disabled for this story.
+            </div>
+          )}
 
           <h3 className="mb-6 text-2xl font-bold tracking-tight text-foreground">
             Discussion ({comments?.length || 0})

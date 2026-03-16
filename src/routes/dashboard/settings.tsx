@@ -45,7 +45,7 @@ export const Route = createFileRoute("/dashboard/settings")({
 });
 
 function SettingsPage() {
-  const initialSettings = Route.useLoaderData();
+  const { settings: initialSettings, securityAudit } = Route.useLoaderData();
   const [saving, setSaving] = useState(false);
 
   const form = useForm({
@@ -667,6 +667,30 @@ function SettingsPage() {
         </div>
 
         <aside className="space-y-6">
+          {!securityAudit.turnstileConfigured ? (
+            <div className="border shadow-sm rounded-md bg-destructive/10 p-6 border-destructive/30">
+              <h3 className="tracking-tighter text-destructive mb-4 flex items-center gap-2">
+                <Info size={18} />
+                Security Setup Required
+              </h3>
+              <p className="text-sm font-medium leading-relaxed text-destructive/90">
+                Set both <code>TURNSTILE_SITE_KEY</code> and <code>TURNSTILE_SECRET_KEY</code>
+                {" "}in the environment to protect public auth, contact, comment and newsletter flows.
+              </p>
+            </div>
+          ) : null}
+          {!securityAudit.securityContactConfigured ? (
+            <div className="border shadow-sm rounded-md bg-amber-500/10 p-6 border-amber-500/30">
+              <h3 className="tracking-tighter text-amber-700 mb-4 flex items-center gap-2">
+                <Info size={18} />
+                Recommended Security Contact
+              </h3>
+              <p className="text-sm font-medium leading-relaxed text-amber-800">
+                Add <code>SECURITY_CONTACT_EMAIL</code> to your environment so the team has a clear
+                incident contact for abuse and compliance requests.
+              </p>
+            </div>
+          ) : null}
           <div className="border shadow-sm rounded-md bg-muted/50 p-6 border-border/30">
             <h3 className=" tracking-tighter text-foreground mb-4 flex items-center gap-2">
               <Info size={18} className="text-primary" />

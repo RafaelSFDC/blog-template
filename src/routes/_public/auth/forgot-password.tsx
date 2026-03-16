@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
 import { Button } from "#/components/ui/button";
+import { TurnstileField } from "#/components/security/turnstile-field";
 import { Mail, ArrowLeft, KeyRound, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_public/auth/forgot-password")({
 function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -31,7 +33,12 @@ function ForgotPasswordPage() {
         await authClient.requestPasswordReset({
           email: value.email,
           redirectTo: window.location.origin + "/auth/reset-password",
-        });
+          fetchOptions: {
+            headers: {
+              "x-turnstile-token": turnstileToken,
+            },
+          },
+        } as Parameters<typeof authClient.requestPasswordReset>[0]);
         setSubmittedEmail(value.email);
         setSuccess(true);
       } catch (err) {
@@ -117,6 +124,12 @@ function ForgotPasswordPage() {
             </Field>
           )}
         </form.Field>
+
+        <TurnstileField
+          action="forgot_password"
+          value={turnstileToken}
+          onTokenChange={setTurnstileToken}
+        />
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
