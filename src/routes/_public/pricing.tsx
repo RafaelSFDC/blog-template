@@ -94,7 +94,7 @@ function PricingPage() {
           <section className="rounded-md border bg-card p-8 shadow-sm sm:p-12">
             <div className="mb-4 flex items-center gap-2 text-primary">
               <CreditCard size={20} strokeWidth={3} />
-              <p className="mb-0 font-black text-primary/80">Memberships</p>
+              <p className="mb-0 font-black text-primary/80">Publication memberships</p>
             </div>
             <h1 className="display-title text-5xl text-foreground sm:text-7xl">
               Premium Access
@@ -102,6 +102,10 @@ function PricingPage() {
             <p className="mt-4 max-w-3xl text-lg font-medium leading-relaxed text-muted-foreground">
               Unlock every premium post and premium page with one site-wide membership.
               Choose the cadence that fits your readers best.
+            </p>
+            <p className="mt-4 max-w-3xl text-sm font-medium text-muted-foreground">
+              This page sells reader access to this publication. If you are evaluating the
+              Lumina product itself, start at <a className="font-bold text-primary underline-offset-4 hover:underline" href="/lumina/pricing">Lumina product pricing</a>.
             </p>
           </section>
         </main>

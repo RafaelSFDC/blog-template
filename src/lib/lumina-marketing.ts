@@ -63,9 +63,9 @@ export const luminaMarketingNav: LuminaNavItem[] = [
 ];
 
 export const luminaSocialProof = [
-  "Launch a publication with CMS, newsletter, memberships, and SEO in one product.",
-  "Give editors and collaborators a real workspace instead of a patchwork of tools.",
-  "Move from setup to first subscriber faster, with defaults built for launch readiness.",
+  "Launch a publication with CMS, newsletter, memberships, and editorial workflow in one operating system.",
+  "Give editors and collaborators a real publication workspace instead of a stack of disconnected blog tools.",
+  "Move from setup to first subscriber with beta-first onboarding shaped around launch readiness, not generic website setup.",
 ];
 
 export const luminaCoreFeatures = [
@@ -77,17 +77,17 @@ export const luminaCoreFeatures = [
   {
     title: "Newsletter-native publishing",
     description:
-      "Publish on the web, grow your list, and manage campaigns from the same operational surface.",
+      "Publish on the web, grow your list, and manage campaigns from the same operating surface instead of stitching together separate tools.",
   },
   {
     title: "Memberships without duct tape",
     description:
-      "Paid plans, premium access, pricing pages, and subscriber flows live together instead of across disconnected tools.",
+      "Paid plans, premium access, pricing pages, and subscriber flows live together instead of hiding behind disconnected billing and CMS setup.",
   },
   {
     title: "Editorial workflows that scale",
     description:
-      "Drafts, reviews, comments, approvals, scheduling, and team roles help small teams ship like a real publication.",
+      "Drafts, reviews, comments, approvals, scheduling, and team roles help small teams operate like a real publication from the first launch.",
   },
 ];
 
@@ -100,12 +100,12 @@ export const luminaHowItWorksSteps = [
   {
     title: "Publish and capture demand",
     description:
-      "Create posts, launch your newsletter, and turn the site into a real acquisition surface instead of a placeholder.",
+      "Create posts, launch your newsletter, and turn the site into a real acquisition surface instead of a placeholder blog.",
   },
   {
     title: "Monetize with one operating layer",
     description:
-      "Offer paid access, manage members, and shape the visitor-to-paid path with fewer integration seams.",
+      "Offer paid access, manage members, and shape the visitor-to-paid path with fewer integration seams and clearer launch metrics.",
   },
 ];
 
@@ -222,12 +222,17 @@ export const luminaFaqItems: LuminaFaqItem[] = [
   {
     question: "Is the beta focused on self-serve checkout?",
     answer:
-      "Not in this phase. The current commercial path is a beta request so onboarding and feedback can stay deliberate while the go-to-market surface matures.",
+      "Not in this phase. The current commercial path is a beta request so onboarding, qualification, and feedback can stay deliberate while the go-to-market surface matures.",
   },
   {
     question: "What makes Lumina different from stitching tools together?",
     answer:
       "Lumina keeps CMS, newsletter, pricing, memberships, and editorial workflows in one product, which reduces setup friction and makes the launch path more coherent.",
+  },
+  {
+    question: "Is Lumina pricing the same thing as publication membership pricing?",
+    answer:
+      "No. `/lumina` sells the Lumina product itself. A publication built with Lumina can still run its own public pricing and memberships separately for readers.",
   },
 ];
 

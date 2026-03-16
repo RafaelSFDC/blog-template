@@ -229,6 +229,7 @@ Mesmo quando o setup funciona, um site vazio ou improvisado reduz percepcao de v
 ## Fase 3 - Superficies comerciais e conversao inicial
 
 **Status:** `now`
+**Gate status:** completed on March 16, 2026
 
 **Objetivo**
 
@@ -247,6 +248,7 @@ O produto pode estar forte tecnicamente e ainda assim falhar comercialmente se n
 - FAQ comercial
 - pagina de casos de uso ou paginas por ICP principal
 - fluxo de beta request reaproveitando o pipeline existente
+- CTA secundarios de pricing e how it works coerentes com o funil beta-first
 
 **Entregas obrigatorias**
 
@@ -255,17 +257,18 @@ O produto pode estar forte tecnicamente e ainda assim falhar comercialmente se n
 - pagina "como funciona"
 - FAQ comercial
 - pagina de casos de uso
-- CTA de beta, lista de espera, compra e interesse em demo quando aplicavel
+- CTA de beta request como principal caminho comercial da fase
+- CTA secundarios de pricing e how it works
 - melhoria da pricing publica, paywall e CTAs centrais do funil inicial
 
 **Checklist de execucao**
 
-- [ ] um visitante entende em poucos segundos para quem o Lumina serve
-- [ ] a proposta de valor fica clara sem explicacao manual longa
-- [ ] os CTAs principais estao consistentes e navegaveis
-- [ ] pricing e paywall deixam claro o proximo passo comercial
-- [ ] a narrativa diferencia Lumina de um blog starter generico
-- [ ] as paginas publicas do produto renderizam corretamente
+- [x] um visitante entende em poucos segundos para quem o Lumina serve
+- [x] a proposta de valor fica clara sem explicacao manual longa
+- [x] os CTAs principais estao consistentes e navegaveis
+- [x] pricing e paywall deixam claro o proximo passo comercial
+- [x] a narrativa diferencia Lumina de um blog starter generico
+- [x] as paginas publicas do produto renderizam corretamente
 
 **Dependencias**
 
@@ -288,6 +291,7 @@ O produto pode estar forte tecnicamente e ainda assim falhar comercialmente se n
 ## Fase 4 - Instrumentacao e governanca de decisao
 
 **Status:** `now`
+**Gate status:** completed on March 16, 2026
 
 **Objetivo**
 
@@ -315,12 +319,12 @@ Sem taxonomia e leituras consistentes, o time nao consegue diferenciar friccao r
 
 **Checklist de execucao**
 
-- [ ] eventos principais disparam uma vez por acao
-- [ ] propriedades minimas de contexto estao presentes
-- [ ] o time consegue identificar onde o setup trava
-- [ ] o time consegue enxergar queda em checkout e subscribe
-- [ ] dashboards internos respondem perguntas reais de produto
-- [ ] naming inconsistente deixa de contaminar as leituras principais
+- [x] eventos principais disparam uma vez por acao
+- [x] propriedades minimas de contexto estao presentes
+- [x] o time consegue identificar onde o setup trava
+- [x] o time consegue enxergar queda em checkout e subscribe
+- [x] dashboards internos respondem perguntas reais de produto
+- [x] naming inconsistente deixa de contaminar as leituras principais
 
 **Dependencias**
 

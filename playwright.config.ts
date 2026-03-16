@@ -27,8 +27,10 @@ export default defineConfig({
           ...process.env,
           PORT: "3100",
           BETTER_AUTH_SECRET:
-            process.env.BETTER_AUTH_SECRET || "playwright-better-auth-secret",
+            process.env.BETTER_AUTH_SECRET || "playwright-better-auth-secret-2026-launch-ready",
           BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || localBaseUrl,
+          TURNSTILE_SITE_KEY: "",
+          TURNSTILE_SECRET_KEY: "",
         },
       },
 });

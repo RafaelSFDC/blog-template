@@ -378,6 +378,8 @@ export const betaRequestSchema = z.object({
 });
 
 export const betaRequestSubmissionSchema = betaRequestSchema.extend({
+  path: z.string().trim().min(1).max(500).optional(),
+  source: z.string().trim().min(1).max(120).optional(),
   turnstileToken: turnstileTokenSchema,
 });
 

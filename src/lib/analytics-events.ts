@@ -70,7 +70,7 @@ export const analyticsEventDefinitions = {
   lumina_beta_request_submitted: {
     category: "marketing",
     description: "A Lumina beta request was submitted.",
-    properties: ["role", "publication_type", "current_stack", "surface"],
+    properties: ["role", "publication_type", "current_stack", "path", "source", "surface"],
   },
   project_setup_started: {
     category: "setup",
@@ -120,7 +120,7 @@ export const analyticsEventDefinitions = {
   checkout_started: {
     category: "revenue",
     description: "A paid membership checkout flow started.",
-    properties: ["plan_slug", "source", "surface", "post_slug"],
+    properties: ["plan_slug", "source", "surface", "path", "post_slug"],
     legacyEvents: ["subscription_checkout_started", "pricing_checkout_started"],
   },
   checkout_completed: {
@@ -132,7 +132,7 @@ export const analyticsEventDefinitions = {
   billing_portal_opened: {
     category: "revenue",
     description: "A user opened the Stripe billing portal.",
-    properties: ["user_id", "surface"],
+    properties: ["user_id", "stripe_customer_id", "account_retention_state", "source", "surface"],
   },
   subscription_canceled: {
     category: "revenue",

@@ -110,15 +110,36 @@ export function AnalyticsCharts({ data }: { data: AnalyticsDashboardData }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      <SectionCard title="Activation" items={data.sections.activation.cards} />
-      <SectionCard title="Retention" items={data.sections.retention.cards} />
+      <SectionCard title="Activation / Onboarding" items={data.sections.activation.cards} />
+      <FunnelCard title="Activation Funnel" steps={data.sections.activation.funnel} />
+      <BreakdownCard
+        title="Where setup is getting stuck"
+        rows={data.sections.activation.breakdown}
+      />
+      <SectionCard title="Acquisition / Marketing" items={data.sections.acquisition.cards} />
       <FunnelCard title="Acquisition Funnel" steps={data.sections.acquisition.funnel} />
-      <FunnelCard title="Monetization Funnel" steps={data.sections.monetization.funnel} />
+      <BreakdownCard
+        title="Lumina CTA sources"
+        rows={data.sections.acquisition.breakdown}
+      />
+      {data.sections.acquisition.secondaryBreakdown?.length ? (
+        <BreakdownCard
+          title="Beta request sources"
+          rows={data.sections.acquisition.secondaryBreakdown}
+        />
+      ) : null}
       <SectionCard title="Monetization" items={data.sections.monetization.cards} />
       <BreakdownCard
-        title="Onboarding Operations"
-        rows={data.sections.onboarding.breakdown}
+        title="Checkout entry sources"
+        rows={data.sections.monetization.breakdown}
       />
+      <BreakdownCard
+        title="Newsletter subscriber sources"
+        rows={data.sections.publication.breakdown}
+      />
+      <FunnelCard title="Monetization Funnel" steps={data.sections.monetization.funnel} />
+      <SectionCard title="Newsletter / Publication" items={data.sections.publication.cards} />
+      <SectionCard title="Retention / Operations" items={data.sections.operations.cards} />
     </div>
   );
 }

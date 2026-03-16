@@ -2,6 +2,15 @@
 
 PostHog is the source of truth for Lumina product, marketing, onboarding, newsletter, and revenue analytics in this phase.
 
+`/lumina/*` is the canonical commercial surface for the Lumina product.
+`/_public/*` remains the canonical reader-facing surface for the publication built with Lumina.
+
+The commercial contract for this launch phase is beta-first:
+
+- primary conversion goal: beta request
+- supporting CTA paths: pricing and how it works
+- no self-serve checkout for the Lumina product in this phase
+
 ## Common properties
 
 - `surface`: where the event happened (`dashboard`, `dashboard_setup`, `public_site`, `lumina_marketing`, `checkout`, `newsletter`, `auth`, `billing`)
@@ -21,7 +30,7 @@ PostHog is the source of truth for Lumina product, marketing, onboarding, newsle
 | --- | --- | --- | --- | --- | --- |
 | `lumina_marketing_page_view` | View of a product marketing page under `/lumina` | Client | `surface`, `path`, `source` | Route change on Lumina marketing surface | Acquisition |
 | `lumina_cta_clicked` | Click on a marketing CTA | Client | `surface`, `path`, `cta_label`, `cta_href`, `source` | Click on Lumina marketing CTA | Acquisition |
-| `lumina_beta_request_submitted` | Beta request submitted for Lumina | Server | `surface`, `role`, `publication_type`, `current_stack` | Successful beta request persistence | Acquisition |
+| `lumina_beta_request_submitted` | Beta request submitted for Lumina | Server | `surface`, `role`, `publication_type`, `current_stack`, `path`, `source` | Successful beta request persistence | Acquisition |
 | `project_setup_started` | Admin started guided setup | Server | `surface`, `actor_user_id`, `user_role` | First setup entry | Activation, onboarding |
 | `project_setup_step_completed` | Setup wizard step completed | Server | `surface`, `actor_user_id`, `step`, `site_preset_key` | Save of any wizard step | Onboarding |
 | `project_setup_skipped` | Setup wizard skipped | Server | `surface`, `actor_user_id`, `user_role` | Skip action | Onboarding |
@@ -31,9 +40,9 @@ PostHog is the source of truth for Lumina product, marketing, onboarding, newsle
 | `newsletter_configured` | Newsletter sender config saved | Server | `surface`, `has_sender_email`, `double_opt_in_enabled` | Newsletter step saved | Activation |
 | `first_post_published` | First publication post went live | Server | `surface`, `post_id`, `post_slug`, `post_title`, `actor_user_id` | First transition to published | Activation |
 | `first_subscriber_captured` | First subscriber captured | Server | `surface`, `subscriber_id`, `source` | First subscriber insert | Retention |
-| `checkout_started` | Membership checkout flow started | Client + server | `surface`, `plan_slug`, `source`, `post_slug` | Pricing CTA, paywall CTA, or Stripe checkout creation | Monetization |
+| `checkout_started` | Membership checkout flow started | Client + server | `surface`, `plan_slug`, `source`, `path`, `post_slug` | Pricing CTA, paywall CTA, or Stripe checkout creation | Monetization |
 | `checkout_completed` | Membership checkout completed | Server | `surface`, `plan_slug`, `stripe_subscription_id`, `stripe_customer_id` | Stripe webhook checkout completion | Monetization |
-| `billing_portal_opened` | Billing portal opened | Server | `surface`, `user_id`, `stripe_customer_id` | Billing portal session creation | Monetization, retention |
+| `billing_portal_opened` | Billing portal opened | Server | `surface`, `user_id`, `stripe_customer_id`, `account_retention_state`, `source` | Billing portal session creation | Monetization, retention |
 | `subscription_canceled` | Subscription canceled | Server | `surface`, `stripe_customer_id`, `stripe_subscription_id` | Stripe subscription deletion webhook | Monetization |
 | `paywall_cta_clicked` | Paywall CTA clicked on a post | Client | `surface`, `plan_slug`, `post_slug`, `post_title` | Paywall subscribe interaction | Monetization |
 | `newsletter_campaign_sent` | Newsletter campaign entered send flow | Server | `surface`, `newsletter_id`, `campaign_segment` | Queue/send start | Retention, newsletter |
@@ -55,3 +64,13 @@ The following legacy names still receive temporary dual-write where applicable:
 - `newsletter_campaign_sent` -> `newsletter_campaign_queued`
 
 New dashboard queries and new analysis should read only canonical events.
+
+## Official launch reads
+
+The minimum official launch reads in `/dashboard/analytics` are:
+
+- activation / onboarding: setup start, setup completion, pricing configured, newsletter configured, first post published, setup-step breakdown
+- acquisition / marketing: Lumina page views, CTA clicks, beta requests, CTA source breakdown, beta-request source breakdown
+- monetization: paywall CTA clicks, checkout starts, checkout completions, billing portal opens, subscription cancellations, checkout source breakdown
+- newsletter / publication: newsletter campaigns sent, newsletter subscribers, first subscriber captured, first post published, newsletter source breakdown
+- retention / operations: dashboard sessions, setup skips, billing portal opens

@@ -60,18 +60,6 @@ export const Route = createFileRoute("/api/stripe/webhook")({
               });
             }
 
-            if (event.type === "invoice.payment_failed") {
-              const invoice = event.data.object as Stripe.Invoice;
-              posthog.capture({
-                distinctId: String(invoice.customer_email || invoice.customer || "stripe-billing"),
-                event: "subscription_past_due",
-                properties: {
-                  stripe_customer_id: invoice.customer,
-                  stripe_subscription_id: invoice.subscription,
-                },
-              });
-            }
-
             if (event.type === "customer.subscription.deleted") {
               const subscription = event.data.object as Stripe.Subscription;
               await captureServerEvent({

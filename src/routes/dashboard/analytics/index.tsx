@@ -38,7 +38,7 @@ function AnalyticsDashboard() {
       <DashboardPageContainer>
         <DashboardHeader
           title="Growth Analytics"
-          description="Track activation, acquisition, monetization, retention, and setup operations."
+          description="Track activation, acquisition, monetization, newsletter health, and launch operations."
           icon={BarChart3}
           iconLabel="Analytics"
         />
@@ -73,6 +73,12 @@ function AnalyticsDashboard() {
       iconClassName: "bg-info/10 text-info",
     },
     {
+      label: "Marketing to CTA",
+      value: `${data.summary?.marketing_to_cta_rate ?? 0}%`,
+      icon: TrendingUp,
+      iconClassName: "bg-warning/10 text-warning",
+    },
+    {
       label: "Checkout completion",
       value: `${data.summary?.checkout_completion_rate ?? 0}%`,
       icon: TrendingUp,
@@ -84,7 +90,7 @@ function AnalyticsDashboard() {
     <DashboardPageContainer>
       <DashboardHeader
         title="Growth Analytics"
-        description="Activation, acquisition, monetization, retention, and onboarding in one operational view."
+        description="Activation, acquisition, monetization, newsletter signals, and launch operations in one operational view."
         icon={BarChart3}
         iconLabel="Analytics"
       />
@@ -104,7 +110,7 @@ function AnalyticsDashboard() {
         ))}
       </div>
 
-      <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard
             key={stat.label}

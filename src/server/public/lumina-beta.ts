@@ -10,6 +10,8 @@ export function buildLuminaBetaRequestRecord(data: {
   publicationType: "independent_newsletter" | "digital_magazine" | "premium_blog" | "other";
   currentStack: string;
   message: string;
+  path?: string;
+  source?: string;
 }) {
   return {
     subject: `[Lumina Beta] ${data.role} · ${data.publicationType}`,
@@ -39,6 +41,8 @@ export const submitLuminaBetaRequest = createServerFn({ method: "POST" })
           role: data.role,
           publication_type: data.publicationType,
           current_stack: data.currentStack || null,
+          path: data.path ?? "/lumina/beta",
+          source: data.source ?? "beta_form_submit",
           surface: "lumina_marketing",
         },
       });

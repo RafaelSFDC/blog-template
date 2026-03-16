@@ -1,5 +1,6 @@
 import { usePostHog } from "@posthog/react";
 import { useForm } from "@tanstack/react-form";
+import { useLocation } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,15 +11,19 @@ import { Input } from "#/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "#/components/ui/native-select";
 import { Textarea } from "#/components/ui/textarea";
 import { Button } from "#/components/ui/button";
+import { useTurnstileConfig } from "#/hooks/use-turnstile";
 import { captureClientEvent } from "#/lib/analytics-client";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { captureClientException } from "#/lib/sentry-client";
 import { submitLuminaBetaRequest } from "#/server/public/lumina-beta";
+import { useEffect } from "react";
 
 export function LuminaBetaRequestForm() {
   const [submitted, setSubmitted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
+  const location = useLocation();
+  const turnstileConfig = useTurnstileConfig();
 
   const form = useForm({
     defaultValues: {
@@ -28,6 +33,8 @@ export function LuminaBetaRequestForm() {
       publicationType: "independent_newsletter" as const,
       currentStack: "",
       message: "",
+      path: "/lumina/beta",
+      source: "beta_form_submit",
       turnstileToken: "",
     },
     validators: {
@@ -35,14 +42,22 @@ export function LuminaBetaRequestForm() {
     },
     onSubmit: async ({ value }) => {
       try {
+        const path = location.pathname || "/lumina/beta";
+        const source = value.source || "beta_form_submit";
         captureClientEvent(posthog, "lumina_cta_clicked", {
           cta_label: "Request beta access",
           cta_href: "/lumina/beta",
-          path: "/lumina/beta",
-          source: "beta_form_submit",
+          path,
+          source,
           surface: "lumina_marketing",
         });
-        await submitLuminaBetaRequest({ data: value });
+        await submitLuminaBetaRequest({
+          data: {
+            ...value,
+            path,
+            source,
+          },
+        });
         toast.success("Beta request sent successfully.");
         setSubmitted(true);
         setTurnstileToken("");
@@ -57,6 +72,16 @@ export function LuminaBetaRequestForm() {
       }
     },
   });
+
+  useEffect(() => {
+    if (turnstileConfig.loading) {
+      return;
+    }
+
+    const nextToken = turnstileConfig.turnstileEnabled ? "" : "turnstile_bypassed";
+    setTurnstileToken(nextToken);
+    form.setFieldValue("turnstileToken", nextToken);
+  }, [form, turnstileConfig.loading, turnstileConfig.turnstileEnabled]);
 
   if (submitted) {
     return (
