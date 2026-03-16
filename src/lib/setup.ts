@@ -39,10 +39,14 @@ export interface SetupNextAction {
   step: SetupWizardStepKey;
 }
 
+export type SetupFlowStatus = "not_started" | "in_progress" | "completed";
+
 export interface SetupStatus {
+  status: SetupFlowStatus;
   isStarted: boolean;
   isCompleted: boolean;
   isSkipped: boolean;
+  isBlocking: boolean;
   progressPercent: number;
   sitePresetKey: import("#/types/system").SitePresetKey;
   steps: SetupStepItem[];
@@ -234,7 +238,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
   const defaultLastStep = getDefaultSetupLastStep(checklist);
   const starterContentGenerated = Boolean(snapshot.starterContentGeneratedAt);
   const nextChecklistItem = checklist.find((item) => !item.isCompleted) ?? null;
-  const nextAction = nextChecklistItem
+  const blockingAction = nextChecklistItem
     ? {
         label: nextChecklistItem.label,
         description: nextChecklistItem.description,
@@ -242,11 +246,17 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
         step: toWizardStep(nextChecklistItem.key),
       }
     : null;
-  const hasBlockingSetupStep = nextAction !== null;
+  const hasBlockingSetupStep = blockingAction !== null;
+  const isExplicitlyCompleted = Boolean(snapshot.wizardCompletedAt);
+  const status: SetupFlowStatus = isExplicitlyCompleted || !hasBlockingSetupStep
+    ? "completed"
+    : snapshot.wizardStartedAt
+      ? "in_progress"
+      : "not_started";
   const lastStep =
     snapshot.wizardCompletedAt || snapshot.wizardSkippedAt
       ? snapshot.wizardLastStep ?? defaultLastStep
-      : nextAction?.step ?? defaultLastStep;
+      : blockingAction?.step ?? defaultLastStep;
 
   const steps: SetupStepItem[] = SETUP_WIZARD_STEPS.map((step) => {
     if (step === "identity") {
@@ -294,14 +304,16 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
   });
 
   return {
+    status,
     isStarted: Boolean(snapshot.wizardStartedAt),
-    isCompleted: Boolean(snapshot.wizardCompletedAt) || !hasBlockingSetupStep,
+    isCompleted: status === "completed",
     isSkipped: Boolean(snapshot.wizardSkippedAt),
+    isBlocking: status !== "completed" && hasBlockingSetupStep,
     progressPercent,
     sitePresetKey: snapshot.sitePresetKey ?? "creator-journal",
     steps,
     checklist,
-    nextAction,
+    nextAction: status === "completed" ? null : blockingAction,
     lastStep,
     starterContentGenerated,
   };
@@ -309,7 +321,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
 
 export function shouldRedirectToSetup(status: SetupStatus, role?: string | null) {
   const isAdmin = role === "admin" || role === "super-admin";
-  return isAdmin && !status.isCompleted && !status.isSkipped && status.nextAction !== null;
+  return isAdmin && status.isBlocking && !status.isSkipped && status.nextAction !== null;
 }
 
 export function getStepIndex(step: SetupWizardStepKey) {

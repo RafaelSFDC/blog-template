@@ -30,7 +30,7 @@ import {
 } from "#/schemas/editorial";
 import { menuUpdateSchema, settingsSchema } from "#/schemas/system";
 import { captureServerEvent } from "#/server/analytics";
-import { requireAdminSession } from "#/server/auth/session";
+import { requireAdminSession, requireDashboardAccess } from "#/server/auth/session";
 import { logActivity } from "#/server/activity-log";
 import { createPageRevision, createPostRevision } from "#/server/editorial-workflows";
 import { ensureCoreMenus } from "#/server/system/site-data";
@@ -160,6 +160,10 @@ function hasBooleanSetting(value: string | undefined) {
   return value === "true" || value === "false";
 }
 
+function normalizeSetupRole(role?: string | null) {
+  return role === "super-admin" ? "super-admin" : "admin";
+}
+
 async function upsertSetting(key: string, value: string) {
   await db
     .insert(appSettings)
@@ -193,10 +197,13 @@ async function getSettingsMap(): Promise<SettingsMap> {
     .from(appSettings)
     .where(inArray(appSettings.key, SETUP_SETTINGS_KEYS));
 
-  return rows.reduce<SettingsMap>((record, row) => {
-    record[row.key] = row.value;
-    return record;
-  }, {});
+  const settings: SettingsMap = {};
+
+  for (const row of rows as Array<{ key: string; value: string }>) {
+    settings[row.key] = row.value;
+  }
+
+  return settings;
 }
 
 async function loadSetupSnapshot(): Promise<SetupSnapshot> {
@@ -497,20 +504,26 @@ async function generateStarterContentInternal(session: {
     createStarterPost(session.user.id),
   ]);
 
-  const generatedAt = new Date().toISOString();
-  await upsertSetting("setupStarterContentGeneratedAt", generatedAt);
+  const createdContent = createdPageSlugs.length > 0 || createdWelcomePost;
+  const generatedAt = settings.setupStarterContentGeneratedAt || new Date().toISOString();
 
-  await captureServerEvent({
-    distinctId: session.user.email,
-    event: "starter_content_generated",
-    properties: {
-      actor_user_id: session.user.id,
-      created_pages: createdPageSlugs,
-      created_welcome_post: createdWelcomePost,
-      site_preset_key: presetKey,
-      surface: "dashboard_setup",
-    },
-  });
+  if (!settings.setupStarterContentGeneratedAt || createdContent) {
+    await upsertSetting("setupStarterContentGeneratedAt", generatedAt);
+  }
+
+  if (createdContent) {
+    await captureServerEvent({
+      distinctId: session.user.email,
+      event: "starter_content_generated",
+      properties: {
+        actor_user_id: session.user.id,
+        created_pages: createdPageSlugs,
+        created_welcome_post: createdWelcomePost,
+        site_preset_key: presetKey,
+        surface: "dashboard_setup",
+      },
+    });
+  }
 
   return {
     createdPageSlugs,
@@ -535,7 +548,7 @@ async function markSetupStartedIfNeeded(session: {
     event: "project_setup_started",
     properties: {
       actor_user_id: session.user.id,
-      user_role: session.user.role === "super-admin" ? "super-admin" : "admin",
+      user_role: normalizeSetupRole(session.user.role),
       surface: "dashboard_setup",
     },
   });
@@ -574,10 +587,14 @@ export const getLaunchTemplateCatalog = createServerFn({ method: "GET" }).handle
 });
 
 export const applyLaunchDefaults = createServerFn({ method: "POST" }).handler(async () => {
-  const session = await requireAdminSession();
+  await requireAdminSession();
   await applyLaunchDefaultsInternal();
-  await markSetupStartedIfNeeded(session);
   return buildSetupStatusForAdmin();
+});
+
+export const getSetupStatusForDashboard = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await requireDashboardAccess();
+  return getSetupStatusSummaryForRole(session.user.role);
 });
 
 export const generateStarterContent = createServerFn({ method: "POST" }).handler(async () => {
@@ -592,17 +609,20 @@ export const generateStarterContent = createServerFn({ method: "POST" }).handler
 export const skipSetup = createServerFn({ method: "POST" }).handler(async () => {
   const session = await requireAdminSession();
   await markSetupStartedIfNeeded(session);
-  await upsertSetting("setupWizardSkippedAt", new Date().toISOString());
+  const settings = await getSettingsMap();
+  if (!settings.setupWizardSkippedAt) {
+    await upsertSetting("setupWizardSkippedAt", new Date().toISOString());
 
-  await captureServerEvent({
-    distinctId: session.user.email,
-    event: "project_setup_skipped",
-    properties: {
-      actor_user_id: session.user.id,
-      user_role: "admin",
-      surface: "dashboard_setup",
-    },
-  });
+    await captureServerEvent({
+      distinctId: session.user.email,
+      event: "project_setup_skipped",
+      properties: {
+        actor_user_id: session.user.id,
+        user_role: normalizeSetupRole(session.user.role),
+        surface: "dashboard_setup",
+      },
+    });
+  }
 
   return buildSetupStatusForAdmin();
 });
@@ -613,10 +633,12 @@ export const saveSetupStep = createServerFn({ method: "POST" })
     const session = await requireAdminSession();
     await markSetupStartedIfNeeded(session);
     await applyLaunchDefaultsInternal();
+    const beforeSaveStatus = await buildSetupStatusForAdmin();
 
     if (data.step === "identity") {
       const normalized = normalizeSettingsFormValues({
         ...data,
+        blogLogo: data.blogLogo || "",
         siteUrl: "",
         defaultMetaTitle: "",
         defaultMetaDescription: "",
@@ -692,6 +714,7 @@ export const saveSetupStep = createServerFn({ method: "POST" })
     }
 
     if (data.step === "content") {
+      const settings = await getSettingsMap();
       const presetKey = resolveSitePresetKey(data.sitePresetKey);
       await upsertSetting("sitePresetKey", presetKey);
       await upsertSetting("themeVariant", getPresetThemeVariant(presetKey));
@@ -700,19 +723,24 @@ export const saveSetupStep = createServerFn({ method: "POST" })
         await generateStarterContentInternal(session);
       }
 
-      await upsertSetting("setupWizardCompletedAt", new Date().toISOString());
+      const completedAt = settings.setupWizardCompletedAt || new Date().toISOString();
+      await upsertSetting("setupWizardCompletedAt", completedAt);
       await upsertSetting("setupWizardSkippedAt", "");
 
-      await captureServerEvent({
-        distinctId: session.user.email,
-        event: "project_setup_completed",
-        properties: {
-          actor_user_id: session.user.id,
-          site_preset_key: presetKey,
-          starter_content_generated: data.generateStarterContent,
-          surface: "dashboard_setup",
-        },
-      });
+      if (!settings.setupWizardCompletedAt) {
+        await captureServerEvent({
+          distinctId: session.user.email,
+          event: "project_setup_completed",
+          properties: {
+            actor_user_id: session.user.id,
+            site_preset_key: presetKey,
+            starter_content_generated: data.generateStarterContent,
+            surface: "dashboard_setup",
+          },
+        });
+      }
+    } else if (beforeSaveStatus.isSkipped) {
+      await upsertSetting("setupWizardSkippedAt", "");
     }
 
     const nextStep = getNextSetupStep(data.step);

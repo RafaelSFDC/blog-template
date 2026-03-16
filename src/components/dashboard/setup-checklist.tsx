@@ -9,6 +9,31 @@ interface SetupChecklistProps {
 }
 
 export function SetupChecklist({ setup }: SetupChecklistProps) {
+  const setupStateCopy =
+    setup.status === "completed"
+      ? {
+          badge: "Setup completed",
+          title: "Onboarding concluido",
+          description:
+            "O fluxo inicial deixou de bloquear o dashboard. Reabra o wizard apenas para revisar configuracoes ou ajustar os defaults do launch.",
+          ctaLabel: "Revisar onboarding",
+        }
+      : setup.status === "not_started"
+        ? {
+            badge: "Setup not started",
+            title: "Comece o setup guiado do launch",
+            description:
+              "O wizard organiza os primeiros passos e reduz a navegacao aleatoria antes da primeira publicacao.",
+            ctaLabel: "Iniciar setup",
+          }
+        : {
+            badge: setup.isSkipped ? "Setup paused" : "Setup in progress",
+            title: setup.isSkipped ? "Setup pausado" : "Setup em andamento",
+            description:
+              "Retome o wizard quando quiser e siga o proximo bloqueio real para tirar o projeto do estado vazio.",
+            ctaLabel: "Retomar setup",
+          };
+
   return (
     <section className="rounded-xl border border-border/50 bg-card p-6 shadow-sm sm:p-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -16,16 +41,15 @@ export function SetupChecklist({ setup }: SetupChecklistProps) {
           <div className="flex items-center gap-2 text-primary">
             <Sparkles className="h-4 w-4" />
             <span className="text-xs font-black uppercase tracking-[0.18em]">
-              Launch setup
+              {setupStateCopy.badge}
             </span>
           </div>
           <div>
             <h2 className="text-2xl font-black tracking-tight text-foreground">
-              Primeiros passos para deixar o Lumina pronto para lancar
+              {setupStateCopy.title}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Acompanhe o progresso do setup, retome o wizard quando quiser e siga
-              o proximo passo recomendado para tirar o projeto do estado vazio.
+              {setupStateCopy.description}
             </p>
           </div>
           <div className="space-y-2">
@@ -39,7 +63,7 @@ export function SetupChecklist({ setup }: SetupChecklistProps) {
 
         <div className="min-w-72 space-y-3 rounded-xl border border-primary/15 bg-primary/5 p-4">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            Proximo passo
+            {setup.status === "completed" ? "Onboarding" : "Proximo passo"}
           </p>
           {setup.nextAction ? (
             <>
@@ -52,7 +76,7 @@ export function SetupChecklist({ setup }: SetupChecklistProps) {
               <div className="flex flex-wrap gap-3">
                 <Button asChild>
                   <Link to="/dashboard/setup">
-                    Retomar setup
+                    {setupStateCopy.ctaLabel}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -65,10 +89,10 @@ export function SetupChecklist({ setup }: SetupChecklistProps) {
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 O wizard foi concluido. Agora voce pode revisar pages, posts e
-                configuracoes quando precisar.
+                configuracoes sem pendencias bloqueantes.
               </p>
               <Button asChild variant="outline">
-                <Link to="/dashboard/setup">Revisar onboarding</Link>
+                <Link to="/dashboard/setup">{setupStateCopy.ctaLabel}</Link>
               </Button>
             </div>
           )}

@@ -1,5 +1,5 @@
 import { hashPassword } from "better-auth/crypto";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "#/db/index";
 import {
   account,
@@ -9,6 +9,7 @@ import {
   membershipPlans,
   newsletterConsents,
   newsletters,
+  pages,
   posts,
   subscriptions,
   subscribers,
@@ -24,6 +25,12 @@ const FIXTURE_USERS = [
     name: "Fixture Admin",
     email: "admin@lumina.test",
     role: "admin",
+  },
+  {
+    id: "fixture-super-admin",
+    name: "Fixture Super Admin",
+    email: "super-admin@lumina.test",
+    role: "super-admin",
   },
   {
     id: "fixture-editor",
@@ -64,8 +71,41 @@ const FIXTURE_SETTINGS = [
   { key: "doubleOptInEnabled", value: "false" },
   { key: "membershipGracePeriodDays", value: "3" },
   { key: "robotsIndexingEnabled", value: "true" },
-  { key: "newsletterSenderEmail", value: "newsletter@example.com" },
 ];
+
+const SETUP_RESET_KEYS = [
+  "blogName",
+  "blogDescription",
+  "blogLogo",
+  "fontFamily",
+  "themeVariant",
+  "siteUrl",
+  "defaultMetaTitle",
+  "defaultMetaDescription",
+  "defaultOgImage",
+  "twitterHandle",
+  "sitePresetKey",
+  "stripeMonthlyPriceId",
+  "stripeAnnualPriceId",
+  "newsletterSenderEmail",
+  "doubleOptInEnabled",
+  "robotsIndexingEnabled",
+  "setupWizardStartedAt",
+  "setupWizardCompletedAt",
+  "setupWizardSkippedAt",
+  "setupWizardLastStep",
+  "setupStarterContentGeneratedAt",
+  "registration_locked",
+] as const;
+
+const SETUP_STARTER_PAGE_SLUGS = [
+  "home",
+  "about",
+  "pricing",
+  "contact",
+  "newsletter",
+  "members",
+] as const;
 
 async function ensureFixtureUser(
   input: (typeof FIXTURE_USERS)[number],
@@ -358,7 +398,18 @@ async function ensureNewsletterFixture() {
 }
 
 export async function seedOperationalFixtures() {
-  await db.delete(appSettings).where(eq(appSettings.key, "registration_locked"));
+  await db.delete(appSettings).where(inArray(appSettings.key, [...SETUP_RESET_KEYS]));
+  await db.delete(pages).where(inArray(pages.slug, [...SETUP_STARTER_PAGE_SLUGS]));
+  await db.delete(posts).where(eq(posts.slug, "welcome-to-your-publication"));
+  await db
+    .update(membershipPlans)
+    .set({
+      stripePriceId: null,
+      isActive: false,
+      isDefault: false,
+      updatedAt: new Date(),
+    })
+    .where(inArray(membershipPlans.slug, ["monthly", "annual"]));
 
   for (const setting of FIXTURE_SETTINGS) {
     await db

@@ -22,7 +22,6 @@ import {
   getLaunchTemplateCatalog,
   getSetupStatus,
   saveSetupStep,
-  skipSetup,
 } from "#/server/setup-actions";
 import { getDashboardSettings } from "#/server/system/settings";
 import { getAvailableThemes } from "#/lib/theme-utils";
@@ -86,26 +85,30 @@ function DashboardSetupPage() {
     () => status.steps.find((step) => step.key === currentStep),
     [currentStep, status.steps],
   );
+  const setupStateCopy =
+    status.status === "completed"
+      ? {
+          badge: "Setup completed",
+          description:
+            "Revise o onboarding com calma. Nada aqui volta a bloquear o dashboard a menos que voce ainda queira ajustar os defaults.",
+        }
+      : status.status === "not_started"
+        ? {
+            badge: "Setup not started",
+            description:
+              "Configure o essencial do projeto e remova a friccao dos primeiros minutos.",
+          }
+        : {
+            badge: status.isSkipped ? "Setup paused" : "Setup in progress",
+            description:
+              "Continue de onde parou e finalize apenas o que ainda bloqueia a experiencia inicial.",
+          };
 
   async function refreshAfterSave() {
     await router.invalidate();
     const latestStatus = await getSetupStatus();
     setCurrentStep(latestStatus.isCompleted ? "content" : latestStatus.lastStep);
     return latestStatus;
-  }
-
-  async function handleSkip() {
-    try {
-      setSaving(true);
-      await skipSetup();
-      toast.success("Setup pausado. Voce pode retomar depois no dashboard.");
-      await router.invalidate();
-      await navigate({ to: "/dashboard" });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Nao foi possivel pular o setup.");
-    } finally {
-      setSaving(false);
-    }
   }
 
   async function handleNext() {
@@ -197,9 +200,9 @@ function DashboardSetupPage() {
     <DashboardPageContainer>
       <DashboardHeader
         title="Setup Inicial"
-        description="Configure o essencial do projeto e remova a friccao dos primeiros minutos."
+        description={setupStateCopy.description}
         icon={Rocket}
-        iconLabel="Onboarding"
+        iconLabel={setupStateCopy.badge}
       />
 
       <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
@@ -251,16 +254,19 @@ function DashboardSetupPage() {
             ))}
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={saving}
-            onClick={() => void handleSkip()}
-          >
-            <SkipForward className="mr-2 h-4 w-4" />
-            Pular por agora
-          </Button>
+          {status.status === "completed" ? (
+            <Button type="button" variant="outline" className="w-full" disabled>
+              <SkipForward className="mr-2 h-4 w-4" />
+              Revisao concluida
+            </Button>
+          ) : (
+            <Button asChild type="button" variant="outline" className="w-full" disabled={saving}>
+              <a href="/dashboard?skipSetup=1">
+                <SkipForward className="mr-2 h-4 w-4" />
+                {status.isSkipped ? "Setup pausado" : "Pular por agora"}
+              </a>
+            </Button>
+          )}
         </aside>
 
         <section className="rounded-xl border border-border/50 bg-card p-6 shadow-sm sm:p-8">

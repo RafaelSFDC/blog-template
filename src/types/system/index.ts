@@ -112,10 +112,14 @@ export interface SetupNextAction {
   step: SetupWizardStepKey;
 }
 
+export type SetupFlowStatus = "not_started" | "in_progress" | "completed";
+
 export interface SetupStatus {
+  status: SetupFlowStatus;
   isStarted: boolean;
   isCompleted: boolean;
   isSkipped: boolean;
+  isBlocking: boolean;
   progressPercent: number;
   sitePresetKey: SitePresetKey;
   steps: SetupStepItem[];

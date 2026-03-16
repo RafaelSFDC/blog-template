@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { usePostHog } from "@posthog/react"
 import { checkDashboardAccess } from '#/server/system/dashboard-access'
 import { captureClientEvent } from "#/lib/analytics-client"
-import { getSetupStatus } from '#/server/setup-actions'
+import { getSetupStatus, skipSetup } from '#/server/setup-actions'
 import { shouldRedirectToSetup } from '#/lib/setup'
 
 export const Route = createFileRoute('/dashboard')({
@@ -21,11 +21,19 @@ export const Route = createFileRoute('/dashboard')({
     }
 
     const pathname = location.pathname
+    const skipSetupRequested = new URLSearchParams(location.search).get("skipSetup") === "1"
     if (pathname === '/dashboard/setup') {
       return
     }
 
     if (result.session.user.role === 'admin' || result.session.user.role === 'super-admin') {
+      if (skipSetupRequested) {
+        await skipSetup()
+        throw redirect({
+          to: '/dashboard',
+        })
+      }
+
       const setupStatus = await getSetupStatus()
       if (shouldRedirectToSetup(setupStatus, result.session.user.role)) {
         throw redirect({

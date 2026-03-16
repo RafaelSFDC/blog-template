@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { SetupIncompleteNotice } from "#/components/dashboard/setup-incomplete-notice";
 import { Button } from "#/components/ui/button";
 import { Checkbox } from "#/components/ui/checkbox";
 import { Input } from "#/components/ui/input";
@@ -13,6 +14,8 @@ import { StatusBadge } from "#/components/ui/status-badge";
 import { authClient } from "#/lib/auth-client";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/post-actions";
+import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import type { SetupStatus } from "#/types/system";
 
 type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];
 
@@ -23,12 +26,21 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export const Route = createFileRoute("/dashboard/posts/")({
-  loader: () => getDashboardPosts({ data: {} }),
+  loader: async () => {
+    const [posts, setup] = await Promise.all([
+      getDashboardPosts({ data: {} }),
+      getSetupStatusForDashboard(),
+    ]);
+    return { posts, setup };
+  },
   component: PostsManagementPage,
 });
 
 function PostsManagementPage() {
-  const initialPosts = Route.useLoaderData() as DashboardPost[];
+  const { posts: initialPosts, setup } = Route.useLoaderData() as {
+    posts: DashboardPost[];
+    setup: SetupStatus | null;
+  };
   const { data: session } = authClient.useSession();
   const [postList, setPostList] = useState<DashboardPost[]>(initialPosts);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -132,6 +144,8 @@ function PostsManagementPage() {
           </Link>
         </Button>
       </DashboardHeader>
+
+      <SetupIncompleteNotice setup={setup} area="posts" />
 
       <div className="grid gap-4 rounded-2xl border border-border bg-card p-4">
         <div className="grid gap-3 md:grid-cols-[1.5fr,0.8fr,0.8fr,auto]">

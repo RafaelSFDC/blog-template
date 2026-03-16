@@ -4,6 +4,7 @@ import { useForm, useStore } from "@tanstack/react-form";
 import { Button } from "#/components/ui/button";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
+import { SetupIncompleteNotice } from "#/components/dashboard/setup-incomplete-notice";
 import {
   Settings as SettingsIcon,
   Save,
@@ -38,14 +39,29 @@ import {
   getDashboardSettings,
   updateDashboardSettings,
 } from "#/server/system/settings";
+import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import type { SetupStatus } from "#/types/system";
 
 export const Route = createFileRoute("/dashboard/settings")({
-  loader: () => getDashboardSettings(),
+  loader: async () => {
+    const [settingsData, setup] = await Promise.all([
+      getDashboardSettings(),
+      getSetupStatusForDashboard(),
+    ]);
+    return {
+      ...settingsData,
+      setup,
+    };
+  },
   component: SettingsPage,
 });
 
 function SettingsPage() {
-  const { settings: initialSettings, securityAudit } = Route.useLoaderData();
+  const { settings: initialSettings, securityAudit, setup } = Route.useLoaderData() as Awaited<
+    ReturnType<typeof getDashboardSettings>
+  > & {
+    setup: SetupStatus | null;
+  };
   const [saving, setSaving] = useState(false);
 
   const form = useForm({
@@ -114,6 +130,8 @@ function SettingsPage() {
         icon={SettingsIcon}
         iconLabel="Configuration"
       />
+
+      <SetupIncompleteNotice setup={setup} area="settings" />
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">

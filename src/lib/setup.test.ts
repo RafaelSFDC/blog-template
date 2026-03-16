@@ -66,9 +66,33 @@ describe("setup", () => {
       }),
     );
 
+    expect(status.status).toBe("in_progress");
     expect(status.progressPercent).toBe(14);
     expect(status.nextAction?.step).toBe("seo");
     expect(status.lastStep).toBe("seo");
+  });
+
+  it("keeps setup as not_started before the first wizard entry", () => {
+    const status = buildSetupStatus(createSnapshot());
+
+    expect(status.status).toBe("not_started");
+    expect(status.isBlocking).toBe(true);
+    expect(status.nextAction?.step).toBe("identity");
+  });
+
+  it("treats skipped setup as in_progress without blocking redirects", () => {
+    const status = buildSetupStatus(
+      createSnapshot({
+        wizardStartedAt: "2026-03-16T10:00:00.000Z",
+        wizardSkippedAt: "2026-03-16T10:05:00.000Z",
+      }),
+    );
+
+    expect(status.status).toBe("in_progress");
+    expect(status.isSkipped).toBe(true);
+    expect(status.isCompleted).toBe(false);
+    expect(status.nextAction?.step).toBe("identity");
+    expect(shouldRedirectToSetup(status, "admin")).toBe(false);
   });
 
   it("keeps lastStep aligned with the first blocking step while setup is incomplete", () => {
@@ -117,9 +141,26 @@ describe("setup", () => {
       }),
     );
 
+    expect(status.status).toBe("completed");
     expect(status.progressPercent).toBe(100);
     expect(status.nextAction).toBeNull();
     expect(status.isCompleted).toBe(true);
+  });
+
+  it("treats explicitly completed setup as non-blocking even with remaining checklist work", () => {
+    const status = buildSetupStatus(
+      createSnapshot({
+        wizardStartedAt: "2026-03-16T10:00:00.000Z",
+        wizardCompletedAt: "2026-03-16T10:10:00.000Z",
+        wizardLastStep: "content",
+      }),
+    );
+
+    expect(status.status).toBe("completed");
+    expect(status.isCompleted).toBe(true);
+    expect(status.isBlocking).toBe(false);
+    expect(status.lastStep).toBe("content");
+    expect(status.nextAction).toBeNull();
   });
 
   it("redirects admins to setup until the wizard is completed or skipped", () => {

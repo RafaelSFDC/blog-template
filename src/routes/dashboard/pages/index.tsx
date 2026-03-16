@@ -3,20 +3,29 @@ import { Button } from "#/components/ui/button";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { EmptyState } from "#/components/dashboard/EmptyState";
+import { SetupIncompleteNotice } from "#/components/dashboard/setup-incomplete-notice";
 import { Library, Plus, Pencil, Trash2, House } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { deletePage, getPages } from "#/server/page-actions";
+import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import type { SetupStatus } from "#/types/system";
 
 type DashboardPage = Awaited<ReturnType<typeof getPages>>[number];
 
 export const Route = createFileRoute("/dashboard/pages/")({
-  loader: () => getPages(),
+  loader: async () => {
+    const [pages, setup] = await Promise.all([getPages(), getSetupStatusForDashboard()]);
+    return { pages, setup };
+  },
   component: PagesManagementPage,
 });
 
 function PagesManagementPage() {
-  const pages = Route.useLoaderData();
+  const { pages, setup } = Route.useLoaderData() as {
+    pages: DashboardPage[];
+    setup: SetupStatus | null;
+  };
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -52,6 +61,8 @@ function PagesManagementPage() {
           </Link>
         </Button>
       </DashboardHeader>
+
+      <SetupIncompleteNotice setup={setup} area="pages" />
 
       <div className="grid gap-4">
         {pages.length > 0 ? (
