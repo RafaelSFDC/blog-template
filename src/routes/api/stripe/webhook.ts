@@ -4,6 +4,7 @@ import { processStripeWebhookEvent } from "#/server/membership-actions";
 import { getPostHogClient } from "#/server/posthog";
 import { captureServerException } from "#/server/sentry";
 import { stripe } from "#/server/stripe";
+import { logOperationalEvent } from "#/server/system/operations";
 
 export const Route = createFileRoute("/api/stripe/webhook")({
   server: {
@@ -36,6 +37,11 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 
         try {
           const result = await processStripeWebhookEvent(event);
+          logOperationalEvent("stripe-webhook-processed", {
+            eventType: event.type,
+            duplicate: result.duplicate,
+            eventId: event.id,
+          });
 
           const posthog = getPostHogClient();
           if (!result.duplicate) {
@@ -93,6 +99,10 @@ export const Route = createFileRoute("/api/stripe/webhook")({
               requestUrl: request.url,
             },
           });
+          logOperationalEvent("stripe-webhook-failed", {
+            eventType: event.type,
+            eventId: event.id,
+          }, "error");
 
           const message = error instanceof Error ? error.message : "Internal Server Error";
           return new Response(message, { status: 500 });

@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "blog-template",
+  "name": "lumina-blog",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server-entry.ts",
@@ -41,5 +41,44 @@
   },
   "vars": {
     "DB_TYPE": "d1",
+    "ENVIRONMENT": "production",
+  },
+  "env": {
+    "staging": {
+      "name": "lumina-blog-staging",
+      "vars": {
+        "DB_TYPE": "d1",
+        "ENVIRONMENT": "staging",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "lumina-blog-staging-db",
+          "database_id": "replace-with-staging-d1-id",
+          "migrations_dir": "./drizzle",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "STORAGE",
+          "bucket_name": "lumina-blog-staging-media",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "NEWSLETTER_QUEUE",
+            "queue": "newsletter-send-staging",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "newsletter-send-staging",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+        ],
+      },
+    },
   },
 }

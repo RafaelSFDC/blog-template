@@ -3,15 +3,22 @@ import { getBinding } from "#/server/system/cf-env";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _db: any = null;
+let _sqliteClient: { close?: () => void } | null = null;
 
-const dbType = process.env.DB_TYPE || "sqlite";
-const dbUrl = process.env.DATABASE_URL;
+function getDatabaseConfig() {
+  return {
+    dbType: process.env.DB_TYPE || "sqlite",
+    dbUrl: process.env.DATABASE_URL,
+  };
+}
 
 async function importRuntimeModule<TModule>(specifier: string): Promise<TModule> {
   return import(/* @vite-ignore */ specifier) as Promise<TModule>;
 }
 
 async function initializeDb() {
+  const { dbType, dbUrl } = getDatabaseConfig();
+
   if (dbType === "d1") {
     const foundD1 = getBinding("DB");
     if (foundD1) {
@@ -58,6 +65,7 @@ async function initializeDb() {
         ? (DatabaseModule as typeof import("better-sqlite3"))
         : (DatabaseModule as { default: typeof import("better-sqlite3") }).default;
     const sqlite = new Database(dbUrl || "blog.db");
+    _sqliteClient = sqlite as unknown as { close?: () => void };
     _db = drizzleSqlite(sqlite, { schema }) as unknown as Record<string, unknown>;
   } catch (error) {
     console.debug(
@@ -69,9 +77,22 @@ async function initializeDb() {
 
 await initializeDb();
 
+export async function reinitializeDbForTesting() {
+  try {
+    _sqliteClient?.close?.();
+  } catch {
+    // noop for test-only reinitialization
+  }
+
+  _db = null;
+  _sqliteClient = null;
+  await initializeDb();
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = new Proxy({} as any, {
   get(_target, prop) {
+    const { dbType } = getDatabaseConfig();
     if (prop === "schema") return schema;
     if (_db) return _db[prop as string];
 

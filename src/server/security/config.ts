@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export function getTurnstileConfig() {
-  const siteKey = process.env.TURNSTILE_SITE_KEY || "";
-  const secretKey = process.env.TURNSTILE_SECRET_KEY || "";
+export function getTurnstileConfig(env: NodeJS.ProcessEnv = process.env) {
+  const siteKey = env.TURNSTILE_SITE_KEY || "";
+  const secretKey = env.TURNSTILE_SECRET_KEY || "";
 
   return {
     siteKey,
@@ -11,14 +11,14 @@ export function getTurnstileConfig() {
   };
 }
 
-export function getSecurityConfigAudit() {
-  const turnstile = getTurnstileConfig();
+export function getSecurityConfigAudit(env: NodeJS.ProcessEnv = process.env) {
+  const turnstile = getTurnstileConfig(env);
   return {
     turnstileEnabled: turnstile.enabled,
     missingRequired: turnstile.enabled
       ? []
       : ["TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"],
-    optionalWarnings: process.env.SECURITY_CONTACT_EMAIL
+    optionalWarnings: env.SECURITY_CONTACT_EMAIL
       ? []
       : ["SECURITY_CONTACT_EMAIL"],
   };

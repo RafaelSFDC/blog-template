@@ -19,6 +19,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redirects'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard/menus'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicPricingRouteImport } from './routes/_public/pricing'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
@@ -53,6 +54,8 @@ import { Route as ApiNewsletterConfirmRouteImport } from './routes/api/newslette
 import { Route as ApiNewsletterClickRouteImport } from './routes/api/newsletter/click'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest.$'
+import { Route as ApiHealthReadinessRouteImport } from './routes/api/health.readiness'
+import { Route as ApiHealthDependenciesRouteImport } from './routes/api/health.dependencies'
 import { Route as ApiExportPostsRouteImport } from './routes/api/export/posts'
 import { Route as ApiCronPublishRouteImport } from './routes/api/cron.publish'
 import { Route as ApiCommentsIdRouteImport } from './routes/api/comments.$id'
@@ -121,6 +124,11 @@ const DashboardMenusRoute = DashboardMenusRouteImport.update({
   id: '/menus',
   path: '/menus',
   getParentRoute: () => DashboardRoute,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCommentsRoute = ApiCommentsRouteImport.update({
   id: '/api/comments',
@@ -297,6 +305,16 @@ const ApiIngestSplatRoute = ApiIngestSplatRouteImport.update({
   path: '/api/ingest/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthReadinessRoute = ApiHealthReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => ApiHealthRoute,
+} as any)
+const ApiHealthDependenciesRoute = ApiHealthDependenciesRouteImport.update({
+  id: '/dependencies',
+  path: '/dependencies',
+  getParentRoute: () => ApiHealthRoute,
+} as any)
 const ApiExportPostsRoute = ApiExportPostsRouteImport.update({
   id: '/api/export/posts',
   path: '/api/export/posts',
@@ -410,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof PublicContactRoute
   '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/api/health': typeof ApiHealthRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -427,6 +446,8 @@ export interface FileRoutesByFullPath {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/health/dependencies': typeof ApiHealthDependenciesRoute
+  '/api/health/readiness': typeof ApiHealthReadinessRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/click': typeof ApiNewsletterClickRoute
@@ -472,6 +493,7 @@ export interface FileRoutesByTo {
   '/contact': typeof PublicContactRoute
   '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/api/health': typeof ApiHealthRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -490,6 +512,8 @@ export interface FileRoutesByTo {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/health/dependencies': typeof ApiHealthDependenciesRoute
+  '/api/health/readiness': typeof ApiHealthReadinessRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/click': typeof ApiNewsletterClickRoute
@@ -538,6 +562,7 @@ export interface FileRoutesById {
   '/_public/contact': typeof PublicContactRoute
   '/_public/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
+  '/api/health': typeof ApiHealthRouteWithChildren
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -556,6 +581,8 @@ export interface FileRoutesById {
   '/api/comments/$id': typeof ApiCommentsIdRoute
   '/api/cron/publish': typeof ApiCronPublishRoute
   '/api/export/posts': typeof ApiExportPostsRoute
+  '/api/health/dependencies': typeof ApiHealthDependenciesRoute
+  '/api/health/readiness': typeof ApiHealthReadinessRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/api/newsletter/click': typeof ApiNewsletterClickRoute
@@ -605,6 +632,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/pricing'
     | '/api/comments'
+    | '/api/health'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -622,6 +650,8 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/health/dependencies'
+    | '/api/health/readiness'
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/click'
@@ -667,6 +697,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/pricing'
     | '/api/comments'
+    | '/api/health'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -685,6 +716,8 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/health/dependencies'
+    | '/api/health/readiness'
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/click'
@@ -732,6 +765,7 @@ export interface FileRouteTypes {
     | '/_public/contact'
     | '/_public/pricing'
     | '/api/comments'
+    | '/api/health'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -750,6 +784,8 @@ export interface FileRouteTypes {
     | '/api/comments/$id'
     | '/api/cron/publish'
     | '/api/export/posts'
+    | '/api/health/dependencies'
+    | '/api/health/readiness'
     | '/api/ingest/$'
     | '/api/media/$'
     | '/api/newsletter/click'
@@ -792,6 +828,7 @@ export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiCommentsRoute: typeof ApiCommentsRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRouteWithChildren
   RssXmlRoute: typeof RssXmlRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -880,6 +917,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/menus'
       preLoaderRoute: typeof DashboardMenusRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/comments': {
       id: '/api/comments'
@@ -1118,6 +1162,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/ingest/$'
       preLoaderRoute: typeof ApiIngestSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/health/readiness': {
+      id: '/api/health/readiness'
+      path: '/readiness'
+      fullPath: '/api/health/readiness'
+      preLoaderRoute: typeof ApiHealthReadinessRouteImport
+      parentRoute: typeof ApiHealthRoute
+    }
+    '/api/health/dependencies': {
+      id: '/api/health/dependencies'
+      path: '/dependencies'
+      fullPath: '/api/health/dependencies'
+      preLoaderRoute: typeof ApiHealthDependenciesRouteImport
+      parentRoute: typeof ApiHealthRoute
     }
     '/api/export/posts': {
       id: '/api/export/posts'
@@ -1384,10 +1442,25 @@ const ApiCommentsRouteWithChildren = ApiCommentsRoute._addFileChildren(
   ApiCommentsRouteChildren,
 )
 
+interface ApiHealthRouteChildren {
+  ApiHealthDependenciesRoute: typeof ApiHealthDependenciesRoute
+  ApiHealthReadinessRoute: typeof ApiHealthReadinessRoute
+}
+
+const ApiHealthRouteChildren: ApiHealthRouteChildren = {
+  ApiHealthDependenciesRoute: ApiHealthDependenciesRoute,
+  ApiHealthReadinessRoute: ApiHealthReadinessRoute,
+}
+
+const ApiHealthRouteWithChildren = ApiHealthRoute._addFileChildren(
+  ApiHealthRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   ApiCommentsRoute: ApiCommentsRouteWithChildren,
+  ApiHealthRoute: ApiHealthRouteWithChildren,
   RssXmlRoute: RssXmlRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

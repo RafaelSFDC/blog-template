@@ -14,6 +14,7 @@ import {
   captureServerException,
   getWorkerSentryOptions,
 } from "#/server/sentry";
+import { logOperationalEvent } from "#/server/system/operations";
 
 const fetch = createStartHandler(defaultStreamHandler);
 
@@ -25,15 +26,12 @@ async function runScheduledPublish() {
       cleanupExpiredRateLimitEvents(),
     ]);
 
-    console.log(
-      JSON.stringify({
-        event: "scheduled-editorial-jobs",
-        publishedCount: postResult.count,
-        publishedIds: postResult.publishedIds,
-        queuedCampaigns,
-        cleanedRateLimitEvents: rateLimitCleanup,
-      }),
-    );
+    logOperationalEvent("scheduled-editorial-jobs", {
+      publishedCount: postResult.count,
+      publishedIds: postResult.publishedIds,
+      queuedCampaigns,
+      cleanedRateLimitEvents: rateLimitCleanup,
+    });
   } catch (error) {
     captureServerException(error, {
       tags: {
@@ -58,7 +56,13 @@ const workerFetch =
 const handler = {
   fetch: workerFetch,
   async queue(batch: MessageBatch<NewsletterQueueMessage>) {
+    logOperationalEvent("newsletter-queue-batch-started", {
+      size: batch.messages.length,
+    });
     await processNewsletterQueueBatch(batch.messages.map((message) => message.body));
+    logOperationalEvent("newsletter-queue-batch-finished", {
+      size: batch.messages.length,
+    });
   },
   scheduled(
     _controller: ScheduledController,

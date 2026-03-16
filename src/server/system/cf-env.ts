@@ -7,6 +7,7 @@
  */
 
 let _env: Record<string, unknown> | null = null
+const workerSpecifier = ['cloudflare', 'workers'].join(':')
 
 function getEnv() {
   if (_env) return _env
@@ -14,7 +15,7 @@ function getEnv() {
   try {
     // Dynamic import to avoid build issues in non-CF environments
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('cloudflare:workers')
+    const mod = require(workerSpecifier)
     _env = mod.env
     return _env
   } catch {

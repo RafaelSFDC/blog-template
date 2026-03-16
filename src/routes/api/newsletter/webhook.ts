@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { processResendWebhook } from "#/server/newsletter-campaigns";
 import { captureServerException } from "#/server/sentry";
+import { logOperationalEvent } from "#/server/system/operations";
 
 export const Route = createFileRoute("/api/newsletter/webhook")({
   server: {
@@ -16,6 +17,11 @@ export const Route = createFileRoute("/api/newsletter/webhook")({
           };
 
           const result = await processResendWebhook(payload);
+          logOperationalEvent("newsletter-webhook-processed", {
+            type: payload.type,
+            emailId: payload.data?.email_id ?? null,
+            duplicate: result?.duplicate ?? false,
+          });
           return Response.json(result);
         } catch (error) {
           captureServerException(error, {
