@@ -36,9 +36,14 @@ export function Newsletter({
       onSubscribe(email);
     } else {
       try {
-        const res = await subscribeNewsletter({ data: { email } });
+        const res = await subscribeNewsletter({ data: { email, source: "site_form" } });
         if (res.success) {
-          posthog.capture("newsletter_subscribed", { email });
+          posthog.capture(
+            res.state === "pending_confirmation"
+              ? "newsletter_pending_confirmation"
+              : "newsletter_subscribed",
+            { email },
+          );
           toast.success(res.message);
           setEmail("");
         } else {

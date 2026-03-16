@@ -24,6 +24,41 @@ export const SUBSCRIPTION_STATUSES = [
   "canceled",
   "expired",
 ] as const;
+export const NEWSLETTER_CAMPAIGN_STATUSES = [
+  "draft",
+  "scheduled",
+  "queued",
+  "sending",
+  "sent",
+  "partial",
+  "failed",
+  "canceled",
+] as const;
+export const NEWSLETTER_DELIVERY_STATUSES = [
+  "pending",
+  "queued",
+  "sending",
+  "sent",
+  "delivered",
+  "opened",
+  "clicked",
+  "failed",
+  "bounced",
+  "complained",
+] as const;
+export const SUBSCRIBER_STATUSES = [
+  "pending",
+  "active",
+  "unsubscribed",
+  "bounced",
+  "complained",
+] as const;
+export const NEWSLETTER_SEGMENTS = [
+  "all_active",
+  "premium_members",
+  "free_subscribers",
+] as const;
+export const NEWSLETTER_CAMPAIGN_ACTIONS = ["draft", "schedule", "queue"] as const;
 export const EDITORIAL_WORKFLOW_ACTIONS = [
   "request_review",
   "approve",
@@ -64,6 +99,11 @@ export const commentBulkActionSchema = z.enum(COMMENT_BULK_ACTIONS);
 export const mediaImageMimeTypeSchema = z.enum(MEDIA_IMAGE_MIME_TYPES);
 export const teaserModeSchema = z.enum(TEASER_MODES);
 export const subscriptionStatusSchema = z.enum(SUBSCRIPTION_STATUSES);
+export const newsletterCampaignStatusSchema = z.enum(NEWSLETTER_CAMPAIGN_STATUSES);
+export const newsletterDeliveryStatusSchema = z.enum(NEWSLETTER_DELIVERY_STATUSES);
+export const subscriberStatusSchema = z.enum(SUBSCRIBER_STATUSES);
+export const newsletterSegmentSchema = z.enum(NEWSLETTER_SEGMENTS);
+export const newsletterCampaignActionTypeSchema = z.enum(NEWSLETTER_CAMPAIGN_ACTIONS);
 
 function emptyStringToUndefined(value: unknown) {
   if (typeof value !== "string") return value;
@@ -149,6 +189,11 @@ export const settingsSchema = z.object({
     emptyStringToUndefined,
     z.string().trim().max(255, "Annual Stripe Price ID is too long").optional(),
   ),
+  newsletterSenderEmail: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().email("Must be a valid email").max(320, "Sender email is too long").optional(),
+  ),
+  doubleOptInEnabled: z.boolean(),
   membershipGracePeriodDays: z.number().int().min(0).max(30),
   robotsIndexingEnabled: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(20, "Too many social links"),
@@ -268,6 +313,25 @@ export const menuUpdateSchema = z.object({
 
 export const newsletterSubscribeSchema = z.object({
   email: z.string().trim().email("Must be a valid email").max(320, "Email is too long"),
+  source: z.preprocess(emptyStringToUndefined, z.string().trim().max(120).optional()),
+});
+
+export const newsletterCampaignSchema = z.object({
+  subject: trimmedString(1, "Subject is required", 200, "Subject is too long"),
+  preheader: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(255, "Preheader is too long").optional(),
+  ),
+  content: trimmedString(1, "Content is required", 200000, "Content is too long"),
+  postId: z.number().int().positive().optional(),
+  segment: newsletterSegmentSchema,
+  scheduledAt: scheduledDateSchema,
+});
+
+export const newsletterCampaignActionSchema = z.object({
+  newsletterId: positiveIntSchema,
+  action: newsletterCampaignActionTypeSchema,
+  scheduledAt: scheduledDateSchema,
 });
 
 export const contactFormSchema = z.object({

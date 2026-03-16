@@ -51,6 +51,11 @@ export const settingsFormSchema = z.object({
   twitterHandle: trimmedOptionalString(50, "Twitter handle is too long"),
   stripeMonthlyPriceId: trimmedOptionalString(255, "Monthly Stripe Price ID is too long"),
   stripeAnnualPriceId: trimmedOptionalString(255, "Annual Stripe Price ID is too long"),
+  newsletterSenderEmail: trimmedOptionalString(320, "Sender email is too long").refine(
+    (value) => !value || z.string().email().safeParse(value).success,
+    { message: "Must be a valid email" },
+  ),
+  doubleOptInEnabled: z.boolean(),
   membershipGracePeriodDays: z.number().int().min(0).max(30),
   robotsIndexingEnabled: z.boolean(),
   socialLinks: z
@@ -142,6 +147,8 @@ export function mapSettingsRowsToFormValues(rows: SettingsRow[]): SettingsFormVa
     twitterHandle: settingsRecord.twitterHandle || "",
     stripeMonthlyPriceId: settingsRecord.stripeMonthlyPriceId || settingsRecord.stripePriceId || "",
     stripeAnnualPriceId: settingsRecord.stripeAnnualPriceId || "",
+    newsletterSenderEmail: settingsRecord.newsletterSenderEmail || "",
+    doubleOptInEnabled: settingsRecord.doubleOptInEnabled === "true",
     membershipGracePeriodDays: Number(settingsRecord.membershipGracePeriodDays || "3"),
     robotsIndexingEnabled: settingsRecord.robotsIndexingEnabled !== "false",
     socialLinks,
@@ -164,6 +171,8 @@ export function normalizeSettingsFormValues(
     twitterHandle: values.twitterHandle.trim(),
     stripeMonthlyPriceId: values.stripeMonthlyPriceId?.trim() ?? "",
     stripeAnnualPriceId: values.stripeAnnualPriceId?.trim() ?? "",
+    newsletterSenderEmail: values.newsletterSenderEmail?.trim() ?? "",
+    doubleOptInEnabled: values.doubleOptInEnabled,
     membershipGracePeriodDays: values.membershipGracePeriodDays ?? 3,
     robotsIndexingEnabled: values.robotsIndexingEnabled,
     socialLinks: values.socialLinks.map((link) => ({

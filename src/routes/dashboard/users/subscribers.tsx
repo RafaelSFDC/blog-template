@@ -9,7 +9,7 @@ import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { DataTable } from "#/components/dashboard/DataTable";
 import { EmptyState } from "#/components/dashboard/EmptyState";
-import { Users, Download, CheckCircle2 } from "lucide-react";
+import { Users, Download, CheckCircle2, Clock3, Ban } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { useMemo } from "react";
 import { toast } from "sonner";
@@ -120,10 +120,14 @@ function SubscribersPage() {
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs uppercase ${
                 status === "active"
                   ? "bg-green-500/10 text-green-600"
-                  : "bg-destructive/10 text-destructive"
+                  : status === "pending"
+                    ? "bg-amber-500/10 text-amber-600"
+                    : "bg-destructive/10 text-destructive"
               }`}
             >
               {status === "active" && <CheckCircle2 size={12} />}
+              {status === "pending" && <Clock3 size={12} />}
+              {(status === "unsubscribed" || status === "bounced" || status === "complained") && <Ban size={12} />}
               {status}
             </span>
           );

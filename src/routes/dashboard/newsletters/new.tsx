@@ -1,9 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { usePostHog } from "@posthog/react";
-import { format } from "date-fns";
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { ChevronLeft, Info, Send } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { DashboardHeader } from "#/components/dashboard/Header";
@@ -18,103 +16,67 @@ import {
   FieldLabel,
 } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "#/components/ui/select";
 import { db } from "#/db/index";
-import { newsletters, posts } from "#/db/schema";
+import { posts } from "#/db/schema";
 import { requireAdminSession } from "#/lib/admin-auth";
 import {
   buildNewsletterTemplateFromPost,
   mapNewsletterToFormValues,
   newsletterCampaignFormSchema,
-  newsletterCampaignSubmissionSchema,
   normalizeNewsletterCampaignSubmission,
   type NewsletterTemplatePost,
 } from "#/lib/newsletter-form";
-import { sendNewsletter } from "#/lib/newsletter";
 import { captureClientException } from "#/lib/sentry-client";
+import {
+  createNewsletterCampaignAction,
+  getNewsletterCampaignAction,
+  updateNewsletterCampaignAction,
+} from "#/server/newsletter-actions";
 
-const saveAndSendNewsletter = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    newsletterCampaignSubmissionSchema.parse(input),
-  )
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-
-    const [created] = await db
-      .insert(newsletters)
-      .values({
-        subject: data.subject,
-        content: data.content,
-        postId: data.postId,
-        status: data.sendNow ? "sending" : "draft",
-      })
-      .returning({ id: newsletters.id });
-
-    if (data.sendNow) {
-      // In a real app, this should be an async background task
-      // For now, we call it and wait (might timeout on serverless)
-      try {
-        await sendNewsletter(created.id);
-      } catch (err) {
-        const { captureServerException } = await import("#/server/sentry");
-        captureServerException(err, {
-          tags: {
-            area: "server",
-            flow: "newsletter-send-now",
-          },
-          extras: {
-            newsletterId: created.id,
-            postId: data.postId,
-          },
-        });
-        console.error("Failed to send newsletter:", err);
-      }
-    }
-
-    return created;
-  });
-
-const getPostsForTemplate = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await requireAdminSession();
-    return db.select().from(posts).orderBy(desc(posts.publishedAt)).limit(10);
-  },
-);
-
-const getNewsletterById = createServerFn({ method: "GET" })
-  .inputValidator((id: number) => id)
-  .handler(async ({ data: id }) => {
-    await requireAdminSession();
-    return db.query.newsletters.findFirst({
-      where: eq(newsletters.id, id),
-    });
-  });
+const getPostsForTemplate = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdminSession();
+  return db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      excerpt: posts.excerpt,
+      slug: posts.slug,
+      publishedAt: posts.publishedAt,
+    })
+    .from(posts)
+    .orderBy(desc(posts.publishedAt))
+    .limit(10);
+});
 
 export const Route = createFileRoute("/dashboard/newsletters/new")({
   validateSearch: (search: Record<string, unknown>) => ({
     fromId: search.fromId ? Number(search.fromId) : undefined,
   }),
-  loaderDeps: ({ search }) => ({
-    fromId: search.fromId,
-  }),
+  loaderDeps: ({ search }) => ({ fromId: search.fromId }),
   loader: async ({ deps }) => {
-    const [posts, existing] = await Promise.all([
+    const [recentPosts, existing] = await Promise.all([
       getPostsForTemplate(),
-      deps.fromId
-        ? getNewsletterById({ data: deps.fromId })
-        : Promise.resolve(null),
+      deps.fromId ? getNewsletterCampaignAction({ data: deps.fromId }) : Promise.resolve(null),
     ]);
-    return { posts, existing };
+
+    return { recentPosts, existing };
   },
-  component: NewNewsletterPage,
+  component: NewsletterComposerPage,
 });
 
-function NewNewsletterPage() {
-  const { posts: recentPosts, existing } = Route.useLoaderData();
+function NewsletterComposerPage() {
+  const { recentPosts, existing } = Route.useLoaderData();
   const navigate = useNavigate();
-  const posthog = usePostHog();
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const submitModeRef = useRef<"send" | "draft">("draft");
+  const submitModeRef = useRef<"draft" | "schedule" | "queue">("draft");
 
   const form = useForm({
     defaultValues: mapNewsletterToFormValues(existing),
@@ -122,51 +84,51 @@ function NewNewsletterPage() {
       onChange: newsletterCampaignFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const sendNow = submitModeRef.current === "send";
-
       try {
         setSaving(true);
         setErrorMessage("");
-        await saveAndSendNewsletter({
-          data: normalizeNewsletterCampaignSubmission(value, sendNow),
-        });
-        if (sendNow) {
-          posthog.capture("newsletter_campaign_sent", {
-            subject: value.subject,
-            post_id: value.postId,
+        const payload = normalizeNewsletterCampaignSubmission(value, submitModeRef.current);
+
+        if (existing?.id) {
+          await updateNewsletterCampaignAction({
+            data: {
+              newsletterId: existing.id,
+              ...payload,
+            },
           });
         } else {
-          posthog.capture("newsletter_campaign_saved", {
-            subject: value.subject,
-            post_id: value.postId,
+          await createNewsletterCampaignAction({
+            data: payload,
           });
         }
+
         await navigate({ to: "/dashboard/newsletters" });
-      } catch (err) {
-        captureClientException(err, {
+      } catch (error) {
+        captureClientException(error, {
           tags: {
             area: "dashboard",
-            flow: "newsletter-campaign-submit",
-            mode: sendNow ? "send" : "draft",
+            flow: "newsletter-compose",
+            mode: submitModeRef.current,
           },
         });
-        setErrorMessage("Failed to save newsletter campaign.");
+        setErrorMessage("Failed to save campaign.");
       } finally {
         setSaving(false);
       }
-    }
+    },
   });
 
-  function handlePostTemplate(postId: number) {
-    const post = recentPosts.find(
-      (candidate: NewsletterTemplatePost) => candidate.id === postId,
-    );
-    if (post) {
-      const template = buildNewsletterTemplateFromPost(post);
-      form.setFieldValue("subject", template.subject);
-      form.setFieldValue("content", template.content);
-      form.setFieldValue("postId", template.postId);
+  function applyPostTemplate(postId: number) {
+    const post = recentPosts.find((item: NewsletterTemplatePost) => item.id === postId);
+    if (!post) {
+      return;
     }
+
+    const template = buildNewsletterTemplateFromPost(post);
+    form.setFieldValue("subject", template.subject);
+    form.setFieldValue("preheader", template.preheader);
+    form.setFieldValue("content", template.content);
+    form.setFieldValue("postId", template.postId);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -178,117 +140,164 @@ function NewNewsletterPage() {
   return (
     <DashboardPageContainer className="px-4 pt-14">
       <DashboardHeader
-        title="New Campaign"
-        description="Compose a newsletter, reuse recent posts as a starting point, and send when ready."
+        title={existing ? "Edit Campaign" : "New Campaign"}
+        description="Create a newsletter draft, schedule it, or enqueue it for delivery."
         icon={Send}
-        iconLabel="Composer"
+        iconLabel="Campaign Composer"
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={() => window.history.back()}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Campaigns
+        <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Back
         </Button>
       </DashboardHeader>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="mt-8 grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-card border shadow-sm space-y-6 rounded-[1.6rem] p-6 sm:p-8"
-          >
+          <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border bg-card p-6 shadow-sm">
             <FieldGroup>
               <form.Field name="subject">
                 {(field) => (
                   <Field data-invalid={field.state.meta.errors.length > 0}>
-                    <FieldLabel htmlFor={field.name}>Email Subject</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Subject</FieldLabel>
                     <Input
                       id={field.name}
-                      name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) => field.handleChange(event.target.value)}
-                      placeholder="Check out our latest news..."
+                      placeholder="Your latest issue is here"
                     />
                     <FieldError errors={field.state.meta.errors} />
                   </Field>
                 )}
               </form.Field>
 
+              <form.Field name="preheader">
+                {(field) => (
+                  <Field data-invalid={field.state.meta.errors.length > 0}>
+                    <FieldLabel htmlFor={field.name}>Preheader</FieldLabel>
+                    <Input
+                      id={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      placeholder="A short summary that appears in the inbox preview"
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                )}
+              </form.Field>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <form.Field name="segment">
+                  {(field) => (
+                    <Field>
+                      <FieldLabel>Segment</FieldLabel>
+                      <Select value={field.state.value} onValueChange={field.handleChange}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all_active">All active</SelectItem>
+                          <SelectItem value="premium_members">Premium members</SelectItem>
+                          <SelectItem value="free_subscribers">Free subscribers</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                </form.Field>
+
+                <form.Field name="scheduledAt">
+                  {(field) => (
+                    <Field data-invalid={field.state.meta.errors.length > 0}>
+                      <FieldLabel htmlFor={field.name}>Schedule For</FieldLabel>
+                      <Input
+                        id={field.name}
+                        type="datetime-local"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => field.handleChange(event.target.value)}
+                      />
+                      <FieldDescription>Required only when scheduling.</FieldDescription>
+                      <FieldError errors={field.state.meta.errors} />
+                    </Field>
+                  )}
+                </form.Field>
+              </div>
+
               <form.Field name="content">
                 {(field) => (
                   <Field data-invalid={field.state.meta.errors.length > 0}>
-                    <FieldLabel htmlFor={field.name}>Email Body</FieldLabel>
-                    <LazyTiptapEditor
-                      content={field.state.value}
-                      onChange={field.handleChange}
-                    />
-                    <FieldDescription>
-                      You can write freely or start from a recent post template.
-                    </FieldDescription>
+                    <FieldLabel htmlFor={field.name}>Content</FieldLabel>
+                    <LazyTiptapEditor content={field.state.value} onChange={field.handleChange} />
+                    <FieldDescription>External links are tracked automatically.</FieldDescription>
                     <FieldError errors={field.state.meta.errors} />
                   </Field>
                 )}
               </form.Field>
             </FieldGroup>
 
-            {errorMessage && (
+            {errorMessage ? (
               <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {errorMessage}
               </p>
-            )}
+            ) : null}
 
-            <div className="flex flex-wrap items-center gap-3 pt-4">
+            <div className="flex flex-wrap gap-3">
               <Button
                 type="button"
-                disabled={saving}
                 variant="default"
-                size="lg"
+                disabled={saving}
                 onClick={() => {
-                  submitModeRef.current = "send";
+                  submitModeRef.current = "queue";
                   void form.handleSubmit();
                 }}
               >
-                <Send className="mr-2 h-5 w-5" />
-                {saving ? "Processing…" : "Save & Send Now"}
+                {saving && submitModeRef.current === "queue" ? "Queueing..." : "Queue Now"}
               </Button>
               <Button
                 type="button"
-                disabled={saving}
                 variant="outline"
-                size="lg"
+                disabled={saving}
+                onClick={() => {
+                  submitModeRef.current = "schedule";
+                  void form.handleSubmit();
+                }}
+              >
+                Schedule
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={saving}
                 onClick={() => {
                   submitModeRef.current = "draft";
                   void form.handleSubmit();
                 }}
               >
-                Save as Draft
+                Save Draft
               </Button>
             </div>
           </form>
         </div>
 
         <div className="space-y-6">
-          <section className="bg-card border shadow-sm rounded-xl p-6">
+          <section className="rounded-2xl border bg-card p-6 shadow-sm">
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold">
               <Info className="h-5 w-5 text-primary" />
-              Use Post as Template
+              Post Templates
             </h3>
             <div className="space-y-3">
               {recentPosts.map((post: NewsletterTemplatePost) => (
                 <Button
                   key={post.id}
                   variant="outline"
-                  onClick={() => handlePostTemplate(post.id)}
-                  className="w-full h-auto justify-start p-3 text-left font-normal"
+                  className="h-auto w-full justify-start p-3 text-left"
+                  onClick={() => applyPostTemplate(post.id)}
                 >
-                  <div className="flex flex-col items-start gap-1">
-                    <p className="font-semibold line-clamp-1">{post.title}</p>
+                  <div>
+                    <p className="font-semibold">{post.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(post.publishedAt!), "MMM d")}
+                      {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "Draft"}
                     </p>
                   </div>
                 </Button>
@@ -296,11 +305,10 @@ function NewNewsletterPage() {
             </div>
           </section>
 
-          <section className="border shadow-sm rounded-xl border-primary/20 bg-primary/5 p-6">
-            <h3 className="text-lg font-bold">Ready to send?</h3>
+          <section className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
+            <h3 className="text-lg font-bold">Queue-backed delivery</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Once sent, we will email all your active subscribers. This action
-              cannot be undone.
+              Send now only enqueues the campaign. The Worker processes deliveries asynchronously with retries and tracking.
             </p>
           </section>
         </div>

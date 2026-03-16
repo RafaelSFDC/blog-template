@@ -42,10 +42,15 @@ import { Route as DashboardUsersSubscribersRouteImport } from './routes/dashboar
 import { Route as DashboardPostsNewRouteImport } from './routes/dashboard/posts/new'
 import { Route as DashboardPagesNewRouteImport } from './routes/dashboard/pages/new'
 import { Route as DashboardNewslettersNewRouteImport } from './routes/dashboard/newsletters/new'
+import { Route as DashboardNewslettersNewsletterIdRouteImport } from './routes/dashboard/newsletters/$newsletterId'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiStripeCheckoutRouteImport } from './routes/api/stripe/checkout'
 import { Route as ApiStripeBillingPortalRouteImport } from './routes/api/stripe/billing-portal'
+import { Route as ApiNewsletterWebhookRouteImport } from './routes/api/newsletter/webhook'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
+import { Route as ApiNewsletterOpenRouteImport } from './routes/api/newsletter/open'
+import { Route as ApiNewsletterConfirmRouteImport } from './routes/api/newsletter/confirm'
+import { Route as ApiNewsletterClickRouteImport } from './routes/api/newsletter/click'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media.$'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest.$'
 import { Route as ApiExportPostsRouteImport } from './routes/api/export/posts'
@@ -232,6 +237,12 @@ const DashboardNewslettersNewRoute = DashboardNewslettersNewRouteImport.update({
   path: '/newsletters/new',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardNewslettersNewsletterIdRoute =
+  DashboardNewslettersNewsletterIdRouteImport.update({
+    id: '/newsletters/$newsletterId',
+    path: '/newsletters/$newsletterId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
@@ -247,12 +258,32 @@ const ApiStripeBillingPortalRoute = ApiStripeBillingPortalRouteImport.update({
   path: '/api/stripe/billing-portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterWebhookRoute = ApiNewsletterWebhookRouteImport.update({
+  id: '/api/newsletter/webhook',
+  path: '/api/newsletter/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNewsletterUnsubscribeRoute =
   ApiNewsletterUnsubscribeRouteImport.update({
     id: '/api/newsletter/unsubscribe',
     path: '/api/newsletter/unsubscribe',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiNewsletterOpenRoute = ApiNewsletterOpenRouteImport.update({
+  id: '/api/newsletter/open',
+  path: '/api/newsletter/open',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNewsletterConfirmRoute = ApiNewsletterConfirmRouteImport.update({
+  id: '/api/newsletter/confirm',
+  path: '/api/newsletter/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNewsletterClickRoute = ApiNewsletterClickRouteImport.update({
+  id: '/api/newsletter/click',
+  path: '/api/newsletter/click',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
   id: '/api/media/$',
   path: '/api/media/$',
@@ -377,10 +408,15 @@ export interface FileRoutesByFullPath {
   '/api/export/posts': typeof ApiExportPostsRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/click': typeof ApiNewsletterClickRoute
+  '/api/newsletter/confirm': typeof ApiNewsletterConfirmRoute
+  '/api/newsletter/open': typeof ApiNewsletterOpenRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/newsletter/webhook': typeof ApiNewsletterWebhookRoute
   '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/$newsletterId': typeof DashboardNewslettersNewsletterIdRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
@@ -432,10 +468,15 @@ export interface FileRoutesByTo {
   '/api/export/posts': typeof ApiExportPostsRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/click': typeof ApiNewsletterClickRoute
+  '/api/newsletter/confirm': typeof ApiNewsletterConfirmRoute
+  '/api/newsletter/open': typeof ApiNewsletterOpenRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/newsletter/webhook': typeof ApiNewsletterWebhookRoute
   '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/$newsletterId': typeof DashboardNewslettersNewsletterIdRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
@@ -490,10 +531,15 @@ export interface FileRoutesById {
   '/api/export/posts': typeof ApiExportPostsRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
+  '/api/newsletter/click': typeof ApiNewsletterClickRoute
+  '/api/newsletter/confirm': typeof ApiNewsletterConfirmRoute
+  '/api/newsletter/open': typeof ApiNewsletterOpenRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/newsletter/webhook': typeof ApiNewsletterWebhookRoute
   '/api/stripe/billing-portal': typeof ApiStripeBillingPortalRoute
   '/api/stripe/checkout': typeof ApiStripeCheckoutRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/dashboard/newsletters/$newsletterId': typeof DashboardNewslettersNewsletterIdRoute
   '/dashboard/newsletters/new': typeof DashboardNewslettersNewRoute
   '/dashboard/pages/new': typeof DashboardPagesNewRoute
   '/dashboard/posts/new': typeof DashboardPostsNewRoute
@@ -548,10 +594,15 @@ export interface FileRouteTypes {
     | '/api/export/posts'
     | '/api/ingest/$'
     | '/api/media/$'
+    | '/api/newsletter/click'
+    | '/api/newsletter/confirm'
+    | '/api/newsletter/open'
     | '/api/newsletter/unsubscribe'
+    | '/api/newsletter/webhook'
     | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/$newsletterId'
     | '/dashboard/newsletters/new'
     | '/dashboard/pages/new'
     | '/dashboard/posts/new'
@@ -603,10 +654,15 @@ export interface FileRouteTypes {
     | '/api/export/posts'
     | '/api/ingest/$'
     | '/api/media/$'
+    | '/api/newsletter/click'
+    | '/api/newsletter/confirm'
+    | '/api/newsletter/open'
     | '/api/newsletter/unsubscribe'
+    | '/api/newsletter/webhook'
     | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/$newsletterId'
     | '/dashboard/newsletters/new'
     | '/dashboard/pages/new'
     | '/dashboard/posts/new'
@@ -660,10 +716,15 @@ export interface FileRouteTypes {
     | '/api/export/posts'
     | '/api/ingest/$'
     | '/api/media/$'
+    | '/api/newsletter/click'
+    | '/api/newsletter/confirm'
+    | '/api/newsletter/open'
     | '/api/newsletter/unsubscribe'
+    | '/api/newsletter/webhook'
     | '/api/stripe/billing-portal'
     | '/api/stripe/checkout'
     | '/api/stripe/webhook'
+    | '/dashboard/newsletters/$newsletterId'
     | '/dashboard/newsletters/new'
     | '/dashboard/pages/new'
     | '/dashboard/posts/new'
@@ -700,7 +761,11 @@ export interface RootRouteChildren {
   ApiExportPostsRoute: typeof ApiExportPostsRoute
   ApiIngestSplatRoute: typeof ApiIngestSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
+  ApiNewsletterClickRoute: typeof ApiNewsletterClickRoute
+  ApiNewsletterConfirmRoute: typeof ApiNewsletterConfirmRoute
+  ApiNewsletterOpenRoute: typeof ApiNewsletterOpenRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
+  ApiNewsletterWebhookRoute: typeof ApiNewsletterWebhookRoute
   ApiStripeBillingPortalRoute: typeof ApiStripeBillingPortalRoute
   ApiStripeCheckoutRoute: typeof ApiStripeCheckoutRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
@@ -939,6 +1004,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardNewslettersNewRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/newsletters/$newsletterId': {
+      id: '/dashboard/newsletters/$newsletterId'
+      path: '/newsletters/$newsletterId'
+      fullPath: '/dashboard/newsletters/$newsletterId'
+      preLoaderRoute: typeof DashboardNewslettersNewsletterIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/stripe/webhook': {
       id: '/api/stripe/webhook'
       path: '/api/stripe/webhook'
@@ -960,11 +1032,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStripeBillingPortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/webhook': {
+      id: '/api/newsletter/webhook'
+      path: '/api/newsletter/webhook'
+      fullPath: '/api/newsletter/webhook'
+      preLoaderRoute: typeof ApiNewsletterWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/unsubscribe': {
       id: '/api/newsletter/unsubscribe'
       path: '/api/newsletter/unsubscribe'
       fullPath: '/api/newsletter/unsubscribe'
       preLoaderRoute: typeof ApiNewsletterUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/newsletter/open': {
+      id: '/api/newsletter/open'
+      path: '/api/newsletter/open'
+      fullPath: '/api/newsletter/open'
+      preLoaderRoute: typeof ApiNewsletterOpenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/newsletter/confirm': {
+      id: '/api/newsletter/confirm'
+      path: '/api/newsletter/confirm'
+      fullPath: '/api/newsletter/confirm'
+      preLoaderRoute: typeof ApiNewsletterConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/newsletter/click': {
+      id: '/api/newsletter/click'
+      path: '/api/newsletter/click'
+      fullPath: '/api/newsletter/click'
+      preLoaderRoute: typeof ApiNewsletterClickRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/media/$': {
@@ -1153,6 +1253,7 @@ interface DashboardRouteChildren {
   DashboardRedirectsRoute: typeof DashboardRedirectsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardNewslettersNewsletterIdRoute: typeof DashboardNewslettersNewsletterIdRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
   DashboardPagesNewRoute: typeof DashboardPagesNewRoute
   DashboardPostsNewRoute: typeof DashboardPostsNewRoute
@@ -1180,6 +1281,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardRedirectsRoute: DashboardRedirectsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardNewslettersNewsletterIdRoute: DashboardNewslettersNewsletterIdRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
   DashboardPagesNewRoute: DashboardPagesNewRoute,
   DashboardPostsNewRoute: DashboardPostsNewRoute,
@@ -1228,7 +1330,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExportPostsRoute: ApiExportPostsRoute,
   ApiIngestSplatRoute: ApiIngestSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
+  ApiNewsletterClickRoute: ApiNewsletterClickRoute,
+  ApiNewsletterConfirmRoute: ApiNewsletterConfirmRoute,
+  ApiNewsletterOpenRoute: ApiNewsletterOpenRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
+  ApiNewsletterWebhookRoute: ApiNewsletterWebhookRoute,
   ApiStripeBillingPortalRoute: ApiStripeBillingPortalRoute,
   ApiStripeCheckoutRoute: ApiStripeCheckoutRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
@@ -1236,12 +1342,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

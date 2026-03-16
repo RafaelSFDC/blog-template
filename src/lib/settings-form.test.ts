@@ -49,6 +49,8 @@ describe("settings-form", () => {
       twitterHandle: "  @lumina  ",
       stripeMonthlyPriceId: "  price_monthly_123  ",
       stripeAnnualPriceId: "  price_annual_456  ",
+      newsletterSenderEmail: "  editorial@example.com  ",
+      doubleOptInEnabled: true,
       membershipGracePeriodDays: 5,
       robotsIndexingEnabled: true,
       socialLinks: [
@@ -69,6 +71,8 @@ describe("settings-form", () => {
       twitterHandle: "@lumina",
       stripeMonthlyPriceId: "price_monthly_123",
       stripeAnnualPriceId: "price_annual_456",
+      newsletterSenderEmail: "editorial@example.com",
+      doubleOptInEnabled: true,
       membershipGracePeriodDays: 5,
       robotsIndexingEnabled: true,
       socialLinks: [{ platform: "x", url: "https://x.com/lumina" }],

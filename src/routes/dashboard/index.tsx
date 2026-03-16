@@ -8,7 +8,7 @@ import { Button } from "#/components/ui/button";
 import { StatCard } from "#/components/ui/stat-card";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { db } from "#/db/index";
-import { posts, contactMessages } from "#/db/schema";
+import { posts, contactMessages, newsletters, subscribers } from "#/db/schema";
 import { requireDashboardAccess } from "#/lib/admin-auth";
 import { count, desc, eq, sql } from "drizzle-orm";
 import {
@@ -39,6 +39,8 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
       [postCount],
       [unreadMessages],
       [totalViews],
+      [activeSubscribers],
+      [sentCampaigns],
       latestPosts,
       popularPosts,
     ] = await Promise.all([
@@ -59,6 +61,14 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
         : db
             .select({ value: sql<number>`sum(${posts.viewCount})` })
             .from(posts),
+      db
+        .select({ value: count() })
+        .from(subscribers)
+        .where(eq(subscribers.status, "active")),
+      db
+        .select({ value: count() })
+        .from(newsletters)
+        .where(eq(newsletters.status, "sent")),
       isAuthor
         ? db
             .select()
@@ -81,6 +91,8 @@ const getDashboardStats = createServerFn({ method: "GET" }).handler(
       postCount: postCount.value || 0,
       unreadMessages: unreadMessages.value || 0,
       totalViews: Number(totalViews.value) || 0,
+      activeSubscribers: activeSubscribers.value || 0,
+      sentCampaigns: sentCampaigns.value || 0,
       latestPosts,
       popularPosts,
     };
@@ -93,11 +105,21 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardOverview() {
-  const { postCount, unreadMessages, totalViews, latestPosts, popularPosts } =
+  const {
+    postCount,
+    unreadMessages,
+    totalViews,
+    activeSubscribers,
+    sentCampaigns,
+    latestPosts,
+    popularPosts,
+  } =
     Route.useLoaderData() as {
       postCount: number;
       unreadMessages: number;
       totalViews: number;
+      activeSubscribers: number;
+      sentCampaigns: number;
       latestPosts: PostRow[];
       popularPosts: PostRow[];
     };
@@ -119,8 +141,13 @@ function DashboardOverview() {
       icon: Eye,
     },
     {
-      label: "Platform Status",
-      value: "High",
+      label: "Active Subscribers",
+      value: activeSubscribers,
+      icon: Mail,
+    },
+    {
+      label: "Sent Campaigns",
+      value: sentCampaigns,
       icon: TrendingUp,
     },
   ];

@@ -252,18 +252,91 @@ export const subscribers = table("subscribers", {
   id: autoIncrementId("id"),
   email: text("email").notNull().unique(),
   status: text("status").notNull().default("active"),
+  source: text("source"),
+  confirmedAt: timestamp("confirmed_at"),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  lastEmailSentAt: timestamp("last_email_sent_at"),
+  lastOpenedAt: timestamp("last_opened_at"),
+  lastClickedAt: timestamp("last_clicked_at"),
   createdAt: timestamp("created_at").default(now),
 });
 
 export const newsletters = table("newsletters", {
   id: autoIncrementId("id"),
   subject: text("subject").notNull(),
+  preheader: text("preheader"),
   content: text("content").notNull(),
   status: text("status").notNull().default("draft"),
+  segment: text("segment").notNull().default("all_active"),
+  scheduledAt: timestamp("scheduled_at"),
+  queuedAt: timestamp("queued_at"),
+  sendingStartedAt: timestamp("sending_started_at"),
+  sendingCompletedAt: timestamp("sending_completed_at"),
+  canceledAt: timestamp("canceled_at"),
+  totalRecipients: integer("total_recipients").notNull().default(0),
+  sentCount: integer("sent_count").notNull().default(0),
+  failedCount: integer("failed_count").notNull().default(0),
+  openCount: integer("open_count").notNull().default(0),
+  clickCount: integer("click_count").notNull().default(0),
   sentAt: timestamp("sent_at"),
   postId: integer("post_id").references(() => posts.id),
   createdAt: timestamp("created_at").default(now),
 });
+
+export const newsletterDeliveries = table(
+  "newsletter_deliveries",
+  {
+    id: autoIncrementId("id"),
+    newsletterId: integer("newsletter_id")
+      .notNull()
+      .references(() => newsletters.id, { onDelete: "cascade" }),
+    subscriberId: integer("subscriber_id")
+      .notNull()
+      .references(() => subscribers.id, { onDelete: "cascade" }),
+    subscriberEmail: text("subscriber_email").notNull(),
+    status: text("status").notNull().default("pending"),
+    resendEmailId: text("resend_email_id"),
+    lastEventId: text("last_event_id"),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    lastError: text("last_error"),
+    sentAt: timestamp("sent_at"),
+    deliveredAt: timestamp("delivered_at"),
+    openedAt: timestamp("opened_at"),
+    clickedAt: timestamp("clicked_at"),
+    bouncedAt: timestamp("bounced_at"),
+    complainedAt: timestamp("complained_at"),
+    failedAt: timestamp("failed_at"),
+    lastAttemptAt: timestamp("last_attempt_at"),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("newsletter_deliveries_newsletter_id_idx").on(t.newsletterId),
+    index("newsletter_deliveries_subscriber_id_idx").on(t.subscriberId),
+    index("newsletter_deliveries_status_idx").on(t.status),
+    index("newsletter_deliveries_resend_email_id_idx").on(t.resendEmailId),
+  ],
+);
+
+export const subscriberEvents = table(
+  "subscriber_events",
+  {
+    id: autoIncrementId("id"),
+    subscriberId: integer("subscriber_id")
+      .notNull()
+      .references(() => subscribers.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    metadataJson: text("metadata_json"),
+    createdAt: timestamp("created_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("subscriber_events_subscriber_id_idx").on(t.subscriberId),
+    index("subscriber_events_type_idx").on(t.type),
+    index("subscriber_events_created_at_idx").on(t.createdAt),
+  ],
+);
 
 export const membershipPlans = table(
   "membership_plans",
@@ -713,6 +786,45 @@ export const editorialChecklistsRelations = relations(editorialChecklists, ({ on
   completedByUser: one(user, {
     fields: [editorialChecklists.completedBy],
     references: [user.id],
+  }),
+}));
+
+export const subscribersRelations = relations(subscribers, ({ many }) => ({
+  deliveries: many(newsletterDeliveries),
+  events: many(subscriberEvents),
+}));
+
+export const newslettersRelations = relations(newsletters, ({ many, one }) => ({
+  deliveries: many(newsletterDeliveries),
+  logs: many(newsletterLogs),
+  post: one(posts, {
+    fields: [newsletters.postId],
+    references: [posts.id],
+  }),
+}));
+
+export const newsletterDeliveriesRelations = relations(newsletterDeliveries, ({ one }) => ({
+  newsletter: one(newsletters, {
+    fields: [newsletterDeliveries.newsletterId],
+    references: [newsletters.id],
+  }),
+  subscriber: one(subscribers, {
+    fields: [newsletterDeliveries.subscriberId],
+    references: [subscribers.id],
+  }),
+}));
+
+export const subscriberEventsRelations = relations(subscriberEvents, ({ one }) => ({
+  subscriber: one(subscribers, {
+    fields: [subscriberEvents.subscriberId],
+    references: [subscribers.id],
+  }),
+}));
+
+export const newsletterLogsRelations = relations(newsletterLogs, ({ one }) => ({
+  newsletter: one(newsletters, {
+    fields: [newsletterLogs.newsletterId],
+    references: [newsletters.id],
   }),
 }));
 

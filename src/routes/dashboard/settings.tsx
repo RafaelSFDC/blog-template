@@ -78,6 +78,8 @@ const updateAppSettings = createServerFn({ method: "POST" })
     await upsert("twitterHandle", data.twitterHandle || "");
     await upsert("stripeMonthlyPriceId", data.stripeMonthlyPriceId || "");
     await upsert("stripeAnnualPriceId", data.stripeAnnualPriceId || "");
+    await upsert("newsletterSenderEmail", data.newsletterSenderEmail || "");
+    await upsert("doubleOptInEnabled", String(data.doubleOptInEnabled));
     await upsert("membershipGracePeriodDays", String(data.membershipGracePeriodDays));
     await upsert("robotsIndexingEnabled", String(data.robotsIndexingEnabled));
     await upsert("socialLinks", JSON.stringify(data.socialLinks));
@@ -108,6 +110,8 @@ function SettingsPage() {
       twitterHandle: initialSettings.twitterHandle,
       stripeMonthlyPriceId: initialSettings.stripeMonthlyPriceId,
       stripeAnnualPriceId: initialSettings.stripeAnnualPriceId,
+      newsletterSenderEmail: initialSettings.newsletterSenderEmail,
+      doubleOptInEnabled: initialSettings.doubleOptInEnabled,
       membershipGracePeriodDays: initialSettings.membershipGracePeriodDays,
       robotsIndexingEnabled: initialSettings.robotsIndexingEnabled,
       socialLinks: initialSettings.socialLinks,
@@ -542,6 +546,55 @@ function SettingsPage() {
                           <FieldError errors={field.state.meta.errors} />
                         ) : null}
                       </Field>
+                    )}
+                  </form.Field>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border/10">
+                <h3 className="text-sm font-black text-primary mb-6">
+                  Newsletter Delivery
+                </h3>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <form.Field name="newsletterSenderEmail">
+                    {(field) => (
+                      <Field>
+                        <FieldLabel htmlFor={field.name} className="text-xs text-foreground">
+                          Sender Email
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="newsletter@example.com"
+                        />
+                        {field.state.meta.errors.length > 0 ? (
+                          <FieldError errors={field.state.meta.errors} />
+                        ) : null}
+                      </Field>
+                    )}
+                  </form.Field>
+
+                  <form.Field name="doubleOptInEnabled">
+                    {(field) => (
+                      <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                        <Switch
+                          id={field.name}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        />
+                        <label htmlFor={field.name} className="flex cursor-pointer flex-col">
+                          <span className="text-sm font-bold text-foreground">
+                            Enable double opt-in
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            New subscribers confirm by email before entering the active segment.
+                          </span>
+                        </label>
+                      </div>
                     )}
                   </form.Field>
                 </div>

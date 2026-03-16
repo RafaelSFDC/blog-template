@@ -24,6 +24,21 @@
       "bucket_name": "blog-media",
     },
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "NEWSLETTER_QUEUE",
+        "queue": "newsletter-send",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "newsletter-send",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+      },
+    ],
+  },
   "vars": {
     "DB_TYPE": "d1",
   },

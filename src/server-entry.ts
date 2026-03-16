@@ -3,6 +3,11 @@ import {
   createStartHandler,
   defaultStreamHandler,
 } from "@tanstack/react-start/server";
+import {
+  enqueueDueNewsletterCampaigns,
+  processNewsletterQueueBatch,
+  type NewsletterQueueMessage,
+} from "#/server/newsletter-campaigns";
 import { publishScheduledPosts } from "#/server/post-actions";
 import {
   captureServerException,
@@ -13,13 +18,17 @@ const fetch = createStartHandler(defaultStreamHandler);
 
 async function runScheduledPublish() {
   try {
-    const result = await publishScheduledPosts(new Date());
+    const [postResult, queuedCampaigns] = await Promise.all([
+      publishScheduledPosts(new Date()),
+      enqueueDueNewsletterCampaigns(new Date()),
+    ]);
 
     console.log(
       JSON.stringify({
-        event: "scheduled-post-publish",
-        count: result.count,
-        publishedIds: result.publishedIds,
+        event: "scheduled-editorial-jobs",
+        publishedCount: postResult.count,
+        publishedIds: postResult.publishedIds,
+        queuedCampaigns,
       }),
     );
   } catch (error) {
@@ -45,6 +54,9 @@ const workerFetch =
 
 const handler = {
   fetch: workerFetch,
+  async queue(batch: MessageBatch<NewsletterQueueMessage>) {
+    await processNewsletterQueueBatch(batch.messages.map((message) => message.body));
+  },
   scheduled(
     _controller: ScheduledController,
     _env: WorkerEnv,
