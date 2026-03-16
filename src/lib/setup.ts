@@ -44,6 +44,7 @@ export interface SetupStatus {
   isCompleted: boolean;
   isSkipped: boolean;
   progressPercent: number;
+  sitePresetKey: import("#/types/system").SitePresetKey;
   steps: SetupStepItem[];
   checklist: SetupChecklistItem[];
   nextAction: SetupNextAction | null;
@@ -76,6 +77,7 @@ export interface SetupSnapshot {
   wizardSkippedAt?: string | null;
   wizardLastStep?: SetupWizardStepKey | null;
   starterContentGeneratedAt?: string | null;
+  sitePresetKey?: import("#/types/system").SitePresetKey | null;
 }
 
 const STEP_META: Record<
@@ -282,6 +284,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
     isCompleted: Boolean(snapshot.wizardCompletedAt),
     isSkipped: Boolean(snapshot.wizardSkippedAt),
     progressPercent,
+    sitePresetKey: snapshot.sitePresetKey ?? "creator-journal",
     steps,
     checklist,
     nextAction,

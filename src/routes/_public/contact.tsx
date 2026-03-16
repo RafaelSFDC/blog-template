@@ -16,11 +16,23 @@ import { buildPublicSeo } from "#/lib/seo";
 import { usePostHog } from "@posthog/react";
 import { captureClientException } from "#/lib/sentry-client";
 import { submitPublicContactForm } from "#/server/public/contact";
+import { getOptionalPublicPageBySlug } from "#/server/public/content";
+import { PageContent } from "#/components/cms/PageContent";
 
 export const Route = createFileRoute("/_public/contact")({
-  loader: () => getSeoSiteData(),
+  loader: async () => {
+    const [site, cmsPage] = await Promise.all([
+      getSeoSiteData(),
+      getOptionalPublicPageBySlug({ data: "contact" }),
+    ]);
+
+    return {
+      site,
+      cmsPage,
+    };
+  },
   head: ({ loaderData }) => {
-    const site = loaderData;
+    const site = loaderData?.site;
     if (!site) {
       return {};
     }
@@ -38,6 +50,7 @@ export const Route = createFileRoute("/_public/contact")({
 });
 
 function ContactPage() {
+  const { cmsPage } = Route.useLoaderData();
   const [submitted, setSubmitted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
@@ -108,15 +121,25 @@ function ContactPage() {
   }
 
   return (
-    <main className="page-wrap pb-20 pt-10">
-      <div className="flex flex-col gap-12">
-        <SiteHeader
-          badge="Support & Feedback"
-          title="Get in Touch"
-          description="Have a question, feedback, or just want to say hi? Fill out the form and our team will get back to you as soon as possible."
+    <>
+      {cmsPage?.page ? (
+        <PageContent
+          title={cmsPage.page.title}
+          description={cmsPage.page.excerpt}
+          content={cmsPage.page.content}
         />
+      ) : (
+        <main className="page-wrap pb-8 pt-10">
+          <SiteHeader
+            badge="Support & Feedback"
+            title="Get in Touch"
+            description="Have a question, feedback, or just want to say hi? Fill out the form and our team will get back to you as soon as possible."
+          />
+        </main>
+      )}
 
-        <section className="grid gap-12 lg:grid-cols-12">
+      <main className="page-wrap pb-20 pt-2">
+        <section className="grid gap-12 lg:grid-cols-12" id="contact-form">
           <div className="lg:col-span-5 flex flex-col justify-center">
             <div className="bg-card border shadow-sm rounded-md p-8 sm:p-10 transition-transform hover:-translate-y-1">
               <h2 className="text-3xl font-black text-foreground mb-8  tracking-tight">
@@ -295,7 +318,7 @@ function ContactPage() {
             </form>
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

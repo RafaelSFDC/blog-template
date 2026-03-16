@@ -23,11 +23,25 @@ export interface GlobalSiteData {
   defaultMetaDescription: string;
   defaultOgImage: string;
   twitterHandle: string;
+  sitePresetKey: SitePresetKey;
   robotsIndexingEnabled: boolean;
   socialLinks: Array<{ platform: string; url: string }>;
   primaryMenu: MenuItemView[];
   footerMenu: MenuItemView[];
 }
+
+export type SitePresetKey =
+  | "creator-journal"
+  | "magazine-newsletter"
+  | "premium-publication";
+
+export type LaunchTemplateKey =
+  | "home"
+  | "about"
+  | "pricing"
+  | "contact"
+  | "newsletterLanding"
+  | "membersOnlyArchive";
 
 export type RedirectFormValues = {
   id?: number;
@@ -103,6 +117,7 @@ export interface SetupStatus {
   isCompleted: boolean;
   isSkipped: boolean;
   progressPercent: number;
+  sitePresetKey: SitePresetKey;
   steps: SetupStepItem[];
   checklist: SetupChecklistItem[];
   nextAction: SetupNextAction | null;

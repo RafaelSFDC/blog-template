@@ -33,8 +33,9 @@ describe("puck page helpers", () => {
     });
 
     expect(data.content[0]).toMatchObject({
-      type: "Hero",
+      type: "LaunchHero",
       props: {
+        badge: "New page",
         title: "About us",
         description: "Meet the team",
       },

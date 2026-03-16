@@ -19,6 +19,7 @@ import { Progress } from "#/components/ui/progress";
 import { toast } from "sonner";
 import {
   applyLaunchDefaults,
+  getLaunchTemplateCatalog,
   getSetupStatus,
   saveSetupStep,
   skipSetup,
@@ -38,17 +39,19 @@ export const Route = createFileRoute("/dashboard/setup")({
       getDashboardSettings(),
       getSetupStatus(),
     ]);
+    const templateCatalog = await getLaunchTemplateCatalog();
 
     return {
       settings,
       status,
+      templateCatalog,
     };
   },
   component: DashboardSetupPage,
 });
 
 function DashboardSetupPage() {
-  const { settings, status } = Route.useLoaderData();
+  const { settings, status, templateCatalog } = Route.useLoaderData();
   const navigate = useNavigate();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<SetupWizardStepKey>(status.lastStep);
@@ -76,6 +79,7 @@ function DashboardSetupPage() {
     newsletterSenderEmail: settings.newsletterSenderEmail,
     doubleOptInEnabled: settings.doubleOptInEnabled,
   });
+  const [selectedPresetKey, setSelectedPresetKey] = useState(status.sitePresetKey);
 
   const stepIndex = getStepIndex(currentStep);
   const currentStepMeta = useMemo(
@@ -148,6 +152,7 @@ function DashboardSetupPage() {
         await saveSetupStep({
           data: {
             step: "content",
+            sitePresetKey: selectedPresetKey,
             generateStarterContent: true,
           },
         });
@@ -174,6 +179,7 @@ function DashboardSetupPage() {
       await saveSetupStep({
         data: {
           step: "content",
+          sitePresetKey: selectedPresetKey,
           generateStarterContent: false,
         },
       });
@@ -445,6 +451,42 @@ function DashboardSetupPage() {
 
             {currentStep === "content" ? (
               <div className="grid gap-6 lg:grid-cols-2">
+                <div className="lg:col-span-2 space-y-4">
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-[0.18em] text-primary">
+                      Site preset
+                    </p>
+                    <h3 className="mt-2 text-xl font-black text-foreground">
+                      Escolha a direcao visual do launch
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      O preset aplica tema sugerido, copy base, menus e templates de pagina
+                      sem sobrescrever o que ja existir.
+                    </p>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {templateCatalog.presets.map((preset) => (
+                      <button
+                        key={preset.key}
+                        type="button"
+                        onClick={() => setSelectedPresetKey(preset.key)}
+                        className={`rounded-xl border p-5 text-left transition-colors ${
+                          selectedPresetKey === preset.key
+                            ? "border-primary bg-primary/5"
+                            : "border-border/50 bg-background hover:border-primary/20"
+                        }`}
+                      >
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                          {preset.label}
+                        </p>
+                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                          {preset.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="rounded-xl border border-border/50 bg-background p-5">
                   <p className="text-sm font-black uppercase tracking-[0.18em] text-primary">
                     Starter kit
@@ -453,8 +495,9 @@ function DashboardSetupPage() {
                     Gerar drafts iniciais
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    Cria drafts idempotentes para Home, About, Pricing, Contact e
-                    um welcome post. Nada sera publicado automaticamente.
+                    Cria drafts idempotentes para Home, About, Pricing, Contact,
+                    Newsletter landing, Members-only archive e um welcome post.
+                    Nada sera publicado automaticamente.
                   </p>
                   <Button
                     type="button"

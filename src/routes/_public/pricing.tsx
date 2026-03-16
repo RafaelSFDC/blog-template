@@ -4,11 +4,23 @@ import { Check, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
+import { PageContent } from "#/components/cms/PageContent";
 import { captureClientException } from "#/lib/sentry-client";
+import { getOptionalPublicPageBySlug } from "#/server/public/content";
 import { getPricingPageData } from "#/server/public/site";
 
 export const Route = createFileRoute("/_public/pricing")({
-  loader: () => getPricingPageData(),
+  loader: async () => {
+    const [pricingData, cmsPage] = await Promise.all([
+      getPricingPageData(),
+      getOptionalPublicPageBySlug({ data: "pricing" }),
+    ]);
+
+    return {
+      ...pricingData,
+      cmsPage,
+    };
+  },
   component: PricingPage,
 });
 
@@ -24,7 +36,7 @@ function formatMoney(amount?: number | null, currency = "usd") {
 }
 
 function PricingPage() {
-  const { plans, isAuthenticated } = Route.useLoaderData();
+  const { plans, isAuthenticated, cmsPage } = Route.useLoaderData();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const posthog = usePostHog();
 
@@ -73,22 +85,32 @@ function PricingPage() {
   }
 
   return (
-    <main className="page-wrap pb-20 pt-10">
-      <section className="rounded-md border bg-card p-8 shadow-sm sm:p-12">
-        <div className="mb-4 flex items-center gap-2 text-primary">
-          <CreditCard size={20} strokeWidth={3} />
-          <p className="mb-0 font-black text-primary/80">Memberships</p>
-        </div>
-        <h1 className="display-title text-5xl text-foreground sm:text-7xl">
-          Premium Access
-        </h1>
-        <p className="mt-4 max-w-3xl text-lg font-medium leading-relaxed text-muted-foreground">
-          Unlock every premium post and premium page with one site-wide membership.
-          Choose the cadence that fits your readers best.
-        </p>
-      </section>
+    <>
+      {cmsPage?.page ? (
+        <PageContent
+          title={cmsPage.page.title}
+          description={cmsPage.page.excerpt}
+          content={cmsPage.page.content}
+        />
+      ) : (
+        <main className="page-wrap pb-8 pt-10">
+          <section className="rounded-md border bg-card p-8 shadow-sm sm:p-12">
+            <div className="mb-4 flex items-center gap-2 text-primary">
+              <CreditCard size={20} strokeWidth={3} />
+              <p className="mb-0 font-black text-primary/80">Memberships</p>
+            </div>
+            <h1 className="display-title text-5xl text-foreground sm:text-7xl">
+              Premium Access
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg font-medium leading-relaxed text-muted-foreground">
+              Unlock every premium post and premium page with one site-wide membership.
+              Choose the cadence that fits your readers best.
+            </p>
+          </section>
+        </main>
+      )}
 
-      <section className="mt-10 grid gap-8 lg:grid-cols-2">
+      <section className="page-wrap mt-2 grid gap-8 pb-20 lg:grid-cols-2" id="pricing-plans">
         {plans.map((plan) => (
           <article
             key={plan.slug}
@@ -153,6 +175,6 @@ function PricingPage() {
           </article>
         ))}
       </section>
-    </main>
+    </>
   );
 }

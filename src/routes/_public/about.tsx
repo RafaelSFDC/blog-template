@@ -6,11 +6,23 @@ import { Button } from "#/components/ui/button";
 import { IconBox } from "#/components/IconBox";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
+import { PageContent } from "#/components/cms/PageContent";
+import { getOptionalPublicPageBySlug } from "#/server/public/content";
 
 export const Route = createFileRoute("/_public/about")({
-  loader: () => getSeoSiteData(),
+  loader: async () => {
+    const [site, cmsPage] = await Promise.all([
+      getSeoSiteData(),
+      getOptionalPublicPageBySlug({ data: "about" }),
+    ]);
+
+    return {
+      site,
+      cmsPage,
+    };
+  },
   head: ({ loaderData }) => {
-    const site = loaderData;
+    const site = loaderData?.site;
     if (!site) {
       return {};
     }
@@ -28,6 +40,17 @@ export const Route = createFileRoute("/_public/about")({
 });
 
 function About() {
+  const { cmsPage } = Route.useLoaderData();
+  if (cmsPage?.page) {
+    return (
+      <PageContent
+        title={cmsPage.page.title}
+        description={cmsPage.page.excerpt}
+        content={cmsPage.page.content}
+      />
+    );
+  }
+
   const values = [
     {
       icon: Zap,

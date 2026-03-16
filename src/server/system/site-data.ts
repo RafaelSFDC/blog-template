@@ -3,6 +3,7 @@ import { appSettings, menuItems, menus } from "#/db/schema";
 import { db } from "#/db/index";
 import { MENU_KEYS } from "#/schemas/system";
 import type { GlobalSiteData, MenuItemView } from "#/types/system";
+import { resolveSitePresetKey } from "#/lib/site-presets";
 
 export const DEFAULT_SITE_DATA: GlobalSiteData = {
   blogName: "Lumina",
@@ -21,6 +22,7 @@ export const DEFAULT_SITE_DATA: GlobalSiteData = {
   defaultMetaDescription: "",
   defaultOgImage: "",
   twitterHandle: "",
+  sitePresetKey: "creator-journal",
   robotsIndexingEnabled: true,
   socialLinks: [],
   primaryMenu: [],
@@ -136,6 +138,7 @@ export async function getGlobalSiteData(): Promise<GlobalSiteData> {
       settingsObj["defaultMetaDescription"] || DEFAULT_SITE_DATA.defaultMetaDescription,
     defaultOgImage: settingsObj["defaultOgImage"] || DEFAULT_SITE_DATA.defaultOgImage,
     twitterHandle: settingsObj["twitterHandle"] || DEFAULT_SITE_DATA.twitterHandle,
+    sitePresetKey: resolveSitePresetKey(settingsObj["sitePresetKey"]),
     robotsIndexingEnabled: normalizeBooleanSetting(
       settingsObj["robotsIndexingEnabled"],
       DEFAULT_SITE_DATA.robotsIndexingEnabled,

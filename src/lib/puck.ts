@@ -18,12 +18,15 @@ export function createDefaultPageBuilderData(input?: {
     root: {},
     content: [
       {
-        type: "Hero",
+        type: "LaunchHero",
         props: {
+          badge: "New page",
           title,
           description,
-          buttonText: "",
-          buttonHref: "",
+          primaryCtaText: "",
+          primaryCtaHref: "",
+          secondaryCtaText: "",
+          secondaryCtaHref: "",
         },
       },
     ],

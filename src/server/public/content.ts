@@ -19,63 +19,78 @@ import { getSecurityRequestMetadata } from "#/server/security/request";
 import { verifyTurnstileToken } from "#/server/integrations/turnstile";
 import { logSecurityEvent } from "#/server/security/events";
 
+async function loadPublicPageBySlug(slug: string) {
+  const request = getRequest();
+  const session = request
+    ? await auth.api.getSession({
+        headers: request.headers,
+      })
+    : null;
+
+  setResponseHeader(
+    "Cache-Control",
+    resolvePublicCacheControl({
+      hasSession: Boolean(session),
+      ttlSeconds: 300,
+      staleSeconds: 600,
+    }),
+  );
+
+  const page = await getPublishedPageBySlug(slug);
+  if (!page) {
+    return null;
+  }
+
+  const entitlement = await getUserEntitlement({
+    userId: session?.user?.id,
+    role: session?.user?.role,
+    isPremium: Boolean(page.isPremium),
+  });
+  const plans = await getPricingPlansData();
+  const defaultPlan =
+    plans.find((plan) => plan.isDefault && plan.isActive) ??
+    plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
+    plans.find((plan) => plan.slug === "monthly" && plan.isActive);
+
+  return {
+    page: {
+      ...page,
+      content:
+        entitlement.access === "full"
+          ? page.content
+          : resolveTeaserContent({
+              content: page.content,
+              excerpt: page.excerpt,
+              teaserMode: page.teaserMode ?? "excerpt",
+            }),
+    },
+    hasAccess: entitlement.access === "full",
+    defaultPlanSlug: defaultPlan?.slug === "monthly" ? "monthly" : "annual",
+  };
+}
+
+export const getOptionalPublicPageBySlug = createServerFn({ method: "GET" })
+  .inputValidator((slug: string) => slug)
+  .handler(async ({ data }) => {
+    return loadPublicPageBySlug(data);
+  });
+
 export const getPublicPageBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
   .handler(async ({ data }) => {
-    const request = getRequest();
-    const session = request
-      ? await auth.api.getSession({
-          headers: request.headers,
-        })
-      : null;
-
-    setResponseHeader(
-      "Cache-Control",
-      resolvePublicCacheControl({
-        hasSession: Boolean(session),
-        ttlSeconds: 300,
-        staleSeconds: 600,
-      }),
-    );
-
-    const page = await getPublishedPageBySlug(data);
-    if (!page) {
-      const redirectMatch = await getRedirectByPath(`/${data}`);
-      if (redirectMatch) {
-        throw redirect({
-          href: redirectMatch.destinationPath,
-          statusCode: redirectMatch.statusCode,
-        });
-      }
-      throw notFound();
+    const payload = await loadPublicPageBySlug(data);
+    if (payload) {
+      return payload;
     }
 
-    const entitlement = await getUserEntitlement({
-      userId: session?.user?.id,
-      role: session?.user?.role,
-      isPremium: Boolean(page.isPremium),
-    });
-    const plans = await getPricingPlansData();
-    const defaultPlan =
-      plans.find((plan) => plan.isDefault && plan.isActive) ??
-      plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-      plans.find((plan) => plan.slug === "monthly" && plan.isActive);
-
-    return {
-      page: {
-        ...page,
-        content:
-          entitlement.access === "full"
-            ? page.content
-            : resolveTeaserContent({
-                content: page.content,
-                excerpt: page.excerpt,
-                teaserMode: page.teaserMode ?? "excerpt",
-              }),
-      },
-      hasAccess: entitlement.access === "full",
-      defaultPlanSlug: defaultPlan?.slug === "monthly" ? "monthly" : "annual",
-    };
+    const redirectMatch = await getRedirectByPath(`/${data}`);
+    if (redirectMatch) {
+      throw redirect({
+        href: redirectMatch.destinationPath,
+        statusCode: redirectMatch.statusCode,
+      });
+    }
+    throw notFound();
   });
 
 export const getPublicPostBySlug = createServerFn({ method: "GET" })

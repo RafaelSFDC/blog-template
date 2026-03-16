@@ -8,6 +8,7 @@ import { Button } from "#/components/ui/button";
 import { Newsletter } from "#/components/blog/newsletter";
 import { PostCard, type Post } from "#/components/blog/PostCard";
 import { PageContent } from "#/components/cms/PageContent";
+import { buildHomepageFallbackContent } from "#/lib/site-presets";
 import {
   buildOrganizationJsonLd,
   buildPublicSeo,
@@ -82,7 +83,7 @@ export const Route = createFileRoute("/_public/")({
 });
 
 function Home() {
-  const { homepage, latestPosts } = Route.useLoaderData() as {
+  const { homepage, latestPosts, site } = Route.useLoaderData() as {
     homepage:
       | {
           title: string;
@@ -94,9 +95,19 @@ function Home() {
         }
       | null;
     latestPosts: Post[];
+    site: {
+      blogName: string;
+      blogDescription: string;
+      sitePresetKey: "creator-journal" | "magazine-newsletter" | "premium-publication";
+    };
   };
   const [subscribing, setSubscribing] = useState(false);
   const posthog = usePostHog();
+  const fallback = buildHomepageFallbackContent({
+    presetKey: site.sitePresetKey,
+    blogName: site.blogName,
+    blogDescription: site.blogDescription,
+  });
 
   async function handleSubscribe() {
     if (!homepage) return;
@@ -156,30 +167,42 @@ function Home() {
     <main className="page-wrap pb-16 pt-6">
       <section className="editorial-grid rise-in gap-8">
         <div className="relative col-span-12 overflow-hidden rounded-md border bg-card p-8 shadow-sm sm:p-10 lg:p-12">
-          <Badge variant="default">Issue #01 / Spring 2026</Badge>
+          <Badge variant="default">{fallback.badge}</Badge>
           <h1 className="display-title mb-6 max-w-4xl text-4xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-5xl lg:text-7xl">
-            Stories With A <br />
-            <span className="text-primary">Visual Signature.</span>
+            {fallback.title} <br />
+            <span className="text-primary">{fallback.description.split(".")[0]}</span>
           </h1>
           <p className="text-lg font-black text-muted-foreground md:text-xl">
-            A bold editorial system with sharp edges, fast rendering, and a
-            layout that actually has a soul.
+            {fallback.description}
           </p>
 
-          <Newsletter variant="compact" placeholder="Join the newsletter..." className="mt-12" />
+          <Newsletter
+            variant="compact"
+            title={fallback.newsletterTitle}
+            description={fallback.newsletterDescription}
+            placeholder="Join the newsletter..."
+            className="mt-12"
+          />
 
           <div className="mt-8 flex flex-wrap gap-4 border-t border-border pt-8">
             <Link
-              to="/blog"
-              search={{ q: undefined, page: 1 }}
+              to={fallback.primaryCtaHref as "/blog" | "/pricing"}
+              search={fallback.primaryCtaHref === "/blog" ? { q: undefined, page: 1 } : undefined}
               className="group flex items-center gap-2 font-medium text-foreground transition-colors hover:text-primary"
             >
-              Learn More About Our Vision
+              {fallback.primaryCtaText}
               <ArrowRight
                 size={16}
                 strokeWidth={3}
                 className="transition-transform group-hover:translate-x-1"
               />
+            </Link>
+            <Link
+              to={fallback.secondaryCtaHref as "/blog" | "/pricing"}
+              search={fallback.secondaryCtaHref === "/blog" ? { q: undefined, page: 1 } : undefined}
+              className="group flex items-center gap-2 font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              {fallback.secondaryCtaText}
             </Link>
           </div>
         </div>

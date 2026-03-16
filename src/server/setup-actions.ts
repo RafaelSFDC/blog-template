@@ -16,9 +16,16 @@ import {
   SETUP_WIZARD_STEPS,
   type SetupSnapshot,
 } from "#/lib/setup";
+import {
+  buildTemplatePageValues,
+  getLaunchTemplateOptions,
+  getPresetMenus,
+  getPresetThemeVariant,
+  getSitePresets,
+  resolveSitePresetKey,
+} from "#/lib/site-presets";
 import { normalizeSettingsFormValues } from "#/lib/settings-form";
 import {
-  pageServerSchema,
   postServerSchema,
 } from "#/schemas/editorial";
 import { menuUpdateSchema, settingsSchema } from "#/schemas/system";
@@ -27,6 +34,7 @@ import { logActivity } from "#/server/activity-log";
 import { createPageRevision, createPostRevision } from "#/server/editorial-workflows";
 import { getPostHogClient } from "#/server/posthog";
 import { ensureCoreMenus } from "#/server/system/site-data";
+import type { SitePresetKey } from "#/types/system";
 
 const SETUP_SETTINGS_KEYS = [
   "blogName",
@@ -39,6 +47,7 @@ const SETUP_SETTINGS_KEYS = [
   "defaultMetaDescription",
   "defaultOgImage",
   "twitterHandle",
+  "sitePresetKey",
   "stripeMonthlyPriceId",
   "stripeAnnualPriceId",
   "newsletterSenderEmail",
@@ -92,6 +101,11 @@ const newsletterStepSchema = settingsSchema.pick({
 
 const contentStepSchema = z.object({
   step: z.literal("content"),
+  sitePresetKey: z.enum([
+    "creator-journal",
+    "magazine-newsletter",
+    "premium-publication",
+  ]),
   generateStarterContent: z.boolean(),
 });
 
@@ -102,107 +116,6 @@ const saveSetupStepSchema = z.discriminatedUnion("step", [
   newsletterStepSchema,
   contentStepSchema,
 ]);
-
-const STARTER_PAGE_TEMPLATES: Array<z.input<typeof pageServerSchema>> = [
-  {
-    title: "Home",
-    slug: "home",
-    excerpt: "A clear, polished first impression for your publication.",
-    content: [
-      "# Welcome to your publication",
-      "",
-      "Use this homepage draft to introduce your point of view, highlight recent stories, and point readers toward subscription.",
-      "",
-      "## Start with a strong promise",
-      "",
-      "Explain what readers get here, why your publication matters, and what makes it worth returning to.",
-    ].join("\n"),
-    metaTitle: "Home",
-    metaDescription: "Start here and shape the public face of your publication.",
-    ogImage: undefined,
-    seoNoIndex: false,
-    isPremium: false,
-    teaserMode: "excerpt",
-    status: "draft",
-    isHome: true,
-    useVisualBuilder: false,
-    publishedAt: undefined,
-  },
-  {
-    title: "About",
-    slug: "about",
-    excerpt: "Tell readers who is behind the publication and why it exists.",
-    content: [
-      "# About this publication",
-      "",
-      "Share the story behind the publication, your editorial lens, and the audience you want to serve.",
-      "",
-      "## Why readers subscribe",
-      "",
-      "List the kinds of analysis, essays, reporting, or commentary they can expect.",
-    ].join("\n"),
-    metaTitle: "About",
-    metaDescription: "Meet the team and editorial mission behind this publication.",
-    ogImage: undefined,
-    seoNoIndex: false,
-    isPremium: false,
-    teaserMode: "excerpt",
-    status: "draft",
-    isHome: false,
-    useVisualBuilder: false,
-    publishedAt: undefined,
-  },
-  {
-    title: "Pricing",
-    slug: "pricing",
-    excerpt: "Outline the value of becoming a paying member.",
-    content: [
-      "# Membership options",
-      "",
-      "Use this page to explain what readers unlock with a paid plan and why your work is worth supporting.",
-      "",
-      "## What members get",
-      "",
-      "- Premium posts and archives",
-      "- Direct support for your editorial work",
-      "- A closer relationship with your best readers",
-    ].join("\n"),
-    metaTitle: "Pricing",
-    metaDescription: "Compare plans and explain the value behind your membership.",
-    ogImage: undefined,
-    seoNoIndex: false,
-    isPremium: false,
-    teaserMode: "excerpt",
-    status: "draft",
-    isHome: false,
-    useVisualBuilder: false,
-    publishedAt: undefined,
-  },
-  {
-    title: "Contact",
-    slug: "contact",
-    excerpt: "Give readers and partners a clear path to reach you.",
-    content: [
-      "# Contact",
-      "",
-      "Invite readers, collaborators, and sponsors to get in touch.",
-      "",
-      "## How to reach us",
-      "",
-      "Add your preferred email, response expectations, and any partnership context here.",
-    ].join("\n"),
-    metaTitle: "Contact",
-    metaDescription: "Get in touch with the publication team.",
-    ogImage: undefined,
-    seoNoIndex: false,
-    isPremium: false,
-    teaserMode: "excerpt",
-    status: "draft",
-    isHome: false,
-    useVisualBuilder: false,
-    publishedAt: undefined,
-  },
-];
 
 const STARTER_POST_TEMPLATE: z.input<typeof postServerSchema> = {
   title: "Welcome to your publication",
@@ -236,20 +149,6 @@ const STARTER_POST_TEMPLATE: z.input<typeof postServerSchema> = {
   categoryIds: [],
   tagIds: [],
 };
-
-const DEFAULT_PRIMARY_MENU = menuUpdateSchema.shape.items.element.array().parse([
-  { label: "Home", href: "/", kind: "internal", sortOrder: 0 },
-  { label: "About", href: "/about", kind: "internal", sortOrder: 1 },
-  { label: "Pricing", href: "/pricing", kind: "internal", sortOrder: 2 },
-  { label: "Blog", href: "/blog", kind: "internal", sortOrder: 3 },
-  { label: "Contact", href: "/contact", kind: "internal", sortOrder: 4 },
-]);
-
-const DEFAULT_FOOTER_MENU = menuUpdateSchema.shape.items.element.array().parse([
-  { label: "About", href: "/about", kind: "internal", sortOrder: 0 },
-  { label: "Pricing", href: "/pricing", kind: "internal", sortOrder: 1 },
-  { label: "Contact", href: "/contact", kind: "internal", sortOrder: 2 },
-]);
 
 type SettingsMap = Record<string, string>;
 
@@ -372,6 +271,7 @@ async function loadSetupSnapshot(): Promise<SetupSnapshot> {
       ? (settings.setupWizardLastStep as SetupSnapshot["wizardLastStep"])
       : null,
     starterContentGeneratedAt: settings.setupStarterContentGeneratedAt ?? null,
+    sitePresetKey: resolveSitePresetKey(settings.sitePresetKey),
   };
 }
 
@@ -406,8 +306,9 @@ async function syncMembershipPlanPriceIds(input: {
   }
 }
 
-async function ensureDefaultMenuItems() {
+async function ensureDefaultMenuItems(presetKey: SitePresetKey) {
   await ensureCoreMenus();
+  const presetMenus = getPresetMenus(presetKey);
 
   const menuRows = await db.select().from(menus);
 
@@ -421,7 +322,10 @@ async function ensureDefaultMenuItems() {
       continue;
     }
 
-    const items = menu.key === "primary" ? DEFAULT_PRIMARY_MENU : DEFAULT_FOOTER_MENU;
+    const items =
+      menu.key === "primary"
+        ? menuUpdateSchema.shape.items.parse(presetMenus.primaryMenu)
+        : menuUpdateSchema.shape.items.parse(presetMenus.footerMenu);
     await db.insert(menuItems).values(
       items.map((item, index) => ({
         menuId: menu.id,
@@ -438,20 +342,28 @@ async function ensureDefaultMenuItems() {
 
 async function applyLaunchDefaultsInternal() {
   const settings = await getSettingsMap();
+  const presetKey = resolveSitePresetKey(settings.sitePresetKey);
   const effectiveBlogName = settings.blogName?.trim() || "Lumina";
   const effectiveDescription =
     settings.blogDescription?.trim() || "A premium publication for creators and independent editors.";
 
-  await ensureDefaultMenuItems();
+  await ensureDefaultMenuItems(presetKey);
+  await upsertSettingIfMissing("sitePresetKey", presetKey);
   await upsertSettingIfMissing("fontFamily", "Inter");
-  await upsertSettingIfMissing("themeVariant", "default");
+  await upsertSettingIfMissing("themeVariant", getPresetThemeVariant(presetKey));
   await upsertSettingIfMissing("blogDescription", effectiveDescription);
   await upsertSettingIfMissing("defaultMetaTitle", effectiveBlogName);
   await upsertSettingIfMissing("defaultMetaDescription", effectiveDescription);
   await upsertSettingIfMissing("robotsIndexingEnabled", "true");
 }
 
-async function createStarterPages(actorUserId: string) {
+async function createStarterPages(input: {
+  actorUserId: string;
+  presetKey: SitePresetKey;
+  blogName: string;
+  blogDescription: string;
+}) {
+  const templateDefinitions = getLaunchTemplateOptions();
   const existingPages = await db
     .select({
       id: pages.id,
@@ -459,7 +371,7 @@ async function createStarterPages(actorUserId: string) {
       isHome: pages.isHome,
     })
     .from(pages)
-    .where(inArray(pages.slug, STARTER_PAGE_TEMPLATES.map((page) => page.slug || "")));
+    .where(inArray(pages.slug, templateDefinitions.map((page) => page.slug)));
 
   const existingHome = await db.query.pages.findFirst({
     where: eq(pages.isHome, true),
@@ -467,26 +379,33 @@ async function createStarterPages(actorUserId: string) {
 
   const createdSlugs: string[] = [];
 
-  for (const template of STARTER_PAGE_TEMPLATES) {
+  for (const template of templateDefinitions) {
     if (existingPages.some((page) => page.slug === template.slug)) {
       continue;
     }
 
+    const values = buildTemplatePageValues({
+      presetKey: input.presetKey,
+      templateKey: template.key,
+      blogName: input.blogName,
+      blogDescription: input.blogDescription,
+    });
+
     const [created] = await db
       .insert(pages)
       .values({
-        slug: template.slug!,
-        title: template.title,
-        excerpt: template.excerpt,
-        content: template.content,
-        metaTitle: template.metaTitle,
-        metaDescription: template.metaDescription,
-        ogImage: template.ogImage ?? null,
-        seoNoIndex: template.seoNoIndex,
-        isPremium: template.isPremium,
-        teaserMode: template.teaserMode,
-        status: template.status,
-        isHome: template.isHome && !existingHome,
+        slug: values.slug,
+        title: values.title,
+        excerpt: values.excerpt || null,
+        content: values.content,
+        metaTitle: values.metaTitle || null,
+        metaDescription: values.metaDescription || null,
+        ogImage: values.ogImage || null,
+        seoNoIndex: values.seoNoIndex,
+        isPremium: values.isPremium,
+        teaserMode: values.teaserMode,
+        status: values.status,
+        isHome: values.isHome && !existingHome,
         publishedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -495,12 +414,12 @@ async function createStarterPages(actorUserId: string) {
 
     await createPageRevision({
       pageId: created.id,
-      createdBy: actorUserId,
+      createdBy: input.actorUserId,
       source: "manual",
     });
 
     await logActivity({
-      actorUserId,
+      actorUserId: input.actorUserId,
       entityType: "page",
       entityId: created.id,
       action: "create",
@@ -581,8 +500,19 @@ async function createStarterPost(actorUserId: string) {
 async function generateStarterContentInternal(session: {
   user: { id: string; email: string };
 }) {
+  const settings = await getSettingsMap();
+  const presetKey = resolveSitePresetKey(settings.sitePresetKey);
+  const blogName = settings.blogName?.trim() || "Lumina";
+  const blogDescription =
+    settings.blogDescription?.trim() || "A launch-ready publication.";
+
   const [createdPageSlugs, createdWelcomePost] = await Promise.all([
-    createStarterPages(session.user.id),
+    createStarterPages({
+      actorUserId: session.user.id,
+      presetKey,
+      blogName,
+      blogDescription,
+    }),
     createStarterPost(session.user.id),
   ]);
 
@@ -644,6 +574,18 @@ export async function getSetupStatusSummaryForRole(role?: string | null) {
 export const getSetupStatus = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   return buildSetupStatusForAdmin();
+});
+
+export const getLaunchTemplateCatalog = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdminSession();
+  const settings = await getSettingsMap();
+  return {
+    currentPresetKey: resolveSitePresetKey(settings.sitePresetKey),
+    blogName: settings.blogName?.trim() || "Lumina",
+    blogDescription: settings.blogDescription?.trim() || "A launch-ready publication.",
+    presets: getSitePresets(),
+    templates: getLaunchTemplateOptions(),
+  };
 });
 
 export const applyLaunchDefaults = createServerFn({ method: "POST" }).handler(async () => {
@@ -741,6 +683,10 @@ export const saveSetupStep = createServerFn({ method: "POST" })
     }
 
     if (data.step === "content") {
+      const presetKey = resolveSitePresetKey(data.sitePresetKey);
+      await upsertSetting("sitePresetKey", presetKey);
+      await upsertSetting("themeVariant", getPresetThemeVariant(presetKey));
+
       if (data.generateStarterContent) {
         await generateStarterContentInternal(session);
       }
@@ -753,6 +699,7 @@ export const saveSetupStep = createServerFn({ method: "POST" })
         event: "project_setup_completed",
         properties: {
           actor_user_id: session.user.id,
+          site_preset_key: presetKey,
           starter_content_generated: data.generateStarterContent,
         },
       });
@@ -770,6 +717,8 @@ export const saveSetupStep = createServerFn({ method: "POST" })
       properties: {
         actor_user_id: session.user.id,
         step: data.step,
+        site_preset_key:
+          data.step === "content" ? resolveSitePresetKey(data.sitePresetKey) : undefined,
       },
     });
 
