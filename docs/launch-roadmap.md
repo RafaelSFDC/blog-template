@@ -1,751 +1,466 @@
-# Roadmap de Lancamento e Crescimento do Lumina
+# Roadmap Canonico de Launch v1 do Lumina
 
 ## Objetivo
 
-Transformar o Lumina de "produto tecnicamente pronto" em "produto pronto para entrar no mercado, ser adotado, converter assinantes e aprender com uso real".
+Este documento define a sequencia oficial, os gates de passagem e os criterios de pronto para o launch controlado v1 do Lumina.
 
-Este roadmap parte de um ponto importante:
+Ele existe para uso interno do time e deve responder com clareza:
 
-- o core editorial ja foi construido
-- o sistema multiusuario ja existe
-- memberships, newsletter, SEO, seguranca e readiness operacional ja estao implementados
+- o que e obrigatorio para o launch controlado v1
+- em que ordem as frentes devem acontecer
+- como saber se uma fase realmente terminou
+- o que deve esperar para depois do launch
 
-Entao a prioridade daqui para frente nao e mais fundacao. A prioridade passa a ser:
+Este roadmap e a fonte canonica de prioridade e sequencia do ciclo de lancamento. Ele nao substitui os docs operacionais; ele aponta para eles.
 
-- reduzir friccao de setup
-- acelerar primeira publicacao
-- melhorar conversao
-- profissionalizar onboarding e operacao comercial
-- criar visibilidade real de uso, conversao e saude do produto
-- preparar o Lumina para ser usado por clientes reais
+## Publico-alvo
 
-## Tese do Proximo Ciclo
+Este documento foi escrito para:
 
-O Lumina ja tem profundidade suficiente para vender valor. O maior risco agora nao e "faltar feature tecnica", e sim:
+- fundadores e product owners definirem prioridade
+- engenharia alinhar escopo e dependencias
+- operacao e go-to-market saberem o que precisa existir antes de trazer beta users e primeiros clientes pagantes
 
-- setup inicial dificil
-- onboarding lento
-- first value demorando demais
-- proposta comercial pouco clara
-- baixa instrumentacao de conversao
-- baixa previsibilidade de lancamento
+## O que significa "launch controlado v1"
 
-Ou seja: o proximo roadmap deve ser de produto go-to-market, nao de fundacao tecnica.
+Para o Lumina, "launch controlado v1" significa:
 
-## O Que Este Roadmap Quer Entregar
+- beta estruturado com onboarding repetivel
+- capacidade de levar um admin novo a um site configurado sem ajuda de engenharia
+- superfices comerciais claras o bastante para captar interesse e iniciar conversa comercial
+- capacidade de medir ativacao, conversao e friccao principal
+- readiness minima para operar os primeiros clientes pagantes com confianca razoavel
 
-Ao final deste roadmap, o Lumina deve estar pronto para:
+Nao significa concluir toda a visao do produto. Migracao ampla, health score sofisticado, expansao e backlog pos-launch continuam importantes, mas nao bloqueiam este ciclo.
 
-- ser ativado rapidamente por um admin nao tecnico
-- publicar um blog real em pouco tempo
-- converter visitante em assinante e subscriber com menor friccao
-- medir ativacao, engajamento e receita
-- sustentar rollout controlado com onboarding e suporte
-- servir como base para venda, beta fechado ou soft launch publico
+## Status oficiais deste roadmap
 
-## Definicao de "Lancamento Pronto"
+Todo item, fase ou iniciativa referenciado a partir deste documento deve ser classificado com um destes status:
 
-Podemos considerar o Lumina pronto para lancamento controlado quando cumprir estes criterios:
+- `now`: obrigatorio para o launch controlado v1 e com prioridade ativa
+- `next`: importante logo apos o launch ou assim que um gate atual fechar
+- `later`: relevante para a visao do produto, mas fora da janela de decisao do launch v1
 
-- um novo projeto consegue sair do zero para "site configurado + conteudo publicado + pricing ativo + newsletter ativa" sem depender de engenharia
-- o admin entende claramente o que precisa fazer nas primeiras sessoes
-- existem templates e dados iniciais suficientes para o produto nao parecer vazio
-- a proposta de valor publica esta clara no site e nas paginas de pricing
-- os principais funis sao mensuraveis: visita, cadastro, subscribe, checkout, upgrade, churn, newsletter
-- existe documentacao operacional de onboarding, release, suporte e triagem de incidente
-- ha uma experiencia razoavel para beta users e primeiros clientes
+Regra pratica:
 
-## Principios Deste Roadmap
+- `now` bloqueia launch se nao estiver pronto
+- `next` nao bloqueia o launch, mas orienta a fila imediata seguinte
+- `later` nao entra no escopo de decisao do ciclo atual
 
-### 1. Menos feature nova, mais ativacao
+## O que e "launch-ready"
 
-O foco deve ser remover atrito para:
+Consideramos o Lumina pronto para launch controlado v1 quando os pontos abaixo estiverem atendidos:
 
-- configurar
-- publicar
-- distribuir
-- monetizar
-- medir resultado
+- um admin novo sai do zero para um site minimamente configurado sem ajuda manual
+- um projeto novo deixa de parecer plataforma vazia logo apos o setup
+- o valor do proprio Lumina esta claro nas superfices comerciais
+- os principais pontos do funil visitante -> subscriber -> paid estao instrumentados
+- existe processo minimo para onboarding, suporte inicial, triagem e feedback de beta users
+- o time consegue executar release, smoke check e rollback com um procedimento definido
 
-### 2. Ganho comercial acima de refinamento tecnico fino
+Os pontos abaixo sao importantes, mas nao entram como bloqueadores deste launch:
 
-Se precisarmos escolher entre:
+- importadores completos de migracao
+- health score de projeto
+- expansao orientada por sinais de conta
+- backlog amplo de retencao pos-lancamento
 
-- mais uma feature poderosa de CMS
-- ou um onboarding e setup muito melhores
+## Principios de priorizacao
 
-o segundo deve ganhar neste ciclo.
+- priorizar ativacao, conversao e clareza comercial acima de novas frentes de fundacao
+- reduzir tempo ate primeiro valor como KPI principal do ciclo
+- instrumentar antes de escalar aquisicao
+- evitar backlog "bonito no papel" que nao melhora setup, conversao, operacao ou capacidade de medir
+- tratar implementado como insuficiente ate estar validado, medivel e compreensivel para o time
+- manter o escopo do launch focado em beta estruturado e primeiros clientes pagantes
 
-### 3. Tempo para valor e KPI principal
+## Gate de passagem
 
-Este roadmap deve reduzir ao maximo o tempo entre:
+"Gate de passagem" e o criterio oficial para encerrar uma fase e iniciar a proxima.
 
-- criar conta
-- configurar blog
-- publicar o primeiro conteudo
-- captar o primeiro subscriber
-- ativar o primeiro plano pago
+Uma fase so pode ser considerada concluida quando:
 
-### 4. Instrumentacao antes de escalar aquisicao
+- as entregas minimas da fase existem
+- o comportamento principal foi validado
+- os eventos relevantes foram instrumentados quando aplicavel
+- o time consegue explicar o que mudou, o que ficou de fora e o que ainda representa risco
 
-Nao vale empurrar crescimento sem saber:
+Nao consideramos uma fase pronta apenas porque o codigo foi implementado.
 
-- onde o usuario trava
-- onde a conversao quebra
-- quais features geram uso recorrente
+## Fases do launch v1
 
-### 5. Lançar pequeno, aprender rapido
+### Fase 1 - Ativacao e first-run experience
 
-O ideal e:
+**Status:** `now`
 
-- beta fechado
-- soft launch
-- ajuste fino
-- abertura maior depois
+**Objetivo**
 
-## Publico-Alvo Recomendado Para o Lancamento
+Levar um admin novo do primeiro login ate um projeto minimamente configurado com pouca duvida e pouca navegacao aleatoria.
 
-O Lumina nao deve tentar vender para todo mundo ao mesmo tempo no primeiro ciclo comercial.
+**Por que isso importa para o launch**
 
-### ICP principal recomendado
+Sem first-run forte, o produto parece mais complexo do que realmente e trava ativacao antes mesmo da avaliacao de valor.
 
-- criadores independentes com newsletter e conteudo premium
-- jornalistas, analistas e autores com publicacao propria
-- pequenas revistas digitais e publicacoes nichadas
-- blogs premium e membership-first
+**Entregas minimas que ja possuem base no produto**
 
-### ICP secundario
+- wizard inicial para admins no primeiro acesso
+- progresso persistido do setup
+- checklist de onboarding no dashboard
+- score ou status de completude do setup
+- recomendacao clara de proximo passo no dashboard
+- atalhos fortes para identidade, pricing, newsletter e primeiro conteudo
 
-- blogs pessoais profissionais
-- newsletters paid-first que tambem querem site forte
-- negocios de conteudo de nicho
+**Fechamentos ainda obrigatorios nesta fase**
 
-### Publicos que nao devem ser foco no lancamento
+- checklist e wizard refletindo o mesmo estado sem ambiguidades
+- regras de redirect e conclusao consistentes para `admin` e `superAdmin`
+- proximo passo do dashboard batendo com o bloqueio real do setup
+- fluxo principal validado de ponta a ponta sem intervencao manual
 
-- grandes redacoes
-- multisite enterprise
-- portais com governanca super complexa
-- franquias de conteudo e operacoes multi-brand
+**Dependencias**
 
-## Metas de Produto do Ciclo
+- helper central de completude
+- permissao correta para `admin` e `superAdmin`
+- base de settings e criacao de paginas ja existente no produto
 
-### Meta 1. Ativacao
+**Gate de passagem**
 
-Um admin consegue:
+- um admin novo entende o que fazer nos primeiros minutos
+- o dashboard mostra o proximo passo de forma objetiva
+- o setup refletido no produto bate com o checklist exibido
+- o fluxo principal pode ser testado de ponta a ponta sem intervencao manual
 
-- criar um projeto
-- configurar identidade basica
-- publicar home, about, pricing e primeiro post
-- ativar newsletter
-- ativar planos pagos
+**Fora de escopo nesta fase**
 
-sem ajuda de engenharia.
+- health score sofisticado
+- onboarding de equipe multiusuario avancado
+- qualquer expansao que nao reduza diretamente o tempo ate primeiro valor
 
-### Meta 2. Primeira Conversao
+### Fase 2 - Time-to-beauty e proposta inicial de valor
 
-Um site Lumina em producao consegue:
+**Status:** `now`
 
-- captar email
-- converter para assinatura paga
-- entregar experiencia premium coerente
-- medir o funil de ponta a ponta
+**Objetivo**
 
-### Meta 3. Operacao de primeiros clientes
+Fazer o projeto novo parecer um site real e publicavel logo apos o setup inicial.
 
-O time consegue:
+**Por que isso importa para o launch**
 
-- onboardar betas
-- resolver duvidas comuns
-- diagnosticar gargalos
-- acompanhar churn e ativacao
-- iterar com base em dados
+Mesmo quando o setup funciona, um site vazio ou improvisado reduz percepcao de valor e enfraquece onboarding, demos e conversao.
 
-## KPIs Recomendados
+**Entregas minimas que ja possuem base no produto**
+
+- presets globais por tipo de projeto
+- templates minimos para home, about, pricing, contact e welcome post
+- starter content e copy baseados no preset escolhido
+- menus, heroes e placeholders mais coerentes
+- rotas publicas priorizando conteudo gerenciado quando disponivel
+
+**Fechamentos ainda obrigatorios nesta fase**
+
+- presets produzindo resultado publico coerente entre dashboard, paginas criadas e homepage fallback
+- starter content seguro para reexecucao, sem duplicacao ou confusao
+- paginas essenciais saindo do setup com expectativa clara de revisao
+- projeto novo parecendo intencional mesmo antes de customizacao profunda
+
+**Dependencias**
+
+- conclusao funcional da Fase 1
+- capacidade de gerar paginas base e drafts com seguranca
+- biblioteca atual de blocos e CMS/Puck como base de template
+
+**Gate de passagem**
+
+- um projeto novo parece um site real sem customizacao extensa
+- o admin nao precisa montar as paginas centrais do zero
+- o preset escolhido produz uma direcao visual e editorial clara
+
+**Fora de escopo nesta fase**
+
+- sistema de theming profundo
+- reconstrucao ampla de editor
+- backlog de layout altamente customizavel
+
+## Bloco atual de execucao - fechamento de Fases 1-2
+
+O estado atual do produto mostra que a base principal das Fases 1 e 2 ja existe. O foco deste bloco nao e construir onboarding do zero, e sim fechar consistencia, clareza e validacao do que ja foi implementado.
+
+Hoje o produto ja possui:
+
+- wizard de setup
+- progresso persistido
+- checklist no dashboard
+- presets e starter content
+- templates base e fallback publico
+
+**Objetivo do bloco atual**
+
+Fechar os gaps restantes de ativacao e time-to-beauty para que o launch dependa de confiabilidade e clareza operacional, nao de expansao de escopo.
+
+**Prioridade imediata deste bloco**
+
+1. alinhamento entre wizard, checklist e estado real do projeto
+2. idempotencia e previsibilidade de starter content e presets
+3. clareza do proximo passo no dashboard e no first-run
+4. qualidade do resultado visual e publicavel logo apos setup
+5. validacao end-to-end sem intervencao manual
+
+**Gate do bloco atual**
+
+- um admin novo conclui setup sem ajuda manual
+- dashboard e wizard apontam para o mesmo estado e a mesma proxima acao
+- o preset escolhido resulta em home, paginas essenciais e primeiro conteudo coerentes
+- reabrir setup nao gera estado quebrado nem duplicacao indevida
+- a experiencia inicial pode ser validada em fluxo real de ponta a ponta
+
+**Regra de prioridade imediata**
+
+Qualquer item novo em `now` dentro das Fases 1 e 2 precisa melhorar de forma concreta ativacao, clareza do setup ou qualidade do site inicial. Se nao melhorar um desses pontos de forma direta, o item vai para `next`.
+
+### Fase 3 - Superficies comerciais e conversao inicial
+
+**Status:** `now`
+
+**Objetivo**
+
+Fazer o Lumina se explicar melhor e reduzir friccao nas superfices que transformam interesse em beta request, subscriber ou paid.
+
+**Por que isso importa para o launch**
+
+O produto pode estar forte tecnicamente e ainda assim falhar comercialmente se narrativa, CTA e pricing nao forem claros.
+
+**Entregas minimas**
+
+- namespace comercial `/lumina` com shell proprio
+- landing principal do produto
+- pagina de pricing do proprio Lumina
+- pagina how it works e FAQ comercial
+- paginas por ICP principal ou equivalentes
+- fluxo de beta request reaproveitando pipeline existente
+- melhoria da pricing publica, paywall e CTAs mais relevantes para o funil inicial
+
+**Dependencias**
+
+- clareza de ICP e proposta de valor do launch
+- base publica estavel para rotas institucionais
+- eventos canonicamente definidos para CTA e beta request
+
+**Gate de passagem**
+
+- um visitante entende em poucos segundos para quem o Lumina serve e qual problema resolve
+- os CTAs principais estao consistentes e navegaveis
+- pricing e paywall deixam claro o proximo passo comercial
+
+**Fora de escopo nesta fase**
+
+- reabertura da arquitetura completa de memberships
+- experimentacao comercial extensa sem baseline clara
+- expansao para multiplos segmentos fora do ICP principal
+
+### Fase 4 - Instrumentacao e governanca de decisao
+
+**Status:** `now`
+
+**Objetivo**
+
+Dar ao time uma camada confiavel para medir ativacao, conversao, newsletter e receita durante o launch.
+
+**Por que isso importa para o launch**
+
+Sem taxonomia e leituras consistentes, o time nao consegue diferenciar friccao real de impressao subjetiva.
+
+**Entregas minimas**
+
+- catalogo oficial de eventos adotado como referencia
+- helpers centralizados de captura client e server
+- eventos canonicos cobrindo onboarding, marketing, newsletter e revenue
+- dual-write temporario apenas onde necessario
+- dashboard interno organizado por perguntas de produto
+- filtros e leituras minimas de 7d, 30d e 90d
+
+**Dependencias**
+
+- principais fluxos das Fases 1 e 3 definidos
+- PostHog e pipeline atual em estado utilizavel
+- alinhamento entre eventos novos e consultas do dashboard
+
+**Gate de passagem**
+
+- o time consegue identificar onde o setup trava
+- o time consegue ver onde o checkout cai
+- as superficies comerciais e de newsletter possuem leitura minima confiavel
+- eventos principais disparam com consistencia nas rotas criticas
+
+**Fora de escopo nesta fase**
+
+- analytics perfeito ou exaustivo
+- dashboards altamente customizados por area
+- taxonomia aberta a proliferacao sem governanca
+
+### Fase 5 - Operacao minima de launch
+
+**Status:** `now`
+
+**Objetivo**
+
+Trocar improviso por um processo minimo de beta, release e suporte inicial para os primeiros usuarios reais.
+
+**Por que isso importa para o launch**
+
+Sem operacao minima, qualquer problema de onboarding, billing ou release vira gargalo manual e reduz confianca para abrir o produto.
+
+**Entregas minimas**
+
+- playbook de onboarding de beta users
+- base de conhecimento inicial para tarefas recorrentes
+- templates de resposta e triagem inicial
+- classificacao minima de contas ou casos operacionais
+- checklist de release e smoke checks usados como procedimento real
+- rotina basica de feedback e consolidacao de aprendizados
+
+**Dependencias**
+
+- superfices principais do produto ja utilizaveis
+- runbooks e checklist de release existentes como ponto de partida
+- capacidade minima de observacao de incidentes e falhas criticas
+
+**Gate de passagem**
+
+- o time consegue onboardar beta users com repetibilidade
+- o time sabe como validar uma release antes e depois do deploy
+- feedback chega em formato classificavel e acionavel
+- problemas mais comuns de onboarding, billing ou publish tem procedimento minimo de resposta
+
+**Fora de escopo nesta fase**
+
+- customer success altamente automatizado
+- painel sofisticado de health score
+- operacao enterprise ou suporte multi-tier
+
+## O que fica para depois do launch
+
+Os itens abaixo sao importantes, mas ficam classificados como `next` ou `later` e nao bloqueiam o launch controlado v1:
+
+- importacao e migracao assistida mais ampla
+- health score e sinais automatizados de risco
+- expansao guiada por retencao pos-lancamento
+- backlog profundo de automacoes, personalizacao e crescimento de plataforma
+
+Regra de classificacao:
+
+- `next`: itens que ajudam a reduzir friccao comercial ou operacional logo apos o launch
+- `later`: itens que pertencem a maturidade mais ampla do produto e nao devem reabrir o escopo atual
+
+## KPIs oficiais do launch
 
 ### Ativacao
 
+- tempo ate setup completo
 - tempo ate primeiro post publicado
-- tempo ate setup completo do site
-- percentual de projetos que completam setup inicial
-- percentual de projetos que publicam conteudo na primeira semana
+- percentual de projetos que concluem setup
+- percentual de projetos que publicam na primeira semana
 
-### Growth
+### Conversao
 
 - taxa de subscribe de newsletter
 - taxa de conversao visitor -> account
 - taxa de conversao visitor -> paid
-- CTR de CTA principal
-- taxa de conversao da pricing page
-
-### Produto
-
-- projetos ativos por semana
-- numero de posts publicados por projeto
-- numero de newsletters enviadas por projeto
-- uso de memberships por projeto
-- uso de autores/equipe por projeto
-
-### Receita
-
-- MRR inicial
-- conversao mensal vs anual
-- cancelamento no primeiro ciclo
-- taxa de past_due
+- CTR do CTA principal
+- conversao da pricing page
 
 ### Operacao
 
-- tickets/incidentes por cliente
-- tempo medio de resolucao
-- gargalos mais frequentes no onboarding
+- quantidade de contas beta onboarded com sucesso
+- principais gargalos de onboarding
+- tempo medio de resposta inicial
+- quantidade de incidentes que exigem intervencao manual
 
-## Roadmap Recomendado
+### Receita e confianca comercial
 
-## Fase 1 - Setup Inicial e First-Run Experience
+- MRR inicial
+- split mensal vs anual quando aplicavel
+- taxa de cancelamento no primeiro ciclo
+- taxa de past_due
 
-### Objetivo
-
-Fazer o Lumina parar de parecer uma plataforma "tecnicamente pronta, mas vazia" e virar um produto que guia o usuario nos primeiros passos.
+## Riscos principais do ciclo
 
-### Problema atual
+### Risco 1 - Voltar ao modo "mais feature"
 
-Mesmo com a base pronta, um admin novo ainda pode ficar perdido em:
+**Sintoma**
 
-- ordem de configuracao
-- o que e obrigatorio
-- o que pode esperar
-- como deixar o site com cara de produto final
+Backlog volta a privilegiar fundacao e expansao sem melhorar setup, conversao, operacao ou capacidade de medir.
 
-### Entregas obrigatorias
+**Mitigacao**
 
-- setup wizard inicial apos primeiro login
-- checklist de onboarding no dashboard
-- estado global de "setup completeness"
-- seed guiado de conteudo inicial opcional
-- templates iniciais para:
-  - home
-  - about
-  - pricing
-  - contact
-  - welcome post
-- defaults mais inteligentes de branding, menus e SEO
-- CTA claros para:
-  - configurar site
-  - publicar primeiro post
-  - ativar newsletter
-  - configurar planos
+Usar este roadmap como criterio oficial de prioridade e exigir que qualquer mudanca de escopo aponte qual KPI ou gate de launch ela melhora.
 
-### Blocos do setup wizard recomendados
+### Risco 2 - Roadmap canonico competir com docs auxiliares
 
-1. identidade do site
-- nome
-- descricao curta
-- logo
-- cor principal
+**Sintoma**
 
-2. publicacao e SEO
-- URL do site
-- metadados padrao
-- imagem social padrao
+O roadmap principal volta a acumular checklist operacional e passa a duplicar stages, taxonomia ou release process.
 
-3. monetizacao
-- ligar Stripe
-- definir plano mensal e anual
-- configurar pricing
+**Mitigacao**
 
-4. newsletter
-- ligar sender
-- escolher double opt-in
-- revisar copy de subscribe
+Manter neste documento apenas prioridade, gates, escopo minimo e fronteira `now` / `next` / `later`.
 
-5. conteudo inicial
-- gerar paginas e post de exemplo
-- ou iniciar vazio
+### Risco 3 - Lançamento sem governanca de dados
 
-### Critero de pronto da fase
+**Sintoma**
 
-- um novo projeto chega a uma versao publica apresentavel em menos tempo
-- o dashboard deixa claro o proximo passo recomendado
-- existe uma sensacao de progresso e completude para o admin
+Muitos eventos, pouca leitura confiavel e decisao baseada em intuicao.
 
-## Fase 2 - Templates, Defaults e Time-to-Beauty
+**Mitigacao**
 
-### Objetivo
+Usar a taxonomia oficial como referencia unica e limitar novos eventos a perguntas concretas de produto ou operacao.
 
-Fazer o Lumina parecer bom e usavel rapidamente, mesmo sem customizacao profunda.
+### Risco 4 - Pos-launch invadindo o launch
 
-### Problema atual
+**Sintoma**
 
-Um produto de publicacao perde muito valor se a instalacao inicial:
+Migracao, health score, expansao e backlog de maturidade passam a ser tratados como bloqueadores do v1.
 
-- parece vazia
-- parece genérica
-- exige ajustes demais para ficar publicavel
+**Mitigacao**
 
-### Entregas obrigatorias
+Classificar explicitamente esses temas como `next` ou `later`, salvo se um aprendizado de beta provar impacto direto no gate atual.
 
-- kit de templates de lancamento
-- presets de homepage por estilo:
-  - creator/journal
-  - magazine/newsletter
-  - premium publication
-- presets de pricing copy
-- presets de CTAs de subscribe
-- menus padrao por tipo de site
-- hero sections editaveis prontas
-- placeholders de imagem e identidade melhores
-- biblioteca de blocos de pagina mais orientada a lancamento
+## Mapa dos documentos auxiliares
 
-### Templates minimos recomendados
+- [docs/launch-roadmap.md](C:/Users/Win/Documents/GitHub/lumina/docs/launch-roadmap.md): fonte canonica de prioridade, sequencia, gates e definicao de pronto do launch v1
+- [docs/launch-roadmap-stages.md](C:/Users/Win/Documents/GitHub/lumina/docs/launch-roadmap-stages.md): detalhamento operacional por estagio, com mais granularidade de implementacao
+- [docs/release-checklist.md](C:/Users/Win/Documents/GitHub/lumina/docs/release-checklist.md): procedimento de pre-release, release e rollback
+- [docs/analytics-taxonomy.md](C:/Users/Win/Documents/GitHub/lumina/docs/analytics-taxonomy.md): taxonomia oficial de eventos e propriedades
+- [docs/roadmap.md](C:/Users/Win/Documents/GitHub/lumina/docs/roadmap.md): visao mais ampla de evolucao do produto alem do launch v1
 
-- home para criador independente
-- home para revista digital
-- pricing focada em assinatura
-- about institucional simples
-- contact page pronta
-- newsletter landing page
-- "members-only archive" landing page
+## Regra de revisao deste roadmap
 
-### Critero de pronto da fase
+Este roadmap deve ser revisado:
 
-- um projeto novo consegue parecer "site de verdade" sem trabalho extra exagerado
-- a configuracao padrao passa imagem profissional
+- no inicio de cada bloco relevante de execucao
+- quando um gate de fase fechar
+- quando um aprendizado de beta invalidar uma prioridade `now`
+- quando um risco operacional ou comercial se mostrar maior do que o previsto
 
-## Fase 3 - Onboarding Comercial e Proposta de Valor
+Pode mover prioridade:
 
-### Objetivo
+- evidencia de friccao forte em ativacao
+- evidencia de queda relevante em conversao
+- bloqueio recorrente na operacao de beta
+- ausencia de medicao em um ponto critico do launch
 
-Melhorar a capacidade do Lumina de se vender e de ser compreendido rapidamente.
+Nao deve reabrir escopo por conta propria:
 
-### Problema atual
+- backlog historico de features
+- desejo de ampliar ICP antes do aprendizado do beta
+- melhorias que aumentam complexidade sem melhorar os KPIs oficiais do launch
+- itens claramente classificados como `later` sem nova evidencia de impacto direto
 
-Ter um produto forte nao basta se:
+## Regra final de uso
 
-- o valor nao esta claro
-- o diferencial nao aparece
-- a comunicacao publica nao mostra para quem ele serve
+Se houver conflito entre uma ideia nova e este roadmap, a pergunta correta nao e "isso seria bom para o produto?".
 
-### Entregas obrigatorias
+A pergunta correta e:
 
-- redefinir narrativa publica do Lumina
-- organizar landing institucional do produto
-- explicar claramente:
-  - para quem serve
-  - o que resolve
-  - porque escolher Lumina
-  - como ganha dinheiro com ele
-- pagina de pricing do proprio produto Lumina
-- pagina de comparacao de planos do produto
-- FAQ comercial
-- pagina "como funciona"
-- casos de uso por perfil:
-  - creator
-  - jornalista
-  - publication
+"isso melhora de forma concreta o launch controlado v1 do Lumina agora, ou pertence ao `next` / `later`?"
 
-### Conversoes que essa fase deve suportar
-
-- visitante -> demo interest
-- visitante -> lista de espera
-- visitante -> trial/beta request
-- visitante -> compra, se o modelo comercial ja estiver pronto
-
-### Critero de pronto da fase
-
-- a proposta de valor do Lumina fica clara em poucos segundos
-- o produto deixa de depender de explicacao manual longa
-
-## Fase 4 - Instrumentacao de Growth e Revenue Analytics
-
-### Objetivo
-
-Medir o negocio de forma confiavel, nao apenas eventos tecnicos.
-
-### Problema atual
-
-Ja existe analytics, mas o proximo ciclo exige instrumentacao orientada a produto e receita.
-
-### Entregas obrigatorias
-
-- mapa oficial de eventos do produto
-- nomenclatura unica e consistente para eventos
-- funil de onboarding
-- funil de monetizacao
-- funil de newsletter
-- eventos por etapa do setup wizard
-- eventos de publicacao
-- eventos de conversao de paywall
-- eventos de cancelamento e churn
-- eventos de uso recorrente do dashboard
-
-### Eventos essenciais recomendados
-
-- project_setup_started
-- project_setup_completed
-- first_post_published
-- pricing_configured
-- newsletter_configured
-- first_subscriber_captured
-- checkout_started
-- checkout_completed
-- billing_portal_opened
-- subscription_canceled
-- paywall_cta_clicked
-- newsletter_campaign_sent
-
-### Dashboards recomendados
-
-- ativacao
-- aquisicao
-- monetizacao
-- retencao
-- operacao de onboarding
-
-### Critero de pronto da fase
-
-- o time consegue responder com dados:
-  - onde usuarios travam
-  - onde a conversao cai
-  - quais contas estao saudaveis
-  - o que gera receita
-
-## Fase 5 - Conversao: Pricing, Paywall e Captura
-
-### Objetivo
-
-Melhorar as superfices de conversao sem reabrir a arquitetura de memberships.
-
-### Problema atual
-
-O core de memberships existe, mas agora precisamos lapidar:
-
-- embalagem
-- copy
-- CTA
-- apresentacao do valor
-- microfriccoes do funil
-
-### Entregas obrigatorias
-
-- melhoria da pricing page
-- comparacao melhor entre mensal e anual
-- destaque para plano recomendado
-- CTA de upgrade mais consistentes
-- paywall com variantes de copy
-- captura de email antes do hard sell, quando fizer sentido
-- modais ou blocos de "continue lendo com assinatura"
-- areas de destaque para beneficio de membro
-- pagina de account mais orientada a retenção
-
-### Testes de produto recomendados
-
-- copy de CTA principal
-- destaque de anual vs mensal
-- paywall com foco em beneficio vs exclusividade
-- teaser curto vs teaser medio
-- CTA de newsletter antes da assinatura em certos contextos
-
-### Critero de pronto da fase
-
-- o funil visitante -> subscribe -> paid fica claro, coerente e medivel
-
-## Fase 6 - Onboarding Assistido e Customer Success Inicial
-
-### Objetivo
-
-Preparar o Lumina para os primeiros clientes reais sem sobrecarregar suporte improvisado.
-
-### Problema atual
-
-Quando entram usuarios reais, surgem demandas de:
-
-- ajuda de configuracao
-- migracao de conteudo
-- entendimento de pricing
-- setup de dominio e branding
-- resolucao de travas
-
-### Entregas obrigatorias
-
-- playbook de onboarding de cliente
-- guias de ativacao rapida
-- base de conhecimento inicial
-- templates de resposta para suporte
-- fluxo interno de triagem de bug vs onboarding vs feature request
-- formulario estruturado para feedback de beta users
-- classificacao de clientes por estagio:
-  - onboarded
-  - blocked
-  - activated
-  - paying
-  - at-risk
-
-### Materiais recomendados
-
-- guia "publique seu site em 30 minutos"
-- guia "ative memberships"
-- guia "configure newsletter"
-- guia "convide sua equipe"
-- guia "o que revisar antes do launch"
-
-### Critero de pronto da fase
-
-- o time consegue onboardar e acompanhar primeiros clientes com processo repetivel
-
-## Fase 7 - Importacao, Migracao e Troca de Plataforma
-
-### Objetivo
-
-Reduzir uma das maiores barreiras de adocao: sair da plataforma atual.
-
-### Problema atual
-
-Mesmo um produto forte perde venda se migrar for dificil.
-
-### Entregas obrigatorias
-
-- importador inicial de conteudo
-- importador de autores basicos
-- importador de categorias e tags
-- importador de subscribers quando permitido
-- mapeamento de slugs e redirects de migracao
-- checklist de migracao assistida
-
-### Fontes de importacao recomendadas no primeiro ciclo
-
-- WordPress XML
-- CSV de subscribers
-- markdown files / frontmatter
-
-### O que nao precisa entrar no primeiro corte
-
-- migracao perfeita de plugins de WordPress
-- reconstrucao de layouts complexos automatica
-- importacao irrestrita de qualquer CMS
-
-### Critero de pronto da fase
-
-- migrar um blog pequeno/medio para Lumina deixa de ser projeto manual demais
-
-## Fase 8 - Retencao, Expansao e Produto Pos-Lancamento
-
-### Objetivo
-
-Sair do modo "lançar" e entrar no modo "crescer com inteligencia".
-
-### Perguntas que essa fase deve responder
-
-- o que faz um projeto ficar ativo
-- o que diferencia contas saudaveis das que abandonam
-- onde surgem oportunidades de upsell
-- quais features realmente puxam retencao
-
-### Entregas obrigatorias
-
-- health score de conta/projeto
-- alertas internos de risco de abandono
-- relatorios de engajamento por projeto
-- expansion prompts dentro do dashboard
-- recomendacoes de proximo passo para administradores
-- backlog priorizado por feedback real de beta e clientes
-
-### Possiveis expansoes apos validacao
-
-- multicategory newsletters
-- automacoes editoriais mais fortes
-- IA assistiva para copy/SEO/resumo
-- themes premium
-- analytics editoriais mais avancados
-
-### Critero de pronto da fase
-
-- a evolucao do produto passa a ser guiada por uso e negocio real
-
-## Trilhas Paralelas Que Devem Existir Durante Todo o Ciclo
-
-## Trilha A - Qualidade de UX e Microfriccao
-
-Revisar continuamente:
-
-- labels confusos
-- estados vazios
-- mensagens de erro
-- fluxo de forms
-- feedback de salvamento e publicacao
-- clareza de billing
-- clareza de onboarding
-
-## Trilha B - Comercial e Posicionamento
-
-Revisar continuamente:
-
-- narrativa do produto
-- segmentacao do ICP
-- plano de lancamento
-- oferta inicial
-- modelo de preco do proprio Lumina
-- oferta beta / early adopter
-
-## Trilha C - Telemetria e Aprendizado
-
-Revisar continuamente:
-
-- quais eventos faltam
-- onde falta contexto para decisao
-- quais funis precisam de granularidade melhor
-
-## Trilha D - Feedback de Usuarios Reais
-
-Estruturar coleta recorrente de:
-
-- friccao de onboarding
-- friccao de publicacao
-- friccao de monetizacao
-- valor percebido
-- comparacao com stack anterior
-
-## Backlog Priorizado Por Valor de Negocio
-
-## Prioridade maxima
-
-- setup wizard
-- onboarding checklist
-- templates iniciais fortes
-- instrumentacao de ativacao
-- pricing/paywall refinados
-- docs de onboarding e suporte
-
-## Prioridade alta
-
-- importador WordPress/CSV inicial
-- dashboards de conversao
-- variantes de CTA e paywall
-- account health e acompanhamento de clientes beta
-
-## Prioridade media
-
-- biblioteca maior de templates
-- expansao de blocos de landing pages
-- relatorios internos mais sofisticados
-- experiencias de upgrade contextual
-
-## Prioridade baixa para este ciclo
-
-- IA generativa profunda
-- marketplace
-- multisite
-- app mobile
-- customizacao radical de layout
-
-## Ordem Recomendada de Execucao
-
-1. setup wizard e onboarding checklist
-2. templates e defaults de lancamento
-3. narrativa publica e superfices comerciais
-4. instrumentacao de growth e revenue
-5. refinamento de pricing e paywall
-6. playbooks de onboarding e suporte
-7. importacao e migracao assistida
-8. health scoring e retencao
-
-## Plano de Execucao Recomendado
-
-## Sprint 1 a 2
-
-- setup wizard
-- checklist de onboarding
-- estado de completude
-- seeds/templates iniciais
-
-## Sprint 3 a 4
-
-- homepage/public pages do produto Lumina
-- pricing e FAQ do proprio produto
-- copy de valor e CTAs
-
-## Sprint 5 a 6
-
-- mapa de eventos
-- dashboards de ativacao e conversao
-- melhoria de pricing/paywall
-
-## Sprint 7 a 8
-
-- docs de onboarding
-- playbook de cliente beta
-- coleta de feedback estruturada
-
-## Sprint 9+
-
-- importadores
-- health score
-- iteracoes baseadas em dados reais
-
-## Riscos Mais Provaveis
-
-### 1. Querer construir demais antes de lancar
-
-Risco:
-- o time voltar para modo "mais feature" e atrasar validacao de mercado
-
-Mitigacao:
-- travar que este roadmap e orientado a ativacao, conversao e aprendizado
-
-### 2. Falta de foco em ICP
-
-Risco:
-- comunicar para todo mundo e nao converter ninguem
-
-Mitigacao:
-- escolher 1 a 2 perfis principais no lancamento
-
-### 3. Analytics sem governanca
-
-Risco:
-- gerar muitos eventos mas pouca capacidade de decisao
-
-Mitigacao:
-- criar taxonomia de eventos e dashboards oficiais desde o inicio
-
-### 4. Beta users sem processo
-
-Risco:
-- muito feedback solto, sem triagem e sem priorizacao
-
-Mitigacao:
-- feedback estruturado e health tracking por conta
-
-## O Que Eu Recomendo Como Proximo Passo Imediato
-
-Se a ideia for comecar a executar amanha, eu abriria o novo ciclo assim:
-
-### Primeiro bloco de execucao
-
-- Fase 1 completa
-- metade da Fase 2
-- desenho inicial da taxonomia de eventos da Fase 4
-
-### Motivo
-
-Porque isso entrega o maior efeito composto:
-
-- o produto fica muito mais facil de adotar
-- a primeira impressao melhora
-- ja comecamos a medir comportamento real
-
-## Conclusao
-
-O roadmap principal do Lumina construiu a fundacao correta. O novo roadmap deve mudar o eixo do projeto:
-
-- de "construir capacidade"
-- para "transformar capacidade em adoção, conversão e aprendizado"
-
-O foco ideal agora e:
-
-- onboarding
-- templates e setup
-- narrativa comercial
-- instrumentacao
-- conversao
-- suporte aos primeiros clientes
-
-Se esse roadmap for bem executado, o Lumina deixa de ser apenas um excelente produto tecnico e passa a ser um produto lancavel, vendavel e iteravel com usuarios reais.
+Se a resposta nao for clara, o item nao entra em `now`.

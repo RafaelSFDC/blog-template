@@ -71,6 +71,19 @@ describe("setup", () => {
     expect(status.lastStep).toBe("seo");
   });
 
+  it("keeps lastStep aligned with the first blocking step while setup is incomplete", () => {
+    const status = buildSetupStatus(
+      createSnapshot({
+        wizardStartedAt: "2026-03-16T10:00:00.000Z",
+        wizardLastStep: "content",
+        hasStoredBlogName: false,
+      }),
+    );
+
+    expect(status.nextAction?.step).toBe("identity");
+    expect(status.lastStep).toBe("identity");
+  });
+
   it("marks content step complete when starter content was generated", () => {
     const status = buildSetupStatus(
       createSnapshot({
@@ -82,9 +95,40 @@ describe("setup", () => {
     expect(status.starterContentGenerated).toBe(true);
   });
 
+  it("treats setup as effectively complete when the checklist has no blocking items", () => {
+    const status = buildSetupStatus(
+      createSnapshot({
+        hasStoredBlogName: true,
+        hasStoredBlogDescription: true,
+        hasStoredThemeVariant: true,
+        hasStoredFontFamily: true,
+        hasStoredSiteUrl: true,
+        hasStoredMetaTitle: true,
+        hasStoredMetaDescription: true,
+        hasStoredMonthlyPriceId: true,
+        hasStoredAnnualPriceId: true,
+        hasStoredNewsletterSenderEmail: true,
+        hasStoredDoubleOptInSetting: true,
+        hasHomepage: true,
+        hasAboutPage: true,
+        hasPricingPage: true,
+        hasContactPage: true,
+        hasFirstPost: true,
+      }),
+    );
+
+    expect(status.progressPercent).toBe(100);
+    expect(status.nextAction).toBeNull();
+    expect(status.isCompleted).toBe(true);
+  });
+
   it("redirects admins to setup until the wizard is completed or skipped", () => {
     expect(
       shouldRedirectToSetup(buildSetupStatus(createSnapshot()), "admin"),
+    ).toBe(true);
+
+    expect(
+      shouldRedirectToSetup(buildSetupStatus(createSnapshot()), "super-admin"),
     ).toBe(true);
 
     expect(
@@ -97,5 +141,30 @@ describe("setup", () => {
     expect(
       shouldRedirectToSetup(buildSetupStatus(createSnapshot()), "author"),
     ).toBe(false);
+  });
+
+  it("does not redirect admins when setup no longer blocks first use", () => {
+    const status = buildSetupStatus(
+      createSnapshot({
+        hasStoredBlogName: true,
+        hasStoredBlogDescription: true,
+        hasStoredThemeVariant: true,
+        hasStoredFontFamily: true,
+        hasStoredSiteUrl: true,
+        hasStoredMetaTitle: true,
+        hasStoredMetaDescription: true,
+        hasStoredMonthlyPriceId: true,
+        hasStoredAnnualPriceId: true,
+        hasStoredNewsletterSenderEmail: true,
+        hasStoredDoubleOptInSetting: true,
+        hasHomepage: true,
+        hasAboutPage: true,
+        hasPricingPage: true,
+        hasContactPage: true,
+        hasFirstPost: true,
+      }),
+    );
+
+    expect(shouldRedirectToSetup(status, "admin")).toBe(false);
   });
 });

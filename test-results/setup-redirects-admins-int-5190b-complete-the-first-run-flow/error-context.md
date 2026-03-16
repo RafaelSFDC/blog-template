@@ -1,0 +1,45 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Lumina" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e12]: Lumina
+        - generic [ref=e14]:
+          - link "Home" [ref=e15] [cursor=pointer]:
+            - /url: /
+          - link "Stories" [ref=e16] [cursor=pointer]:
+            - /url: /blog
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - link "Contact" [ref=e18] [cursor=pointer]:
+            - /url: /contact
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - link "Back to Home" [ref=e24] [cursor=pointer]:
+        - /url: /
+        - img
+        - text: Back to Home
+      - generic [ref=e28]:
+        - strong [ref=e29]: Something went wrong!
+        - button "Show Error" [ref=e30]
+  - contentinfo [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - link "Stories" [ref=e35] [cursor=pointer]:
+          - /url: /blog
+        - link "About" [ref=e36] [cursor=pointer]:
+          - /url: /about
+        - link "Dashboard" [ref=e37] [cursor=pointer]:
+          - /url: /dashboard
+      - paragraph [ref=e38]: © 2026 Lumina. Made with creativity and joy.
+    - link "RSS Feed" [ref=e40] [cursor=pointer]:
+      - /url: /rss.xml
+      - generic [ref=e41]: RSS Feed
+      - img
+  - region "Notifications alt+T"
+```

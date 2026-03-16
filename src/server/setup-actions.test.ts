@@ -1,0 +1,81 @@
+import { describe, expect, it } from "vitest";
+import { withIsolatedDatabase } from "../../tests/helpers/sqlite-test-db";
+
+describe("setup actions", () => {
+  it("returns skipped setup state without breaking checklist progress", async () => {
+    await withIsolatedDatabase("setup-actions-skip", async () => {
+      const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
+        import("#/db/index"),
+        import("#/db/schema"),
+        import("#/server/setup-actions"),
+      ]);
+
+      await db.insert(appSettings).values([
+        {
+          key: "setupWizardStartedAt",
+          value: "2026-03-16T10:00:00.000Z",
+          updatedAt: new Date(),
+        },
+        {
+          key: "setupWizardSkippedAt",
+          value: "2026-03-16T10:05:00.000Z",
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const status = await getSetupStatusSummaryForRole("admin");
+
+      expect(status).not.toBeNull();
+      expect(status?.isSkipped).toBe(true);
+      expect(status?.isCompleted).toBe(false);
+      expect(status?.nextAction?.step).toBe("identity");
+      expect(status?.progressPercent).toBe(0);
+    });
+  });
+
+  it("treats completed setup as non-blocking even if content work remains", async () => {
+    await withIsolatedDatabase("setup-actions-content", async () => {
+      const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
+        import("#/db/index"),
+        import("#/db/schema"),
+        import("#/server/setup-actions"),
+      ]);
+
+      await db.insert(appSettings).values([
+        {
+          key: "setupWizardStartedAt",
+          value: "2026-03-16T10:00:00.000Z",
+          updatedAt: new Date(),
+        },
+        {
+          key: "setupWizardCompletedAt",
+          value: "2026-03-16T10:10:00.000Z",
+          updatedAt: new Date(),
+        },
+        {
+          key: "setupWizardSkippedAt",
+          value: "",
+          updatedAt: new Date(),
+        },
+        {
+          key: "setupWizardLastStep",
+          value: "content",
+          updatedAt: new Date(),
+        },
+        {
+          key: "sitePresetKey",
+          value: "creator-journal",
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const status = await getSetupStatusSummaryForRole("admin");
+
+      expect(status).not.toBeNull();
+      expect(status?.isCompleted).toBe(true);
+      expect(status?.isSkipped).toBe(false);
+      expect(status?.lastStep).toBe("content");
+      expect(status?.nextAction?.step).toBe("identity");
+    });
+  });
+});

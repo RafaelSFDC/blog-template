@@ -520,7 +520,7 @@ async function generateStarterContentInternal(session: {
 }
 
 async function markSetupStartedIfNeeded(session: {
-  user: { id: string; email: string };
+  user: { id: string; email: string; role?: string | null };
 }) {
   const settings = await getSettingsMap();
   if (settings.setupWizardStartedAt) {
@@ -535,7 +535,7 @@ async function markSetupStartedIfNeeded(session: {
     event: "project_setup_started",
     properties: {
       actor_user_id: session.user.id,
-      user_role: "admin",
+      user_role: session.user.role === "super-admin" ? "super-admin" : "admin",
       surface: "dashboard_setup",
     },
   });

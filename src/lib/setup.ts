@@ -175,6 +175,26 @@ export function getDefaultSetupLastStep(
   return "content";
 }
 
+function toWizardStep(key: SetupChecklistKey): SetupWizardStepKey {
+  if (key === "identity") {
+    return "identity";
+  }
+
+  if (key === "seo") {
+    return "seo";
+  }
+
+  if (key === "pricing") {
+    return "monetization";
+  }
+
+  if (key === "newsletter") {
+    return "newsletter";
+  }
+
+  return "content";
+}
+
 export function buildSetupChecklist(
   snapshot: SetupSnapshot,
 ): SetupChecklistItem[] {
@@ -212,8 +232,21 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
   const completedCount = checklist.filter((item) => item.isCompleted).length;
   const progressPercent = Math.round((completedCount / checklist.length) * 100);
   const defaultLastStep = getDefaultSetupLastStep(checklist);
-  const lastStep = snapshot.wizardLastStep ?? defaultLastStep;
   const starterContentGenerated = Boolean(snapshot.starterContentGeneratedAt);
+  const nextChecklistItem = checklist.find((item) => !item.isCompleted) ?? null;
+  const nextAction = nextChecklistItem
+    ? {
+        label: nextChecklistItem.label,
+        description: nextChecklistItem.description,
+        href: nextChecklistItem.href,
+        step: toWizardStep(nextChecklistItem.key),
+      }
+    : null;
+  const hasBlockingSetupStep = nextAction !== null;
+  const lastStep =
+    snapshot.wizardCompletedAt || snapshot.wizardSkippedAt
+      ? snapshot.wizardLastStep ?? defaultLastStep
+      : nextAction?.step ?? defaultLastStep;
 
   const steps: SetupStepItem[] = SETUP_WIZARD_STEPS.map((step) => {
     if (step === "identity") {
@@ -260,28 +293,9 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
     };
   });
 
-  const nextChecklistItem = checklist.find((item) => !item.isCompleted) ?? null;
-  const nextAction = nextChecklistItem
-    ? {
-        label: nextChecklistItem.label,
-        description: nextChecklistItem.description,
-        href: nextChecklistItem.href,
-        step:
-          nextChecklistItem.key === "identity"
-            ? "identity"
-            : nextChecklistItem.key === "seo"
-              ? "seo"
-              : nextChecklistItem.key === "pricing"
-                ? "monetization"
-                : nextChecklistItem.key === "newsletter"
-                  ? "newsletter"
-                  : "content",
-      }
-    : null;
-
   return {
     isStarted: Boolean(snapshot.wizardStartedAt),
-    isCompleted: Boolean(snapshot.wizardCompletedAt),
+    isCompleted: Boolean(snapshot.wizardCompletedAt) || !hasBlockingSetupStep,
     isSkipped: Boolean(snapshot.wizardSkippedAt),
     progressPercent,
     sitePresetKey: snapshot.sitePresetKey ?? "creator-journal",
@@ -295,7 +309,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
 
 export function shouldRedirectToSetup(status: SetupStatus, role?: string | null) {
   const isAdmin = role === "admin" || role === "super-admin";
-  return isAdmin && !status.isCompleted && !status.isSkipped;
+  return isAdmin && !status.isCompleted && !status.isSkipped && status.nextAction !== null;
 }
 
 export function getStepIndex(step: SetupWizardStepKey) {

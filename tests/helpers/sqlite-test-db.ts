@@ -51,6 +51,29 @@ export function applySqliteMigrations(dbPath: string) {
   db.close();
 }
 
+async function removeFileWithRetries(filePath: string, attempts = 5) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      fs.rmSync(filePath, { force: true });
+      return;
+    } catch (error) {
+      const code =
+        error && typeof error === "object" && "code" in error
+          ? String((error as { code?: string }).code)
+          : "";
+      if (code !== "EBUSY" || attempt === attempts - 1) {
+        if (code === "EBUSY") {
+          return;
+        }
+
+        throw error;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+}
+
 export async function withIsolatedDatabase<T>(
   name: string,
   run: (dbPath: string) => Promise<T>,
@@ -80,6 +103,6 @@ export async function withIsolatedDatabase<T>(
       process.env.DATABASE_URL = previousUrl;
     }
     await reinitializeDbForTesting();
-    fs.rmSync(dbPath, { force: true });
+    await removeFileWithRetries(dbPath);
   }
 }
