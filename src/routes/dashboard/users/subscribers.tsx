@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import type { ColumnDef } from "@tanstack/react-table";
-import { desc } from "drizzle-orm";
 import { format } from "date-fns";
-import { subscribers } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { DataTable } from "#/components/dashboard/DataTable";
@@ -13,64 +9,24 @@ import { Users, Download, CheckCircle2, Clock3, Ban } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { useMemo } from "react";
 import { toast } from "sonner";
-
-const getSubscribers = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  const { db } = await import("#/db/index");
-  return db.query.subscribers.findMany({
-    orderBy: [desc(subscribers.createdAt)],
-  });
-});
-
-const exportSubscribersCSV = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    const allSubscribers = await db.query.subscribers.findMany({
-      orderBy: [desc(subscribers.createdAt)],
-    });
-
-    if (allSubscribers.length === 0) {
-      return { data: null, error: "No subscribers found" };
-    }
-
-    // Generate CSV Header
-    const headers = ["Email", "Status", "Subscribed At"];
-
-    // Generate CSV Rows
-    const rows = allSubscribers.map((sub: typeof subscribers.$inferSelect) => [
-      sub.email,
-      sub.status,
-      sub.createdAt ? (typeof sub.createdAt === 'string' ? sub.createdAt : sub.createdAt.toISOString()) : "",
-    ]);
-
-    // Combine headers and rows, handle escaping for CSV format
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row: string[]) =>
-        row
-          .map((value: string) => `"${String(value).replace(/"/g, '""')}"`)
-          .join(","),
-      ),
-    ].join("\n");
-
-    return { data: csvContent, count: allSubscribers.length };
-  },
-);
+import {
+  exportDashboardSubscribersCsv,
+  getDashboardSubscribers,
+} from "#/server/dashboard/subscribers";
 
 export const Route = createFileRoute("/dashboard/users/subscribers")({
-  loader: () => getSubscribers(),
+  loader: () => getDashboardSubscribers(),
   component: SubscribersPage,
 });
 
-type SubscriberRow = Awaited<ReturnType<typeof getSubscribers>>[number];
+type SubscriberRow = Awaited<ReturnType<typeof getDashboardSubscribers>>[number];
 
 function SubscribersPage() {
   const subs = Route.useLoaderData();
 
   const handleExport = async () => {
     try {
-      const result = await exportSubscribersCSV();
+      const result = await exportDashboardSubscribersCsv();
 
       if (result?.data) {
         // Create a Blob from the CSV String
@@ -82,10 +38,7 @@ function SubscribersPage() {
         // Create an invisible link to trigger the download
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute(
-          "download",
-          `lumina-subscribers-${format(new Date(), "yyyy-MM-dd")}.csv`,
-        );
+        link.setAttribute("download", result.filename);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { appSettings } from "#/db/schema";
 import { useEffect, useState, type FormEvent } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { Button } from "#/components/ui/button";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
@@ -33,62 +30,17 @@ import {
   SelectGroup,
 } from "#/components/ui/select";
 import { toast } from "sonner";
-import { settingsSchema } from "#/lib/cms-schema";
 import {
-  mapSettingsRowsToFormValues,
   normalizeSettingsFormValues,
   settingsFormSchema,
 } from "#/lib/settings-form";
-
-const getAppSettings = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  const { db } = await import("#/db/index");
-  const settings = await db.select().from(appSettings);
-
-  return mapSettingsRowsToFormValues(
-    settings as Array<{ key: string; value: string }>,
-  );
-});
-
-const updateAppSettings = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => settingsSchema.parse(input))
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-
-    const upsert = async (key: string, value: string) => {
-      await db
-        .insert(appSettings)
-        .values({ key, value, updatedAt: new Date() })
-        .onConflictDoUpdate({
-          target: appSettings.key,
-          set: { value, updatedAt: new Date() },
-        });
-    };
-
-    await upsert("blogName", data.blogName);
-    await upsert("blogDescription", data.blogDescription);
-    await upsert("blogLogo", data.blogLogo || "");
-    await upsert("fontFamily", data.fontFamily);
-    await upsert("themeVariant", data.themeVariant);
-    await upsert("siteUrl", data.siteUrl || "");
-    await upsert("defaultMetaTitle", data.defaultMetaTitle || "");
-    await upsert("defaultMetaDescription", data.defaultMetaDescription || "");
-    await upsert("defaultOgImage", data.defaultOgImage || "");
-    await upsert("twitterHandle", data.twitterHandle || "");
-    await upsert("stripeMonthlyPriceId", data.stripeMonthlyPriceId || "");
-    await upsert("stripeAnnualPriceId", data.stripeAnnualPriceId || "");
-    await upsert("newsletterSenderEmail", data.newsletterSenderEmail || "");
-    await upsert("doubleOptInEnabled", String(data.doubleOptInEnabled));
-    await upsert("membershipGracePeriodDays", String(data.membershipGracePeriodDays));
-    await upsert("robotsIndexingEnabled", String(data.robotsIndexingEnabled));
-    await upsert("socialLinks", JSON.stringify(data.socialLinks));
-
-    return { ok: true as const };
-  });
+import {
+  getDashboardSettings,
+  updateDashboardSettings,
+} from "#/server/system/settings";
 
 export const Route = createFileRoute("/dashboard/settings")({
-  loader: () => getAppSettings(),
+  loader: () => getDashboardSettings(),
   component: SettingsPage,
 });
 
@@ -123,7 +75,7 @@ function SettingsPage() {
       setSaving(true);
 
       try {
-        await updateAppSettings({
+        await updateDashboardSettings({
           data: normalizeSettingsFormValues(value),
         });
         toast.success("Settings saved successfully!");

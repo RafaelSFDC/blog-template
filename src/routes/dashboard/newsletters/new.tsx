@@ -1,7 +1,5 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { desc } from "drizzle-orm";
 import { ChevronLeft, Info, Send } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { DashboardHeader } from "#/components/dashboard/Header";
@@ -23,9 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "#/components/ui/select";
-import { db } from "#/db/index";
-import { posts } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
 import {
   buildNewsletterTemplateFromPost,
   mapNewsletterToFormValues,
@@ -39,21 +34,7 @@ import {
   getNewsletterCampaignAction,
   updateNewsletterCampaignAction,
 } from "#/server/newsletter-actions";
-
-const getPostsForTemplate = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  return db
-    .select({
-      id: posts.id,
-      title: posts.title,
-      excerpt: posts.excerpt,
-      slug: posts.slug,
-      publishedAt: posts.publishedAt,
-    })
-    .from(posts)
-    .orderBy(desc(posts.publishedAt))
-    .limit(10);
-});
+import { getNewsletterTemplatePosts } from "#/server/dashboard/newsletters";
 
 export const Route = createFileRoute("/dashboard/newsletters/new")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -62,7 +43,7 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
   loaderDeps: ({ search }) => ({ fromId: search.fromId }),
   loader: async ({ deps }) => {
     const [recentPosts, existing] = await Promise.all([
-      getPostsForTemplate(),
+      getNewsletterTemplatePosts(),
       deps.fromId ? getNewsletterCampaignAction({ data: deps.fromId }) : Promise.resolve(null),
     ]);
 

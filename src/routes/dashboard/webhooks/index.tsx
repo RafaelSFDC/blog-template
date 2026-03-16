@@ -1,7 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { desc, eq, type InferSelectModel } from "drizzle-orm";
+import { type InferSelectModel } from "drizzle-orm";
 import { Activity, Globe, Plus, Webhook } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "#/components/dashboard/DataTable";
@@ -11,43 +10,17 @@ import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { Button } from "#/components/ui/button";
 import { webhooks as webhooksSchema } from "#/db/schema";
-import { recordIdSchema, webhookToggleSchema } from "#/lib/cms-schema";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { cn } from "#/lib/utils";
+import {
+  deleteDashboardWebhook,
+  getDashboardWebhooks,
+  toggleDashboardWebhook,
+} from "#/server/dashboard/webhooks";
 
 type WebhookType = InferSelectModel<typeof webhooksSchema>;
 
-const getWebhooks = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  const { db } = await import("#/db/index");
-  return db.query.webhooks.findMany({
-    orderBy: [desc(webhooksSchema.createdAt)],
-  });
-});
-
-const deleteWebhook = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => recordIdSchema.parse({ id: input }))
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    await db.delete(webhooksSchema).where(eq(webhooksSchema.id, data.id));
-    return { success: true };
-  });
-
-const toggleWebhook = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => webhookToggleSchema.parse(input))
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    await db
-      .update(webhooksSchema)
-      .set({ isActive: data.isActive })
-      .where(eq(webhooksSchema.id, data.id));
-    return { success: true };
-  });
-
 export const Route = createFileRoute("/dashboard/webhooks/")({
-  loader: () => getWebhooks(),
+  loader: () => getDashboardWebhooks(),
   component: WebhooksPage,
 });
 
@@ -56,12 +29,12 @@ function WebhooksPage() {
   const [list, setList] = useState<WebhookType[]>(initialWebhooks);
 
   const handleDelete = useCallback(async (id: number) => {
-    await deleteWebhook({ data: id });
+    await deleteDashboardWebhook({ data: id });
     setList((prev) => prev.filter((w) => w.id !== id));
   }, []);
 
   const handleToggle = useCallback(async (id: number, isActive: boolean) => {
-    await toggleWebhook({ data: { id, isActive } });
+    await toggleDashboardWebhook({ data: { id, isActive } });
     setList((prev) => prev.map((w) => (w.id === id ? { ...w, isActive } : w)));
   }, []);
 

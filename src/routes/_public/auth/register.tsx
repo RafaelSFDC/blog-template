@@ -1,7 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { authClient } from "#/lib/auth-client";
-import { isRegistrationLocked } from "#/lib/registration";
 import { Button } from "#/components/ui/button";
 import { Mail, User, Lock } from "lucide-react";
 import { SocialLogin } from "#/components/auth/social-login";
@@ -17,28 +15,19 @@ import { Input } from "#/components/ui/input";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
 import { captureClientException } from "#/lib/sentry-client";
-
-const getRegistrationStatus = createServerFn({ method: "GET" }).handler(
-  async () => {
-    return {
-      locked: await isRegistrationLocked(),
-    };
-  },
-);
-
-const getSession = createServerFn({ method: "GET" }).handler(async () => {
-  const { getAuthSession } = await import("#/lib/admin-auth");
-  return await getAuthSession();
-});
+import {
+  getCurrentAuthSession,
+  getPublicRegistrationStatus,
+} from "#/server/public/auth";
 
 export const Route = createFileRoute("/_public/auth/register")({
   beforeLoad: async () => {
-    const session = await getSession();
+    const session = await getCurrentAuthSession();
     if (session) {
       throw redirect({ to: "/dashboard" });
     }
   },
-  loader: () => getRegistrationStatus(),
+  loader: () => getPublicRegistrationStatus(),
   component: RegisterPage,
 });
 

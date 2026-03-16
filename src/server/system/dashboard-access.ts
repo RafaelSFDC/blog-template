@@ -18,3 +18,11 @@ export const checkAuthenticatedUserAccess = createServerFn({ method: "GET" }).ha
     return { ok: true as const };
   },
 );
+
+export const checkAdminAccess = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const { requireAdminSession } = await import("#/lib/admin-auth");
+    await requireAdminSession();
+    return { ok: true as const };
+  },
+);

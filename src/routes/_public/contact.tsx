@@ -2,9 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
-import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db/index";
-import { contactMessages } from "#/db/schema";
 import { Mail, Send, CheckCircle2 } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
@@ -12,39 +9,12 @@ import { SiteHeader } from "#/components/SiteHeader";
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { IconBox } from "#/components/IconBox";
-import { contactFormSchema } from "#/lib/cms-schema";
+import { contactFormSchema } from "#/schemas";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
 import { usePostHog } from "@posthog/react";
 import { captureClientException } from "#/lib/sentry-client";
-
-const submitContactForm = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => contactFormSchema.parse(input))
-  .handler(async ({ data }) => {
-    try {
-      await db.insert(contactMessages).values({
-        name: data.name,
-        email: data.email,
-        subject: data.subject,
-        message: data.message,
-        status: "new",
-      });
-      return { success: true };
-    } catch (error) {
-      const { captureServerException } = await import("#/server/sentry");
-      captureServerException(error, {
-        tags: {
-          area: "server",
-          flow: "contact-form",
-        },
-        extras: {
-          email: data.email,
-          subject: data.subject,
-        },
-      });
-      throw error;
-    }
-  });
+import { submitPublicContactForm } from "#/server/public/contact";
 
 export const Route = createFileRoute("/_public/contact")({
   loader: () => getSeoSiteData(),
@@ -82,7 +52,7 @@ function ContactPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await submitContactForm({ data: value });
+        await submitPublicContactForm({ data: value });
         posthog.capture("contact_message_sent", {
           subject: value.subject,
         });

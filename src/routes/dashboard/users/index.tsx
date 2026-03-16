@@ -1,9 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { createServerFn } from "@tanstack/react-start";
 import { authClient } from "#/lib/auth-client";
-import { requireAdminSession } from "#/lib/admin-auth";
 import {
   Shield,
   User as UserIcon,
@@ -27,19 +25,15 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
 import { createInvitation, listInvitations, revokeInvitation } from "#/server/invitation-actions";
+import { checkAdminAccess } from "#/server/system/dashboard-access";
 import { Input } from "#/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Field, FieldLabel } from "#/components/ui/field";
 
-const ensureAdmin = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  return { ok: true };
-});
-
 export const Route = createFileRoute("/dashboard/users/")({
   beforeLoad: async () => {
     try {
-      await ensureAdmin();
+      await checkAdminAccess();
     } catch {
       throw redirect({ to: "/dashboard" });
     }

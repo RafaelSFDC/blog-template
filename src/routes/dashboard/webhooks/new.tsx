@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { useState, type FormEvent } from "react";
 import {
@@ -26,34 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "#/components/ui/select";
-import { db } from "#/db/index";
-import { webhooks } from "#/db/schema";
-import { getFriendlyDbError, webhookCreateSchema } from "#/lib/cms-schema";
-import { requireAdminSession } from "#/lib/admin-auth";
 import {
   defaultWebhookFormValues,
   normalizeWebhookFormValues,
   webhookFormSchema,
 } from "#/lib/webhook-form";
-
-const createWebhook = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => webhookCreateSchema.parse(input))
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    try {
-      await db.insert(webhooks).values({
-        name: data.name,
-        url: data.url,
-        event: data.event,
-        secret: data.secret || null,
-        isActive: true,
-        createdAt: new Date(),
-      });
-      return { success: true };
-    } catch (error) {
-      throw new Error(getFriendlyDbError(error, "Webhook") || "Failed to create webhook");
-    }
-  });
+import { createDashboardWebhook } from "#/server/dashboard/webhooks";
 
 export const Route = createFileRoute("/dashboard/webhooks/new")({
   component: NewWebhookPage,
@@ -73,7 +50,7 @@ function NewWebhookPage() {
       try {
         setSaving(true);
         setErrorMessage("");
-        await createWebhook({
+        await createDashboardWebhook({
           data: normalizeWebhookFormValues(value),
         });
         await navigate({ to: "/dashboard/webhooks" });

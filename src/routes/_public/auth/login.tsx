@@ -4,7 +4,6 @@ import { Button } from "#/components/ui/button";
 import { Mail } from "lucide-react";
 import { SocialLogin } from "#/components/auth/social-login";
 import { toast } from "sonner";
-import { createServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import {
   Field,
@@ -15,15 +14,11 @@ import {
 import { Input } from "#/components/ui/input";
 import { usePostHog } from "@posthog/react";
 import { captureClientException } from "#/lib/sentry-client";
-
-const getSession = createServerFn({ method: "GET" }).handler(async () => {
-  const { getAuthSession } = await import("#/lib/admin-auth");
-  return await getAuthSession();
-});
+import { getCurrentAuthSession } from "#/server/public/auth";
 
 export const Route = createFileRoute("/_public/auth/login")({
   beforeLoad: async () => {
-    const session = await getSession();
+    const session = await getCurrentAuthSession();
     if (session) {
       throw redirect({ to: "/dashboard" });
     }

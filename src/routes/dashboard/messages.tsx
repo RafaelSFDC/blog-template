@@ -1,52 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { createServerFn } from "@tanstack/react-start";
 import { contactMessages } from "#/db/schema";
-import { eq, desc } from "drizzle-orm";
 import { Button } from "#/components/ui/button";
 import { Mail, Check, Archive, Inbox } from "lucide-react";
 import { useCallback, useState } from "react";
-import { requireAdminSession } from "#/lib/admin-auth";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
+import {
+  deleteDashboardMessage,
+  getDashboardMessages,
+  updateDashboardMessageStatus,
+} from "#/server/dashboard/messages";
 
 type MessageRow = typeof contactMessages.$inferSelect;
 
-const getMessages = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
-  const { db } = await import("#/db/index");
-  return (await db.query.contactMessages.findMany({
-    orderBy: desc(contactMessages.createdAt),
-  })) as MessageRow[];
-});
-
-const updateMessageStatus = createServerFn({ method: "POST" })
-  .inputValidator(
-    (data: { id: number; status: "read" | "archived" | "new" }) => data,
-  )
-  .handler(async ({ data }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    await db
-      .update(contactMessages)
-      .set({ status: data.status })
-      .where(eq(contactMessages.id, data.id));
-    return { success: true };
-  });
-
-const deleteMessage = createServerFn({ method: "POST" })
-  .inputValidator((id: number) => id)
-  .handler(async ({ data: id }) => {
-    await requireAdminSession();
-    const { db } = await import("#/db/index");
-    await db.delete(contactMessages).where(eq(contactMessages.id, id));
-    return { success: true };
-  });
-
 export const Route = createFileRoute("/dashboard/messages")({
-  loader: () => getMessages(),
+  loader: () => getDashboardMessages(),
   component: MessagesPage,
 });
 
@@ -58,7 +29,7 @@ function MessagesPage() {
     id: number,
     status: "read" | "archived" | "new",
   ) => {
-    await updateMessageStatus({ data: { id, status } });
+    await updateDashboardMessageStatus({ data: { id, status } });
     setMessages((current) =>
       current.map((message) =>
         message.id === id ? { ...message, status } : message,
@@ -67,7 +38,7 @@ function MessagesPage() {
   }, []);
 
   const handleDelete = useCallback(async (id: number) => {
-    await deleteMessage({ data: id });
+    await deleteDashboardMessage({ data: id });
     setMessages((current) => current.filter((message) => message.id !== id));
   }, []);
 

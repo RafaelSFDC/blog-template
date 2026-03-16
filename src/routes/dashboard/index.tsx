@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { QuickAction } from "#/components/dashboard/QuickAction";
@@ -7,10 +6,7 @@ import { DashboardSection } from "#/components/dashboard/DashboardSection";
 import { Button } from "#/components/ui/button";
 import { StatCard } from "#/components/ui/stat-card";
 import { StatusBadge } from "#/components/ui/status-badge";
-import { db } from "#/db/index";
-import { posts, contactMessages, newsletters, subscribers } from "#/db/schema";
-import { requireDashboardAccess } from "#/lib/admin-auth";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { posts } from "#/db/schema";
 import {
   FileText,
   Eye,
@@ -23,84 +19,12 @@ import {
   Inbox,
 } from "lucide-react";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
+import { getDashboardOverview } from "#/server/dashboard/overview";
 
 type PostRow = typeof posts.$inferSelect;
 
-const getDashboardStats = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const session = await requireDashboardAccess();
-    const isAuthor = session.user.role === "author";
-    const canReadMessages =
-      session.user.role === "admin" ||
-      session.user.role === "super-admin" ||
-      session.user.role === "editor";
-
-    const [
-      [postCount],
-      [unreadMessages],
-      [totalViews],
-      [activeSubscribers],
-      [sentCampaigns],
-      latestPosts,
-      popularPosts,
-    ] = await Promise.all([
-      isAuthor
-        ? db.select({ value: count() }).from(posts).where(eq(posts.authorId, session.user.id))
-        : db.select({ value: count() }).from(posts),
-      canReadMessages
-        ? db
-            .select({ value: count() })
-            .from(contactMessages)
-            .where(eq(contactMessages.status, "new"))
-        : Promise.resolve([{ value: 0 }]),
-      isAuthor
-        ? db
-            .select({ value: sql<number>`sum(${posts.viewCount})` })
-            .from(posts)
-            .where(eq(posts.authorId, session.user.id))
-        : db
-            .select({ value: sql<number>`sum(${posts.viewCount})` })
-            .from(posts),
-      db
-        .select({ value: count() })
-        .from(subscribers)
-        .where(eq(subscribers.status, "active")),
-      db
-        .select({ value: count() })
-        .from(newsletters)
-        .where(eq(newsletters.status, "sent")),
-      isAuthor
-        ? db
-            .select()
-            .from(posts)
-            .where(eq(posts.authorId, session.user.id))
-            .orderBy(desc(posts.updatedAt))
-            .limit(5)
-        : db.select().from(posts).orderBy(desc(posts.updatedAt)).limit(5),
-      isAuthor
-        ? db
-            .select()
-            .from(posts)
-            .where(eq(posts.authorId, session.user.id))
-            .orderBy(desc(posts.viewCount))
-            .limit(5)
-        : db.select().from(posts).orderBy(desc(posts.viewCount)).limit(5),
-    ]);
-
-    return {
-      postCount: postCount.value || 0,
-      unreadMessages: unreadMessages.value || 0,
-      totalViews: Number(totalViews.value) || 0,
-      activeSubscribers: activeSubscribers.value || 0,
-      sentCampaigns: sentCampaigns.value || 0,
-      latestPosts,
-      popularPosts,
-    };
-  },
-);
-
 export const Route = createFileRoute("/dashboard/")({
-  loader: () => getDashboardStats(),
+  loader: () => getDashboardOverview(),
   component: DashboardOverview,
 });
 

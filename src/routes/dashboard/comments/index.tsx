@@ -1,89 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db/index";
-import { comments, posts } from "#/db/schema";
-import { eq, desc } from "drizzle-orm";
 import { Check, X, MessageSquare } from "lucide-react";
 import { useCallback, useState } from "react";
-import { requireCommentModerationAccess } from "#/lib/editorial-access";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { Button } from "#/components/ui/button";
-import { bulkCommentActionSchema, commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
 import { Checkbox } from "#/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
-
-const getComments = createServerFn({ method: "GET" }).handler(async () => {
-  await requireCommentModerationAccess();
-  return await db
-    .select({
-      id: comments.id,
-      authorName: comments.authorName,
-      authorEmail: comments.authorEmail,
-      content: comments.content,
-      status: comments.status,
-      createdAt: comments.createdAt,
-      postTitle: posts.title,
-      postId: posts.id,
-    })
-    .from(comments)
-    .leftJoin(posts, eq(comments.postId, posts.id))
-    .orderBy(desc(comments.createdAt));
-});
-
-const updateCommentStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => commentStatusUpdateSchema.parse(input))
-  .handler(async ({ data }) => {
-    await requireCommentModerationAccess();
-    await db
-      .update(comments)
-      .set({ status: data.status })
-      .where(eq(comments.id, data.id));
-    return { success: true };
-  });
-
-const deleteComment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => recordIdSchema.parse({ id: input }))
-  .handler(async ({ data }) => {
-    await requireCommentModerationAccess();
-    await db.delete(comments).where(eq(comments.id, data.id));
-    return { success: true };
-  });
-
-const bulkModerateComments = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => bulkCommentActionSchema.parse(input))
-  .handler(async ({ data }) => {
-    await requireCommentModerationAccess();
-
-    if (data.action === "delete") {
-      await db.delete(comments).where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
-      return { success: true };
-    }
-
-    const nextStatus =
-      data.action === "approve"
-        ? "approved"
-        : data.action === "spam"
-          ? "spam"
-          : "pending";
-
-    await db
-      .update(comments)
-      .set({ status: nextStatus })
-      .where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
-
-    return { success: true };
-  });
+import {
+  bulkModerateDashboardComments,
+  deleteDashboardComment,
+  getDashboardComments,
+  updateDashboardCommentStatus,
+} from "#/server/dashboard/comments";
 
 export const Route = createFileRoute("/dashboard/comments/")({
-  loader: () => getComments(),
+  loader: () => getDashboardComments(),
   component: CommentsPage,
 });
 
-type CommentRow = Awaited<ReturnType<typeof getComments>>[number];
+type CommentRow = Awaited<ReturnType<typeof getDashboardComments>>[number];
 
 function CommentsPage() {
   const initialComments = Route.useLoaderData();
@@ -95,7 +33,7 @@ function CommentsPage() {
     id: number,
     status: "approved" | "spam" | "pending",
   ) => {
-    await updateCommentStatus({ data: { id, status } });
+    await updateDashboardCommentStatus({ data: { id, status } });
     setCommentsList((current: CommentRow[]) =>
       current.map((comment: CommentRow) =>
         comment.id === id ? { ...comment, status } : comment,
@@ -104,7 +42,7 @@ function CommentsPage() {
   }, []);
 
   const handleDelete = useCallback(async (id: number) => {
-    await deleteComment({ data: id });
+    await deleteDashboardComment({ data: id });
     setCommentsList((current: CommentRow[]) =>
       current.filter((comment: CommentRow) => comment.id !== id),
     );
@@ -115,7 +53,7 @@ function CommentsPage() {
       return;
     }
 
-    await bulkModerateComments({
+    await bulkModerateDashboardComments({
       data: {
         ids: selectedIds,
         action: bulkAction as never,
