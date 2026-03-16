@@ -360,6 +360,27 @@ export const contactFormSubmissionSchema = contactFormSchema.extend({
   turnstileToken: turnstileTokenSchema,
 });
 
+export const betaRequestRoleSchema = z.enum(["creator", "journalist", "publication_lead"]);
+export const betaRequestPublicationTypeSchema = z.enum([
+  "independent_newsletter",
+  "digital_magazine",
+  "premium_blog",
+  "other",
+]);
+
+export const betaRequestSchema = z.object({
+  name: trimmedString(1, "Full name required", 120, "Name is too long"),
+  email: z.string().trim().email("Invalid email").max(320, "Email is too long"),
+  role: betaRequestRoleSchema,
+  publicationType: betaRequestPublicationTypeSchema,
+  currentStack: trimmedString(2, "Current stack required", 160, "Current stack is too long"),
+  message: trimmedString(10, "Message too short", 5000, "Message is too long"),
+});
+
+export const betaRequestSubmissionSchema = betaRequestSchema.extend({
+  turnstileToken: turnstileTokenSchema,
+});
+
 export const publicCommentSchema = z.object({
   postId: positiveIntSchema,
   authorName: trimmedString(1, "Author name is required", 120, "Author name is too long"),

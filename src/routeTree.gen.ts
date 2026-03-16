@@ -9,12 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LuminaRouteImport } from './routes/lumina'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as LuminaIndexRouteImport } from './routes/lumina/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
+import { Route as LuminaPricingRouteImport } from './routes/lumina/pricing'
+import { Route as LuminaHowItWorksRouteImport } from './routes/lumina/how-it-works'
+import { Route as LuminaForPublicationsRouteImport } from './routes/lumina/for-publications'
+import { Route as LuminaForJournalistsRouteImport } from './routes/lumina/for-journalists'
+import { Route as LuminaForCreatorsRouteImport } from './routes/lumina/for-creators'
+import { Route as LuminaFaqRouteImport } from './routes/lumina/faq'
+import { Route as LuminaBetaRouteImport } from './routes/lumina/beta'
 import { Route as DashboardSetupRouteImport } from './routes/dashboard/setup'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redirects'
@@ -77,6 +86,11 @@ import { Route as PublicAuthInviteTokenRouteImport } from './routes/_public/auth
 import { Route as PublicBlogArchiveYearIndexRouteImport } from './routes/_public/blog/archive/$year/index'
 import { Route as PublicBlogArchiveYearMonthRouteImport } from './routes/_public/blog/archive/$year/$month'
 
+const LuminaRoute = LuminaRouteImport.update({
+  id: '/lumina',
+  path: '/lumina',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -85,6 +99,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LuminaIndexRoute = LuminaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LuminaRoute,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -105,6 +124,41 @@ const RssXmlRoute = RssXmlRouteImport.update({
   id: '/rss/xml',
   path: '/rss/xml',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LuminaPricingRoute = LuminaPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaHowItWorksRoute = LuminaHowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaForPublicationsRoute = LuminaForPublicationsRouteImport.update({
+  id: '/for-publications',
+  path: '/for-publications',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaForJournalistsRoute = LuminaForJournalistsRouteImport.update({
+  id: '/for-journalists',
+  path: '/for-journalists',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaForCreatorsRoute = LuminaForCreatorsRouteImport.update({
+  id: '/for-creators',
+  path: '/for-creators',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaFaqRoute = LuminaFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => LuminaRoute,
+} as any)
+const LuminaBetaRoute = LuminaBetaRouteImport.update({
+  id: '/beta',
+  path: '/beta',
+  getParentRoute: () => LuminaRoute,
 } as any)
 const DashboardSetupRoute = DashboardSetupRouteImport.update({
   id: '/setup',
@@ -427,6 +481,7 @@ const PublicBlogArchiveYearMonthRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/lumina': typeof LuminaRouteWithChildren
   '/$': typeof PublicSplatRoute
   '/about': typeof PublicAboutRoute
   '/account': typeof PublicAccountRoute
@@ -440,9 +495,17 @@ export interface FileRoutesByFullPath {
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/setup': typeof DashboardSetupRoute
+  '/lumina/beta': typeof LuminaBetaRoute
+  '/lumina/faq': typeof LuminaFaqRoute
+  '/lumina/for-creators': typeof LuminaForCreatorsRoute
+  '/lumina/for-journalists': typeof LuminaForJournalistsRoute
+  '/lumina/for-publications': typeof LuminaForPublicationsRoute
+  '/lumina/how-it-works': typeof LuminaHowItWorksRoute
+  '/lumina/pricing': typeof LuminaPricingRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/lumina/': typeof LuminaIndexRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
@@ -506,10 +569,18 @@ export interface FileRoutesByTo {
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/setup': typeof DashboardSetupRoute
+  '/lumina/beta': typeof LuminaBetaRoute
+  '/lumina/faq': typeof LuminaFaqRoute
+  '/lumina/for-creators': typeof LuminaForCreatorsRoute
+  '/lumina/for-journalists': typeof LuminaForJournalistsRoute
+  '/lumina/for-publications': typeof LuminaForPublicationsRoute
+  '/lumina/how-it-works': typeof LuminaHowItWorksRoute
+  '/lumina/pricing': typeof LuminaPricingRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/lumina': typeof LuminaIndexRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
@@ -563,6 +634,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
+  '/lumina': typeof LuminaRouteWithChildren
   '/_public/$': typeof PublicSplatRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/account': typeof PublicAccountRoute
@@ -576,10 +648,18 @@ export interface FileRoutesById {
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/setup': typeof DashboardSetupRoute
+  '/lumina/beta': typeof LuminaBetaRoute
+  '/lumina/faq': typeof LuminaFaqRoute
+  '/lumina/for-creators': typeof LuminaForCreatorsRoute
+  '/lumina/for-journalists': typeof LuminaForJournalistsRoute
+  '/lumina/for-publications': typeof LuminaForPublicationsRoute
+  '/lumina/how-it-works': typeof LuminaHowItWorksRoute
+  '/lumina/pricing': typeof LuminaPricingRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/lumina/': typeof LuminaIndexRoute
   '/_public/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/_public/auth/login': typeof PublicAuthLoginRoute
   '/_public/auth/register': typeof PublicAuthRegisterRoute
@@ -634,6 +714,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/lumina'
     | '/$'
     | '/about'
     | '/account'
@@ -647,9 +728,17 @@ export interface FileRouteTypes {
     | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/dashboard/setup'
+    | '/lumina/beta'
+    | '/lumina/faq'
+    | '/lumina/for-creators'
+    | '/lumina/for-journalists'
+    | '/lumina/for-publications'
+    | '/lumina/how-it-works'
+    | '/lumina/pricing'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/dashboard/'
+    | '/lumina/'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
@@ -713,10 +802,18 @@ export interface FileRouteTypes {
     | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/dashboard/setup'
+    | '/lumina/beta'
+    | '/lumina/faq'
+    | '/lumina/for-creators'
+    | '/lumina/for-journalists'
+    | '/lumina/for-publications'
+    | '/lumina/how-it-works'
+    | '/lumina/pricing'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/'
     | '/dashboard'
+    | '/lumina'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
@@ -769,6 +866,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_public'
     | '/dashboard'
+    | '/lumina'
     | '/_public/$'
     | '/_public/about'
     | '/_public/account'
@@ -782,10 +880,18 @@ export interface FileRouteTypes {
     | '/dashboard/redirects'
     | '/dashboard/settings'
     | '/dashboard/setup'
+    | '/lumina/beta'
+    | '/lumina/faq'
+    | '/lumina/for-creators'
+    | '/lumina/for-journalists'
+    | '/lumina/for-publications'
+    | '/lumina/how-it-works'
+    | '/lumina/pricing'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/_public/'
     | '/dashboard/'
+    | '/lumina/'
     | '/_public/auth/forgot-password'
     | '/_public/auth/login'
     | '/_public/auth/register'
@@ -839,6 +945,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
+  LuminaRoute: typeof LuminaRouteWithChildren
   ApiCommentsRoute: typeof ApiCommentsRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRouteWithChildren
   RssXmlRoute: typeof RssXmlRoute
@@ -860,6 +967,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/lumina': {
+      id: '/lumina'
+      path: '/lumina'
+      fullPath: '/lumina'
+      preLoaderRoute: typeof LuminaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -873,6 +987,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lumina/': {
+      id: '/lumina/'
+      path: '/'
+      fullPath: '/lumina/'
+      preLoaderRoute: typeof LuminaIndexRouteImport
+      parentRoute: typeof LuminaRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -901,6 +1022,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/rss/xml'
       preLoaderRoute: typeof RssXmlRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lumina/pricing': {
+      id: '/lumina/pricing'
+      path: '/pricing'
+      fullPath: '/lumina/pricing'
+      preLoaderRoute: typeof LuminaPricingRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/how-it-works': {
+      id: '/lumina/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/lumina/how-it-works'
+      preLoaderRoute: typeof LuminaHowItWorksRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/for-publications': {
+      id: '/lumina/for-publications'
+      path: '/for-publications'
+      fullPath: '/lumina/for-publications'
+      preLoaderRoute: typeof LuminaForPublicationsRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/for-journalists': {
+      id: '/lumina/for-journalists'
+      path: '/for-journalists'
+      fullPath: '/lumina/for-journalists'
+      preLoaderRoute: typeof LuminaForJournalistsRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/for-creators': {
+      id: '/lumina/for-creators'
+      path: '/for-creators'
+      fullPath: '/lumina/for-creators'
+      preLoaderRoute: typeof LuminaForCreatorsRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/faq': {
+      id: '/lumina/faq'
+      path: '/faq'
+      fullPath: '/lumina/faq'
+      preLoaderRoute: typeof LuminaFaqRouteImport
+      parentRoute: typeof LuminaRoute
+    }
+    '/lumina/beta': {
+      id: '/lumina/beta'
+      path: '/beta'
+      fullPath: '/lumina/beta'
+      preLoaderRoute: typeof LuminaBetaRouteImport
+      parentRoute: typeof LuminaRoute
     }
     '/dashboard/setup': {
       id: '/dashboard/setup'
@@ -1451,6 +1621,31 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface LuminaRouteChildren {
+  LuminaBetaRoute: typeof LuminaBetaRoute
+  LuminaFaqRoute: typeof LuminaFaqRoute
+  LuminaForCreatorsRoute: typeof LuminaForCreatorsRoute
+  LuminaForJournalistsRoute: typeof LuminaForJournalistsRoute
+  LuminaForPublicationsRoute: typeof LuminaForPublicationsRoute
+  LuminaHowItWorksRoute: typeof LuminaHowItWorksRoute
+  LuminaPricingRoute: typeof LuminaPricingRoute
+  LuminaIndexRoute: typeof LuminaIndexRoute
+}
+
+const LuminaRouteChildren: LuminaRouteChildren = {
+  LuminaBetaRoute: LuminaBetaRoute,
+  LuminaFaqRoute: LuminaFaqRoute,
+  LuminaForCreatorsRoute: LuminaForCreatorsRoute,
+  LuminaForJournalistsRoute: LuminaForJournalistsRoute,
+  LuminaForPublicationsRoute: LuminaForPublicationsRoute,
+  LuminaHowItWorksRoute: LuminaHowItWorksRoute,
+  LuminaPricingRoute: LuminaPricingRoute,
+  LuminaIndexRoute: LuminaIndexRoute,
+}
+
+const LuminaRouteWithChildren =
+  LuminaRoute._addFileChildren(LuminaRouteChildren)
+
 interface ApiCommentsRouteChildren {
   ApiCommentsIdRoute: typeof ApiCommentsIdRoute
 }
@@ -1480,6 +1675,7 @@ const ApiHealthRouteWithChildren = ApiHealthRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
+  LuminaRoute: LuminaRouteWithChildren,
   ApiCommentsRoute: ApiCommentsRouteWithChildren,
   ApiHealthRoute: ApiHealthRouteWithChildren,
   RssXmlRoute: RssXmlRoute,
