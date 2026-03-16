@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Stripe from "stripe";
 import { processStripeWebhookEvent } from "#/server/membership-actions";
-import { getPostHogClient } from "#/server/posthog";
+import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
 import { stripe } from "#/server/stripe";
 import { logOperationalEvent } from "#/server/system/operations";
@@ -43,19 +43,19 @@ export const Route = createFileRoute("/api/stripe/webhook")({
             eventId: event.id,
           });
 
-          const posthog = getPostHogClient();
           if (!result.duplicate) {
             if (event.type === "checkout.session.completed") {
               const session = event.data.object as Stripe.Checkout.Session;
-              posthog.capture({
+              await captureServerEvent({
                 distinctId: session.customer_email || session.metadata?.userId || "stripe-checkout",
-                event: "subscription_activated",
+                event: "checkout_completed",
                 properties: {
                   user_id: session.metadata?.userId,
                   customer_email: session.customer_email,
                   stripe_customer_id: session.customer,
                   stripe_subscription_id: session.subscription,
                   plan_slug: session.metadata?.planSlug,
+                  surface: "checkout",
                 },
               });
             }
@@ -74,12 +74,13 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 
             if (event.type === "customer.subscription.deleted") {
               const subscription = event.data.object as Stripe.Subscription;
-              posthog.capture({
+              await captureServerEvent({
                 distinctId: String(subscription.customer || "stripe-billing"),
                 event: "subscription_canceled",
                 properties: {
                   stripe_customer_id: subscription.customer,
                   stripe_subscription_id: subscription.id,
+                  surface: "billing",
                 },
               });
             }

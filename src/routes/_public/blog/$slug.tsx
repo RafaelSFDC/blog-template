@@ -19,6 +19,7 @@ import {
   buildPublicSeo,
   resolvePublicIndexability,
 } from "#/lib/seo";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
 import { addPublicComment, getPublicPostBySlug } from "#/server/public/content";
 
@@ -90,10 +91,11 @@ function PostDetail() {
   const posthog = usePostHog();
 
   async function handleSubscribe() {
-    posthog.capture("subscription_checkout_started", {
+    captureClientEvent(posthog, "paywall_cta_clicked", {
       post_slug: post.slug,
       post_title: post.title,
       plan_slug: defaultPlanSlug,
+      surface: "public_site",
     });
 
     try {
@@ -179,10 +181,6 @@ function PostDetail() {
               <CommentForm
                 onSubmit={async (data) => {
                   await addPublicComment({ data: { ...data, postId: post.id } });
-                  posthog.capture("post_comment_submitted", {
-                    post_slug: post.slug,
-                    post_title: post.title,
-                  });
                 }}
               />
             </div>

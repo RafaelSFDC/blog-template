@@ -1,8 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { usePostHog } from "@posthog/react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { LuminaLogo } from "#/components/LuminaLogo";
+import { captureClientEvent } from "#/lib/analytics-client";
 import {
   LUMINA_PRIMARY_CTA_HREF,
   LUMINA_SECONDARY_CTA_HREF,
@@ -11,6 +14,17 @@ import {
 import { cn } from "#/lib/utils";
 
 export function LuminaMarketingShell({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    captureClientEvent(posthog, "lumina_marketing_page_view", {
+      path: location.pathname,
+      source: "route_change",
+      surface: "lumina_marketing",
+    });
+  }, [location.pathname, posthog]);
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(180,224,214,0.28),_transparent_45%),linear-gradient(180deg,_var(--background),_color-mix(in_srgb,var(--muted)_75%,white))]">
       <header className="sticky top-0 z-50 px-2 py-4 sm:px-4">
@@ -30,16 +44,55 @@ export function LuminaMarketingShell({ children }: { children: React.ReactNode }
               <div className="flex flex-wrap items-center gap-2">
                 {luminaMarketingNav.map((item) => (
                   <Button key={item.href} asChild size="sm" variant="ghost">
-                    <Link to={item.href}>{item.label}</Link>
+                    <Link
+                      to={item.href}
+                      onClick={() =>
+                        captureClientEvent(posthog, "lumina_cta_clicked", {
+                          cta_label: item.label,
+                          cta_href: item.href,
+                          path: location.pathname,
+                          source: "marketing_nav",
+                          surface: "lumina_marketing",
+                        })
+                      }
+                    >
+                      {item.label}
+                    </Link>
                   </Button>
                 ))}
               </div>
               <div className="flex items-center gap-2">
                 <Button asChild variant="outline" size="sm">
-                  <Link to={LUMINA_SECONDARY_CTA_HREF}>Pricing</Link>
+                  <Link
+                    to={LUMINA_SECONDARY_CTA_HREF}
+                    onClick={() =>
+                      captureClientEvent(posthog, "lumina_cta_clicked", {
+                        cta_label: "Pricing",
+                        cta_href: LUMINA_SECONDARY_CTA_HREF,
+                        path: location.pathname,
+                        source: "marketing_header",
+                        surface: "lumina_marketing",
+                      })
+                    }
+                  >
+                    Pricing
+                  </Link>
                 </Button>
                 <Button asChild size="sm">
-                  <Link to={LUMINA_PRIMARY_CTA_HREF}>Request beta</Link>
+                  <Link
+                    to={LUMINA_PRIMARY_CTA_HREF}
+                    onClick={() =>
+                      captureClientEvent(posthog, "lumina_cta_clicked", {
+                        cta_label: "Request beta",
+                        cta_href: LUMINA_PRIMARY_CTA_HREF,
+                        path: location.pathname,
+                        source: "marketing_header",
+                        surface: "lumina_marketing",
+                      })
+                    }
+                  >
+                    Request beta
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -66,11 +119,37 @@ export function LuminaMarketingShell({ children }: { children: React.ReactNode }
           <div className="flex flex-wrap gap-2">
             {luminaMarketingNav.map((item) => (
               <Button key={item.href} asChild variant="ghost" size="sm">
-                <Link to={item.href}>{item.label}</Link>
+                <Link
+                  to={item.href}
+                  onClick={() =>
+                    captureClientEvent(posthog, "lumina_cta_clicked", {
+                      cta_label: item.label,
+                      cta_href: item.href,
+                      path: location.pathname,
+                      source: "marketing_footer",
+                      surface: "lumina_marketing",
+                    })
+                  }
+                >
+                  {item.label}
+                </Link>
               </Button>
             ))}
             <Button asChild variant="default" size="sm">
-              <Link to={LUMINA_PRIMARY_CTA_HREF}>Request beta</Link>
+              <Link
+                to={LUMINA_PRIMARY_CTA_HREF}
+                onClick={() =>
+                  captureClientEvent(posthog, "lumina_cta_clicked", {
+                    cta_label: "Request beta",
+                    cta_href: LUMINA_PRIMARY_CTA_HREF,
+                    path: location.pathname,
+                    source: "marketing_footer",
+                    surface: "lumina_marketing",
+                  })
+                }
+              >
+                Request beta
+              </Link>
             </Button>
           </div>
         </div>
@@ -100,6 +179,9 @@ export function LuminaHero({
   secondaryCtaHref = LUMINA_SECONDARY_CTA_HREF,
   aside,
 }: LuminaHeroProps) {
+  const posthog = usePostHog();
+  const location = useLocation();
+
   return (
     <section className="page-wrap grid gap-8 px-4 pb-8 pt-8 lg:grid-cols-12 lg:gap-10 lg:pt-14">
       <div className="rounded-md border bg-card p-8 shadow-sm sm:p-10 lg:col-span-7 lg:p-12">
@@ -114,13 +196,37 @@ export function LuminaHero({
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="xl">
-            <Link to={primaryCtaHref}>
+            <Link
+              to={primaryCtaHref}
+              onClick={() =>
+                captureClientEvent(posthog, "lumina_cta_clicked", {
+                  cta_label: primaryCtaLabel,
+                  cta_href: primaryCtaHref,
+                  path: location.pathname,
+                  source: "hero_primary",
+                  surface: "lumina_marketing",
+                })
+              }
+            >
               {primaryCtaLabel}
               <ArrowRight size={16} />
             </Link>
           </Button>
           <Button asChild size="xl" variant="outline">
-            <Link to={secondaryCtaHref}>{secondaryCtaLabel}</Link>
+            <Link
+              to={secondaryCtaHref}
+              onClick={() =>
+                captureClientEvent(posthog, "lumina_cta_clicked", {
+                  cta_label: secondaryCtaLabel,
+                  cta_href: secondaryCtaHref,
+                  path: location.pathname,
+                  source: "hero_secondary",
+                  surface: "lumina_marketing",
+                })
+              }
+            >
+              {secondaryCtaLabel}
+            </Link>
           </Button>
         </div>
       </div>
@@ -182,6 +288,9 @@ export function LuminaCtaBand({
   title: string;
   description: string;
 }) {
+  const posthog = usePostHog();
+  const location = useLocation();
+
   return (
     <LuminaSection className="pb-16">
       <div className="rounded-md border bg-card p-8 shadow-sm sm:p-10">
@@ -197,10 +306,36 @@ export function LuminaCtaBand({
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="xl">
-              <Link to={LUMINA_PRIMARY_CTA_HREF}>Request beta</Link>
+              <Link
+                to={LUMINA_PRIMARY_CTA_HREF}
+                onClick={() =>
+                  captureClientEvent(posthog, "lumina_cta_clicked", {
+                    cta_label: "Request beta",
+                    cta_href: LUMINA_PRIMARY_CTA_HREF,
+                    path: location.pathname,
+                    source: "cta_band_primary",
+                    surface: "lumina_marketing",
+                  })
+                }
+              >
+                Request beta
+              </Link>
             </Button>
             <Button asChild size="xl" variant="outline">
-              <Link to={LUMINA_SECONDARY_CTA_HREF}>Review pricing</Link>
+              <Link
+                to={LUMINA_SECONDARY_CTA_HREF}
+                onClick={() =>
+                  captureClientEvent(posthog, "lumina_cta_clicked", {
+                    cta_label: "Review pricing",
+                    cta_href: LUMINA_SECONDARY_CTA_HREF,
+                    path: location.pathname,
+                    source: "cta_band_secondary",
+                    surface: "lumina_marketing",
+                  })
+                }
+              >
+                Review pricing
+              </Link>
             </Button>
           </div>
         </div>

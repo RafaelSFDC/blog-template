@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, desc, eq, inArray, lte, ne } from "drizzle-orm";
+import { and, count, desc, eq, inArray, lte, ne } from "drizzle-orm";
 import { notFound } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import {
@@ -38,6 +38,7 @@ import {
 } from "#/server/post-domain";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
+import { captureServerEvent } from "#/server/analytics";
 import {
   acquireContentLock,
   createPostRevision,
@@ -97,6 +98,35 @@ async function getPostWorkflowBundle(postId: number) {
     comments,
     editors,
   };
+}
+
+async function captureFirstPostPublishedIfNeeded(input: {
+  actorDistinctId: string;
+  actorUserId: string | null;
+  postId: number;
+  postSlug: string;
+  postTitle: string;
+}) {
+  const [{ value: publishedCount }] = await db
+    .select({ value: count() })
+    .from(posts)
+    .where(eq(posts.status, "published"));
+
+  if (publishedCount !== 1) {
+    return;
+  }
+
+  await captureServerEvent({
+    distinctId: input.actorDistinctId,
+    event: "first_post_published",
+    properties: {
+      actor_user_id: input.actorUserId,
+      post_id: input.postId,
+      post_slug: input.postSlug,
+      post_title: input.postTitle,
+      surface: "dashboard",
+    },
+  });
 }
 
 export const getPostForEdit = createServerFn({ method: "GET" })
@@ -225,6 +255,14 @@ export const createPost = createServerFn({ method: "POST" })
       });
 
       if (shouldTriggerPublishedWebhook(undefined, data.status)) {
+        await captureFirstPostPublishedIfNeeded({
+          actorDistinctId: session.user.email,
+          actorUserId: session.user.id,
+          postId: created.id,
+          postSlug: slug,
+          postTitle: data.title,
+        });
+
         try {
           await triggerWebhook("post.published", {
             id: created.id,
@@ -365,6 +403,14 @@ export const updatePost = createServerFn({ method: "POST" })
       });
 
       if (shouldTriggerPublishedWebhook(existingPost.status as never, data.status)) {
+        await captureFirstPostPublishedIfNeeded({
+          actorDistinctId: session.user.email,
+          actorUserId: session.user.id,
+          postId: data.id,
+          postSlug: slug,
+          postTitle: data.title,
+        });
+
         try {
           await triggerWebhook("post.published", {
             id: data.id,
@@ -634,6 +680,14 @@ async function transitionPostWorkflow(input: {
   });
 
   if (input.action === "publish" && shouldTriggerPublishedWebhook(existing.status as never, nextStatus as never)) {
+    await captureFirstPostPublishedIfNeeded({
+      actorDistinctId: input.actorUserId,
+      actorUserId: input.actorUserId,
+      postId: input.postId,
+      postSlug: existing.slug,
+      postTitle: existing.title,
+    });
+
     await triggerWebhook("post.published", {
       id: input.postId,
       title: existing.title,
@@ -986,6 +1040,14 @@ export async function publishScheduledPosts(now = new Date()) {
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt,
+    });
+
+    await captureFirstPostPublishedIfNeeded({
+      actorDistinctId: post.authorId ?? `post-${post.id}`,
+      actorUserId: post.authorId,
+      postId: post.id,
+      postSlug: post.slug,
+      postTitle: post.title,
     });
 
     publishedIds.push(post.id);

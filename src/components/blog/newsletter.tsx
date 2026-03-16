@@ -7,6 +7,7 @@ import { cn } from "#/lib/utils";
 import { subscribeNewsletter } from "#/server/newsletter-actions";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
 
 interface NewsletterProps {
@@ -42,12 +43,11 @@ export function Newsletter({
           data: { email, source: "site_form", turnstileToken },
         });
         if (res.success) {
-          posthog.capture(
-            res.state === "pending_confirmation"
-              ? "newsletter_pending_confirmation"
-              : "newsletter_subscribed",
-            { email },
-          );
+          captureClientEvent(posthog, "newsletter_subscribed", {
+            email,
+            source: "site_form",
+            surface: "newsletter",
+          });
           toast.success(res.message);
           setEmail("");
           setTurnstileToken("");

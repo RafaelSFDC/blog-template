@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { formatLuminaBetaRequestMessage } from "#/lib/lumina-marketing";
+import { captureServerEvent } from "#/server/analytics";
 
 export function buildLuminaBetaRequestRecord(data: {
   name: string;
@@ -22,15 +23,27 @@ export const submitLuminaBetaRequest = createServerFn({ method: "POST" })
     try {
       const { submitPublicInquiry } = await import("#/server/public/contact-inquiry");
       const record = buildLuminaBetaRequestRecord(data);
-      return await submitPublicInquiry({
+      const response = await submitPublicInquiry({
         name: data.name,
         email: data.email,
         subject: record.subject,
         message: record.message,
         turnstileToken: data.turnstileToken,
         scope: "lumina.beta.submit",
-        sentryFlow: "lumina-beta-request",
       });
+
+      await captureServerEvent({
+        distinctId: data.email,
+        event: "lumina_beta_request_submitted",
+        properties: {
+          role: data.role,
+          publication_type: data.publicationType,
+          current_stack: data.currentStack || null,
+          surface: "lumina_marketing",
+        },
+      });
+
+      return response;
     } catch (error) {
       const { captureServerException } = await import("#/server/sentry");
       captureServerException(error, {

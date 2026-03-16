@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
 import { getCurrentSubscription } from "#/server/membership-actions";
 import { stripe } from "#/server/stripe";
@@ -30,6 +31,16 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
           const portal = await stripe.billingPortal.sessions.create({
             customer: customerId,
             return_url: `${new URL(request.url).origin}/account`,
+          });
+
+          await captureServerEvent({
+            distinctId: session.user.email,
+            event: "billing_portal_opened",
+            properties: {
+              user_id: session.user.id,
+              stripe_customer_id: customerId,
+              surface: "billing",
+            },
           });
 
           return new Response(JSON.stringify({ url: portal.url }), {

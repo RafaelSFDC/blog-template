@@ -1,5 +1,8 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { useEffect } from "react"
+import { usePostHog } from "@posthog/react"
 import { checkDashboardAccess } from '#/server/system/dashboard-access'
+import { captureClientEvent } from "#/lib/analytics-client"
 import { getSetupStatus } from '#/server/setup-actions'
 import { shouldRedirectToSetup } from '#/lib/setup'
 
@@ -38,6 +41,15 @@ import { DashboardSidebar } from '#/components/dashboard/Sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '#/components/ui/sidebar'
 
 function DashboardLayout() {
+  const posthog = usePostHog()
+
+  useEffect(() => {
+    captureClientEvent(posthog, "dashboard_session_started", {
+      path: typeof window !== "undefined" ? window.location.pathname : "/dashboard",
+      surface: "dashboard",
+    })
+  }, [posthog])
+
   return (
     <SidebarProvider>
       <DashboardSidebar />

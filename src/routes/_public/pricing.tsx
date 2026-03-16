@@ -43,9 +43,6 @@ function PricingPage() {
   async function handleCheckout(planSlug: "monthly" | "annual") {
     try {
       setLoadingPlan(planSlug);
-      posthog.capture("pricing_checkout_started", {
-        plan_slug: planSlug,
-      });
 
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",

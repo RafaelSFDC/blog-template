@@ -15,6 +15,7 @@ import {
 import { Input } from "#/components/ui/input";
 import { usePostHog } from "@posthog/react";
 import { useState } from "react";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
 import { getCurrentAuthSession } from "#/server/public/auth";
 
@@ -53,7 +54,10 @@ function LoginPage() {
           },
         } as Parameters<typeof authClient.signIn.email>[0]);
         posthog.identify(value.email, { email: value.email });
-        posthog.capture("user_signed_in", { method: "email" });
+        captureClientEvent(posthog, "user_signed_in", {
+          method: "email",
+          surface: "auth",
+        });
       } catch (_err) {
         captureClientException(_err, {
           tags: {

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getPostHogClient } from "#/server/posthog";
+import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
 import { getPricingPlansData } from "#/server/membership-actions";
 import { stripe } from "#/server/stripe";
@@ -37,6 +37,8 @@ export const Route = createFileRoute("/api/stripe/checkout")({
 
         const sessionId = request.headers.get("X-PostHog-Session-Id");
         const distinctId = request.headers.get("X-PostHog-Distinct-Id") || session.user.email;
+        const referer = request.headers.get("referer") || "";
+        const source = referer.includes("/blog/") ? "paywall" : "pricing_page";
 
         try {
           const origin = new URL(request.url).origin;
@@ -57,9 +59,9 @@ export const Route = createFileRoute("/api/stripe/checkout")({
             },
           });
 
-          getPostHogClient().capture({
+          await captureServerEvent({
             distinctId,
-            event: "subscription_checkout_created",
+            event: "checkout_started",
             properties: {
               $session_id: sessionId || undefined,
               user_id: session.user.id,
@@ -67,6 +69,9 @@ export const Route = createFileRoute("/api/stripe/checkout")({
               checkout_session_id: checkoutSession.id,
               plan_slug: selectedPlan.slug,
               price_id: selectedPlan.stripePriceId,
+              path: referer || undefined,
+              source,
+              surface: "checkout",
             },
           });
 

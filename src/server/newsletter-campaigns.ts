@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { and, desc, eq, lte } from "drizzle-orm";
+import { and, count, desc, eq, lte } from "drizzle-orm";
 import { db } from "#/db/index";
 import {
   newsletterDeliveries,
@@ -16,7 +16,7 @@ import { resend as defaultResend } from "#/server/integrations/resend";
 import { getEffectiveSubscriptionStatus, hasPremiumEntitlement } from "#/lib/membership";
 import { logActivity } from "#/server/activity-log";
 import { getSettingValue, getSettingValues, parseBooleanSetting } from "#/server/app-settings";
-import { getPostHogClient } from "#/server/posthog";
+import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
 import type { ConsentStatus } from "#/types/security";
 import type { SecurityRequestMetadata } from "#/server/security/request";
@@ -134,17 +134,21 @@ async function getResendClient() {
 
 async function trackNewsletterEvent(
   distinctId: string,
-  event: string,
+  event:
+    | "newsletter_campaign_sent"
+    | "newsletter_subscribed"
+    | "newsletter_confirmed"
+    | "newsletter_unsubscribed"
+    | "newsletter_opened"
+    | "newsletter_clicked",
   properties: Record<string, unknown>,
 ) {
   try {
-    const posthog = getPostHogClient();
-    posthog.capture({
+    await captureServerEvent({
       distinctId,
       event,
       properties,
     });
-    await posthog.shutdownAsync();
   } catch (error) {
     console.warn("Failed to capture newsletter event", error);
   }
@@ -365,10 +369,11 @@ async function markCampaignQueued(newsletterId: number, actorUserId?: string | n
 
   await trackNewsletterEvent(
     actorUserId ?? `newsletter-${newsletterId}`,
-    "newsletter_campaign_queued",
+    "newsletter_campaign_sent",
     {
       newsletter_id: newsletterId,
-      segment: campaign.segment,
+      campaign_segment: campaign.segment,
+      surface: "newsletter",
     },
   );
 }
@@ -541,10 +546,10 @@ async function processDeliveryMessage(
     });
 
     if (finalFailure) {
-      await trackNewsletterEvent(`newsletter-${delivery.newsletter.id}`, "newsletter_delivery_failed", {
-        newsletter_id: delivery.newsletter.id,
-        delivery_id: delivery.id,
-        subscriber_email: delivery.subscriber.email,
+      console.warn("Newsletter delivery failed", {
+        newsletterId: delivery.newsletter.id,
+        deliveryId: delivery.id,
+        subscriberEmail: delivery.subscriber.email,
       });
     } else {
       await enqueueMessage({
@@ -880,8 +885,10 @@ export async function subscribeNewsletterAddress(input: {
     }
 
     await trackNewsletterEvent(email, "newsletter_subscribed", {
+      subscriber_id: existing.id,
       email,
       source: input.source ?? null,
+      surface: "newsletter",
     });
     return {
       success: true,
@@ -903,6 +910,10 @@ export async function subscribeNewsletterAddress(input: {
       createdAt: now,
     })
     .returning();
+
+  const [{ value: subscriberCount }] = await db
+    .select({ value: count() })
+    .from(subscribers);
 
   await createSubscriberEvent(created.id, "subscribe", {
     source: input.source ?? null,
@@ -926,9 +937,24 @@ export async function subscribeNewsletterAddress(input: {
   }
 
   await trackNewsletterEvent(email, "newsletter_subscribed", {
+    subscriber_id: created.id,
     email,
     source: input.source ?? null,
+    surface: "newsletter",
   });
+
+  if (subscriberCount === 1) {
+    await captureServerEvent({
+      distinctId: email,
+      event: "first_subscriber_captured",
+      properties: {
+        subscriber_id: created.id,
+        source: input.source ?? null,
+        surface: "newsletter",
+      },
+    });
+  }
+
   return {
     success: true,
     state: "active" as const,
@@ -972,6 +998,7 @@ export async function confirmNewsletterSubscriptionToken(token: string) {
   });
   await trackNewsletterEvent(subscriber.email, "newsletter_confirmed", {
     subscriber_id: subscriberId,
+    surface: "newsletter",
   });
 
   return subscriber;
@@ -1012,6 +1039,7 @@ export async function unsubscribeNewsletterToken(token: string) {
   });
   await trackNewsletterEvent(subscriber.email, "newsletter_unsubscribed", {
     subscriber_id: subscriberId,
+    surface: "newsletter",
   });
 
   return subscriber;
@@ -1047,6 +1075,7 @@ export async function recordNewsletterOpen(deliveryId: number) {
   await trackNewsletterEvent(`delivery-${deliveryId}`, "newsletter_opened", {
     newsletter_id: delivery.newsletterId,
     delivery_id: deliveryId,
+    surface: "newsletter",
   });
 }
 
@@ -1082,7 +1111,8 @@ export async function recordNewsletterClick(deliveryId: number, url: string) {
   await trackNewsletterEvent(`delivery-${deliveryId}`, "newsletter_clicked", {
     newsletter_id: delivery.newsletterId,
     delivery_id: deliveryId,
-    url,
+    path: url,
+    surface: "newsletter",
   });
 }
 

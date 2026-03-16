@@ -10,6 +10,7 @@ import { Input } from "#/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "#/components/ui/native-select";
 import { Textarea } from "#/components/ui/textarea";
 import { Button } from "#/components/ui/button";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { captureClientException } from "#/lib/sentry-client";
 import { submitLuminaBetaRequest } from "#/server/public/lumina-beta";
@@ -34,11 +35,14 @@ export function LuminaBetaRequestForm() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await submitLuminaBetaRequest({ data: value });
-        posthog.capture("lumina_beta_request_submitted", {
-          role: value.role,
-          publicationType: value.publicationType,
+        captureClientEvent(posthog, "lumina_cta_clicked", {
+          cta_label: "Request beta access",
+          cta_href: "/lumina/beta",
+          path: "/lumina/beta",
+          source: "beta_form_submit",
+          surface: "lumina_marketing",
         });
+        await submitLuminaBetaRequest({ data: value });
         toast.success("Beta request sent successfully.");
         setSubmitted(true);
         setTurnstileToken("");

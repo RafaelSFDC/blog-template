@@ -29,10 +29,10 @@ import {
   postServerSchema,
 } from "#/schemas/editorial";
 import { menuUpdateSchema, settingsSchema } from "#/schemas/system";
+import { captureServerEvent } from "#/server/analytics";
 import { requireAdminSession } from "#/server/auth/session";
 import { logActivity } from "#/server/activity-log";
 import { createPageRevision, createPostRevision } from "#/server/editorial-workflows";
-import { getPostHogClient } from "#/server/posthog";
 import { ensureCoreMenus } from "#/server/system/site-data";
 import type { SitePresetKey } from "#/types/system";
 
@@ -184,25 +184,6 @@ async function upsertSettingIfMissing(key: string, value: string) {
 
   if (!existing || !hasValue(existing.value)) {
     await upsertSetting(key, value);
-  }
-}
-
-function safeCaptureSetupEvent(input: {
-  distinctId: string;
-  event: string;
-  properties?: Record<string, unknown>;
-}) {
-  const key =
-    process.env.VITE_PUBLIC_POSTHOG_KEY || import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
-
-  if (!key) {
-    return;
-  }
-
-  try {
-    getPostHogClient().capture(input);
-  } catch (error) {
-    console.error("Failed to capture setup event", error);
   }
 }
 
@@ -519,13 +500,15 @@ async function generateStarterContentInternal(session: {
   const generatedAt = new Date().toISOString();
   await upsertSetting("setupStarterContentGeneratedAt", generatedAt);
 
-  safeCaptureSetupEvent({
+  await captureServerEvent({
     distinctId: session.user.email,
     event: "starter_content_generated",
     properties: {
       actor_user_id: session.user.id,
       created_pages: createdPageSlugs,
       created_welcome_post: createdWelcomePost,
+      site_preset_key: presetKey,
+      surface: "dashboard_setup",
     },
   });
 
@@ -547,11 +530,13 @@ async function markSetupStartedIfNeeded(session: {
   const startedAt = new Date().toISOString();
   await upsertSetting("setupWizardStartedAt", startedAt);
 
-  safeCaptureSetupEvent({
+  await captureServerEvent({
     distinctId: session.user.email,
     event: "project_setup_started",
     properties: {
       actor_user_id: session.user.id,
+      user_role: "admin",
+      surface: "dashboard_setup",
     },
   });
 
@@ -609,11 +594,13 @@ export const skipSetup = createServerFn({ method: "POST" }).handler(async () => 
   await markSetupStartedIfNeeded(session);
   await upsertSetting("setupWizardSkippedAt", new Date().toISOString());
 
-  safeCaptureSetupEvent({
+  await captureServerEvent({
     distinctId: session.user.email,
     event: "project_setup_skipped",
     properties: {
       actor_user_id: session.user.id,
+      user_role: "admin",
+      surface: "dashboard_setup",
     },
   });
 
@@ -672,6 +659,17 @@ export const saveSetupStep = createServerFn({ method: "POST" })
         stripeMonthlyPriceId: monthly,
         stripeAnnualPriceId: annual,
       });
+
+      await captureServerEvent({
+        distinctId: session.user.email,
+        event: "pricing_configured",
+        properties: {
+          actor_user_id: session.user.id,
+          has_monthly_price: Boolean(monthly),
+          has_annual_price: Boolean(annual),
+          surface: "dashboard_setup",
+        },
+      });
     }
 
     if (data.step === "newsletter") {
@@ -680,6 +678,17 @@ export const saveSetupStep = createServerFn({ method: "POST" })
         data.newsletterSenderEmail?.trim() || "",
       );
       await upsertSetting("doubleOptInEnabled", String(data.doubleOptInEnabled));
+
+      await captureServerEvent({
+        distinctId: session.user.email,
+        event: "newsletter_configured",
+        properties: {
+          actor_user_id: session.user.id,
+          has_sender_email: Boolean(data.newsletterSenderEmail?.trim()),
+          double_opt_in_enabled: data.doubleOptInEnabled,
+          surface: "dashboard_setup",
+        },
+      });
     }
 
     if (data.step === "content") {
@@ -694,13 +703,14 @@ export const saveSetupStep = createServerFn({ method: "POST" })
       await upsertSetting("setupWizardCompletedAt", new Date().toISOString());
       await upsertSetting("setupWizardSkippedAt", "");
 
-      safeCaptureSetupEvent({
+      await captureServerEvent({
         distinctId: session.user.email,
         event: "project_setup_completed",
         properties: {
           actor_user_id: session.user.id,
           site_preset_key: presetKey,
           starter_content_generated: data.generateStarterContent,
+          surface: "dashboard_setup",
         },
       });
     }
@@ -711,7 +721,7 @@ export const saveSetupStep = createServerFn({ method: "POST" })
       data.step === "content" ? "content" : nextStep,
     );
 
-    safeCaptureSetupEvent({
+    await captureServerEvent({
       distinctId: session.user.email,
       event: "project_setup_step_completed",
       properties: {
@@ -719,6 +729,7 @@ export const saveSetupStep = createServerFn({ method: "POST" })
         step: data.step,
         site_preset_key:
           data.step === "content" ? resolveSitePresetKey(data.sitePresetKey) : undefined,
+        surface: "dashboard_setup",
       },
     });
 

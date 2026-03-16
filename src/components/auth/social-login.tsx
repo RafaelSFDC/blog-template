@@ -5,6 +5,7 @@ import { Github } from "lucide-react";
 import { cn } from "#/lib/utils";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
 
 interface SocialLoginProps {
@@ -25,7 +26,10 @@ export function SocialLogin({
         provider,
         callbackURL,
       });
-      posthog.capture("user_signed_in", { method: provider });
+      captureClientEvent(posthog, "user_signed_in", {
+        method: provider,
+        surface: "auth",
+      });
     } catch (error) {
       captureClientException(error, {
         tags: {

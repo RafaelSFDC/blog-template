@@ -1,239 +1,124 @@
-import {
-  Monitor,
-  Smartphone,
-  Tablet,
-  MousePointer2,
-  TrendingUp,
-} from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+import type { AnalyticsDashboardData } from "#/server/analytics-dashboard";
 
-const COLORS = [
-  "var(--primary)",
-  "var(--success)",
-  "var(--warning)",
-  "var(--info)",
-  "var(--chart-5)",
-];
-
-interface StatItem {
-  date: string;
-  count: number;
+function formatValue(value: number, suffix?: string) {
+  return `${value}${suffix ?? ""}`;
 }
 
-export interface AnalyticsChartsData {
-  totalViews: number;
-  viewsPerDay: StatItem[];
-  topPages: { pathname: string; count: number }[];
-  browsers: { name: string; count: number }[];
-  devices: { name: string; count: number }[];
-}
-
-function getDeviceIcon(name: string) {
-  const normalizedName = name.toLowerCase();
-
-  if (normalizedName === "mobile") return <Smartphone size={14} />;
-  if (normalizedName === "tablet") return <Tablet size={14} />;
-  return <Monitor size={14} />;
-}
-
-export function AnalyticsCharts({ data }: { data: AnalyticsChartsData }) {
+function SectionCard({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ label: string; value: number; suffix?: string }>;
+}) {
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      <section className="lg:col-span-2 space-y-6">
-        <div className="flex items-center justify-between px-2">
-          <h2 className="display-title flex items-center gap-2 text-xl uppercase tracking-tight text-foreground">
-            <TrendingUp className="text-primary" size={20} /> Traffic Over Time
-          </h2>
-        </div>
-        <div className="h-[400px] rounded-xl border bg-card p-6 shadow-sm">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.viewsPerDay}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke="var(--border)"
-              />
-              <XAxis
-                dataKey="date"
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  fill: "var(--muted-foreground)",
-                }}
-                dy={10}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  fill: "var(--muted-foreground)",
-                }}
-              />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "12px",
-                  border: "3px solid var(--border)",
-                  backgroundColor: "var(--card)",
-                  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                }}
-                itemStyle={{ fontWeight: 800, color: "var(--primary)" }}
-              />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="var(--primary)"
-                strokeWidth={4}
-                dot={{
-                  r: 6,
-                  fill: "var(--primary)",
-                  strokeWidth: 2,
-                  stroke: "var(--card)",
-                }}
-                activeDot={{ r: 8, strokeWidth: 0 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="space-y-6">
-        <h2 className="display-title flex items-center gap-2 px-2 text-xl uppercase tracking-tight text-foreground">
-          <Smartphone className="text-primary" size={20} /> Devices
-        </h2>
-        <div className="flex h-[400px] flex-col items-center justify-center rounded-xl border bg-card p-6 shadow-sm">
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={data.devices}
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
-                dataKey="count"
-              >
-                {data.devices.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend verticalAlign="bottom" align="center" />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-4 w-full space-y-2">
-            {data.devices.map((device) => (
-              <div
-                key={device.name}
-                className="flex items-center justify-between text-sm"
-              >
-                <div className="flex items-center gap-2 font-bold">
-                  {getDeviceIcon(device.name || "")}
-                  <span className="capitalize">{device.name || "Unknown"}</span>
-                </div>
-                <span className="font-black text-primary">{device.count}</span>
-              </div>
-            ))}
+    <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <h2 className="mb-5 text-xl font-black tracking-tight text-foreground">{title}</h2>
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center justify-between rounded-lg border border-border/60 bg-background px-4 py-3"
+          >
+            <span className="text-sm font-semibold text-muted-foreground">{item.label}</span>
+            <span className="text-lg font-black text-foreground">
+              {formatValue(item.value, item.suffix)}
+            </span>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-      <section className="lg:col-span-2 space-y-6">
-        <h2 className="display-title flex items-center gap-2 px-2 text-xl uppercase tracking-tight text-foreground">
-          <MousePointer2 className="text-primary" size={20} /> Popular
-          Destinations
-        </h2>
-        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-          <div className="divide-y divide-border/10">
-            {data.topPages.map((page, idx) => (
-              <div
-                key={page.pathname}
-                className="group flex items-center justify-between p-5 transition-colors hover:bg-muted/50"
-              >
-                <div className="flex min-w-0 gap-4 pr-4">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10 text-xs font-semibold uppercase tracking-wider text-primary">
-                    {idx + 1}
-                  </span>
-                  <p className="truncate text-sm font-bold text-foreground">
-                    {page.pathname}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-end">
-                    <span className="text-sm font-black text-foreground">
-                      {page.count}
-                    </span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Views
-                    </span>
-                  </div>
-                  <div className="h-8 w-1 select-none overflow-hidden rounded-full bg-primary/20 text-transparent">
-                    .
-                    <div
-                      className="h-full bg-primary"
-                      style={{
-                        height: `${data.topPages[0]?.count ? (page.count / data.topPages[0].count) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+function FunnelCard({
+  title,
+  steps,
+}: {
+  title: string;
+  steps: Array<{ label: string; value: number }>;
+}) {
+  const peak = steps[0]?.value || 1;
 
-      <section className="space-y-6">
-        <h2 className="display-title px-2 text-xl uppercase tracking-tight text-foreground">
-          Key Browsers
-        </h2>
-        <div className="overflow-hidden rounded-xl border bg-card p-2 shadow-sm">
-          <div className="divide-y divide-border/10">
-            {data.browsers.map((browser) => (
+  return (
+    <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <h2 className="mb-5 text-xl font-black tracking-tight text-foreground">{title}</h2>
+      <div className="space-y-4">
+        {steps.map((step) => (
+          <div key={step.label}>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-semibold text-muted-foreground">{step.label}</span>
+              <span className="font-black text-foreground">{step.value}</span>
+            </div>
+            <div className="h-3 overflow-hidden rounded-full bg-muted">
               <div
-                key={browser.name}
-                className="flex items-center justify-between p-4"
-              >
-                <span className="text-xs font-bold text-foreground">
-                  {browser.name || "Unknown"}
-                </span>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full bg-info"
-                      style={{
-                        width: `${data.totalViews > 0 ? (browser.count / data.totalViews) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="w-8 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {data.totalViews > 0
-                      ? Math.round((browser.count / data.totalViews) * 100)
-                      : 0}
-                    %
-                  </span>
-                </div>
-              </div>
-            ))}
+                className="h-full rounded-full bg-primary"
+                style={{
+                  width: `${peak > 0 ? Math.max((step.value / peak) * 100, 4) : 0}%`,
+                }}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function BreakdownCard({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<{ label: string; count: number }>;
+}) {
+  const peak = rows[0]?.count || 1;
+
+  return (
+    <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <h2 className="mb-5 text-xl font-black tracking-tight text-foreground">{title}</h2>
+      <div className="space-y-3">
+        {rows.map((row) => (
+          <div key={row.label}>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-semibold text-muted-foreground">{row.label}</span>
+              <span className="font-black text-foreground">{row.count}</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-info"
+                style={{
+                  width: `${peak > 0 ? Math.max((row.count / peak) * 100, 6) : 0}%`,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function AnalyticsCharts({ data }: { data: AnalyticsDashboardData }) {
+  if (!data.sections) {
+    return (
+      <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground shadow-sm">
+        Analytics data is unavailable right now. Try again in a moment.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-2">
+      <SectionCard title="Activation" items={data.sections.activation.cards} />
+      <SectionCard title="Retention" items={data.sections.retention.cards} />
+      <FunnelCard title="Acquisition Funnel" steps={data.sections.acquisition.funnel} />
+      <FunnelCard title="Monetization Funnel" steps={data.sections.monetization.funnel} />
+      <SectionCard title="Monetization" items={data.sections.monetization.cards} />
+      <BreakdownCard
+        title="Onboarding Operations"
+        rows={data.sections.onboarding.breakdown}
+      />
     </div>
   );
 }

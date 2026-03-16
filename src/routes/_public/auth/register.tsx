@@ -15,6 +15,7 @@ import {
 import { Input } from "#/components/ui/input";
 import { useState } from "react";
 import { usePostHog } from "@posthog/react";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
 import {
   getCurrentAuthSession,
@@ -63,7 +64,10 @@ function RegisterPage() {
           },
         } as Parameters<typeof authClient.signUp.email>[0]);
         posthog.identify(value.email, { email: value.email, name: value.name });
-        posthog.capture("user_signed_up", { method: "email" });
+        captureClientEvent(posthog, "user_signed_up", {
+          method: "email",
+          surface: "auth",
+        });
         setSuccess(true);
       } catch (err) {
         captureClientException(err, {
