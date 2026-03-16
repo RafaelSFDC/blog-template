@@ -4,7 +4,7 @@ import { captureServerException } from "#/server/sentry";
 import { getPricingPlansData } from "#/server/membership-actions";
 import { stripe } from "#/server/stripe";
 import { auth } from "#/lib/auth";
-import { stripeCheckoutSchema } from "#/lib/cms-schema";
+import { stripeCheckoutSchema } from "#/schemas";
 
 export const Route = createFileRoute("/api/stripe/checkout")({
   server: {

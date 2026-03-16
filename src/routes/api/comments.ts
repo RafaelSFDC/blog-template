@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ZodError } from "zod";
-import { publicCommentSchema } from "#/lib/cms-schema";
+import { publicCommentSchema } from "#/schemas";
 import { getAuthSession } from "#/lib/admin-auth";
 import { createPendingComment } from "#/server/comment-actions";
 import { captureServerException } from "#/server/sentry";

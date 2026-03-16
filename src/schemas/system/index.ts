@@ -30,4 +30,4 @@ export {
   webhookCreateSchema,
   webhookEventSchema,
   webhookToggleSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/core";

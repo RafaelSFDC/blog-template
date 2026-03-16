@@ -15,10 +15,11 @@ import { Input } from "#/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
-import { pageFormSchema } from "#/lib/cms-schema";
-import { buildPagePreviewDraft, type PageEditorFormValues } from "#/lib/editorial-preview";
+import { pageFormSchema } from "#/schemas";
+import { buildPagePreviewDraft } from "#/lib/editorial-preview";
 import { getNextAutoSlug, normalizeEditorialSlugInput } from "#/lib/editorial-form-utils";
 import { getPageBuilderData, isPuckPageContent, serializePuckData } from "#/lib/puck";
+import type { PageEditorFormValues } from "#/types/editorial";
 import {
   acquirePageLock,
   autosavePage,

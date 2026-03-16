@@ -30,4 +30,4 @@ export {
   revisionSourceSchema,
   tagSchema,
   teaserModeSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/core";

@@ -9,7 +9,7 @@ import {
   recordIdSchema,
   slugify,
   webhookCreateSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas";
 
 describe("cms-schema", () => {
   it("normalizes slugs with accents and punctuation", () => {

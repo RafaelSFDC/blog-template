@@ -7,12 +7,11 @@ import { TableOfContents } from "#/components/table-of-contents";
 import { PageContent } from "#/components/cms/PageContent";
 import { useDebounce } from "#/hooks/use-debounce";
 import {
-  type PagePreviewDraft,
-  type PostPreviewDraft,
   getEditorialStatusCopy,
 } from "#/lib/editorial-preview";
 import { cn } from "#/lib/utils";
 import { Eye, Globe, Lock, Search } from "lucide-react";
+import type { PagePreviewDraft, PostPreviewDraft } from "#/types/editorial";
 
 function PreviewChrome({
   permalink,

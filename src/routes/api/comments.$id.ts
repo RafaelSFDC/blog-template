@@ -4,7 +4,7 @@ import { db } from "#/db/index";
 import { comments } from "#/db/schema";
 import { eq } from "drizzle-orm";
 import { requireCommentModerationAccess } from "#/lib/editorial-access";
-import { commentStatusUpdateSchema, recordIdSchema } from "#/lib/cms-schema";
+import { commentStatusUpdateSchema, recordIdSchema } from "#/schemas";
 import { captureServerException } from "#/server/sentry";
 
 export const Route = createFileRoute("/api/comments/$id")({

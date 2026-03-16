@@ -100,5 +100,3 @@ export function resolveTeaserContent(input: {
 
   return `${trimmed.slice(0, 480).trimEnd()}...`;
 }
-
-export type { EntitlementAccess, SubscriptionStatus };

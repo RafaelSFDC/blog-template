@@ -18,10 +18,11 @@ import { StatusBadge } from "#/components/ui/status-badge";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { authClient } from "#/lib/auth-client";
-import { postFormSchema } from "#/lib/cms-schema";
-import { buildPostPreviewDraft, type PostEditorFormValues } from "#/lib/editorial-preview";
+import { postFormSchema } from "#/schemas";
+import { buildPostPreviewDraft } from "#/lib/editorial-preview";
 import { getNextAutoSlug, normalizeEditorialSlugInput } from "#/lib/editorial-form-utils";
 import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
+import type { PostEditorFormValues } from "#/types/editorial";
 import {
   approvePost,
   acquirePostLock,

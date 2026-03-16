@@ -63,5 +63,4 @@ export function buildPagePreviewDraft(
   };
 }
 
-export type { PageEditorFormValues, PagePreviewDraft, PostEditorFormValues, PostPreviewDraft };
 export { getEditorialStatusCopy };

@@ -12,4 +12,4 @@ export {
   newsletterSegmentSchema,
   newsletterSubscribeSchema,
   subscriberStatusSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/core";
