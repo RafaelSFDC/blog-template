@@ -84,7 +84,17 @@ export const Route = createFileRoute("/_public/blog/$slug")({
 });
 
 function PostDetail() {
-  const { post, comments, recommended, hasAccess, defaultPlanSlug } =
+  const {
+    post,
+    comments,
+    recommended,
+    hasAccess,
+    defaultPlanSlug,
+    paywallVariant,
+    site,
+    viewerEmail,
+    isAuthenticated,
+  } =
     Route.useLoaderData() as PostBySlugData;
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const [subscribing, setSubscribing] = useState(false);
@@ -158,6 +168,30 @@ function PostDetail() {
               isLoading={subscribing}
               ctaHref="/pricing"
               ctaLabel="Compare plans"
+              variant={paywallVariant}
+              blogName={site.blogName}
+              readerEmail={viewerEmail}
+              isAuthenticated={isAuthenticated}
+              planSlug={defaultPlanSlug}
+              onTrackedEvent={({ action, properties }) => {
+                if (action === "newsletter_subscribed") {
+                  captureClientEvent(posthog, "newsletter_subscribed", {
+                    ...properties,
+                    surface: "public_site",
+                    post_slug: post.slug,
+                  });
+                  return;
+                }
+
+                captureClientEvent(posthog, "paywall_cta_clicked", {
+                  ...properties,
+                  post_slug: post.slug,
+                  post_title: post.title,
+                  plan_slug: defaultPlanSlug,
+                  source: "paywall",
+                  surface: "public_site",
+                });
+              }}
             />
           ) : null}
         </article>

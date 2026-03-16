@@ -40,7 +40,7 @@ function formatMoney(amount?: number | null, currency = "usd") {
 
 function AccountPage() {
   const { data: session } = authClient.useSession();
-  const { subscription, plans } = Route.useLoaderData();
+  const { subscription, plans, retention, hasBillingPortal } = Route.useLoaderData();
   const posthog = usePostHog();
   const [savingAuthorProfile, setSavingAuthorProfile] = useState(false);
   const [exportingData, setExportingData] = useState(false);
@@ -58,7 +58,6 @@ function AccountPage() {
       try {
         setSavingAuthorProfile(true);
         await updateCurrentAuthorProfile({ data: value });
-        posthog.capture("author_profile_updated");
         toast.success("Public author profile updated.");
       } catch (error) {
         captureClientException(error, {
@@ -93,7 +92,6 @@ function AccountPage() {
         await authClient.updateUser({
           name: value.name,
         });
-        posthog.capture("profile_updated", { name: value.name });
         toast.success("Profile updated successfully!");
       } catch (error) {
         captureClientException(error, {
@@ -120,7 +118,6 @@ function AccountPage() {
           currentPassword: value.currentPassword,
           revokeOtherSessions: true,
         });
-        posthog.capture("password_changed");
         toast.success("Password updated successfully!");
         passwordForm.reset();
       } catch (error) {
@@ -137,7 +134,6 @@ function AccountPage() {
   });
 
   const handleLogout = async () => {
-    posthog.capture("user_signed_out");
     setClientSentryUser(null);
     posthog.reset();
     await authClient.signOut({
@@ -153,6 +149,9 @@ function AccountPage() {
     try {
       const response = await fetch("/api/stripe/billing-portal", {
         method: "POST",
+        headers: {
+          "X-Retention-State": retention.key,
+        },
       });
       const data = (await response.json()) as { url?: string; error?: string };
 
@@ -237,7 +236,21 @@ function AccountPage() {
 
   const activePlan = subscription?.membershipPlan ?? plans.find((plan) => plan.isDefault) ?? null;
   const activePrice = activePlan ? formatMoney(activePlan.priceCents, activePlan.currency) : null;
-  const showBillingPortal = Boolean(subscription?.stripeCustomerId || session?.user?.stripeCustomerId);
+  const showBillingPortal = hasBillingPortal;
+
+  async function handleRetentionPrimaryAction() {
+    if (retention.primaryAction.kind === "billing_portal") {
+      await openBillingPortal();
+      return;
+    }
+
+    if (retention.primaryAction.kind === "read") {
+      window.location.href = "/blog";
+      return;
+    }
+
+    window.location.href = "/pricing";
+  }
 
   return (
     <div className="page-wrap space-y-10 py-10 pb-20">
@@ -253,6 +266,40 @@ function AccountPage() {
           Manage your personal identity, security credentials, and premium subscription.
         </p>
       </header>
+
+      <section className="rounded-md border border-primary/20 bg-primary/5 p-8 shadow-sm sm:p-10">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-primary">
+              Membership health
+            </p>
+            <h2 className="text-3xl font-black tracking-tight text-foreground">
+              {retention.title}
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+              {retention.description}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button size="lg" onClick={() => void handleRetentionPrimaryAction()}>
+              {retention.primaryAction.label}
+            </Button>
+            {retention.secondaryAction ? (
+              <Button variant="outline" size="lg" asChild>
+                <Link to={retention.secondaryAction.href}>{retention.secondaryAction.label}</Link>
+              </Button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          {retention.valueBullets.map((bullet) => (
+            <div key={bullet} className="rounded-xl border border-border/60 bg-card px-4 py-4 text-sm font-medium text-foreground">
+              {bullet}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
@@ -606,14 +653,17 @@ function AccountPage() {
               Full-site entitlement unlocks every premium post and premium page.
             </p>
             <div className="space-y-3">
-              {showBillingPortal ? (
-                <Button variant="default" className="w-full" onClick={() => void openBillingPortal()}>
-                  Manage Billing
-                </Button>
-              ) : null}
-              <Button variant={showBillingPortal ? "outline" : "default"} className="w-full" asChild>
+              <Button variant="default" className="w-full" onClick={() => void handleRetentionPrimaryAction()}>
+                {retention.primaryAction.label}
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
                 <Link to="/pricing">View Plans</Link>
               </Button>
+              {showBillingPortal ? (
+                <Button variant="ghost" className="w-full" onClick={() => void openBillingPortal()}>
+                  Open billing portal
+                </Button>
+              ) : null}
             </div>
           </section>
 

@@ -5,6 +5,7 @@ import { notFound, redirect } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { auth } from "#/server/auth/auth";
+import { resolvePaywallVariant } from "#/lib/conversion";
 import { resolveTeaserContent } from "#/lib/membership";
 import { resolvePublicCacheControl } from "#/lib/seo";
 import { publicCommentSubmissionSchema } from "#/schemas/editorial";
@@ -199,7 +200,14 @@ export const getPublicPostBySlug = createServerFn({ method: "GET" })
       comments: commentsList,
       recommended,
       hasAccess,
+      isAuthenticated: Boolean(session?.user),
+      viewerEmail: session?.user?.email ?? null,
       entitlementStatus: entitlement.status,
+      paywallVariant: resolvePaywallVariant({
+        sitePresetKey: site.sitePresetKey,
+        teaserMode: post.teaserMode,
+        isPremium: Boolean(post.isPremium),
+      }),
       defaultPlanSlug: defaultPlan?.slug === "monthly" ? "monthly" : "annual",
       site,
     };

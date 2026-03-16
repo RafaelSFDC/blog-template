@@ -3,6 +3,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import type Stripe from "stripe";
 import { db } from "#/db/index";
 import { appSettings, membershipPlans, subscriptionEvents, subscriptions, user } from "#/db/schema";
+import { buildAccountRetentionState } from "#/lib/conversion";
 import { requireSession } from "#/server/auth/session";
 import { stripeCheckoutSchema } from "#/schemas/membership";
 import {
@@ -370,9 +371,20 @@ export const getPricingPlans = createServerFn({ method: "GET" }).handler(async (
 export const getCurrentSubscriptionSummary = createServerFn({ method: "GET" }).handler(async () => {
   const session = await requireSession();
   const subscription = await getCurrentSubscription(session.user.id);
+  const plans = await getPricingPlansData();
+  const hasBillingPortal = Boolean(
+    subscription?.stripeCustomerId ?? session.user.stripeCustomerId,
+  );
+
   return {
     subscription,
-    plans: await getPricingPlansData(),
+    plans,
+    retention: buildAccountRetentionState({
+      effectiveStatus: subscription?.effectiveStatus,
+      hasBillingPortal,
+      currentPeriodEnd: subscription?.currentPeriodEnd,
+    }),
+    hasBillingPortal,
   };
 });
 

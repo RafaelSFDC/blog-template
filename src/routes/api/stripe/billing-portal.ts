@@ -18,6 +18,7 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
         }
 
         try {
+          const retentionState = request.headers.get("X-Retention-State");
           const subscription = await getCurrentSubscription(session.user.id);
           const customerId = subscription?.stripeCustomerId ?? session.user.stripeCustomerId;
 
@@ -39,6 +40,8 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
             properties: {
               user_id: session.user.id,
               stripe_customer_id: customerId,
+              account_retention_state: retentionState || undefined,
+              source: "account_page",
               surface: "billing",
             },
           });

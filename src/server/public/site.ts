@@ -4,6 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
 import { auth } from "#/server/auth/auth";
+import { buildPricingComparison } from "#/lib/conversion";
 import { resolveTeaserContent } from "#/lib/membership";
 import { getPrivateCacheControl, getPublicCacheControl } from "#/lib/seo";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
@@ -72,8 +73,7 @@ export const getPricingPageData = createServerFn({ method: "GET" }).handler(asyn
       })
     : null;
 
-  return {
-    plans: (await getPricingPlansData()).map((plan) => ({
+  const plans = (await getPricingPlansData()).map((plan) => ({
       id: plan.id,
       slug: plan.slug,
       name: plan.name,
@@ -83,7 +83,11 @@ export const getPricingPageData = createServerFn({ method: "GET" }).handler(asyn
       currency: plan.currency,
       isDefault: Boolean(plan.isDefault),
       isActive: Boolean(plan.isActive),
-    })),
+    }));
+
+  return {
+    plans,
+    comparison: buildPricingComparison({ plans }),
     isAuthenticated: Boolean(session?.user),
   };
 });

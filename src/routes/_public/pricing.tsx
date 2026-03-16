@@ -1,6 +1,6 @@
 import { usePostHog } from "@posthog/react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, CreditCard } from "lucide-react";
+import { Check, CreditCard, ShieldCheck, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
@@ -36,7 +36,7 @@ function formatMoney(amount?: number | null, currency = "usd") {
 }
 
 function PricingPage() {
-  const { plans, isAuthenticated, cmsPage } = Route.useLoaderData();
+  const { plans, comparison, isAuthenticated, cmsPage } = Route.useLoaderData();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const posthog = usePostHog();
 
@@ -108,6 +108,45 @@ function PricingPage() {
       )}
 
       <section className="page-wrap mt-2 grid gap-8 pb-20 lg:grid-cols-2" id="pricing-plans">
+        <article className="rounded-2xl border border-primary/20 bg-primary/5 p-8 shadow-sm lg:col-span-2">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                Membership value
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground">
+                Clear reasons to choose paid access
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                Premium membership unlocks the full archive, premium posts, and a more consistent reading rhythm.
+              </p>
+            </div>
+            {comparison.annualSavingsLabel ? (
+              <div className="rounded-full border border-primary/20 bg-card px-4 py-2 text-sm font-black text-primary">
+                {comparison.annualSavingsLabel}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-8 overflow-hidden rounded-2xl border bg-card">
+            <div className="grid grid-cols-3 border-b bg-muted/20 px-4 py-3 text-sm font-black text-foreground">
+              <span>What is included</span>
+              <span className="text-center">Monthly</span>
+              <span className="text-center">Annual</span>
+            </div>
+            {comparison.benefitRows.map((row) => (
+              <div
+                key={row.label}
+                className="grid grid-cols-3 items-center border-b border-border/50 px-4 py-4 text-sm last:border-b-0"
+              >
+                <span className="font-semibold text-foreground">{row.label}</span>
+                <span className="text-center text-muted-foreground">{row.monthly}</span>
+                <span className="text-center text-muted-foreground">{row.annual}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+
         {plans.map((plan) => (
           <article
             key={plan.slug}
@@ -142,6 +181,12 @@ function PricingPage() {
               {plan.description || "Full premium access for your readers."}
             </p>
 
+            {plan.slug === "annual" && comparison.annualSavingsLabel ? (
+              <div className="mt-4 inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-primary">
+                {comparison.annualSavingsLabel}
+              </div>
+            ) : null}
+
             <div className="mt-8 space-y-3">
               {[
                 "Unlimited premium articles",
@@ -153,6 +198,17 @@ function PricingPage() {
                   <span>{feature}</span>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-border/60 bg-muted/20 p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+                Why this works
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {plan.slug === "annual"
+                  ? "Best for loyal readers who already know this publication deserves a long-term seat in their inbox."
+                  : "Best for readers who want premium access now with a lighter commitment."}
+              </p>
             </div>
 
             <Button
@@ -169,8 +225,52 @@ function PricingPage() {
                     ? "Subscribe now"
                     : "Sign in to subscribe"}
             </Button>
+
+            <Button
+              variant="outline"
+              className="mt-3 w-full"
+              asChild
+            >
+              <a href="#pricing-faq">Review purchase FAQs</a>
+            </Button>
           </article>
         ))}
+
+        <article
+          id="pricing-faq"
+          className="rounded-2xl border bg-card p-8 shadow-sm lg:col-span-2"
+        >
+          <div className="mb-8 flex items-center gap-3">
+            <div className="rounded-full bg-primary/10 p-3 text-primary">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                Trust signals
+              </p>
+              <h2 className="text-2xl font-black tracking-tight text-foreground">
+                Common buying questions
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            {comparison.faqItems.map((item) => (
+              <div key={item.question} className="rounded-xl border border-border/60 bg-muted/20 p-5">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  <p className="text-xs font-black uppercase tracking-[0.16em]">FAQ</p>
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-foreground">
+                  {item.question}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </>
   );
