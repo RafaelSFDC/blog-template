@@ -3,6 +3,7 @@ import { count, desc, eq, sql } from "drizzle-orm";
 import { db } from "#/db/index";
 import { contactMessages, newsletters, posts, subscribers } from "#/db/schema";
 import { requireDashboardAccess } from "#/server/auth/session";
+import { getSetupStatusSummaryForRole } from "#/server/setup-actions";
 
 export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -21,6 +22,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
       [sentCampaigns],
       latestPosts,
       popularPosts,
+      setup,
     ] = await Promise.all([
       isAuthor
         ? db.select({ value: count() }).from(posts).where(eq(posts.authorId, session.user.id))
@@ -61,6 +63,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
             .orderBy(desc(posts.viewCount))
             .limit(5)
         : db.select().from(posts).orderBy(desc(posts.viewCount)).limit(5),
+      getSetupStatusSummaryForRole(session.user.role),
     ]);
 
     return {
@@ -71,6 +74,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
       sentCampaigns: sentCampaigns.value || 0,
       latestPosts,
       popularPosts,
+      setup,
     };
   },
 );

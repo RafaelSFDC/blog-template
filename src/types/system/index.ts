@@ -59,3 +59,53 @@ export interface R2BucketBinding {
   ): Promise<void>;
   delete(key: string): Promise<void>;
 }
+
+export type SetupWizardStepKey =
+  | "identity"
+  | "seo"
+  | "monetization"
+  | "newsletter"
+  | "content";
+
+export type SetupChecklistKey =
+  | "identity"
+  | "seo"
+  | "pricing"
+  | "newsletter"
+  | "homepage"
+  | "pages"
+  | "firstPost";
+
+export interface SetupStepItem {
+  key: SetupWizardStepKey;
+  label: string;
+  description: string;
+  isCompleted: boolean;
+}
+
+export interface SetupChecklistItem {
+  key: SetupChecklistKey;
+  label: string;
+  description: string;
+  isCompleted: boolean;
+  href: string;
+}
+
+export interface SetupNextAction {
+  label: string;
+  description: string;
+  href: string;
+  step: SetupWizardStepKey;
+}
+
+export interface SetupStatus {
+  isStarted: boolean;
+  isCompleted: boolean;
+  isSkipped: boolean;
+  progressPercent: number;
+  steps: SetupStepItem[];
+  checklist: SetupChecklistItem[];
+  nextAction: SetupNextAction | null;
+  lastStep: SetupWizardStepKey;
+  starterContentGenerated: boolean;
+}

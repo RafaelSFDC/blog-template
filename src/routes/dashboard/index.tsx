@@ -3,6 +3,7 @@ import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { QuickAction } from "#/components/dashboard/QuickAction";
 import { DashboardSection } from "#/components/dashboard/DashboardSection";
+import { SetupChecklist } from "#/components/dashboard/setup-checklist";
 import { Button } from "#/components/ui/button";
 import { StatCard } from "#/components/ui/stat-card";
 import { StatusBadge } from "#/components/ui/status-badge";
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 import { getDashboardOverview } from "#/server/dashboard/overview";
+import type { SetupStatus } from "#/types/system";
 
 type PostRow = typeof posts.$inferSelect;
 
@@ -37,6 +39,7 @@ function DashboardOverview() {
     sentCampaigns,
     latestPosts,
     popularPosts,
+    setup,
   } =
     Route.useLoaderData() as {
       postCount: number;
@@ -46,6 +49,7 @@ function DashboardOverview() {
       sentCampaigns: number;
       latestPosts: PostRow[];
       popularPosts: PostRow[];
+      setup: SetupStatus | null;
     };
 
   const stats = [
@@ -118,6 +122,8 @@ function DashboardOverview() {
           />
         ))}
       </div>
+
+      {setup ? <SetupChecklist setup={setup} /> : null}
 
       <div className="grid gap-8 lg:grid-cols-3">
         <DashboardSection

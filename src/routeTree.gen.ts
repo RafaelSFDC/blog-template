@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as RssXmlRouteImport } from './routes/rss.xml'
+import { Route as DashboardSetupRouteImport } from './routes/dashboard/setup'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redirects'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
@@ -104,6 +105,11 @@ const RssXmlRoute = RssXmlRouteImport.update({
   id: '/rss/xml',
   path: '/rss/xml',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSetupRoute = DashboardSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
@@ -433,6 +439,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/setup': typeof DashboardSetupRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -498,6 +505,7 @@ export interface FileRoutesByTo {
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/setup': typeof DashboardSetupRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof PublicIndexRoute
@@ -567,6 +575,7 @@ export interface FileRoutesById {
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/setup': typeof DashboardSetupRoute
   '/rss/xml': typeof RssXmlRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/_public/': typeof PublicIndexRoute
@@ -637,6 +646,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/redirects'
     | '/dashboard/settings'
+    | '/dashboard/setup'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/dashboard/'
@@ -702,6 +712,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/redirects'
     | '/dashboard/settings'
+    | '/dashboard/setup'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/'
@@ -770,6 +781,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/redirects'
     | '/dashboard/settings'
+    | '/dashboard/setup'
     | '/rss/xml'
     | '/sitemap/xml'
     | '/_public/'
@@ -889,6 +901,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/rss/xml'
       preLoaderRoute: typeof RssXmlRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/setup': {
+      id: '/dashboard/setup'
+      path: '/setup'
+      fullPath: '/dashboard/setup'
+      preLoaderRoute: typeof DashboardSetupRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/dashboard/settings': {
       id: '/dashboard/settings'
@@ -1375,6 +1394,7 @@ interface DashboardRouteChildren {
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardRedirectsRoute: typeof DashboardRedirectsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardSetupRoute: typeof DashboardSetupRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardNewslettersNewsletterIdRoute: typeof DashboardNewslettersNewsletterIdRoute
   DashboardNewslettersNewRoute: typeof DashboardNewslettersNewRoute
@@ -1403,6 +1423,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardRedirectsRoute: DashboardRedirectsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardSetupRoute: DashboardSetupRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardNewslettersNewsletterIdRoute: DashboardNewslettersNewsletterIdRoute,
   DashboardNewslettersNewRoute: DashboardNewslettersNewRoute,
@@ -1480,3 +1501,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

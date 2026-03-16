@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { checkDashboardAccess } from '#/server/system/dashboard-access'
+import { getSetupStatus } from '#/server/setup-actions'
+import { shouldRedirectToSetup } from '#/lib/setup'
 
 export const Route = createFileRoute('/dashboard')({
   head: () => ({
@@ -7,12 +9,26 @@ export const Route = createFileRoute('/dashboard')({
       { name: 'robots', content: 'noindex, nofollow' },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const result = await checkDashboardAccess()
     if (!result.ok) {
       throw redirect({
         to: result.reason === 'unauthenticated' ? '/auth/login' : '/',
       })
+    }
+
+    const pathname = location.pathname
+    if (pathname === '/dashboard/setup') {
+      return
+    }
+
+    if (result.session.user.role === 'admin' || result.session.user.role === 'super-admin') {
+      const setupStatus = await getSetupStatus()
+      if (shouldRedirectToSetup(setupStatus, result.session.user.role)) {
+        throw redirect({
+          to: '/dashboard/setup',
+        })
+      }
     }
   },
   component: DashboardLayout,
