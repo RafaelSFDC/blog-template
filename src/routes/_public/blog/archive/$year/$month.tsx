@@ -8,8 +8,10 @@ import { Archive } from "lucide-react";
 import { normalizePage } from "#/lib/pagination";
 import {
   buildBreadcrumbJsonLd,
+  buildPaginatedPath,
   buildOrganizationJsonLd,
   buildPublicSeo,
+  resolvePublicIndexability,
 } from "#/lib/seo";
 import { getArchivePosts } from "#/server/public-discovery";
 import { getSeoSiteData } from "#/server/seo-actions";
@@ -57,11 +59,17 @@ export const Route = createFileRoute("/_public/blog/archive/$year/$month")({
 
     return buildPublicSeo({
       site: data.site,
-      path: `/blog/archive/${data.year}/${String(data.month).padStart(2, "0")}${data.pagination.currentPage > 1 ? `?page=${data.pagination.currentPage}` : ""}`,
+      path: buildPaginatedPath({
+        path: `/blog/archive/${data.year}/${String(data.month).padStart(2, "0")}`,
+        page: data.pagination.currentPage,
+      }),
       title: `${monthLabel} Archive | ${data.site.blogName}`,
       description: `Published stories from ${monthLabel}.`,
       image: data.site.defaultOgImage,
-      indexable: data.site.robotsIndexingEnabled && data.pagination.currentPage === 1,
+      indexable: resolvePublicIndexability({
+        site: data.site,
+        currentPage: data.pagination.currentPage,
+      }),
       jsonLd: [
         buildOrganizationJsonLd(data.site),
         buildBreadcrumbJsonLd(data.site.siteUrl, [

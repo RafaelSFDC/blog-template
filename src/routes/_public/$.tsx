@@ -10,8 +10,8 @@ import { resolveTeaserContent } from "#/lib/membership";
 import {
   buildOrganizationJsonLd,
   buildPublicSeo,
-  getPrivateCacheControl,
-  getPublicCacheControl,
+  resolvePublicCacheControl,
+  resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
@@ -29,11 +29,14 @@ const getPageBySlug = createServerFn({ method: "GET" })
         })
       : null;
 
-    if (session) {
-      setResponseHeader("Cache-Control", getPrivateCacheControl());
-    } else {
-      setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
-    }
+    setResponseHeader(
+      "Cache-Control",
+      resolvePublicCacheControl({
+        hasSession: Boolean(session),
+        ttlSeconds: 300,
+        staleSeconds: 600,
+      }),
+    );
 
     const page = await getPublishedPageBySlug(data);
     if (!page) {
@@ -114,10 +117,12 @@ export const Route = createFileRoute("/_public/$")({
       title: page.metaTitle || page.title,
       description: page.metaDescription || page.excerpt || site.blogDescription,
       image: page.ogImage || site.defaultOgImage,
-      indexable:
-        site.robotsIndexingEnabled &&
-        !page.seoNoIndex &&
-        (!page.isPremium || data.hasAccess),
+      indexable: resolvePublicIndexability({
+        site,
+        seoNoIndex: page.seoNoIndex,
+        isPremium: page.isPremium,
+        hasAccess: data.hasAccess,
+      }),
       jsonLd: [buildOrganizationJsonLd(site)],
     });
   },

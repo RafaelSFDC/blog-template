@@ -47,6 +47,107 @@ export function getPrivateCacheControl() {
   return "private, no-cache, no-store, must-revalidate";
 }
 
+export function resolvePublicCacheControl(params?: {
+  hasSession?: boolean;
+  ttlSeconds?: number;
+  staleSeconds?: number;
+}) {
+  if (params?.hasSession) {
+    return getPrivateCacheControl();
+  }
+
+  return getPublicCacheControl(params?.ttlSeconds, params?.staleSeconds);
+}
+
+export function resolvePublicIndexability(params: {
+  site: Pick<GlobalSiteData, "robotsIndexingEnabled">;
+  seoNoIndex?: boolean | null;
+  isPremium?: boolean | null;
+  hasAccess?: boolean;
+  hasQuery?: boolean;
+  currentPage?: number;
+  forceNoIndex?: boolean;
+}) {
+  return (
+    params.site.robotsIndexingEnabled &&
+    !params.seoNoIndex &&
+    !params.forceNoIndex &&
+    !params.hasQuery &&
+    (params.currentPage ?? 1) === 1 &&
+    (!params.isPremium || params.hasAccess)
+  );
+}
+
+function buildQueryString(query?: Record<string, string | number | undefined>) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query || {})) {
+    if (value === undefined || value === "") {
+      continue;
+    }
+
+    params.set(key, String(value));
+  }
+
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+}
+
+export function buildPaginatedPath(params: {
+  path: string;
+  page: number;
+  query?: Record<string, string | number | undefined>;
+}) {
+  const normalizedPage = Math.max(1, params.page);
+  const query = {
+    ...(params.query || {}),
+    page: normalizedPage > 1 ? normalizedPage : undefined,
+  };
+
+  return `${params.path}${buildQueryString(query)}`;
+}
+
+export function buildPaginationLinks(params: {
+  siteUrl: string;
+  path: string;
+  currentPage: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  query?: Record<string, string | number | undefined>;
+}) {
+  const links: Array<{ rel: "prev" | "next"; href: string }> = [];
+
+  if (params.hasPreviousPage) {
+    links.push({
+      rel: "prev",
+      href: buildCanonicalUrl(
+        params.siteUrl,
+        buildPaginatedPath({
+          path: params.path,
+          page: params.currentPage - 1,
+          query: params.query,
+        }),
+      ),
+    });
+  }
+
+  if (params.hasNextPage) {
+    links.push({
+      rel: "next",
+      href: buildCanonicalUrl(
+        params.siteUrl,
+        buildPaginatedPath({
+          path: params.path,
+          page: params.currentPage + 1,
+          query: params.query,
+        }),
+      ),
+    });
+  }
+
+  return links;
+}
+
 export function truncateText(value: string | null | undefined, maxLength: number) {
   const normalized = (value || "").replace(/\s+/g, " ").trim();
   if (normalized.length <= maxLength) {

@@ -18,9 +18,9 @@ import { StatusBadge } from "#/components/ui/status-badge";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { authClient } from "#/lib/auth-client";
-import { postFormSchema, slugify } from "#/lib/cms-schema";
+import { postFormSchema } from "#/lib/cms-schema";
 import { buildPostPreviewDraft, type PostEditorFormValues } from "#/lib/editorial-preview";
-import { shouldAutoUpdateSlug } from "#/lib/editorial-form-utils";
+import { getNextAutoSlug, normalizeEditorialSlugInput } from "#/lib/editorial-form-utils";
 import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
 import {
   approvePost,
@@ -344,10 +344,14 @@ export function PostEditorScreen({
                       onBlur={field.handleBlur}
                       onChange={(event) => {
                         field.handleChange(event.target.value);
-                        const currentSlug = form.getFieldValue("slug");
-                        if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
-                          form.setFieldValue("slug", slugify(event.target.value));
-                        }
+                        form.setFieldValue(
+                          "slug",
+                          getNextAutoSlug({
+                            currentSlug: form.getFieldValue("slug"),
+                            previousSource: field.state.value,
+                            nextSource: event.target.value,
+                          }),
+                        );
                       }}
                     />
                     <FieldError errors={field.state.meta.errors} />
@@ -364,7 +368,7 @@ export function PostEditorScreen({
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(slugify(event.target.value))}
+                      onChange={(event) => field.handleChange(normalizeEditorialSlugInput(event.target.value))}
                     />
                     <FieldError errors={field.state.meta.errors} />
                   </Field>

@@ -6,7 +6,13 @@ import { EmptyState } from "#/components/dashboard/EmptyState";
 import { FolderOpen } from "lucide-react";
 import { getPublishedCategoryBySlug } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildBreadcrumbJsonLd, buildCanonicalUrl, buildPublicSeo } from "#/lib/seo";
+import {
+  buildBreadcrumbJsonLd,
+  buildPaginatedPath,
+  buildPaginationLinks,
+  buildPublicSeo,
+  resolvePublicIndexability,
+} from "#/lib/seo";
 import { normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { getRedirectByPath } from "#/server/redirect-actions";
@@ -52,31 +58,20 @@ export const Route = createFileRoute("/_public/blog/category/$slug")({
     }
 
     const page = data.page || 1;
-    const links: Array<{ rel: "prev" | "next"; href: string }> = [];
-
-    if (data.pagination.hasPreviousPage) {
-      links.push({
-        rel: "prev",
-        href: buildCanonicalUrl(
-          data.site.siteUrl,
-          `/blog/category/${data.category.slug}${page - 1 > 1 ? `?page=${page - 1}` : ""}`,
-        ),
-      });
-    }
-
-    if (data.pagination.hasNextPage) {
-      links.push({
-        rel: "next",
-        href: buildCanonicalUrl(
-          data.site.siteUrl,
-          `/blog/category/${data.category.slug}?page=${page + 1}`,
-        ),
-      });
-    }
+    const links = buildPaginationLinks({
+      siteUrl: data.site.siteUrl,
+      path: `/blog/category/${data.category.slug}`,
+      currentPage: page,
+      hasPreviousPage: data.pagination.hasPreviousPage,
+      hasNextPage: data.pagination.hasNextPage,
+    });
 
     return buildPublicSeo({
       site: data.site,
-      path: `/blog/category/${data.category.slug}${page > 1 ? `?page=${page}` : ""}`,
+      path: buildPaginatedPath({
+        path: `/blog/category/${data.category.slug}`,
+        page,
+      }),
       title:
         page > 1
           ? `${data.category.name} - Page ${page} | ${data.site.blogName}`
@@ -87,7 +82,11 @@ export const Route = createFileRoute("/_public/blog/category/$slug")({
           ? `Browse page ${page} of published stories in ${data.category.name}.`
           : `Browse every published story in ${data.category.name}.`),
       image: data.site.defaultOgImage,
-      indexable: data.site.robotsIndexingEnabled && !data.category.seoNoIndex && page === 1,
+      indexable: resolvePublicIndexability({
+        site: data.site,
+        seoNoIndex: data.category.seoNoIndex,
+        currentPage: page,
+      }),
       links,
       jsonLd: [
         buildBreadcrumbJsonLd(data.site.siteUrl, [

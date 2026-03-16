@@ -15,9 +15,9 @@ import { Input } from "#/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
-import { pageFormSchema, slugify } from "#/lib/cms-schema";
+import { pageFormSchema } from "#/lib/cms-schema";
 import { buildPagePreviewDraft, type PageEditorFormValues } from "#/lib/editorial-preview";
-import { shouldAutoUpdateSlug } from "#/lib/editorial-form-utils";
+import { getNextAutoSlug, normalizeEditorialSlugInput } from "#/lib/editorial-form-utils";
 import { getPageBuilderData, isPuckPageContent, serializePuckData } from "#/lib/puck";
 import {
   acquirePageLock,
@@ -286,10 +286,14 @@ export function PageEditorScreen({
                       onBlur={field.handleBlur}
                       onChange={(event) => {
                         field.handleChange(event.target.value);
-                        const currentSlug = form.getFieldValue("slug");
-                        if (shouldAutoUpdateSlug(currentSlug, field.state.value)) {
-                          form.setFieldValue("slug", slugify(event.target.value));
-                        }
+                        form.setFieldValue(
+                          "slug",
+                          getNextAutoSlug({
+                            currentSlug: form.getFieldValue("slug"),
+                            previousSource: field.state.value,
+                            nextSource: event.target.value,
+                          }),
+                        );
                       }}
                     />
                     <FieldError errors={field.state.meta.errors} />
@@ -305,7 +309,7 @@ export function PageEditorScreen({
                       id={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) => field.handleChange(slugify(event.target.value))}
+                      onChange={(event) => field.handleChange(normalizeEditorialSlugInput(event.target.value))}
                     />
                     <FieldError errors={field.state.meta.errors} />
                   </Field>

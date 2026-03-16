@@ -11,7 +11,7 @@ import { Input } from "#/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { StatusBadge } from "#/components/ui/status-badge";
 import { authClient } from "#/lib/auth-client";
-import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
+import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/post-actions";
 
 type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];
@@ -26,13 +26,6 @@ export const Route = createFileRoute("/dashboard/posts/")({
   loader: () => getDashboardPosts({ data: {} }),
   component: PostsManagementPage,
 });
-
-function getStatusVariant(status: string) {
-  if (status === "published") return "success" as const;
-  if (status === "in_review") return "warning" as const;
-  if (status === "archived") return "secondary" as const;
-  return "default" as const;
-}
 
 function PostsManagementPage() {
   const initialPosts = Route.useLoaderData() as DashboardPost[];
@@ -244,7 +237,7 @@ function PostsManagementPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <StatusBadge variant={getStatusVariant(post.status)}>
+                      <StatusBadge variant={getEditorialStatusTone(post.status)}>
                         {getEditorialStatusCopy(post.status)}
                       </StatusBadge>
                       {post.reviewRequestedAt ? (

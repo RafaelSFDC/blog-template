@@ -32,6 +32,22 @@ export function shouldAutoUpdateSlug(currentSlug: string, previousSource: string
   return !currentSlug || currentSlug === slugify(previousSource);
 }
 
+export function normalizeEditorialSlugInput(value: string) {
+  return slugify(value.trim());
+}
+
+export function getNextAutoSlug(params: {
+  currentSlug: string;
+  previousSource: string;
+  nextSource: string;
+}) {
+  if (!shouldAutoUpdateSlug(params.currentSlug, params.previousSource)) {
+    return params.currentSlug;
+  }
+
+  return normalizeEditorialSlugInput(params.nextSource);
+}
+
 export function normalizePageSubmission(
   values: PageEditorFormValues,
 ): PageSubmissionInput {
@@ -54,7 +70,7 @@ export function normalizePageSubmission(
 export function normalizePostSubmission(
   values: PostSubmissionValues,
 ): PostSubmissionInput | null {
-  const slug = values.slug.trim() || slugify(values.title);
+  const slug = values.slug.trim() || normalizeEditorialSlugInput(values.title);
 
   if (!slug) {
     return null;

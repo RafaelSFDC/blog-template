@@ -27,8 +27,8 @@ import {
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
   buildPublicSeo,
-  getPrivateCacheControl,
-  getPublicCacheControl,
+  resolvePublicCacheControl,
+  resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
 import { createPendingComment } from "#/server/comment-actions";
@@ -111,11 +111,14 @@ const getPostBySlug = createServerFn({ method: "GET" })
       throw notFound();
     }
 
-    if (session) {
-      setResponseHeader("Cache-Control", getPrivateCacheControl());
-    } else {
-      setResponseHeader("Cache-Control", getPublicCacheControl(3600, 86400));
-    }
+    setResponseHeader(
+      "Cache-Control",
+      resolvePublicCacheControl({
+        hasSession: Boolean(session),
+        ttlSeconds: 3600,
+        staleSeconds: 86400,
+      }),
+    );
 
     if (post.status !== "published" && session?.user?.role !== "admin" && session?.user?.role !== "super-admin") {
       throw notFound();
@@ -198,10 +201,12 @@ export const Route = createFileRoute("/_public/blog/$slug")({
       description: post.metaDescription || post.excerpt || site.blogDescription,
       image: post.ogImage || post.coverImage || site.defaultOgImage,
       type: "article",
-      indexable:
-        site.robotsIndexingEnabled &&
-        !post.seoNoIndex &&
-        (!post.isPremium || data.hasAccess),
+      indexable: resolvePublicIndexability({
+        site,
+        seoNoIndex: post.seoNoIndex,
+        isPremium: post.isPremium,
+        hasAccess: data.hasAccess,
+      }),
       jsonLd: [
         buildOrganizationJsonLd(site),
         buildBreadcrumbJsonLd(site.siteUrl, [

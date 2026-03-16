@@ -22,7 +22,7 @@ import {
   Pencil,
   Inbox,
 } from "lucide-react";
-import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
+import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 
 type PostRow = typeof posts.$inferSelect;
 
@@ -234,7 +234,7 @@ function DashboardOverview() {
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge
-                    variant={post.status === "published" ? "success" : post.status === "in_review" ? "warning" : "default"}
+                    variant={getEditorialStatusTone(post.status)}
                   >
                     {getEditorialStatusCopy(post.status)}
                   </StatusBadge>

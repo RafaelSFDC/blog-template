@@ -11,7 +11,9 @@ import {
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
   buildPersonJsonLd,
+  buildPaginatedPath,
   buildPublicSeo,
+  resolvePublicIndexability,
 } from "#/lib/seo";
 import { getAuthorPageBySlug } from "#/server/public-discovery";
 import { getSeoSiteData } from "#/server/seo-actions";
@@ -48,7 +50,10 @@ export const Route = createFileRoute("/_public/author/$slug")({
 
     return buildPublicSeo({
       site: data.site,
-      path: `/author/${data.author.publicAuthorSlug}${data.page > 1 ? `?page=${data.page}` : ""}`,
+      path: buildPaginatedPath({
+        path: `/author/${data.author.publicAuthorSlug}`,
+        page: data.page,
+      }),
       title:
         data.author.authorSeoTitle ||
         `${data.author.name} | ${data.site.blogName}`,
@@ -59,7 +64,10 @@ export const Route = createFileRoute("/_public/author/$slug")({
         `Stories by ${data.author.name}`,
       image: data.author.image || data.site.defaultOgImage,
       type: "profile",
-      indexable: data.site.robotsIndexingEnabled && data.page === 1,
+      indexable: resolvePublicIndexability({
+        site: data.site,
+        currentPage: data.page,
+      }),
       jsonLd: [
         buildOrganizationJsonLd(data.site),
         buildPersonJsonLd({

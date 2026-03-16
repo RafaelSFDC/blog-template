@@ -25,7 +25,7 @@ import { Input } from "#/components/ui/input";
 import { Switch } from "#/components/ui/switch";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
-import { slugify } from "#/lib/cms-schema";
+import { getNextAutoSlug, normalizeEditorialSlugInput } from "#/lib/editorial-form-utils";
 
 const tagSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -206,16 +206,14 @@ function TagsPage() {
                           onBlur={field.handleBlur}
                           onChange={(e) => {
                             field.handleChange(e.target.value);
-                            const currentSlug = form.getFieldValue("slug");
-                            if (
-                              !currentSlug ||
-                              currentSlug === slugify(field.state.value)
-                            ) {
-                              form.setFieldValue(
-                                "slug",
-                                slugify(e.target.value),
-                              );
-                            }
+                            form.setFieldValue(
+                              "slug",
+                              getNextAutoSlug({
+                                currentSlug: form.getFieldValue("slug"),
+                                previousSource: field.state.value,
+                                nextSource: e.target.value,
+                              }),
+                            );
                           }}
                           placeholder="e.g. React"
                         />
@@ -238,7 +236,7 @@ function TagsPage() {
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) =>
-                            field.handleChange(slugify(e.target.value))
+                            field.handleChange(normalizeEditorialSlugInput(e.target.value))
                           }
                           placeholder="e.g. react"
                         />

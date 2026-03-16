@@ -15,7 +15,13 @@ import { categories, postCategories, posts, postTags, tags, user } from "#/db/sc
 import { type InferSelectModel } from "drizzle-orm";
 import { BLOG_PAGE_SIZE } from "#/server/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
-import { buildCanonicalUrl, buildPublicSeo, getPublicCacheControl } from "#/lib/seo";
+import {
+  buildPaginatedPath,
+  buildPaginationLinks,
+  buildPublicSeo,
+  getPublicCacheControl,
+  resolvePublicIndexability,
+} from "#/lib/seo";
 import { getPaginationMeta, normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
 import { normalizeSearchQuery, rankSearchPosts } from "#/server/post-search";
@@ -84,14 +90,14 @@ const getLatestPosts = createServerFn({ method: "GET" })
       .select({
         id: posts.id,
         slug: posts.slug,
-      title: posts.title,
-      excerpt: posts.excerpt,
-      coverImage: posts.coverImage,
-      publishedAt: posts.publishedAt,
-      category: categories.name,
-      categorySlug: categories.slug,
-      authorName: user.name,
-    })
+        title: posts.title,
+        excerpt: posts.excerpt,
+        coverImage: posts.coverImage,
+        publishedAt: posts.publishedAt,
+        category: categories.name,
+        categorySlug: categories.slug,
+        authorName: user.name,
+      })
       .from(posts)
       .leftJoin(user, eq(posts.authorId, user.id))
       .leftJoin(postCategories, eq(posts.id, postCategories.postId))
@@ -145,32 +151,23 @@ export const Route = createFileRoute("/_public/blog/")({
       return {};
     }
 
-    const path = `/blog${page > 1 ? `?page=${page}` : ""}`;
-    const links = [];
-
-    if (data.pagination.hasPreviousPage) {
-      links.push({
-        rel: "prev",
-        href: buildCanonicalUrl(
-          data.site.siteUrl,
-          `/blog${page - 1 > 1 ? `?page=${page - 1}` : ""}${hasQuery ? `${page - 1 > 1 ? "&" : "?"}q=${encodeURIComponent(q)}` : ""}`,
-        ),
-      });
-    }
-
-    if (data.pagination.hasNextPage) {
-      links.push({
-        rel: "next",
-        href: buildCanonicalUrl(
-          data.site.siteUrl,
-          `/blog?page=${page + 1}${hasQuery ? `&q=${encodeURIComponent(q)}` : ""}`,
-        ),
-      });
-    }
+    const path = buildPaginatedPath({
+      path: "/blog",
+      page,
+      query: { q: hasQuery ? q : undefined },
+    });
+    const links = buildPaginationLinks({
+      siteUrl: data.site.siteUrl,
+      path: "/blog",
+      currentPage: page,
+      hasPreviousPage: data.pagination.hasPreviousPage,
+      hasNextPage: data.pagination.hasNextPage,
+      query: { q: hasQuery ? q : undefined },
+    });
 
     return buildPublicSeo({
       site: data.site,
-      path: hasQuery ? `/blog?q=${encodeURIComponent(q)}${page > 1 ? `&page=${page}` : ""}` : path,
+      path,
       title: hasQuery
         ? `Search "${q}" | ${data.site.blogName}`
         : page > 1
@@ -183,7 +180,11 @@ export const Route = createFileRoute("/_public/blog/")({
           : data.site.defaultMetaDescription ||
             "Browse all articles on design, tech, and cultural experiments.",
       image: data.site.defaultOgImage,
-      indexable: !hasQuery && page === 1 && data.site.robotsIndexingEnabled,
+      indexable: resolvePublicIndexability({
+        site: data.site,
+        hasQuery,
+        currentPage: page,
+      }),
       links,
     });
   },
