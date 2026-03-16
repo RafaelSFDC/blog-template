@@ -1,6 +1,14 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { redirect } from '@tanstack/react-router'
 
+function normalizeDashboardRole(role?: string | null) {
+  if (role === 'superAdmin') {
+    return 'super-admin'
+  }
+
+  return role ?? null
+}
+
 // Roles that are allowed inside the dashboard
 const DASHBOARD_ROLES = new Set(['author', 'editor', 'moderator', 'admin', 'super-admin'])
 
@@ -21,9 +29,12 @@ export async function getAuthSession() {
  */
 export async function getDashboardSession() {
   const session = await getAuthSession()
-  const role = session?.user?.role ?? null
+  const role = normalizeDashboardRole(session?.user?.role)
   if (!session?.user || !DASHBOARD_ROLES.has(role as string)) {
     return { ok: false as const, reason: !session?.user ? 'unauthenticated' : 'forbidden' }
+  }
+  if (session.user.role !== role && role) {
+    session.user.role = role
   }
   return { ok: true as const, session }
 }
@@ -47,8 +58,12 @@ export async function requireDashboardAccess() {
     throw redirect({ to: '/auth/login' })
   }
 
-  if (!DASHBOARD_ROLES.has(session.user.role as string)) {
+  const role = normalizeDashboardRole(session.user.role)
+  if (!DASHBOARD_ROLES.has(role as string)) {
     throw redirect({ to: '/' })
+  }
+  if (session.user.role !== role && role) {
+    session.user.role = role
   }
 
   return session

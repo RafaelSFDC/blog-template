@@ -26,7 +26,11 @@ export const Route = createFileRoute('/dashboard')({
       return
     }
 
-    if (result.session.user.role === 'admin' || result.session.user.role === 'super-admin') {
+    if (
+      result.session.user.role === 'admin' ||
+      result.session.user.role === 'super-admin' ||
+      result.session.user.role === 'superAdmin'
+    ) {
       if (skipSetupRequested) {
         await skipSetup()
         throw redirect({

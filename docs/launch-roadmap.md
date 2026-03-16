@@ -112,6 +112,7 @@ Fases de continuidade pos-launch:
 ## Fase 1 - Ativacao e first-run experience
 
 **Status:** `now`
+**Gate status:** completed on March 16, 2026
 
 **Objetivo**
 
@@ -141,13 +142,13 @@ Sem uma first-run forte, o produto parece mais complexo do que realmente e trava
 
 **Checklist de execucao**
 
-- [ ] primeiro admin autenticado ve o wizard no momento correto
-- [ ] wizard e checklist refletem o mesmo estado sem ambiguidade
-- [ ] proximo passo do dashboard bate com o bloqueio real do setup
-- [ ] admin pode concluir ou pular passo sem quebrar o fluxo
-- [ ] o wizard nao reaparece indevidamente depois de concluido
-- [ ] reabrir o setup nao cria estado quebrado
-- [ ] o time consegue testar o fluxo principal sem intervencao manual
+- [x] primeiro admin autenticado ve o wizard no momento correto
+- [x] wizard e checklist refletem o mesmo estado sem ambiguidade
+- [x] proximo passo do dashboard bate com o bloqueio real do setup
+- [x] admin pode concluir ou pular passo sem quebrar o fluxo
+- [x] o wizard nao reaparece indevidamente depois de concluido
+- [x] reabrir o setup nao cria estado quebrado
+- [x] o time consegue testar o fluxo principal sem intervencao manual
 
 **Dependencias**
 
@@ -171,6 +172,7 @@ Sem uma first-run forte, o produto parece mais complexo do que realmente e trava
 ## Fase 2 - Time-to-beauty e proposta inicial de valor
 
 **Status:** `now`
+**Gate status:** completed on March 16, 2026
 
 **Objetivo**
 
@@ -198,13 +200,13 @@ Mesmo quando o setup funciona, um site vazio ou improvisado reduz percepcao de v
 
 **Checklist de execucao**
 
-- [ ] aplicar preset gera estrutura minima esperada
-- [ ] starter content nao cria duplicacao indevida
-- [ ] paginas essenciais saem do setup com expectativa clara de revisao
-- [ ] menu padrao e criado corretamente
-- [ ] homepage fallback e paginas criadas apontam para a mesma direcao editorial
-- [ ] projeto novo parece intencional mesmo antes de customizacao profunda
-- [ ] o admin nao precisa montar as paginas centrais do zero
+- [x] aplicar preset gera estrutura minima esperada
+- [x] starter content nao cria duplicacao indevida
+- [x] paginas essenciais saem do setup com expectativa clara de revisao
+- [x] menu padrao e criado corretamente
+- [x] homepage fallback e paginas criadas apontam para a mesma direcao editorial
+- [x] projeto novo parece intencional mesmo antes de customizacao profunda
+- [x] o admin nao precisa montar as paginas centrais do zero
 
 **Dependencias**
 

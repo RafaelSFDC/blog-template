@@ -31,6 +31,11 @@ export interface GlobalSiteData {
 }
 
 export type SitePresetKey =
+  | "creator"
+  | "magazine"
+  | "premium_publication";
+
+export type LegacySitePresetKey =
   | "creator-journal"
   | "magazine-newsletter"
   | "premium-publication";

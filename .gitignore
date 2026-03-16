@@ -16,3 +16,4 @@ blog.db
 .env.appwrite
 .env.cloudflare
 /kataly
+/test-results

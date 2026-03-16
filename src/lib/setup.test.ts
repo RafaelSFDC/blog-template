@@ -173,6 +173,10 @@ describe("setup", () => {
     ).toBe(true);
 
     expect(
+      shouldRedirectToSetup(buildSetupStatus(createSnapshot()), "superAdmin"),
+    ).toBe(true);
+
+    expect(
       shouldRedirectToSetup(
         buildSetupStatus(createSnapshot({ wizardSkippedAt: "2026-03-16T10:00:00.000Z" })),
         "admin",

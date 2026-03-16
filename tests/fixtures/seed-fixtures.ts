@@ -11,6 +11,8 @@ import {
   newsletters,
   pages,
   posts,
+  rateLimitEvents,
+  securityEvents,
   subscriptions,
   subscribers,
   tags,
@@ -104,7 +106,7 @@ const SETUP_STARTER_PAGE_SLUGS = [
   "pricing",
   "contact",
   "newsletter",
-  "members",
+  "members-only-archive",
 ] as const;
 
 async function ensureFixtureUser(
@@ -401,6 +403,8 @@ export async function seedOperationalFixtures() {
   await db.delete(appSettings).where(inArray(appSettings.key, [...SETUP_RESET_KEYS]));
   await db.delete(pages).where(inArray(pages.slug, [...SETUP_STARTER_PAGE_SLUGS]));
   await db.delete(posts).where(eq(posts.slug, "welcome-to-your-publication"));
+  await db.delete(rateLimitEvents);
+  await db.delete(securityEvents);
   await db
     .update(membershipPlans)
     .set({

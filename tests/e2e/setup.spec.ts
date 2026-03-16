@@ -48,10 +48,9 @@ async function waitForClientReady(page: Page) {
   await page.waitForTimeout(500);
 }
 
-async function advanceSetupWizard(page: Page) {
+async function finishSetupStepsUntilPreset(page: Page) {
   for (let attempt = 0; attempt < 5; attempt += 1) {
     if (await page.getByRole("heading", { name: /conteudo inicial/i }).isVisible()) {
-      await page.getByRole("button", { name: /criar starter kit e concluir/i }).click();
       return;
     }
 
@@ -62,6 +61,24 @@ async function advanceSetupWizard(page: Page) {
 
     await page.getByRole("button", { name: /salvar e continuar/i }).click();
     await waitForClientReady(page);
+  }
+}
+
+async function selectPreset(page: Page, label: string) {
+  await page.getByRole("button", { name: new RegExp(label, "i") }).click();
+}
+
+async function completeSetup(page: Page, input: {
+  presetLabel: string;
+  withStarterKit: boolean;
+}) {
+  await finishSetupStepsUntilPreset(page);
+  await selectPreset(page, input.presetLabel);
+
+  if (input.withStarterKit) {
+    await page.getByRole("button", { name: /criar starter kit e concluir/i }).click();
+  } else {
+    await page.getByRole("button", { name: /concluir sem starter kit/i }).click();
   }
 }
 
@@ -95,19 +112,37 @@ test("redirects admins into setup, supports pause/resume, and completes the firs
   await expect(page.getByText(/continue de onde parou/i)).toBeVisible();
   await waitForClientReady(page);
 
-  await advanceSetupWizard(page);
+  await completeSetup(page, {
+    presetLabel: "Premium Publication",
+    withStarterKit: true,
+  });
 
   await expect(page).toHaveURL(/\/dashboard\/?$/);
   await expect(page.getByRole("heading", { name: /editorial dashboard/i })).toBeVisible();
   await expect(page.getByText(/onboarding concluido/i)).toBeVisible();
 
-  await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
-  await expect(page.getByRole("heading", { name: /editorial dashboard/i })).toBeVisible();
+  await page.goto("/dashboard/pages");
+  await expect(page.getByText("/about")).toHaveCount(1);
+  await expect(page.getByText("/pricing")).toHaveCount(1);
+  await expect(page.getByText("/contact")).toHaveCount(1);
+  await expect(page.getByText("/newsletter")).toHaveCount(1);
+  await expect(page.getByText("/members-only-archive")).toHaveCount(1);
 
-  await page.getByRole("link", { name: /revisar onboarding/i }).click();
-  await expect(page).toHaveURL(/\/dashboard\/setup$/);
+  await page.goto("/dashboard/posts");
+  await expect(page.getByText(/welcome to your publication/i)).toHaveCount(1);
+
+  await page.goto("/dashboard/setup");
   await expect(page.getByText(/nada aqui volta a bloquear o dashboard/i)).toBeVisible();
+  await selectPreset(page, "Premium Publication");
+  await page.getByRole("button", { name: /criar starter kit e concluir/i }).click();
+
+  await expect(page).toHaveURL(/\/dashboard\/?$/);
+  await page.goto("/dashboard/pages");
+  await expect(page.getByText("/about")).toHaveCount(1);
+  await expect(page.getByText("/members-only-archive")).toHaveCount(1);
+
+  await page.goto("/dashboard/posts");
+  await expect(page.getByText(/welcome to your publication/i)).toHaveCount(1);
 });
 
 test("redirects super-admins through the same first-run flow rules", async ({ page }) => {
@@ -124,3 +159,48 @@ test("redirects super-admins through the same first-run flow rules", async ({ pa
   await expect(page).toHaveURL(/\/dashboard\/?$/);
   await expect(page.getByRole("heading", { name: /setup pausado/i })).toBeVisible();
 });
+
+for (const presetCase of [
+  {
+    key: "creator",
+    label: "Creator",
+    badge: "Creator publication",
+    heading: "Latest Notes",
+    cta: "Read the latest notes",
+  },
+  {
+    key: "magazine",
+    label: "Magazine",
+    badge: "Magazine issue",
+    heading: "Featured Stories",
+    cta: "Browse the latest issue",
+  },
+  {
+    key: "premium_publication",
+    label: "Premium Publication",
+    badge: "Premium publication",
+    heading: "Editor's Selection",
+    cta: "Explore the members thesis",
+  },
+] as const) {
+  test(`uses ${presetCase.key} as the public fallback direction when setup finishes without starter kit`, async ({ page }) => {
+    await page.goto("/auth/login");
+    await signInAs(page, "admin@lumina.test");
+    await page.goto("/dashboard");
+
+    await completeSetup(page, {
+      presetLabel: presetCase.label,
+      withStarterKit: false,
+    });
+
+    await expect(page).toHaveURL(/\/dashboard\/?$/);
+    await page.goto("/");
+
+    await expect(page.getByText(presetCase.badge)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /lumina/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: presetCase.heading })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: new RegExp(presetCase.cta, "i") }).first(),
+    ).toBeVisible();
+  });
+}

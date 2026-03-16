@@ -310,7 +310,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
     isSkipped: Boolean(snapshot.wizardSkippedAt),
     isBlocking: status !== "completed" && hasBlockingSetupStep,
     progressPercent,
-    sitePresetKey: snapshot.sitePresetKey ?? "creator-journal",
+    sitePresetKey: snapshot.sitePresetKey ?? "creator",
     steps,
     checklist,
     nextAction: status === "completed" ? null : blockingAction,
@@ -320,7 +320,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
 }
 
 export function shouldRedirectToSetup(status: SetupStatus, role?: string | null) {
-  const isAdmin = role === "admin" || role === "super-admin";
+  const isAdmin = role === "admin" || role === "super-admin" || role === "superAdmin";
   return isAdmin && status.isBlocking && !status.isSkipped && status.nextAction !== null;
 }
 

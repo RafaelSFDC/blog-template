@@ -23,6 +23,7 @@ import {
   getPresetThemeVariant,
   getSitePresets,
   resolveSitePresetKey,
+  SITE_PRESET_INPUT_KEYS,
 } from "#/lib/site-presets";
 import { normalizeSettingsFormValues } from "#/lib/settings-form";
 import {
@@ -101,11 +102,7 @@ const newsletterStepSchema = settingsSchema.pick({
 
 const contentStepSchema = z.object({
   step: z.literal("content"),
-  sitePresetKey: z.enum([
-    "creator-journal",
-    "magazine-newsletter",
-    "premium-publication",
-  ]),
+  sitePresetKey: z.enum(SITE_PRESET_INPUT_KEYS),
   generateStarterContent: z.boolean(),
 });
 
@@ -161,6 +158,10 @@ function hasBooleanSetting(value: string | undefined) {
 }
 
 function normalizeSetupRole(role?: string | null) {
+  if (role === "superAdmin") {
+    return "super-admin";
+  }
+
   return role === "super-admin" ? "super-admin" : "admin";
 }
 
@@ -351,7 +352,10 @@ async function createStarterPages(input: {
   blogName: string;
   blogDescription: string;
 }) {
-  const templateDefinitions = getLaunchTemplateOptions();
+  const templateDefinitions = getLaunchTemplateOptions({
+    presetKey: input.presetKey,
+    includeOptional: true,
+  });
   const existingPages = await db
     .select({
       id: pages.id,
@@ -562,7 +566,7 @@ async function buildSetupStatusForAdmin() {
 }
 
 export async function getSetupStatusSummaryForRole(role?: string | null) {
-  if (role !== "admin" && role !== "super-admin") {
+  if (role !== "admin" && role !== "super-admin" && role !== "superAdmin") {
     return null;
   }
 
@@ -577,12 +581,16 @@ export const getSetupStatus = createServerFn({ method: "GET" }).handler(async ()
 export const getLaunchTemplateCatalog = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   const settings = await getSettingsMap();
+  const currentPresetKey = resolveSitePresetKey(settings.sitePresetKey);
   return {
-    currentPresetKey: resolveSitePresetKey(settings.sitePresetKey),
+    currentPresetKey,
     blogName: settings.blogName?.trim() || "Lumina",
     blogDescription: settings.blogDescription?.trim() || "A launch-ready publication.",
     presets: getSitePresets(),
-    templates: getLaunchTemplateOptions(),
+    templates: getLaunchTemplateOptions({
+      presetKey: currentPresetKey,
+      includeOptional: true,
+    }),
   };
 });
 

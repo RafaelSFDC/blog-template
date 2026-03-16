@@ -4,7 +4,12 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { PageEditorScreen } from "#/components/dashboard/page-editor-screen";
 import { normalizePageSubmission } from "#/lib/editorial-form-utils";
-import { buildTemplatePageValues } from "#/lib/site-presets";
+import {
+  buildTemplatePageValues,
+  getLaunchTemplateOptions,
+  resolveSitePresetKey,
+  SITE_PRESET_INPUT_KEYS,
+} from "#/lib/site-presets";
 import { Button } from "#/components/ui/button";
 import { getLaunchTemplateCatalog } from "#/server/setup-actions";
 import { createPage } from "#/server/page-actions";
@@ -22,11 +27,7 @@ export const Route = createFileRoute("/dashboard/pages/new")({
       ])
       .optional(),
     preset: z
-      .enum([
-        "creator-journal",
-        "magazine-newsletter",
-        "premium-publication",
-      ])
+      .enum(SITE_PRESET_INPUT_KEYS)
       .optional(),
   }),
   loaderDeps: ({ search }) => ({
@@ -35,19 +36,24 @@ export const Route = createFileRoute("/dashboard/pages/new")({
   }),
   loader: async ({ deps }) => {
     const catalog = await getLaunchTemplateCatalog();
+    const selectedPreset = resolveSitePresetKey(deps.preset ?? catalog.currentPresetKey);
     return {
       catalog,
+      templates: getLaunchTemplateOptions({
+        presetKey: selectedPreset,
+        includeOptional: true,
+      }),
       template:
         deps.template
           ? buildTemplatePageValues({
-              presetKey: deps.preset ?? catalog.currentPresetKey,
+              presetKey: selectedPreset,
               templateKey: deps.template,
               blogName: catalog.blogName,
               blogDescription: catalog.blogDescription,
             })
           : null,
       selectedTemplate: deps.template ?? null,
-      selectedPreset: deps.preset ?? catalog.currentPresetKey,
+      selectedPreset,
     };
   },
   component: NewPagePage,
@@ -55,7 +61,7 @@ export const Route = createFileRoute("/dashboard/pages/new")({
 
 function NewPagePage() {
   const navigate = useNavigate();
-  const { catalog, template, selectedTemplate, selectedPreset } = Route.useLoaderData();
+  const { catalog, template, templates, selectedTemplate, selectedPreset } = Route.useLoaderData();
   const search = Route.useSearch();
 
   return (
@@ -95,7 +101,7 @@ function NewPagePage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {catalog.templates.map((entry) => (
+            {templates.map((entry) => (
               <Link
                 key={entry.key}
                 to="/dashboard/pages/new"

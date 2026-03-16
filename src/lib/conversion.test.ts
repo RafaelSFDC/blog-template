@@ -6,10 +6,18 @@ import {
 } from "#/lib/conversion";
 
 describe("conversion helpers", () => {
-  it("resolves premium-publication paywalls to exclusivity copy", () => {
+  it("resolves premium presets and legacy aliases to exclusivity copy", () => {
     expect(
       resolvePaywallVariant({
-        sitePresetKey: "premium-publication",
+        sitePresetKey: "premium_publication",
+        teaserMode: "excerpt",
+        isPremium: true,
+      }),
+    ).toBe("membership-exclusivity");
+
+    expect(
+      resolvePaywallVariant({
+        sitePresetKey: "premium-publication" as never,
         teaserMode: "excerpt",
         isPremium: true,
       }),

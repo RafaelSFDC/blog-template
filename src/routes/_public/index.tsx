@@ -9,6 +9,7 @@ import { Newsletter } from "#/components/blog/newsletter";
 import { PostCard, type Post } from "#/components/blog/PostCard";
 import { PageContent } from "#/components/cms/PageContent";
 import { buildHomepageFallbackContent } from "#/lib/site-presets";
+import type { SitePresetKey } from "#/types/system";
 import {
   buildOrganizationJsonLd,
   buildPublicSeo,
@@ -68,13 +69,17 @@ export const Route = createFileRoute("/_public/")({
       });
     }
 
+    const fallback = buildHomepageFallbackContent({
+      presetKey: site.sitePresetKey,
+      blogName: site.blogName,
+      blogDescription: site.blogDescription,
+    });
+
     return buildPublicSeo({
       site,
       path: "/",
-      title: site.defaultMetaTitle || `${site.blogName} | Elegant Stories`,
-      description:
-        site.defaultMetaDescription ||
-        "Join Lumina. Discover elegant stories on design, culture, and high-quality code.",
+      title: site.defaultMetaTitle || fallback.metaTitle,
+      description: site.defaultMetaDescription || fallback.metaDescription,
       image: site.defaultOgImage,
       jsonLd: [buildOrganizationJsonLd(site)],
     });
@@ -98,7 +103,7 @@ function Home() {
     site: {
       blogName: string;
       blogDescription: string;
-      sitePresetKey: "creator-journal" | "magazine-newsletter" | "premium-publication";
+      sitePresetKey: SitePresetKey;
     };
   };
   const [subscribing, setSubscribing] = useState(false);
@@ -210,12 +215,19 @@ function Home() {
 
       <section className="mt-20">
         <header className="mb-10 flex items-center justify-between rounded-md border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1 sm:p-8">
-          <h2 className="display-title text-2xl font-bold text-foreground sm:text-3xl">
-            Featured Articles
-          </h2>
+          <div>
+            <h2 className="display-title text-2xl font-bold text-foreground sm:text-3xl">
+              {fallback.featuredHeading}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">{fallback.featuredDescription}</p>
+          </div>
           <Button asChild variant="outline" size="sm">
-            <Link to="/blog" search={{ q: undefined, page: 1 }} className="flex items-center gap-2">
-              View All
+            <Link
+              to={fallback.primaryCtaHref as "/blog" | "/pricing"}
+              search={fallback.primaryCtaHref === "/blog" ? { q: undefined, page: 1 } : undefined}
+              className="flex items-center gap-2"
+            >
+              {fallback.primaryCtaText}
               <ArrowRight size={16} />
             </Link>
           </Button>
@@ -229,9 +241,7 @@ function Home() {
           </div>
         ) : (
           <div className="rounded-md border bg-card p-12 text-center shadow-sm">
-            <p className="text-muted-foreground">
-              No posts yet. Run the seed command to create your first 5 articles.
-            </p>
+            <p className="text-muted-foreground">{fallback.emptyPostMessage}</p>
           </div>
         )}
       </section>

@@ -1,3 +1,4 @@
+import { resolveSitePresetKey } from "#/lib/site-presets";
 import type { SitePresetKey } from "#/types/system";
 import type { SubscriptionStatus } from "#/types/membership";
 
@@ -66,7 +67,7 @@ export function resolvePaywallVariant(input: {
   teaserMode?: string | null;
   isPremium: boolean;
 }): PaywallVariantKey {
-  if (input.sitePresetKey === "premium-publication") {
+  if (resolveSitePresetKey(input.sitePresetKey) === "premium_publication") {
     return "membership-exclusivity";
   }
 

@@ -22,7 +22,7 @@ export const DEFAULT_SITE_DATA: GlobalSiteData = {
   defaultMetaDescription: "",
   defaultOgImage: "",
   twitterHandle: "",
-  sitePresetKey: "creator-journal",
+  sitePresetKey: "creator",
   robotsIndexingEnabled: true,
   socialLinks: [],
   primaryMenu: [],

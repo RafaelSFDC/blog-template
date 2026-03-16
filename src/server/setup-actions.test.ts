@@ -78,10 +78,11 @@ describe("setup actions", () => {
       expect(status?.isSkipped).toBe(false);
       expect(status?.lastStep).toBe("content");
       expect(status?.nextAction).toBeNull();
+      expect(status?.sitePresetKey).toBe("creator");
     });
   });
 
-  it("returns the same setup summary for admin and super-admin", async () => {
+  it("returns the same setup summary for admin, super-admin, and legacy superAdmin", async () => {
     await withIsolatedDatabase("setup-actions-role-parity", async () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
         import("#/db/index"),
@@ -119,8 +120,10 @@ describe("setup actions", () => {
 
       const adminStatus = await getSetupStatusSummaryForRole("admin");
       const superAdminStatus = await getSetupStatusSummaryForRole("super-admin");
+      const legacySuperAdminStatus = await getSetupStatusSummaryForRole("superAdmin");
 
       expect(adminStatus).toEqual(superAdminStatus);
+      expect(adminStatus).toEqual(legacySuperAdminStatus);
     });
   });
 });
