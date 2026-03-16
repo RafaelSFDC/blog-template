@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { settingsSchema } from "#/lib/cms-schema";
+import { settingsSchema } from "#/schemas/system";
 
 const trimmedRequiredString = (
   min: number,

@@ -1,11 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-// Returns {ok: false, reason} instead of throwing, so the outer catch
-// doesn't swallow legitimate redirect errors causing an infinite loop.
-const checkDashboardAccess = createServerFn({ method: 'GET' }).handler(async () => {
-  const { getDashboardSession } = await import('#/lib/admin-auth')
-  return getDashboardSession()
-})
+import { checkDashboardAccess } from '#/server/system/dashboard-access'
 
 export const Route = createFileRoute('/dashboard')({
   head: () => ({

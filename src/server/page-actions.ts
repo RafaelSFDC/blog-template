@@ -4,10 +4,9 @@ import { db } from "#/db/index";
 import { pageRevisions, pages } from "#/db/schema";
 import { requirePageAccess } from "#/lib/editorial-access";
 import {
-  getFriendlyDbError,
-  normalizeSlug,
   pageServerSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/editorial";
+import { getFriendlyDbError, normalizeSlug } from "#/schemas/system";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
 import {

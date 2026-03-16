@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { redirectSchema } from "#/lib/cms-schema";
+import { redirectSchema } from "#/schemas/system";
 
 export type RedirectFormValues = {
   id?: number;

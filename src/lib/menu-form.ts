@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { getMenusForDashboard } from "#/server/menu-actions";
-import { menuUpdateSchema } from "#/lib/cms-schema";
+import { menuUpdateSchema } from "#/schemas/system";
 
 type MenuUpdateInput = z.input<typeof menuUpdateSchema>;
 type DashboardMenusData = Awaited<ReturnType<typeof getMenusForDashboard>>;

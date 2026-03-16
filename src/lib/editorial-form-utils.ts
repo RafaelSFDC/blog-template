@@ -2,11 +2,11 @@ import type { z } from "zod";
 import {
   pageServerSchema,
   postServerSchema,
-  slugify,
-} from "#/lib/cms-schema";
+} from "#/schemas/editorial";
+import { slugify } from "#/schemas/system";
 import type {
   PageEditorFormValues,
-} from "#/lib/editorial-preview";
+} from "#/types/editorial";
 
 type PageSubmissionInput = z.input<typeof pageServerSchema>;
 type PostSubmissionInput = z.input<typeof postServerSchema>;

@@ -1,26 +1,13 @@
-import type { z } from "zod";
 import {
-  pageFormSchema,
-  postFormSchema,
   slugify,
-} from "#/lib/cms-schema";
+} from "#/schemas/system";
+import type {
+  PageEditorFormValues,
+  PagePreviewDraft,
+  PostEditorFormValues,
+  PostPreviewDraft,
+} from "#/types/editorial";
 import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
-
-export type PostEditorFormValues = z.infer<typeof postFormSchema>;
-export type PageEditorFormValues = z.infer<typeof pageFormSchema>;
-
-export interface PostPreviewDraft extends PostEditorFormValues {
-  permalink: string;
-  categoryNames: string[];
-  tagNames: string[];
-  coverImage?: string | null;
-  authorName?: string | null;
-  readingTime?: number | null;
-}
-
-export interface PagePreviewDraft extends PageEditorFormValues {
-  permalink: string;
-}
 
 interface NamedRecord {
   id: number;
@@ -76,4 +63,5 @@ export function buildPagePreviewDraft(
   };
 }
 
+export type { PageEditorFormValues, PagePreviewDraft, PostEditorFormValues, PostPreviewDraft };
 export { getEditorialStatusCopy };

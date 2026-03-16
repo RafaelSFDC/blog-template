@@ -1,8 +1,5 @@
 import { usePostHog } from "@posthog/react";
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
-import { and, desc, eq } from "drizzle-orm";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthorBio } from "#/components/author-bio";
@@ -11,180 +8,24 @@ import { CommentForm } from "#/components/blog/comment-form";
 import { CommentList } from "#/components/blog/comment-list";
 import { Newsletter } from "#/components/blog/newsletter";
 import { Paywall } from "#/components/blog/paywall";
-import { type Post as PostSummary } from "#/components/blog/PostCard";
 import { MarkdownContent } from "#/components/markdown-content";
 import { RecommendedPosts } from "#/components/recommended-posts";
 import { SocialSharing } from "#/components/social-sharing";
 import { TableOfContents } from "#/components/table-of-contents";
-import { comments, posts } from "#/db/schema";
-import { db } from "#/db/index";
-import type { Comment as BlogComment } from "#/components/blog/comment-list";
-import { auth } from "#/lib/auth";
-import { publicCommentSchema } from "#/lib/cms-schema";
-import { resolveTeaserContent } from "#/lib/membership";
 import {
   buildArticleJsonLd,
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
   buildPublicSeo,
-  resolvePublicCacheControl,
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
-import { createPendingComment } from "#/server/comment-actions";
-import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
-import { getRelatedPostsByTaxonomy } from "#/server/public-discovery";
-import { getRedirectByPath } from "#/server/redirect-actions";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { addPublicComment, getPublicPostBySlug } from "#/server/public/content";
 
-type PostWithExtras = PostSummary & {
-  content: string;
-  isPremium: boolean | null;
-  teaserMode?: string | null;
-  status: string;
-  readingTime?: number | null;
-  authorName?: string | null;
-  authorSlug?: string | null;
-  authorBio?: string | null;
-  authorHeadline?: string | null;
-  categorySlug?: string | null;
-  updatedAt?: Date | string | null;
-  seoNoIndex?: boolean;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  ogImage?: string | null;
-};
-
-interface PostBySlugData {
-  post: PostWithExtras;
-  comments: BlogComment[];
-  recommended: PostSummary[];
-  hasAccess: boolean;
-  entitlementStatus: string;
-  defaultPlanSlug: "monthly" | "annual";
-  site: Awaited<ReturnType<typeof getSeoSiteData>>;
-}
-
-const getPostBySlug = createServerFn({ method: "GET" })
-  .inputValidator((slug: string) => slug)
-  .handler(async ({ data: slug }) => {
-    const request = getRequest();
-    const session = request
-      ? await auth.api.getSession({
-          headers: request.headers,
-        })
-      : null;
-
-    const post = await db.query.posts.findFirst({
-      where: eq(posts.slug, slug),
-      with: {
-        author: {
-          columns: {
-            name: true,
-            publicAuthorSlug: true,
-            authorBio: true,
-            authorHeadline: true,
-          },
-        },
-        postCategories: {
-          with: {
-            category: {
-              columns: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-          limit: 1,
-        },
-      },
-    });
-
-    if (!post) {
-      const redirectMatch = await getRedirectByPath(`/blog/${slug}`);
-      if (redirectMatch) {
-        throw redirect({
-          href: redirectMatch.destinationPath,
-          statusCode: redirectMatch.statusCode,
-        });
-      }
-      throw notFound();
-    }
-
-    setResponseHeader(
-      "Cache-Control",
-      resolvePublicCacheControl({
-        hasSession: Boolean(session),
-        ttlSeconds: 3600,
-        staleSeconds: 86400,
-      }),
-    );
-
-    if (post.status !== "published" && session?.user?.role !== "admin" && session?.user?.role !== "super-admin") {
-      throw notFound();
-    }
-
-    const entitlement = await getUserEntitlement({
-      userId: session?.user?.id,
-      role: session?.user?.role,
-      isPremium: Boolean(post.isPremium),
-    });
-
-    const hasAccess = entitlement.access === "full";
-    const plans = await getPricingPlansData();
-    const defaultPlan =
-      plans.find((plan) => plan.isDefault && plan.isActive) ??
-      plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-      plans.find((plan) => plan.slug === "monthly" && plan.isActive);
-
-    const postForView = {
-      ...post,
-      authorName: post.author?.name ?? "Editorial Team",
-      authorSlug: post.author?.publicAuthorSlug ?? null,
-      authorBio: post.author?.authorBio ?? null,
-      authorHeadline: post.author?.authorHeadline ?? null,
-      category: post.postCategories[0]?.category?.name ?? null,
-      categorySlug: post.postCategories[0]?.category?.slug ?? null,
-      content: hasAccess
-        ? post.content
-        : resolveTeaserContent({
-            content: post.content,
-            excerpt: post.excerpt,
-            teaserMode: post.teaserMode ?? "excerpt",
-          }),
-    } as PostWithExtras;
-
-    const commentsList = await db.query.comments
-      .findMany({
-        where: and(eq(comments.postId, post.id), eq(comments.status, "approved")),
-        orderBy: [desc(comments.createdAt)],
-      })
-      .catch(() => []);
-
-    const recommended = await getRelatedPostsByTaxonomy(post.id);
-
-    const site = await getSeoSiteData();
-
-    return {
-      post: postForView,
-      comments: commentsList,
-      recommended: (recommended as PostSummary[]) || [],
-      hasAccess,
-      entitlementStatus: entitlement.status,
-      defaultPlanSlug: (defaultPlan?.slug === "monthly" ? "monthly" : "annual"),
-      site,
-    } satisfies PostBySlugData;
-  });
-
-const addComment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => publicCommentSchema.parse(input))
-  .handler(async ({ data }) => {
-    await createPendingComment(data);
-    return { success: true };
-  });
+type PostBySlugData = Awaited<ReturnType<typeof getPublicPostBySlug>>;
 
 export const Route = createFileRoute("/_public/blog/$slug")({
-  loader: ({ params }) => getPostBySlug({ data: params.slug }),
+  loader: ({ params }) => getPublicPostBySlug({ data: params.slug }),
   head: ({ loaderData }) => {
     const data = loaderData as PostBySlugData;
     const post = data?.post;
@@ -336,7 +177,7 @@ function PostDetail() {
           <div className="mb-10 border-b border-border pb-10">
             <CommentForm
               onSubmit={async (data) => {
-                await addComment({ data: { ...data, postId: post.id } });
+                await addPublicComment({ data: { ...data, postId: post.id } });
                 posthog.capture("post_comment_submitted", {
                   post_slug: post.slug,
                   post_title: post.title,

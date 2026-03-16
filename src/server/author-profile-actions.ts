@@ -3,7 +3,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "#/db/index";
 import { user } from "#/db/schema";
 import { requireRoleAccess } from "#/lib/editorial-access";
-import { authorProfileSchema, slugify } from "#/lib/cms-schema";
+import { authorProfileSchema, slugify } from "#/schemas/system";
 
 export const getCurrentAuthorProfile = createServerFn({ method: "GET" }).handler(async () => {
   const session = await requireRoleAccess(["author", "editor", "admin", "super-admin"]);

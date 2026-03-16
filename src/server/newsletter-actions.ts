@@ -8,7 +8,7 @@ import {
   newsletterSubscribeSchema,
   positiveIntSchema,
   recordIdSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas";
 import { requireAdminSession } from "#/lib/admin-auth";
 import {
   cancelNewsletterCampaign,

@@ -10,8 +10,6 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import { getLocale } from "#/paraglide/runtime";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import appCss from "../styles.css?url";
 import { ThemeProvider } from "next-themes";
 import { LazyPostHogProvider } from "#/components/analytics/lazy-posthog-provider";
@@ -19,6 +17,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "#/components/ui/sonner";
 import { useEffect } from "react";
 import { captureClientException } from "#/lib/sentry-client";
+import { getGlobalSettings } from "#/server/system/root-settings";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -27,36 +26,8 @@ interface MyRouterContext {
 import {
   DEFAULT_SITE_DATA,
   type GlobalSiteData,
-  getGlobalSiteData,
 } from "#/lib/cms";
-import { getRobotsMeta, resolveSiteUrl } from "#/lib/seo";
-
-const getGlobalSettings = createServerFn({ method: "GET" }).handler(
-  async () => {
-    setResponseHeader(
-      "Cache-Control",
-      "public, s-maxage=3600, stale-while-revalidate=86400",
-    );
-    try {
-      const request = getRequest();
-      const site = await getGlobalSiteData();
-      return {
-        ...site,
-        siteUrl: resolveSiteUrl(site.siteUrl, request?.url),
-      };
-    } catch (error) {
-      const { captureServerException } = await import("#/server/sentry");
-      captureServerException(error, {
-        tags: {
-          area: "root",
-          flow: "global-settings",
-        },
-      });
-      console.error("Failed to fetch settings from DB, using defaults:", error);
-      return DEFAULT_SITE_DATA;
-    }
-  },
-);
+import { getRobotsMeta } from "#/lib/seo";
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='system')?stored:'system';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='system'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);root.style.colorScheme=resolved;}catch(e){}})();`;
 

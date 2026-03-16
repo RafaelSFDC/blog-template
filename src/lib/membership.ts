@@ -1,8 +1,4 @@
-import type { z } from "zod";
-import { subscriptionStatusSchema } from "#/lib/cms-schema";
-
-export type SubscriptionStatus = z.infer<typeof subscriptionStatusSchema>;
-export type EntitlementAccess = "full" | "teaser" | "none";
+import type { EntitlementAccess, SubscriptionStatus } from "#/types/membership";
 
 export const DEFAULT_GRACE_PERIOD_DAYS = 3;
 export const MEMBERSHIP_PLAN_SLUGS = ["monthly", "annual"] as const;
@@ -104,3 +100,5 @@ export function resolveTeaserContent(input: {
 
   return `${trimmed.slice(0, 480).trimEnd()}...`;
 }
+
+export type { EntitlementAccess, SubscriptionStatus };

@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { appSettings, menuItems, menus } from "#/db/schema";
 import { db } from "#/db/index";
-import { MENU_KEYS } from "#/lib/cms-schema";
+import { MENU_KEYS } from "#/schemas/system";
 
 export interface MenuItemView {
   id: number;

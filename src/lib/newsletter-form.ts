@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { newsletterCampaignSchema } from "#/lib/cms-schema";
+import { newsletterCampaignSchema } from "#/schemas/newsletter";
+import type { NewsletterTemplatePost } from "#/types/newsletter";
 
 const trimmedRequiredString = (
   min: number,
@@ -32,14 +33,6 @@ export const newsletterCampaignSubmissionSchema =
 export type NewsletterCampaignFormValues = z.infer<
   typeof newsletterCampaignFormSchema
 >;
-
-export type NewsletterTemplatePost = {
-  id: number;
-  title: string;
-  excerpt: string | null;
-  slug: string;
-  publishedAt: string | Date | null;
-};
 
 type ExistingNewsletter = {
   subject: string;

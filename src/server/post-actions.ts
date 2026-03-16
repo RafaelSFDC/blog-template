@@ -24,12 +24,10 @@ import {
   editorialChecklistUpdateSchema,
   editorialCommentCreateSchema,
   editorialCommentResolveSchema,
-  getFriendlyDbError,
-  normalizeSlug,
   postServerSchema,
   postWorkflowActionInputSchema,
-  recordIdSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/editorial";
+import { getFriendlyDbError, normalizeSlug, recordIdSchema } from "#/schemas/system";
 import { triggerWebhook } from "#/lib/webhooks";
 import {
   getSlugConflictMessage,

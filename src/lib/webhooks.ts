@@ -3,7 +3,7 @@ import { webhooks, webhookDeliveries } from "#/db/schema";
 import { eq, and, type InferSelectModel } from "drizzle-orm";
 import { type z } from "zod";
 import * as schema from "#/db/schema";
-import { webhookEventSchema } from "#/lib/cms-schema";
+import { webhookEventSchema } from "#/schemas/system";
 
 type Webhook = InferSelectModel<typeof schema.webhooks>;
 

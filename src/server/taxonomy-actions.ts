@@ -3,7 +3,8 @@ import { db } from '#/db/index'
 import { categories, postCategories, posts, postTags, tags } from '#/db/schema'
 import { requireTaxonomyAccess } from '#/lib/editorial-access'
 import { and, count, desc, eq } from 'drizzle-orm'
-import { categorySchema, getFriendlyDbError, normalizeSlug, tagSchema } from '#/lib/cms-schema'
+import { categorySchema, tagSchema } from '#/schemas/editorial'
+import { getFriendlyDbError, normalizeSlug } from '#/schemas/system'
 import { getPaginationMeta } from '#/lib/pagination'
 
 export const BLOG_PAGE_SIZE = 9

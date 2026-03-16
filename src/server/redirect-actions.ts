@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { redirects } from "#/db/schema";
 import { requireAdminSession } from "#/lib/admin-auth";
-import { getFriendlyDbError, recordIdSchema, redirectSchema } from "#/lib/cms-schema";
+import { getFriendlyDbError, recordIdSchema, redirectSchema } from "#/schemas/system";
 import { asc, eq } from "drizzle-orm";
 
 function normalizeRedirectPath(path: string) {

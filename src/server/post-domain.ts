@@ -1,7 +1,7 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { posts } from "#/db/schema";
 import type { z } from "zod";
-import { postServerSchema } from "#/lib/cms-schema";
+import { postServerSchema } from "#/schemas/editorial";
 
 export type PostInput = z.infer<typeof postServerSchema>;
 export type PostRow = InferSelectModel<typeof posts>;

@@ -1,37 +1,11 @@
 import { usePostHog } from "@posthog/react";
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { Check, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
-import { auth } from "#/lib/auth";
 import { captureClientException } from "#/lib/sentry-client";
-import { getPricingPlansData } from "#/server/membership-actions";
-
-const getPricingPageData = createServerFn({ method: "GET" }).handler(async () => {
-  const request = getRequest();
-  const session = request
-    ? await auth.api.getSession({
-        headers: request.headers,
-      })
-    : null;
-  return {
-    plans: (await getPricingPlansData()).map((plan) => ({
-      id: plan.id,
-      slug: plan.slug,
-      name: plan.name,
-      description: plan.description,
-      interval: plan.interval,
-      priceCents: plan.priceCents,
-      currency: plan.currency,
-      isDefault: Boolean(plan.isDefault),
-      isActive: Boolean(plan.isActive),
-    })),
-    isAuthenticated: Boolean(session?.user),
-  };
-});
+import { getPricingPageData } from "#/server/public/site";
 
 export const Route = createFileRoute("/_public/pricing")({
   loader: () => getPricingPageData(),

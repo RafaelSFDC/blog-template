@@ -1,7 +1,7 @@
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { eq } from "drizzle-orm";
-import { publicCommentSchema } from "#/lib/cms-schema";
+import { publicCommentSchema } from "#/schemas/editorial";
 
 export type CreatePendingCommentInput = Parameters<typeof publicCommentSchema.parse>[0];
 

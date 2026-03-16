@@ -4,7 +4,7 @@ import { db } from "#/db/index";
 import { media as mediaTable } from "#/db/schema";
 import { requireMediaAccess, requireMediaReadAccess } from "#/lib/editorial-access";
 import { deleteObject, putObject, sanitizeMediaFilename } from "#/lib/storage";
-import { bulkMediaDeleteSchema, mediaUploadSchema } from "#/lib/cms-schema";
+import { bulkMediaDeleteSchema, mediaUploadSchema } from "#/schemas/system";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
 

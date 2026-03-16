@@ -1,6 +1,5 @@
 import { usePostHog } from "@posthog/react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { CreditCard, LogOut, Save, Shield, User } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -12,19 +11,11 @@ import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
 import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
 import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
-
-const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const { getAuthSession } = await import("#/lib/admin-auth");
-  const session = await getAuthSession();
-  if (!session?.user) {
-    return { ok: false as const };
-  }
-  return { ok: true as const };
-});
+import { checkAuthenticatedUserAccess } from "#/server/system/dashboard-access";
 
 export const Route = createFileRoute("/_public/account")({
   beforeLoad: async () => {
-    const result = await checkAuth();
+    const result = await checkAuthenticatedUserAccess();
     if (!result.ok) {
       throw redirect({ to: "/auth/login" });
     }

@@ -1,87 +1,21 @@
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
+import { createFileRoute } from "@tanstack/react-router";
 import { usePostHog } from "@posthog/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PageContent } from "#/components/cms/PageContent";
-import { auth } from "#/lib/auth";
-import { resolveTeaserContent } from "#/lib/membership";
 import {
   buildOrganizationJsonLd,
   buildPublicSeo,
-  resolvePublicCacheControl,
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
-import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
-import { getRedirectByPath } from "#/server/redirect-actions";
-import { getPublishedPageBySlug } from "#/server/page-actions";
+import { getPublicPageBySlug } from "#/server/public/content";
 import { getSeoSiteData } from "#/server/seo-actions";
-
-const getPageBySlug = createServerFn({ method: "GET" })
-  .inputValidator((slug: string) => slug)
-  .handler(async ({ data }) => {
-    const request = getRequest();
-    const session = request
-      ? await auth.api.getSession({
-          headers: request.headers,
-        })
-      : null;
-
-    setResponseHeader(
-      "Cache-Control",
-      resolvePublicCacheControl({
-        hasSession: Boolean(session),
-        ttlSeconds: 300,
-        staleSeconds: 600,
-      }),
-    );
-
-    const page = await getPublishedPageBySlug(data);
-    if (!page) {
-      const redirectMatch = await getRedirectByPath(`/${data}`);
-      if (redirectMatch) {
-        throw redirect({
-          href: redirectMatch.destinationPath,
-          statusCode: redirectMatch.statusCode,
-        });
-      }
-      throw notFound();
-    }
-
-    const entitlement = await getUserEntitlement({
-      userId: session?.user?.id,
-      role: session?.user?.role,
-      isPremium: Boolean(page.isPremium),
-    });
-    const plans = await getPricingPlansData();
-    const defaultPlan =
-      plans.find((plan) => plan.isDefault && plan.isActive) ??
-      plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-      plans.find((plan) => plan.slug === "monthly" && plan.isActive);
-
-    return {
-      page: {
-        ...page,
-        content:
-          entitlement.access === "full"
-            ? page.content
-            : resolveTeaserContent({
-                content: page.content,
-                excerpt: page.excerpt,
-                teaserMode: page.teaserMode ?? "excerpt",
-              }),
-      },
-      hasAccess: entitlement.access === "full",
-      defaultPlanSlug: defaultPlan?.slug === "monthly" ? "monthly" : "annual",
-    };
-  });
 
 export const Route = createFileRoute("/_public/$")({
   loader: async ({ params }) => {
     const [payload, site] = await Promise.all([
-      getPageBySlug({ data: params._splat || "" }),
+      getPublicPageBySlug({ data: params._splat || "" }),
       getSeoSiteData(),
     ]);
 

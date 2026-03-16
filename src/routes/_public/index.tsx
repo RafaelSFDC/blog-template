@@ -1,8 +1,5 @@
 import { usePostHog } from "@posthog/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
-import { desc, eq } from "drizzle-orm";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,75 +8,14 @@ import { Button } from "#/components/ui/button";
 import { Newsletter } from "#/components/blog/newsletter";
 import { PostCard, type Post } from "#/components/blog/PostCard";
 import { PageContent } from "#/components/cms/PageContent";
-import { db } from "#/db/index";
-import { posts } from "#/db/schema";
-import { auth } from "#/lib/auth";
-import { resolveTeaserContent } from "#/lib/membership";
 import {
   buildOrganizationJsonLd,
   buildPublicSeo,
-  getPrivateCacheControl,
-  getPublicCacheControl,
+  resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
-import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
-import { getPublishedHomepage } from "#/server/page-actions";
+import { getHomepage, getTopPosts } from "#/server/public/site";
 import { getSeoSiteData } from "#/server/seo-actions";
-
-const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
-  setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
-  return db
-    .select()
-    .from(posts)
-    .where(eq(posts.status, "published"))
-    .orderBy(desc(posts.publishedAt))
-    .limit(3);
-});
-
-const getHomepage = createServerFn({ method: "GET" }).handler(async () => {
-  const request = getRequest();
-  const session = request
-    ? await auth.api.getSession({
-        headers: request.headers,
-      })
-    : null;
-
-  if (session) {
-    setResponseHeader("Cache-Control", getPrivateCacheControl());
-  } else {
-    setResponseHeader("Cache-Control", getPublicCacheControl(300, 600));
-  }
-
-  const homepage = await getPublishedHomepage();
-  if (!homepage) {
-    return null;
-  }
-
-  const entitlement = await getUserEntitlement({
-    userId: session?.user?.id,
-    role: session?.user?.role,
-    isPremium: Boolean(homepage.isPremium),
-  });
-  const plans = await getPricingPlansData();
-  const defaultPlan =
-    plans.find((plan) => plan.isDefault && plan.isActive) ??
-    plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-    plans.find((plan) => plan.slug === "monthly" && plan.isActive);
-
-  return {
-    ...homepage,
-    content:
-      entitlement.access === "full"
-        ? homepage.content
-        : resolveTeaserContent({
-            content: homepage.content,
-            excerpt: homepage.excerpt,
-            teaserMode: homepage.teaserMode ?? "excerpt",
-          }),
-    hasAccess: entitlement.access === "full",
-    defaultPlanSlug: defaultPlan?.slug === "monthly" ? "monthly" : "annual",
-  };
-});
 
 export const Route = createFileRoute("/_public/")({
   loader: async () => {
@@ -121,10 +57,12 @@ export const Route = createFileRoute("/_public/")({
         title: homepage.metaTitle || homepage.title,
         description: homepage.metaDescription || homepage.excerpt || site.blogDescription,
         image: homepage.ogImage || site.defaultOgImage,
-        indexable:
-          site.robotsIndexingEnabled &&
-          !homepage.seoNoIndex &&
-          (!homepage.isPremium || homepage.hasAccess),
+        indexable: resolvePublicIndexability({
+          site,
+          seoNoIndex: homepage.seoNoIndex,
+          isPremium: homepage.isPremium,
+          hasAccess: homepage.hasAccess,
+        }),
         jsonLd: [buildOrganizationJsonLd(site)],
       });
     }

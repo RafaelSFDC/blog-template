@@ -4,7 +4,7 @@ import type Stripe from "stripe";
 import { db } from "#/db/index";
 import { appSettings, membershipPlans, subscriptionEvents, subscriptions, user } from "#/db/schema";
 import { requireSession } from "#/lib/admin-auth";
-import { stripeCheckoutSchema } from "#/lib/cms-schema";
+import { stripeCheckoutSchema } from "#/schemas/membership";
 import {
   DEFAULT_GRACE_PERIOD_DAYS,
   getEffectiveSubscriptionStatus,

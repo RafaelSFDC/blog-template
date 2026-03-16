@@ -6,7 +6,7 @@ import { requireAdminSession } from "#/lib/admin-auth";
 import {
   assertMenuHref,
   menuUpdateSchema,
-} from "#/lib/cms-schema";
+} from "#/schemas/system";
 import { ensureCoreMenus } from "#/lib/cms";
 
 export const getMenusForDashboard = createServerFn({ method: "GET" }).handler(

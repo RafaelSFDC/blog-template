@@ -6,7 +6,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { slugify } from "#/lib/cms-schema";
+import { slugify } from "#/schemas/system";
 import { getBinding } from "#/lib/cf-env";
 
 export interface R2ObjectBody {
