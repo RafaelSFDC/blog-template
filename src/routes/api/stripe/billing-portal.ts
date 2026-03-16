@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { captureServerException } from "#/server/sentry";
 import { getCurrentSubscription } from "#/server/membership-actions";
 import { stripe } from "#/server/stripe";
-import { auth } from "#/lib/auth";
+import { auth } from "#/server/auth/auth";
 
 export const Route = createFileRoute("/api/stripe/billing-portal")({
   server: {

@@ -9,7 +9,7 @@ import { LinkToolbar } from "../toolbars/link";
 import { ColorHighlightToolbar } from "../toolbars/color-and-highlight";
 import { ToolbarProvider } from "../toolbars/toolbar-provider";
 import { TooltipProvider } from "#/components/ui/tooltip";
-import { useMediaQuery } from "#/hooks/use-media-querry";
+import { useMediaQuery } from "#/hooks/use-media-query";
 import { ScrollArea, ScrollBar } from "#/components/ui/scroll-area";
 import { Separator } from "#/components/ui/separator";
 import { HeadingsToolbar } from "../toolbars/headings";

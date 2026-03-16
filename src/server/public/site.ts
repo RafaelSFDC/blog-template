@@ -3,7 +3,7 @@ import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { auth } from "#/lib/auth";
+import { auth } from "#/server/auth/auth";
 import { resolveTeaserContent } from "#/lib/membership";
 import { getPrivateCacheControl, getPublicCacheControl } from "#/lib/seo";
 import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";

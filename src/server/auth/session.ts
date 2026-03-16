@@ -5,7 +5,7 @@ import { redirect } from '@tanstack/react-router'
 const DASHBOARD_ROLES = new Set(['author', 'editor', 'moderator', 'admin', 'super-admin'])
 
 export async function getAuthSession() {
-  const { auth } = await import('#/lib/auth')
+  const { auth } = await import('#/server/auth/auth')
   const request = getRequest()
   if (!request) return null
   return await auth.api.getSession({

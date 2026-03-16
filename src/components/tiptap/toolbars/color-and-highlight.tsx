@@ -14,7 +14,7 @@ import {
 import { cn } from "#/lib/utils";
 import { useToolbar } from "./toolbar-provider";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import { useMediaQuery } from "#/hooks/use-media-querry";
+import { useMediaQuery } from "#/hooks/use-media-query";
 import { MobileToolbarGroup, MobileToolbarItem } from "./mobile-toolbar-group";
 
 const TEXT_COLORS = [

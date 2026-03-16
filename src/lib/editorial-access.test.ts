@@ -4,7 +4,7 @@ import {
   isAdminRole,
   isEditorRole,
   normalizeRole,
-} from "#/lib/editorial-access";
+} from "#/server/editorial/access";
 
 describe("editorial access helpers", () => {
   it("normalizes legacy superAdmin role values", () => {

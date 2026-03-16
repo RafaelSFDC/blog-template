@@ -10,8 +10,8 @@ import {
   subscriptions,
   user,
 } from "#/db/schema";
-import { getBinding } from "#/lib/cf-env";
-import { resend as defaultResend } from "#/lib/resend";
+import { getBinding } from "#/server/system/cf-env";
+import { resend as defaultResend } from "#/server/integrations/resend";
 import { getEffectiveSubscriptionStatus, hasPremiumEntitlement } from "#/lib/membership";
 import { logActivity } from "#/server/activity-log";
 import { getSettingValue, getSettingValues, parseBooleanSetting } from "#/server/app-settings";

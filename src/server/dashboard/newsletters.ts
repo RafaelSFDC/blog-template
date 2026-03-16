@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { desc } from "drizzle-orm";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 
 export const getNewsletterTemplatePosts = createServerFn({ method: "GET" }).handler(
   async () => {

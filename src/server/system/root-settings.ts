@@ -3,7 +3,7 @@ import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
 import {
   DEFAULT_SITE_DATA,
   getGlobalSiteData,
-} from "#/lib/cms";
+} from "#/server/system/site-data";
 import { resolveSiteUrl } from "#/lib/seo";
 
 export const getGlobalSettings = createServerFn({ method: "GET" }).handler(

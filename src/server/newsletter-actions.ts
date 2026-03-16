@@ -9,7 +9,7 @@ import {
   positiveIntSchema,
   recordIdSchema,
 } from "#/schemas";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 import {
   cancelNewsletterCampaign,
   confirmNewsletterSubscriptionToken,

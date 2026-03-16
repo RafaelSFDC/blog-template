@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { count, desc, eq, sql } from "drizzle-orm";
 import { db } from "#/db/index";
 import { contactMessages, newsletters, posts, subscribers } from "#/db/schema";
-import { requireDashboardAccess } from "#/lib/admin-auth";
+import { requireDashboardAccess } from "#/server/auth/session";
 
 export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
   async () => {

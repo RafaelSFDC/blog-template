@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/cloudflare";
-import { getBinding } from "#/lib/cf-env";
+import { getBinding } from "#/server/system/cf-env";
 import {
   normalizeError,
   normalizeObservabilityTags,

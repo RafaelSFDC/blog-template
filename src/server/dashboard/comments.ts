@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
-import { requireCommentModerationAccess } from "#/lib/editorial-access";
+import { requireCommentModerationAccess } from "#/server/editorial/access";
 import {
   bulkCommentActionSchema,
   commentStatusUpdateSchema,

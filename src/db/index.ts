@@ -1,5 +1,5 @@
 import * as schema from "./schema";
-import { getBinding } from "#/lib/cf-env";
+import { getBinding } from "#/server/system/cf-env";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _db: any = null;

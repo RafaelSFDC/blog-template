@@ -2,14 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const checkDashboardAccess = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { getDashboardSession } = await import("#/lib/admin-auth");
+    const { getDashboardSession } = await import("#/server/auth/session");
     return getDashboardSession();
   },
 );
 
 export const checkAuthenticatedUserAccess = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { getAuthSession } = await import("#/lib/admin-auth");
+    const { getAuthSession } = await import("#/server/auth/session");
     const session = await getAuthSession();
     if (!session?.user) {
       return { ok: false as const };
@@ -21,7 +21,7 @@ export const checkAuthenticatedUserAccess = createServerFn({ method: "GET" }).ha
 
 export const checkAdminAccess = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { requireAdminSession } = await import("#/lib/admin-auth");
+    const { requireAdminSession } = await import("#/server/auth/session");
     await requireAdminSession();
     return { ok: true as const };
   },

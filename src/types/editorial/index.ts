@@ -19,3 +19,14 @@ export interface PostPreviewDraft extends PostEditorFormValues {
 export interface PagePreviewDraft extends PageEditorFormValues {
   permalink: string;
 }
+
+export type ContentAction =
+  | "create"
+  | "read"
+  | "update"
+  | "delete"
+  | "publish"
+  | "restore";
+
+export type ContentLockState = "acquired" | "held_by_other" | "expired";
+export type RevisionSource = "manual" | "autosave" | "restore" | "publish";

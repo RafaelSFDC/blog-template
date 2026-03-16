@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getBinding } from "#/lib/cf-env";
+import { getBinding } from "#/server/system/cf-env";
 import { publishScheduledPosts } from "#/server/post-actions";
 import {
   getCronSecretConfig,

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { eq, desc } from "drizzle-orm";
 import { posts } from "#/db/schema";
-import { getGlobalSiteData } from "#/lib/cms";
+import { getGlobalSiteData } from "#/server/system/site-data";
 import { resolveSiteUrl } from "#/lib/seo";
 
 type RssPost = Awaited<ReturnType<typeof db.query.posts.findMany>>[number];

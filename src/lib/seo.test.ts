@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SITE_DATA } from "#/lib/cms";
+import { DEFAULT_SITE_DATA } from "#/server/system/site-data";
 import {
   buildCanonicalUrl,
   buildPublicSeo,

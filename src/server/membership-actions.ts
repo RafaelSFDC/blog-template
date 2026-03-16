@@ -3,7 +3,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import type Stripe from "stripe";
 import { db } from "#/db/index";
 import { appSettings, membershipPlans, subscriptionEvents, subscriptions, user } from "#/db/schema";
-import { requireSession } from "#/lib/admin-auth";
+import { requireSession } from "#/server/auth/session";
 import { stripeCheckoutSchema } from "#/schemas/membership";
 import {
   DEFAULT_GRACE_PERIOD_DAYS,

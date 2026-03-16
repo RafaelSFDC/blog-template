@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getObject } from '#/lib/storage'
+import { getObject } from '#/server/system/storage'
 import { captureServerException } from '#/server/sentry'
 
 export const Route = createFileRoute('/api/media/$')({

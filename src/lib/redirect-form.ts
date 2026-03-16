@@ -1,12 +1,6 @@
 import type { z } from "zod";
 import { redirectSchema } from "#/schemas/system";
-
-export type RedirectFormValues = {
-  id?: number;
-  sourcePath: string;
-  destinationPath: string;
-  statusCode: 301 | 302;
-};
+import type { RedirectFormValues } from "#/types/system";
 
 type RedirectInput = z.input<typeof redirectSchema>;
 

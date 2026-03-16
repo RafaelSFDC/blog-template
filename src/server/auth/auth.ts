@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin as adminPlugin } from "better-auth/plugins";
-import { db } from "../db/index";
-import * as schema from "../db/schema";
+import { db } from "#/db/index";
+import * as schema from "#/db/schema";
 import { type InferSelectModel } from "drizzle-orm";
 
 type User = InferSelectModel<typeof schema.user>;
@@ -15,7 +15,7 @@ import {
   moderator,
   admin,
   superAdmin,
-} from "./permissions";
+} from "#/lib/permissions";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -44,7 +44,7 @@ export const auth = betterAuth({
       update: {
         before: async (user: User) => {
           // Prevent users from performing critical actions on themselves
-          const { getAuthSession } = await import("./admin-auth");
+          const { getAuthSession } = await import("#/server/auth/session");
           const session = await getAuthSession();
 
           if (session?.user?.id === user.id) {
@@ -70,7 +70,7 @@ export const auth = betterAuth({
       },
       delete: {
         before: async (user: { id: string }) => {
-          const { getAuthSession } = await import("./admin-auth");
+          const { getAuthSession } = await import("#/server/auth/session");
           const session = await getAuthSession();
 
           if (session?.user?.id === user.id) {
@@ -83,9 +83,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     async sendResetPassword({ user, url }: { user: User; url: string }) {
-      const { resend: defaultResend } = await import("./resend");
+      const { resend: defaultResend } = await import(
+        "#/server/integrations/resend"
+      );
       const { Resend } = await import("resend");
-      const { appSettings } = await import("../db/schema");
+      const { appSettings } = await import("#/db/schema");
 
       // Fetch settings for Resend
       const settings = await db.select().from(appSettings);

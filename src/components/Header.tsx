@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 
 import { Button } from "#/components/ui/button";
 import { LuminaLogo } from "./LuminaLogo";
-import type { GlobalSiteData } from "#/lib/cms";
+import type { GlobalSiteData } from "#/types/system";
 
 export default function Header() {
   const router = useRouter();

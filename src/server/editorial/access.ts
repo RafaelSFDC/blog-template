@@ -2,7 +2,8 @@ import { and, eq } from "drizzle-orm";
 import { redirect } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { comments, media, pages, posts } from "#/db/schema";
-import { getAuthSession, requireDashboardAccess } from "#/lib/admin-auth";
+import { getAuthSession, requireDashboardAccess } from "#/server/auth/session";
+import type { ContentAction } from "#/types/editorial";
 
 export const DASHBOARD_CONTENT_ROLES = [
   "author",
@@ -14,9 +15,6 @@ export const DASHBOARD_CONTENT_ROLES = [
 ] as const;
 
 export type EditorialRole = (typeof DASHBOARD_CONTENT_ROLES)[number];
-export type ContentAction = "create" | "read" | "update" | "delete" | "publish" | "restore";
-export type ContentLockState = "acquired" | "held_by_other" | "expired";
-export type RevisionSource = "manual" | "autosave" | "restore" | "publish";
 
 export function normalizeRole(role?: string | null) {
   if (role === "superAdmin") {

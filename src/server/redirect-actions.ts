@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { redirects } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 import { getFriendlyDbError, recordIdSchema, redirectSchema } from "#/schemas/system";
 import { asc, eq } from "drizzle-orm";
 

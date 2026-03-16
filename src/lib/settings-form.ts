@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { settingsSchema } from "#/schemas/system";
+import type { SettingsFormValues } from "#/types/forms";
 
 const trimmedRequiredString = (
   min: number,
@@ -73,7 +74,6 @@ export const settingsFormSchema = z.object({
     .max(20, "Too many social links"),
 });
 
-export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 type SettingsPayload = z.input<typeof settingsSchema>;
 type SettingsRow = { key: string; value: string };
 

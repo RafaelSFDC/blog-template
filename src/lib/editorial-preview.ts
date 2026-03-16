@@ -7,7 +7,6 @@ import type {
   PostEditorFormValues,
   PostPreviewDraft,
 } from "#/types/editorial";
-import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
 
 interface NamedRecord {
   id: number;
@@ -62,5 +61,3 @@ export function buildPagePreviewDraft(
     permalink: values.isHome ? "/" : `/${slug}`,
   };
 }
-
-export { getEditorialStatusCopy };

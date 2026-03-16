@@ -6,9 +6,7 @@ import { MarkdownContent } from "#/components/markdown-content";
 import { TableOfContents } from "#/components/table-of-contents";
 import { PageContent } from "#/components/cms/PageContent";
 import { useDebounce } from "#/hooks/use-debounce";
-import {
-  getEditorialStatusCopy,
-} from "#/lib/editorial-preview";
+import { getEditorialStatusCopy } from "#/lib/editorial-workflow";
 import { cn } from "#/lib/utils";
 import { Eye, Globe, Lock, Search } from "lucide-react";
 import type { PagePreviewDraft, PostPreviewDraft } from "#/types/editorial";

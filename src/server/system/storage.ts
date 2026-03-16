@@ -7,25 +7,8 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { slugify } from "#/schemas/system";
-import { getBinding } from "#/lib/cf-env";
-
-export interface R2ObjectBody {
-  body: BodyInit | null;
-  httpEtag?: string;
-  writeHttpMetadata(headers: Headers): void;
-}
-
-export interface R2BucketBinding {
-  get(key: string): Promise<R2ObjectBody | null>;
-  put(
-    key: string,
-    value: BodyInit | ArrayBuffer | Buffer | Blob | File,
-    options?: { httpMetadata?: { contentType?: string } },
-  ): Promise<void>;
-  delete(key: string): Promise<void>;
-}
-
-export type StorageMode = "binding" | "remote-api" | "local";
+import { getBinding } from "#/server/system/cf-env";
+import type { R2BucketBinding, StorageMode, StoredMediaResult } from "#/types/system";
 
 interface StoredObject {
   body: BodyInit;
@@ -45,12 +28,6 @@ interface R2ApiConfig {
   accountId: string;
   bucketName: string;
   publicUrl?: string;
-}
-
-export interface StoredMediaResult {
-  storageMode: StorageMode;
-  filename: string;
-  publicUrl: string;
 }
 
 function getR2Binding() {

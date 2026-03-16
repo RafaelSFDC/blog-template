@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { isRegistrationLocked } from "#/lib/registration";
+import { isRegistrationLocked } from "#/server/auth/registration";
 
 export const getCurrentAuthSession = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { getAuthSession } = await import("#/lib/admin-auth");
+    const { getAuthSession } = await import("#/server/auth/session");
     return await getAuthSession();
   },
 );

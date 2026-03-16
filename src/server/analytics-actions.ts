@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 
 // Hashing and manual DB tracking removed in favor of PostHog
 

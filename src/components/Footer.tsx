@@ -10,7 +10,7 @@ import {
   Facebook,
   Link as LinkIcon,
 } from "lucide-react";
-import type { GlobalSiteData } from "#/lib/cms";
+import type { GlobalSiteData } from "#/types/system";
 
 export default function Footer() {
   const year = new Date().getFullYear();

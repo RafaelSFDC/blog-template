@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { db } from '#/db/index'
-import { requireAdminSession } from '#/lib/admin-auth'
+import { requireAdminSession } from '#/server/auth/session'
 
 export const Route = createFileRoute('/api/export/posts')({
   server: {

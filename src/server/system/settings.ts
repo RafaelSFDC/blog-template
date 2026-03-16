@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "#/db/index";
 import { appSettings } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 import {
   mapSettingsRowsToFormValues,
   normalizeSettingsFormValues,

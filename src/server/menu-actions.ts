@@ -2,12 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { asc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { menuItems, menus, pages } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 import {
   assertMenuHref,
   menuUpdateSchema,
 } from "#/schemas/system";
-import { ensureCoreMenus } from "#/lib/cms";
+import { ensureCoreMenus } from "#/server/system/site-data";
 
 export const getMenusForDashboard = createServerFn({ method: "GET" }).handler(
   async () => {

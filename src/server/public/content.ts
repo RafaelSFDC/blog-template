@@ -4,7 +4,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { notFound, redirect } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
-import { auth } from "#/lib/auth";
+import { auth } from "#/server/auth/auth";
 import { resolveTeaserContent } from "#/lib/membership";
 import { resolvePublicCacheControl } from "#/lib/seo";
 import { publicCommentSchema } from "#/schemas/editorial";

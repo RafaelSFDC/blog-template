@@ -17,7 +17,7 @@ import {
   requirePostAccess,
   requirePostCreateAccess,
   requireRoleAccess,
-} from "#/lib/editorial-access";
+} from "#/server/editorial/access";
 import {
   bulkPostActionSchema,
   dashboardPostsFilterSchema,
@@ -28,7 +28,7 @@ import {
   postWorkflowActionInputSchema,
 } from "#/schemas/editorial";
 import { getFriendlyDbError, normalizeSlug, recordIdSchema } from "#/schemas/system";
-import { triggerWebhook } from "#/lib/webhooks";
+import { triggerWebhook } from "#/server/integrations/webhooks";
 import {
   getSlugConflictMessage,
   hasConflictingSlug,

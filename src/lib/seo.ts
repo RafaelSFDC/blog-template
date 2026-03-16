@@ -1,4 +1,4 @@
-import type { GlobalSiteData } from "#/lib/cms";
+import type { GlobalSiteData } from "#/types/system";
 
 export type JsonLdValue = Record<string, unknown> | Array<Record<string, unknown>>;
 

@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '#/db/index'
 import { categories, postCategories, posts, postTags, tags } from '#/db/schema'
-import { requireTaxonomyAccess } from '#/lib/editorial-access'
+import { requireTaxonomyAccess } from '#/server/editorial/access'
 import { and, count, desc, eq } from 'drizzle-orm'
 import { categorySchema, tagSchema } from '#/schemas/editorial'
 import { getFriendlyDbError, normalizeSlug } from '#/schemas/system'

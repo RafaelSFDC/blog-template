@@ -3,7 +3,7 @@ import { getPostHogClient } from "#/server/posthog";
 import { captureServerException } from "#/server/sentry";
 import { getPricingPlansData } from "#/server/membership-actions";
 import { stripe } from "#/server/stripe";
-import { auth } from "#/lib/auth";
+import { auth } from "#/server/auth/auth";
 import { stripeCheckoutSchema } from "#/schemas";
 
 export const Route = createFileRoute("/api/stripe/checkout")({

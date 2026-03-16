@@ -3,9 +3,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "#/db/index";
 import { invitations, user } from "#/db/schema";
-import { getAuthSession } from "#/lib/admin-auth";
-import { requireRoleAccess } from "#/lib/editorial-access";
-import { resend } from "#/lib/resend";
+import { getAuthSession } from "#/server/auth/session";
+import { requireRoleAccess } from "#/server/editorial/access";
+import { resend } from "#/server/integrations/resend";
 import { z } from "zod";
 import { logActivity } from "#/server/activity-log";
 

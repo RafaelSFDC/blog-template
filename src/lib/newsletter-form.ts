@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { newsletterCampaignSchema } from "#/schemas/newsletter";
+import type { NewsletterCampaignFormValues } from "#/types/forms";
 import type { NewsletterTemplatePost } from "#/types/newsletter";
 
 const trimmedRequiredString = (
@@ -29,10 +30,6 @@ export const newsletterCampaignSubmissionSchema =
   newsletterCampaignFormSchema.extend({
     action: z.enum(["draft", "schedule", "queue"]),
   });
-
-export type NewsletterCampaignFormValues = z.infer<
-  typeof newsletterCampaignFormSchema
->;
 
 type ExistingNewsletter = {
   subject: string;

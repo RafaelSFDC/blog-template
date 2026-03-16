@@ -3,7 +3,7 @@ import { desc } from "drizzle-orm";
 import { format } from "date-fns";
 import { db } from "#/db/index";
 import { subscribers } from "#/db/schema";
-import { requireAdminSession } from "#/lib/admin-auth";
+import { requireAdminSession } from "#/server/auth/session";
 
 export const getDashboardSubscribers = createServerFn({ method: "GET" }).handler(
   async () => {

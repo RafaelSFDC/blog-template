@@ -2,37 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { appSettings, menuItems, menus } from "#/db/schema";
 import { db } from "#/db/index";
 import { MENU_KEYS } from "#/schemas/system";
-
-export interface MenuItemView {
-  id: number;
-  label: string;
-  href: string;
-  kind: "internal" | "external";
-  sortOrder: number;
-}
-
-export interface GlobalSiteData {
-  blogName: string;
-  accentColor: string;
-  fontFamily: string;
-  gaMeasurementId: string;
-  plausibleDomain: string;
-  blogLogo: string;
-  twitterProfile: string;
-  githubProfile: string;
-  linkedinProfile: string;
-  themeVariant: string;
-  blogDescription: string;
-  siteUrl: string;
-  defaultMetaTitle: string;
-  defaultMetaDescription: string;
-  defaultOgImage: string;
-  twitterHandle: string;
-  robotsIndexingEnabled: boolean;
-  socialLinks: Array<{ platform: string; url: string }>;
-  primaryMenu: MenuItemView[];
-  footerMenu: MenuItemView[];
-}
+import type { GlobalSiteData, MenuItemView } from "#/types/system";
 
 export const DEFAULT_SITE_DATA: GlobalSiteData = {
   blogName: "Lumina",

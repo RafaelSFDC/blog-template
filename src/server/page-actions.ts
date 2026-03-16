@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, asc, desc, eq, ne } from "drizzle-orm";
 import { db } from "#/db/index";
 import { pageRevisions, pages } from "#/db/schema";
-import { requirePageAccess } from "#/lib/editorial-access";
+import { requirePageAccess } from "#/server/editorial/access";
 import {
   pageServerSchema,
 } from "#/schemas/editorial";

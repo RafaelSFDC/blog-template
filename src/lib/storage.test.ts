@@ -3,7 +3,7 @@ import {
   getMediaPublicUrl,
   resolveStorageMode,
   sanitizeMediaFilename,
-} from "#/lib/storage";
+} from "#/server/system/storage";
 
 describe("storage", () => {
   it("resolves local mode when no binding or remote config exists", () => {

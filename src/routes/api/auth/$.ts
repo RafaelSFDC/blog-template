@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { auth } from '#/lib/auth'
-import { isRegistrationLocked, lockRegistration } from '#/lib/registration'
+import { auth } from '#/server/auth/auth'
+import { isRegistrationLocked, lockRegistration } from '#/server/auth/registration'
 
 export const Route = createFileRoute('/api/auth/$')({
   server: {

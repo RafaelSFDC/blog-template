@@ -12,7 +12,7 @@ import {
   postTags,
   user,
 } from "#/db/schema";
-import type { ContentLockState, RevisionSource } from "#/lib/editorial-access";
+import type { ContentLockState, RevisionSource } from "#/types/editorial";
 import { EDITORIAL_CHECKLIST_ITEMS } from "#/lib/editorial-workflow";
 
 export const LOCK_TTL_MS = 2 * 60 * 1000;

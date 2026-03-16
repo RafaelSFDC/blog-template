@@ -3,7 +3,7 @@ import { db } from "#/db/index";
 import { eq, desc } from "drizzle-orm";
 import { pages, posts } from "#/db/schema";
 import { getPublishedCategories, getPublishedTags } from "#/server/taxonomy-actions";
-import { getGlobalSiteData } from "#/lib/cms";
+import { getGlobalSiteData } from "#/server/system/site-data";
 import { resolveSiteUrl } from "#/lib/seo";
 
 type SitemapPost = Awaited<ReturnType<typeof db.query.posts.findMany>>[number];
