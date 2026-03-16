@@ -16,6 +16,7 @@ import {
   BarChart3,
   Navigation,
   Route,
+  ClipboardList,
 } from "lucide-react";
 import { authClient } from "#/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar";
@@ -71,6 +72,11 @@ const sidebarLinks = [
     label: "Messages",
     icon: Inbox,
     to: "/dashboard/messages",
+  },
+  {
+    label: "Beta Ops",
+    icon: ClipboardList,
+    to: "/dashboard/beta-ops",
   },
   {
     label: "Media",

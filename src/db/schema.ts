@@ -513,9 +513,75 @@ export const contactMessages = table("contact_messages", {
   email: text("email").notNull(),
   subject: text("subject"),
   message: text("message").notNull(),
+  messageType: text("message_type").notNull().default("general"),
+  sourcePath: text("source_path"),
+  source: text("source"),
+  metadataJson: text("metadata_json"),
   status: text("status").notNull().default("new"),
   createdAt: timestamp("created_at").default(now),
 });
+
+export const betaOpsAccounts = table(
+  "beta_ops_accounts",
+  {
+    id: autoIncrementId("id"),
+    contactMessageId: integer("contact_message_id").references(() => contactMessages.id, {
+      onDelete: "set null",
+    }),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    publicationName: text("publication_name"),
+    role: text("role"),
+    publicationType: text("publication_type"),
+    currentStack: text("current_stack"),
+    accountStage: text("account_stage").notNull().default("new_lead"),
+    onboardingStatus: text("onboarding_status").notNull().default("not_started"),
+    priority: text("priority").notNull().default("medium"),
+    ownerUserId: text("owner_user_id").references(() => user.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    sourcePath: text("source_path"),
+    source: text("source"),
+    nextFollowUpAt: timestamp("next_follow_up_at"),
+    lastContactedAt: timestamp("last_contacted_at"),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("beta_ops_accounts_email_idx").on(t.email),
+    index("beta_ops_accounts_stage_idx").on(t.accountStage),
+    index("beta_ops_accounts_owner_idx").on(t.ownerUserId),
+    index("beta_ops_accounts_priority_idx").on(t.priority),
+  ],
+);
+
+export const betaOpsFeedback = table(
+  "beta_ops_feedback",
+  {
+    id: autoIncrementId("id"),
+    betaAccountId: integer("beta_account_id").references(() => betaOpsAccounts.id, {
+      onDelete: "cascade",
+    }),
+    contactMessageId: integer("contact_message_id").references(() => contactMessages.id, {
+      onDelete: "set null",
+    }),
+    title: text("title").notNull(),
+    summary: text("summary").notNull(),
+    status: text("status").notNull().default("new"),
+    priority: text("priority").notNull().default("medium"),
+    source: text("source").notNull().default("ops_manual"),
+    ownerUserId: text("owner_user_id").references(() => user.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").default(now),
+    updatedAt: timestamp("updated_at").default(now),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t: any) => [
+    index("beta_ops_feedback_account_idx").on(t.betaAccountId),
+    index("beta_ops_feedback_status_idx").on(t.status),
+    index("beta_ops_feedback_priority_idx").on(t.priority),
+  ],
+);
 
 export const webhooks = table("webhooks", {
   id: autoIncrementId("id"),

@@ -119,6 +119,23 @@ export interface SetupNextAction {
 
 export type SetupFlowStatus = "not_started" | "in_progress" | "completed";
 
+export type ContactMessageType = "general" | "beta_request" | "ops_feedback";
+export type BetaAccountStage =
+  | "new_lead"
+  | "qualified"
+  | "onboarding"
+  | "active_beta"
+  | "at_risk"
+  | "paused";
+export type BetaOnboardingStatus =
+  | "not_started"
+  | "scheduled"
+  | "in_progress"
+  | "completed"
+  | "blocked";
+export type FeedbackStatus = "new" | "reviewed" | "planned" | "closed";
+export type OpsPriority = "low" | "medium" | "high";
+
 export interface SetupStatus {
   status: SetupFlowStatus;
   isStarted: boolean;
@@ -132,4 +149,44 @@ export interface SetupStatus {
   nextAction: SetupNextAction | null;
   lastStep: SetupWizardStepKey;
   starterContentGenerated: boolean;
+}
+
+export interface BetaOpsFeedbackItem {
+  id: number;
+  betaAccountId: number | null;
+  contactMessageId: number | null;
+  title: string;
+  summary: string;
+  status: FeedbackStatus;
+  priority: OpsPriority;
+  source: string;
+  ownerUserId: string | null;
+  ownerName: string | null;
+  notes: string | null;
+  createdAt: Date | string | null;
+  updatedAt: Date | string | null;
+}
+
+export interface BetaOpsAccountView {
+  id: number;
+  contactMessageId: number | null;
+  name: string;
+  email: string;
+  publicationName: string | null;
+  role: string | null;
+  publicationType: string | null;
+  currentStack: string | null;
+  accountStage: BetaAccountStage;
+  onboardingStatus: BetaOnboardingStatus;
+  priority: OpsPriority;
+  ownerUserId: string | null;
+  ownerName: string | null;
+  notes: string | null;
+  sourcePath: string | null;
+  source: string | null;
+  nextFollowUpAt: Date | string | null;
+  lastContactedAt: Date | string | null;
+  createdAt: Date | string | null;
+  updatedAt: Date | string | null;
+  feedbackItems: BetaOpsFeedbackItem[];
 }

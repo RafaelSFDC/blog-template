@@ -4,8 +4,11 @@ import { db } from "#/db/index";
 import {
   account,
   appSettings,
+  betaOpsAccounts,
+  betaOpsFeedback,
   categories,
   comments,
+  contactMessages,
   membershipPlans,
   newsletterConsents,
   newsletters,
@@ -399,8 +402,102 @@ async function ensureNewsletterFixture() {
   }
 }
 
+async function ensureLaunchOpsFixture() {
+  const [betaRequest] = await db
+    .insert(contactMessages)
+    .values({
+      name: "Beta Founder",
+      email: "beta-founder@example.com",
+      subject: "[Lumina Beta] creator · independent_newsletter",
+      message:
+        "Lumina beta request\n\nRole: creator\nPublication type: independent_newsletter\nCurrent stack: Ghost and Mailchimp\n\nWhy now:\nWe want a calmer launch workflow and better membership setup.",
+      messageType: "beta_request",
+      sourcePath: "/lumina/beta",
+      source: "beta_form_submit",
+      metadataJson: JSON.stringify({
+        role: "creator",
+        publicationType: "independent_newsletter",
+        currentStack: "Ghost and Mailchimp",
+      }),
+      status: "new",
+      createdAt: new Date(),
+    })
+    .returning();
+
+  await db.insert(contactMessages).values({
+    name: "Untriaged Operator",
+    email: "untriaged-beta@example.com",
+    subject: "[Lumina Beta] publication_lead · digital_magazine",
+    message:
+      "Lumina beta request\n\nRole: publication_lead\nPublication type: digital_magazine\nCurrent stack: WordPress and Beehiiv\n\nWhy now:\nWe need a more coherent launch system before inviting members.",
+    messageType: "beta_request",
+    sourcePath: "/lumina/beta",
+    source: "beta_form_submit",
+    metadataJson: JSON.stringify({
+      role: "publication_lead",
+      publicationType: "digital_magazine",
+      currentStack: "WordPress and Beehiiv",
+    }),
+    status: "new",
+    createdAt: new Date(),
+  });
+
+  await db.insert(contactMessages).values({
+    name: "Reader Support",
+    email: "reader-support@example.com",
+    subject: "Question about premium access",
+    message: "Can I switch from monthly to annual later?",
+    messageType: "general",
+    sourcePath: "/contact",
+    source: "public_contact_form",
+    status: "new",
+    createdAt: new Date(),
+  });
+
+  const [account] = await db
+    .insert(betaOpsAccounts)
+    .values({
+      contactMessageId: betaRequest.id,
+      name: "Beta Founder",
+      email: "beta-founder@example.com",
+      publicationName: "Calm Dispatch",
+      role: "creator",
+      publicationType: "independent_newsletter",
+      currentStack: "Ghost and Mailchimp",
+      accountStage: "qualified",
+      onboardingStatus: "in_progress",
+      priority: "high",
+      ownerUserId: "fixture-admin",
+      notes: "Qualified fit. Waiting on kickoff call and pricing review.",
+      sourcePath: "/lumina/beta",
+      source: "beta_form_submit",
+      nextFollowUpAt: new Date("2026-03-20T12:00:00.000Z"),
+      lastContactedAt: new Date("2026-03-16T12:00:00.000Z"),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .returning();
+
+  await db.insert(betaOpsFeedback).values({
+    betaAccountId: account.id,
+    contactMessageId: betaRequest.id,
+    title: "Needs clearer pricing guidance",
+    summary: "The founder wants more clarity on what changes between beta onboarding and paid rollout.",
+    status: "new",
+    priority: "high",
+    source: "ops_manual",
+    ownerUserId: "fixture-admin",
+    notes: "Could become FAQ or sales enablement copy.",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+}
+
 export async function seedOperationalFixtures() {
   await db.delete(appSettings).where(inArray(appSettings.key, [...SETUP_RESET_KEYS]));
+  await db.delete(betaOpsFeedback);
+  await db.delete(betaOpsAccounts);
+  await db.delete(contactMessages);
   await db.delete(pages).where(inArray(pages.slug, [...SETUP_STARTER_PAGE_SLUGS]));
   await db.delete(posts).where(eq(posts.slug, "welcome-to-your-publication"));
   await db.delete(rateLimitEvents);
@@ -439,6 +536,7 @@ export async function seedOperationalFixtures() {
   await ensureFixturePost("fixture-author");
   await ensureMembershipFixture();
   await ensureNewsletterFixture();
+  await ensureLaunchOpsFixture();
 
   return {
     password: FIXTURE_PASSWORD,

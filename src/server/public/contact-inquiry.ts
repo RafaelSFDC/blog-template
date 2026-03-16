@@ -13,6 +13,10 @@ export async function submitPublicInquiry(input: {
   message: string;
   turnstileToken: string;
   scope: string;
+  messageType?: "general" | "beta_request" | "ops_feedback";
+  sourcePath?: string | null;
+  source?: string | null;
+  metadataJson?: string | null;
 }) {
   const request = getRequest();
   if (!request) {
@@ -57,6 +61,10 @@ export async function submitPublicInquiry(input: {
     email: input.email,
     subject: input.subject,
     message: input.message,
+    messageType: input.messageType ?? "general",
+    sourcePath: input.sourcePath ?? null,
+    source: input.source ?? null,
+    metadataJson: input.metadataJson ?? null,
     status: "new",
   });
 

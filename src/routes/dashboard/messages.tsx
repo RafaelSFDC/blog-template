@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
 import { contactMessages } from "#/db/schema";
 import { Button } from "#/components/ui/button";
-import { Mail, Check, Archive, Inbox } from "lucide-react";
+import { Mail, Check, Archive, Inbox, ClipboardList } from "lucide-react";
 import { useCallback, useState } from "react";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { StatusBadge } from "#/components/ui/status-badge";
@@ -13,6 +13,7 @@ import {
   getDashboardMessages,
   updateDashboardMessageStatus,
 } from "#/server/dashboard/messages";
+import { promoteMessageToBetaOpsAccount } from "#/server/dashboard/beta-ops";
 
 type MessageRow = typeof contactMessages.$inferSelect;
 
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/dashboard/messages")({
 function MessagesPage() {
   const initialMessages = Route.useLoaderData();
   const [messages, setMessages] = useState(initialMessages);
+  const [promotingId, setPromotingId] = useState<number | null>(null);
+  const router = useRouter();
 
   const handleStatus = useCallback(async (
     id: number,
@@ -42,18 +45,43 @@ function MessagesPage() {
     setMessages((current) => current.filter((message) => message.id !== id));
   }, []);
 
+  const handlePromote = useCallback(async (id: number) => {
+    try {
+      setPromotingId(id);
+      await promoteMessageToBetaOpsAccount({ data: { messageId: id } });
+      await router.invalidate();
+    } finally {
+      setPromotingId(null);
+    }
+  }, [router]);
+
   return (
     <DashboardPageContainer>
       <DashboardHeader
         title="Inbox"
-        description="Manage inquiries and messages from your site's contact form."
+        description="Manage contact messages, triage beta requests, and promote serious launch conversations into Beta Ops."
         icon={Inbox}
         iconLabel="Communication"
-      />
+      >
+        <Button asChild variant="outline">
+          <Link to="/dashboard/beta-ops">
+            <ClipboardList size={16} />
+            Beta Ops
+          </Link>
+        </Button>
+      </DashboardHeader>
 
       <div className="grid gap-6">
         {messages.length > 0 ? (
-          messages.map((msg: MessageRow) => (
+          messages.map((msg: MessageRow & {
+            messageType?: string;
+            linkedBetaAccountId?: number | null;
+            metadata?: {
+              role?: string;
+              publicationType?: string;
+              currentStack?: string | null;
+            };
+          }) => (
             <div
               key={msg.id}
               className={`bg-card border shadow-sm rounded-xl p-6 transition-all group ${
@@ -90,11 +118,27 @@ function MessagesPage() {
                     >
                       {msg.status.charAt(0).toUpperCase() + msg.status.slice(1)}
                     </StatusBadge>
+                    <StatusBadge variant={msg.messageType === "beta_request" ? "info" : "success"}>
+                      {msg.messageType === "beta_request" ? "Beta request" : "General"}
+                    </StatusBadge>
+                    {msg.linkedBetaAccountId ? (
+                      <StatusBadge variant="success">Tracked in Beta Ops</StatusBadge>
+                    ) : null}
                   </div>
 
                   <h3 className="text-xl font-bold text-foreground">
                     {msg.subject || "(No Subject)"}
                   </h3>
+
+                  {msg.messageType === "beta_request" ? (
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {msg.metadata?.role ?? "unknown role"}
+                      {" · "}
+                      {msg.metadata?.publicationType ?? "unknown publication"}
+                      {" · "}
+                      {msg.metadata?.currentStack ?? "stack not provided"}
+                    </p>
+                  ) : null}
 
                   <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/20 italic">
                     &quot;{msg.message}&quot;
@@ -129,6 +173,26 @@ function MessagesPage() {
                       <Archive size={16} />
                     </Button>
                   )}
+                  {msg.messageType === "beta_request" && !msg.linkedBetaAccountId ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => void handlePromote(msg.id)}
+                      disabled={promotingId === msg.id}
+                      title="Promote to Beta Ops"
+                    >
+                      <ClipboardList size={16} />
+                    </Button>
+                  ) : null}
+                  {msg.linkedBetaAccountId ? (
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="ghost"
+                    >
+                      <Link to="/dashboard/beta-ops">Ops</Link>
+                    </Button>
+                  ) : null}
                   <DeleteButton
                     onConfirm={() => handleDelete(msg.id)}
                     title="Delete Message?"

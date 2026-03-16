@@ -29,6 +29,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as DashboardRedirectsRouteImport } from './routes/dashboard/redirects'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as DashboardMenusRouteImport } from './routes/dashboard/menus'
+import { Route as DashboardBetaOpsRouteImport } from './routes/dashboard/beta-ops'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiCommentsRouteImport } from './routes/api/comments'
 import { Route as PublicPricingRouteImport } from './routes/_public/pricing'
@@ -183,6 +184,11 @@ const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
 const DashboardMenusRoute = DashboardMenusRouteImport.update({
   id: '/menus',
   path: '/menus',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBetaOpsRoute = DashboardBetaOpsRouteImport.update({
+  id: '/beta-ops',
+  path: '/beta-ops',
   getParentRoute: () => DashboardRoute,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -490,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/api/health': typeof ApiHealthRouteWithChildren
+  '/dashboard/beta-ops': typeof DashboardBetaOpsRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -564,6 +571,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/api/health': typeof ApiHealthRouteWithChildren
+  '/dashboard/beta-ops': typeof DashboardBetaOpsRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -643,6 +651,7 @@ export interface FileRoutesById {
   '/_public/pricing': typeof PublicPricingRoute
   '/api/comments': typeof ApiCommentsRouteWithChildren
   '/api/health': typeof ApiHealthRouteWithChildren
+  '/dashboard/beta-ops': typeof DashboardBetaOpsRoute
   '/dashboard/menus': typeof DashboardMenusRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/redirects': typeof DashboardRedirectsRoute
@@ -723,6 +732,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/api/comments'
     | '/api/health'
+    | '/dashboard/beta-ops'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -797,6 +807,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/api/comments'
     | '/api/health'
+    | '/dashboard/beta-ops'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -875,6 +886,7 @@ export interface FileRouteTypes {
     | '/_public/pricing'
     | '/api/comments'
     | '/api/health'
+    | '/dashboard/beta-ops'
     | '/dashboard/menus'
     | '/dashboard/messages'
     | '/dashboard/redirects'
@@ -1105,6 +1117,13 @@ declare module '@tanstack/react-router' {
       path: '/menus'
       fullPath: '/dashboard/menus'
       preLoaderRoute: typeof DashboardMenusRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/beta-ops': {
+      id: '/dashboard/beta-ops'
+      path: '/beta-ops'
+      fullPath: '/dashboard/beta-ops'
+      preLoaderRoute: typeof DashboardBetaOpsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/api/health': {
@@ -1560,6 +1579,7 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface DashboardRouteChildren {
+  DashboardBetaOpsRoute: typeof DashboardBetaOpsRoute
   DashboardMenusRoute: typeof DashboardMenusRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardRedirectsRoute: typeof DashboardRedirectsRoute
@@ -1589,6 +1609,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardBetaOpsRoute: DashboardBetaOpsRoute,
   DashboardMenusRoute: DashboardMenusRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardRedirectsRoute: DashboardRedirectsRoute,

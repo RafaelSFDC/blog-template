@@ -15,6 +15,24 @@ export const USER_ROLES = [
   "admin",
   "super-admin",
 ] as const;
+export const CONTACT_MESSAGE_TYPES = ["general", "beta_request", "ops_feedback"] as const;
+export const BETA_ACCOUNT_STAGES = [
+  "new_lead",
+  "qualified",
+  "onboarding",
+  "active_beta",
+  "at_risk",
+  "paused",
+] as const;
+export const BETA_ONBOARDING_STATUSES = [
+  "not_started",
+  "scheduled",
+  "in_progress",
+  "completed",
+  "blocked",
+] as const;
+export const OPS_FEEDBACK_STATUSES = ["new", "reviewed", "planned", "closed"] as const;
+export const OPS_PRIORITIES = ["low", "medium", "high"] as const;
 export const REVISION_SOURCES = ["manual", "autosave", "restore", "publish"] as const;
 export const TEASER_MODES = ["excerpt", "truncate"] as const;
 export const SUBSCRIPTION_STATUSES = [
@@ -92,6 +110,11 @@ export const webhookEventSchema = z.enum(WEBHOOK_EVENTS);
 export const commentStatusSchema = z.enum(COMMENT_STATUSES);
 export const redirectStatusCodeSchema = z.union([z.literal(301), z.literal(302)]);
 export const userRoleSchema = z.enum(USER_ROLES);
+export const contactMessageTypeSchema = z.enum(CONTACT_MESSAGE_TYPES);
+export const betaAccountStageSchema = z.enum(BETA_ACCOUNT_STAGES);
+export const betaOnboardingStatusSchema = z.enum(BETA_ONBOARDING_STATUSES);
+export const opsFeedbackStatusSchema = z.enum(OPS_FEEDBACK_STATUSES);
+export const opsPrioritySchema = z.enum(OPS_PRIORITIES);
 export const revisionSourceSchema = z.enum(REVISION_SOURCES);
 export const editorialWorkflowActionSchema = z.enum(EDITORIAL_WORKFLOW_ACTIONS);
 export const postBulkActionSchema = z.enum(POST_BULK_ACTIONS);
@@ -120,6 +143,14 @@ const optionalTrimmedString = z.preprocess(
 const optionalUrlSchema = z.preprocess(
   emptyStringToUndefined,
   z.string().trim().url("Must be a valid URL").optional(),
+);
+const optionalDateInputSchema = z.preprocess(
+  emptyStringToUndefined,
+  z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be a valid date")
+    .optional(),
 );
 
 export const turnstileTokenSchema = z.string().trim().min(1, "Security verification is required");
@@ -381,6 +412,49 @@ export const betaRequestSubmissionSchema = betaRequestSchema.extend({
   path: z.string().trim().min(1).max(500).optional(),
   source: z.string().trim().min(1).max(120).optional(),
   turnstileToken: turnstileTokenSchema,
+});
+
+export const betaOpsAccountCreateFromMessageSchema = z.object({
+  messageId: positiveIntSchema,
+});
+
+export const betaOpsAccountUpdateSchema = z.object({
+  id: positiveIntSchema,
+  accountStage: betaAccountStageSchema,
+  onboardingStatus: betaOnboardingStatusSchema,
+  priority: opsPrioritySchema,
+  ownerUserId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  publicationName: optionalTrimmedString,
+  notes: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(5000, "Notes are too long").optional(),
+  ),
+  nextFollowUpOn: optionalDateInputSchema,
+});
+
+export const betaOpsFeedbackCreateSchema = z.object({
+  betaAccountId: positiveIntSchema,
+  contactMessageId: z.number().int().positive().optional(),
+  title: trimmedString(3, "Title is too short", 160, "Title is too long"),
+  summary: trimmedString(10, "Summary is too short", 5000, "Summary is too long"),
+  priority: opsPrioritySchema,
+  status: opsFeedbackStatusSchema,
+  ownerUserId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  notes: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(5000, "Notes are too long").optional(),
+  ),
+});
+
+export const betaOpsFeedbackUpdateSchema = z.object({
+  id: positiveIntSchema,
+  status: opsFeedbackStatusSchema,
+  priority: opsPrioritySchema,
+  ownerUserId: z.preprocess(emptyStringToUndefined, z.string().trim().optional()),
+  notes: z.preprocess(
+    emptyStringToUndefined,
+    z.string().trim().max(5000, "Notes are too long").optional(),
+  ),
 });
 
 export const publicCommentSchema = z.object({

@@ -18,8 +18,10 @@ import {
   Settings,
   Pencil,
   Inbox,
+  ClipboardList,
 } from "lucide-react";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
+import { authClient } from "#/lib/auth-client";
 import { getDashboardOverview } from "#/server/dashboard/overview";
 import type { SetupStatus } from "#/types/system";
 
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardOverview() {
+  const { data: session } = authClient.useSession();
   const {
     postCount,
     unreadMessages,
@@ -102,6 +105,15 @@ function DashboardOverview() {
       icon: Settings,
     },
   ];
+
+  if (session?.user.role === "admin" || session?.user.role === "super-admin") {
+    quickActions.splice(2, 0, {
+      to: "/dashboard/beta-ops",
+      label: "Launch",
+      title: "Beta Ops",
+      icon: ClipboardList,
+    });
+  }
 
   return (
     <DashboardPageContainer>

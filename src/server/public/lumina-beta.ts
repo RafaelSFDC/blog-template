@@ -32,6 +32,14 @@ export const submitLuminaBetaRequest = createServerFn({ method: "POST" })
         message: record.message,
         turnstileToken: data.turnstileToken,
         scope: "lumina.beta.submit",
+        messageType: "beta_request",
+        sourcePath: data.path ?? "/lumina/beta",
+        source: data.source ?? "beta_form_submit",
+        metadataJson: JSON.stringify({
+          role: data.role,
+          publicationType: data.publicationType,
+          currentStack: data.currentStack || null,
+        }),
       });
 
       await captureServerEvent({

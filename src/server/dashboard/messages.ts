@@ -1,10 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
-import { contactMessages } from "#/db/schema";
+import { betaOpsAccounts, contactMessages } from "#/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 import { recordIdSchema } from "#/schemas";
 import { z } from "zod";
+import { parseContactMessageMetadata } from "#/server/dashboard/beta-ops";
 
 const messageStatusUpdateSchema = z.object({
   id: z.number().int().positive(),
@@ -14,9 +15,24 @@ const messageStatusUpdateSchema = z.object({
 export const getDashboardMessages = createServerFn({ method: "GET" }).handler(
   async () => {
     await requireAdminSession();
-    return db.query.contactMessages.findMany({
-      orderBy: desc(contactMessages.createdAt),
-    });
+    const [messages, accounts] = await Promise.all([
+      db.query.contactMessages.findMany({
+        orderBy: desc(contactMessages.createdAt),
+      }),
+      db.query.betaOpsAccounts.findMany(),
+    ]);
+
+    const accountByContactMessageId = new Map(
+      accounts
+        .filter((account) => account.contactMessageId)
+        .map((account) => [account.contactMessageId as number, account.id]),
+    );
+
+    return messages.map((message) => ({
+      ...message,
+      linkedBetaAccountId: accountByContactMessageId.get(message.id) ?? null,
+      metadata: parseContactMessageMetadata(message.metadataJson),
+    }));
   },
 );
 

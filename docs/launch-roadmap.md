@@ -347,6 +347,7 @@ Sem taxonomia e leituras consistentes, o time nao consegue diferenciar friccao r
 ## Fase 5 - Operacao minima de launch
 
 **Status:** `now`
+**Gate status:** completed on March 16, 2026
 
 **Objetivo**
 
@@ -377,12 +378,12 @@ Sem operacao minima, qualquer problema de onboarding, billing ou release vira ga
 
 **Checklist de execucao**
 
-- [ ] o time consegue onboardar beta users com repetibilidade
-- [ ] existe procedimento minimo para onboarding, billing e publish
-- [ ] feedback chega em formato classificavel e acionavel
-- [ ] a release pode ser validada antes e depois do deploy
-- [ ] smoke checks e rollback deixam de depender de memoria individual
-- [ ] os problemas mais comuns possuem resposta minima documentada
+- [x] o time consegue onboardar beta users com repetibilidade
+- [x] existe procedimento minimo para onboarding, billing e publish
+- [x] feedback chega em formato classificavel e acionavel
+- [x] a release pode ser validada antes e depois do deploy
+- [x] smoke checks e rollback deixam de depender de memoria individual
+- [x] os problemas mais comuns possuem resposta minima documentada
 
 **Dependencias**
 
