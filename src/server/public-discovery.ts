@@ -75,16 +75,30 @@ export async function getArchivePosts(year: number, month?: number, page = 1) {
       excerpt: posts.excerpt,
       coverImage: posts.coverImage,
       publishedAt: posts.publishedAt,
-      category: categories.name,
-      categorySlug: categories.slug,
+      category: sql<string | null>`(
+        select ${categories.name}
+        from ${postCategories}
+        inner join ${categories}
+          on ${categories.id} = ${postCategories.categoryId}
+        where ${postCategories.postId} = ${posts.id}
+        order by ${postCategories.categoryId} asc
+        limit 1
+      )`.as("category"),
+      categorySlug: sql<string | null>`(
+        select ${categories.slug}
+        from ${postCategories}
+        inner join ${categories}
+          on ${categories.id} = ${postCategories.categoryId}
+        where ${postCategories.postId} = ${posts.id}
+        order by ${postCategories.categoryId} asc
+        limit 1
+      )`.as("categorySlug"),
     })
     .from(posts)
-    .leftJoin(postCategories, eq(posts.id, postCategories.postId))
-    .leftJoin(categories, eq(postCategories.categoryId, categories.id))
     .where(
       and(eq(posts.status, "published"), gte(posts.publishedAt, start), lte(posts.publishedAt, end)),
     )
-    .orderBy(desc(posts.publishedAt))
+    .orderBy(desc(posts.publishedAt), desc(posts.id))
     .limit(BLOG_PAGE_SIZE)
     .offset(pagination.offset);
 

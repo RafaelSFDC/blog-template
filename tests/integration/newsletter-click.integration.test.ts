@@ -24,7 +24,7 @@ function getClickHandler() {
 
 import { Route } from "#/routes/api/newsletter/click";
 
-describe("newsletter click api", () => {
+describe("newsletter click api integration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -59,4 +59,3 @@ describe("newsletter click api", () => {
     expect(mocks.recordNewsletterClick).not.toHaveBeenCalled();
   });
 });
-

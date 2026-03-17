@@ -218,8 +218,8 @@ lumina/
 - `/auth/reset-password`
 - `/account`
 - `/contact`
-- `/rss.xml`
-- `/sitemap.xml`
+- `/rss/xml`
+- `/sitemap/xml`
 
 ### Dashboard
 

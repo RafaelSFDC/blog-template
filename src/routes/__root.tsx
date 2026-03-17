@@ -115,13 +115,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           rel: "alternate",
           type: "application/rss+xml",
           title: "RSS Feed",
-          href: "/rss.xml",
+          href: "/rss/xml",
         },
         {
           rel: "sitemap",
           type: "application/xml",
           title: "Sitemap",
-          href: "/sitemap.xml",
+          href: "/sitemap/xml",
         },
       ],
     };

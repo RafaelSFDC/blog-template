@@ -84,7 +84,7 @@ export default function Footer() {
           size="icon"
           className="size-12 rounded-2xl shadow-sm hover:shadow-md"
         >
-          <a href="/rss.xml" target="_blank" rel="noopener noreferrer">
+          <a href="/rss/xml" target="_blank" rel="noopener noreferrer">
             <span className="sr-only">RSS Feed</span>
             <Rss size={20} />
           </a>
