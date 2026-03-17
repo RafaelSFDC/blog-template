@@ -17,6 +17,13 @@ export async function captureServerEvent(input: {
     process.env.VITE_PUBLIC_POSTHOG_HOST ||
     import.meta.env.VITE_PUBLIC_POSTHOG_HOST ||
     "https://app.posthog.com";
+  const isDefaultExternalHost = /posthog\.com/i.test(host);
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Local and test environments should not block workflows on outbound analytics.
+  if (!isProduction && isDefaultExternalHost && !process.env.VITE_PUBLIC_POSTHOG_HOST) {
+    return;
+  }
 
   try {
     await fetch(`${host}/capture/`, {

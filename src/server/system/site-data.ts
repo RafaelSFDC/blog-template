@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 import { appSettings, menuItems, menus } from "#/db/schema";
 import { db } from "#/db/index";
 import { MENU_KEYS } from "#/schemas/system";
@@ -33,18 +33,17 @@ export const DEFAULT_SITE_DATA: GlobalSiteData = {
 
 export async function ensureCoreMenus() {
   for (const key of MENU_KEYS) {
-    const existing = await db.query.menus.findFirst({
-      where: eq(menus.key, key),
-    });
-
-    if (!existing) {
-      await db.insert(menus).values({
+    await db
+      .insert(menus)
+      .values({
         key,
         label: key === "primary" ? "Primary Navigation" : "Footer Navigation",
         createdAt: new Date(),
         updatedAt: new Date(),
+      })
+      .onConflictDoNothing({
+        target: menus.key,
       });
-    }
   }
 }
 

@@ -122,7 +122,7 @@ function SettingsPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
-    form.handleSubmit();
+    await form.handleSubmit();
   }
 
   return (
@@ -160,6 +160,7 @@ function SettingsPage() {
                       </FieldLabel>
                       <Input
                         id={field.name}
+                        data-testid="settings-blog-name"
                         name={field.name}
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -185,6 +186,7 @@ function SettingsPage() {
                     </FieldLabel>
                     <Textarea
                       id={field.name}
+                      data-testid="settings-blog-description"
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
@@ -213,6 +215,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-blog-logo"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -238,6 +241,7 @@ function SettingsPage() {
                         >
                           <SelectTrigger
                             id={field.name}
+                            data-testid="settings-font-family"
                             className="w-full h-auto"
                           >
                             <SelectValue placeholder="Select a font family" />
@@ -246,7 +250,7 @@ function SettingsPage() {
                             <SelectItem value="Inter">
                               Modern (Inter)
                             </SelectItem>
-                            <SelectItem value="Outfit">
+                            <SelectItem value="Outfit" data-testid="settings-font-option-outfit">
                               Creative (Outfit)
                             </SelectItem>
                             <SelectItem value="Playfair Display">
@@ -279,6 +283,7 @@ function SettingsPage() {
                         >
                           <SelectTrigger
                             id={field.name}
+                            data-testid="settings-theme-variant"
                             className="w-full h-auto"
                           >
                             <SelectValue placeholder="Select a theme variant" />
@@ -296,6 +301,7 @@ function SettingsPage() {
                                       <SelectItem
                                         key={theme.variant}
                                         value={`theme-${theme.variant}`}
+                                        data-testid={`settings-theme-option-${theme.variant}`}
                                         className="font-bold"
                                       >
                                         {theme.name}
@@ -326,6 +332,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-site-url"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -347,6 +354,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-default-meta-title"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -368,6 +376,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Textarea
                           id={field.name}
+                          data-testid="settings-default-meta-description"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -390,6 +399,7 @@ function SettingsPage() {
                           </FieldLabel>
                           <Input
                             id={field.name}
+                            data-testid="settings-default-og-image"
                             name={field.name}
                             value={field.state.value}
                             onBlur={field.handleBlur}
@@ -411,6 +421,7 @@ function SettingsPage() {
                           </FieldLabel>
                           <Input
                             id={field.name}
+                            data-testid="settings-twitter-handle"
                             name={field.name}
                             value={field.state.value}
                             onBlur={field.handleBlur}
@@ -430,6 +441,7 @@ function SettingsPage() {
                       <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
                         <Switch
                           id={field.name}
+                          data-testid="settings-robots-indexing"
                           checked={field.state.value}
                           onCheckedChange={(checked) => field.handleChange(checked === true)}
                         />
@@ -461,6 +473,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-stripe-monthly-price-id"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -482,6 +495,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-stripe-annual-price-id"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -503,6 +517,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-membership-grace-period-days"
                           name={field.name}
                           type="number"
                           min={0}
@@ -538,6 +553,7 @@ function SettingsPage() {
                         </FieldLabel>
                         <Input
                           id={field.name}
+                          data-testid="settings-newsletter-sender-email"
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -556,6 +572,7 @@ function SettingsPage() {
                       <div className="flex items-center space-x-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
                         <Switch
                           id={field.name}
+                          data-testid="settings-double-opt-in"
                           checked={field.state.value}
                           onCheckedChange={(checked) => field.handleChange(checked === true)}
                         />
@@ -598,23 +615,26 @@ function SettingsPage() {
                                       subField.handleChange(val)
                                     }
                                   >
-                                    <SelectTrigger className="w-full h-auto">
+                                    <SelectTrigger
+                                      data-testid={`settings-social-link-platform-${i}`}
+                                      className="w-full h-auto"
+                                    >
                                       <SelectValue placeholder="Social Media" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="twitter">
+                                      <SelectItem value="twitter" data-testid={`settings-social-link-option-twitter-${i}`}>
                                         X (Twitter)
                                       </SelectItem>
-                                      <SelectItem value="github">
+                                      <SelectItem value="github" data-testid={`settings-social-link-option-github-${i}`}>
                                         GitHub
                                       </SelectItem>
-                                      <SelectItem value="linkedin">
+                                      <SelectItem value="linkedin" data-testid={`settings-social-link-option-linkedin-${i}`}>
                                         LinkedIn
                                       </SelectItem>
-                                      <SelectItem value="instagram">
+                                      <SelectItem value="instagram" data-testid={`settings-social-link-option-instagram-${i}`}>
                                         Instagram
                                       </SelectItem>
-                                      <SelectItem value="youtube">
+                                      <SelectItem value="youtube" data-testid={`settings-social-link-option-youtube-${i}`}>
                                         YouTube
                                       </SelectItem>
                                     </SelectContent>
@@ -629,6 +649,7 @@ function SettingsPage() {
                                     URL
                                   </FieldLabel>
                                   <Input
+                                    data-testid={`settings-social-link-url-${i}`}
                                     value={subField.state.value}
                                     onBlur={subField.handleBlur}
                                     onChange={(e) =>
@@ -644,6 +665,7 @@ function SettingsPage() {
                               type="button"
                               variant="ghost"
                               size="icon"
+                              data-testid={`settings-social-link-remove-${i}`}
                               className="text-destructive h-10 w-10 shrink-0"
                               onClick={() => field.removeValue(i)}
                             >
@@ -655,6 +677,7 @@ function SettingsPage() {
                           type="button"
                           variant="outline"
                           size="sm"
+                          data-testid="settings-social-link-add"
                           className="w-full bg-background border-dashed border-2 hover:border-primary hover:text-primary rounded-xl"
                           onClick={() =>
                             field.pushValue({ platform: "twitter", url: "" })
@@ -672,11 +695,15 @@ function SettingsPage() {
 
             <div className="pt-4 border-t-2 border-border/10">
               <Button
-                type="submit"
+                type="button"
                 disabled={saving}
                 variant="default"
                 size="lg"
+                data-testid="settings-save"
                 className="shadow-sm"
+                onClick={() => {
+                  void form.handleSubmit();
+                }}
               >
                 <Save size={20} className="mr-2" strokeWidth={3} />
                 <span className="">
@@ -689,7 +716,10 @@ function SettingsPage() {
 
         <aside className="space-y-6">
           {!securityAudit.turnstileEnabled ? (
-            <div className="border shadow-sm rounded-md bg-destructive/10 p-6 border-destructive/30">
+            <div
+              data-testid="settings-security-setup-warning"
+              className="border shadow-sm rounded-md bg-destructive/10 p-6 border-destructive/30"
+            >
               <h3 className="tracking-tighter text-destructive mb-4 flex items-center gap-2">
                 <Info size={18} />
                 Security Setup Required
@@ -701,7 +731,10 @@ function SettingsPage() {
             </div>
           ) : null}
           {!securityContactConfigured ? (
-            <div className="border shadow-sm rounded-md bg-amber-500/10 p-6 border-amber-500/30">
+            <div
+              data-testid="settings-security-contact-warning"
+              className="border shadow-sm rounded-md bg-amber-500/10 p-6 border-amber-500/30"
+            >
               <h3 className="tracking-tighter text-amber-700 mb-4 flex items-center gap-2">
                 <Info size={18} />
                 Recommended Security Contact

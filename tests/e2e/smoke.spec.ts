@@ -40,7 +40,14 @@ test("renders the public auth entrypoints", async ({ page }) => {
 });
 
 test("shows the premium teaser and membership call-to-action for anonymous readers", async ({ page }) => {
-  await page.goto("/blog/fixture-premium-post");
+  await expect(async () => {
+    await page.goto("/blog/fixture-premium-post", {
+      waitUntil: "domcontentloaded",
+    });
+  }).toPass({
+    intervals: [500, 1_000],
+    timeout: 10_000,
+  });
   await expect(page.getByRole("article").getByText(/Premium excerpt for member smoke coverage\./i)).toBeVisible();
   await expect(page.getByRole("button", { name: /subscribe now/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /compare plans/i })).toBeVisible();

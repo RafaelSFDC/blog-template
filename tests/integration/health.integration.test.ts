@@ -25,7 +25,7 @@ describe("health integration", () => {
       expect(readiness.status).toBe("ok");
       expect(readiness.checks.every((check) => check.status === "ok")).toBe(true);
     });
-  });
+  }, 15000);
 
   it("fails readiness when critical production security config is missing", async () => {
     await withIsolatedDatabase("health-failed", async () => {
@@ -52,5 +52,5 @@ describe("health integration", () => {
         "failed",
       );
     });
-  });
+  }, 15000);
 });

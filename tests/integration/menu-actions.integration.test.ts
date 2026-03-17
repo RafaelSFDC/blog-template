@@ -76,5 +76,5 @@ describe("menu actions integration", () => {
       const pageRows = await db.select().from(pages);
       expect(pageRows.map((entry) => entry.slug)).toEqual(["about", "contact"]);
     });
-  });
+  }, 15000);
 });

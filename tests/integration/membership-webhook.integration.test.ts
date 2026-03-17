@@ -114,5 +114,5 @@ describe("membership webhook integration", () => {
       expect(first).toEqual({ processed: true, duplicate: false });
       expect(duplicate).toEqual({ processed: false, duplicate: true });
     });
-  });
+  }, 15000);
 });

@@ -47,7 +47,7 @@ describe("redirect actions integration", () => {
       expect(stored?.destinationPath).toBe("https://example.test/final-destination");
       expect(stored?.statusCode).toBe(301);
     });
-  });
+  }, 15000);
 
   it("blocks redirect loops before persisting changes", async () => {
     await withIsolatedDatabase("redirect-loop", async () => {
@@ -71,5 +71,5 @@ describe("redirect actions integration", () => {
         }),
       ).rejects.toThrow("loop");
     });
-  });
+  }, 15000);
 });

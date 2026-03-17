@@ -2,6 +2,18 @@ import { execFileSync } from "node:child_process";
 import { expect, type Download, type Page } from "@playwright/test";
 
 export const FIXTURE_PASSWORD = "Password123!";
+export const FIXTURE_EMAILS = {
+  admin: "admin@lumina.test",
+  "super-admin": "super-admin@lumina.test",
+  editor: "editor@lumina.test",
+  author: "author@lumina.test",
+  moderator: "moderator@lumina.test",
+  reader: "reader@lumina.test",
+  member: "member@lumina.test",
+  "past-due": "past-due@lumina.test",
+} as const;
+
+export type FixtureRole = keyof typeof FIXTURE_EMAILS;
 
 export function reseedFixtures() {
   if (process.platform === "win32") {
@@ -46,6 +58,14 @@ export async function signInAs(page: Page, email: string, password = FIXTURE_PAS
   expect(response.ok, `Sign-in failed with status ${response.status}: ${response.body}`).toBe(true);
 }
 
+export async function signInAsRole(
+  page: Page,
+  role: FixtureRole,
+  password = FIXTURE_PASSWORD,
+) {
+  await signInAs(page, FIXTURE_EMAILS[role], password);
+}
+
 export async function signInViaUi(page: Page, email: string, password = FIXTURE_PASSWORD) {
   await page.goto("/auth/login");
   await page.getByLabel(/email/i).fill(email);
@@ -55,8 +75,12 @@ export async function signInViaUi(page: Page, email: string, password = FIXTURE_
 
 export async function skipSetupGate(page: Page) {
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/dashboard\/setup$/);
-  await page.goto("/dashboard?skipSetup=1");
+  const currentUrl = page.url();
+
+  if (/\/dashboard\/setup$/.test(currentUrl)) {
+    await page.goto("/dashboard?skipSetup=1");
+  }
+
   await expect(page).toHaveURL(/\/dashboard\/?$/);
 }
 

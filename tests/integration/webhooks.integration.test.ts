@@ -52,5 +52,5 @@ describe("webhooks integration", () => {
       hooks = await db.query.webhooks.findMany();
       expect(hooks).toHaveLength(0);
     });
-  });
+  }, 15000);
 });

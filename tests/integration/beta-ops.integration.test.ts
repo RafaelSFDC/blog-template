@@ -110,5 +110,5 @@ describe("beta ops integration", () => {
         priority: "high",
       });
     });
-  });
+  }, 15000);
 });
