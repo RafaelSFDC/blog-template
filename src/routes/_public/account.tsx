@@ -11,7 +11,7 @@ import { captureClientEvent } from "#/lib/analytics-client";
 import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
 import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
-import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
+import { getCurrentSubscriptionSummary } from "#/server/actions/membership/membership-actions";
 import { deleteCurrentUserData, exportCurrentUserData } from "#/server/security/privacy";
 import { checkAuthenticatedUserAccess } from "#/server/system/dashboard-access";
 

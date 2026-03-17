@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ZodError } from "zod";
 import { publicCommentSubmissionSchema } from "#/schemas";
 import { getAuthSession } from "#/server/auth/session";
-import { createPendingComment } from "#/server/comment-actions";
+import { createPendingComment } from "#/server/actions/content/comment-actions";
 import { captureServerException } from "#/server/sentry";
 import { enforceRateLimit } from "#/server/security/rate-limit";
 import { getSecurityRequestMetadata } from "#/server/security/request";

@@ -11,7 +11,7 @@ import {
   SITE_PRESET_INPUT_KEYS,
 } from "#/lib/site-presets";
 import { Button } from "#/components/ui/button";
-import { getLaunchTemplateCatalog } from "#/server/setup-actions";
+import { getLaunchTemplateCatalog } from "#/server/actions/system/setup-actions";
 import { createPage } from "#/server/page-actions";
 
 export const Route = createFileRoute("/dashboard/pages/new")({

@@ -58,9 +58,20 @@ function NewsletterComposerPage() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const submitModeRef = useRef<"draft" | "schedule" | "queue">("draft");
+  const existingForForm =
+    existing && (existing.segment === "all_active" || existing.segment === "premium_members" || existing.segment === "free_subscribers")
+      ? {
+          subject: existing.subject,
+          preheader: existing.preheader,
+          content: existing.content,
+          postId: existing.postId,
+          segment: existing.segment as "all_active" | "premium_members" | "free_subscribers",
+          scheduledAt: existing.scheduledAt,
+        }
+      : null;
 
   const form = useForm({
-    defaultValues: mapNewsletterToFormValues(existing),
+    defaultValues: mapNewsletterToFormValues(existingForForm),
     validators: {
       onChange: newsletterCampaignFormSchema,
     },

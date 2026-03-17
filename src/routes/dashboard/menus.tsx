@@ -9,7 +9,7 @@ import {
   mapMenusToEditorState,
   normalizeMenuItemsForSave,
 } from "#/lib/menu-form";
-import { saveMenu, getMenusForDashboard } from "#/server/menu-actions";
+import { saveMenu, getMenusForDashboard } from "#/server/actions/content/menu-actions";
 import { Navigation, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

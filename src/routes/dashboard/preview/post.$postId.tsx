@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PostEditorialPreview } from "#/components/dashboard/editorial-preview";
 import { buildPostPreviewDraft } from "#/lib/editorial-preview";
+import type { PostEditorFormValues } from "#/types/editorial";
 import { getPostPreviewData } from "#/server/post-actions";
 
 export const Route = createFileRoute("/dashboard/preview/post/$postId")({
@@ -21,7 +22,7 @@ function PostPreviewPage() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6">
       <PostEditorialPreview
-        draft={buildPostPreviewDraft(data, {
+        draft={buildPostPreviewDraft(data as PostEditorFormValues, {
           categories: data.categories,
           tags: data.tags,
           authorName: data.authorName,

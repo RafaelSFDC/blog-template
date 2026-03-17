@@ -4,16 +4,16 @@ import { and, desc, eq } from "drizzle-orm";
 import { notFound, redirect } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
-import { auth } from "#/server/auth/auth";
+import { getAuthSession } from "#/server/auth/session";
 import { resolvePaywallVariant } from "#/lib/conversion";
 import { resolveTeaserContent } from "#/lib/membership";
 import { resolvePublicCacheControl } from "#/lib/seo";
 import { publicCommentSubmissionSchema } from "#/schemas/editorial";
-import { createPendingComment } from "#/server/comment-actions";
-import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
+import { createPendingComment } from "#/server/actions/content/comment-actions";
+import { getPricingPlansData, getUserEntitlement } from "#/server/actions/membership/membership-actions";
 import { getPublishedPageBySlug } from "#/server/page-actions";
 import { getRelatedPostsByTaxonomy } from "#/server/public-discovery";
-import { getRedirectByPath } from "#/server/redirect-actions";
+import { getRedirectByPath } from "#/server/actions/content/redirect-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 import { enforceRateLimit } from "#/server/security/rate-limit";
 import { getSecurityRequestMetadata } from "#/server/security/request";
@@ -21,12 +21,7 @@ import { verifyTurnstileToken } from "#/server/integrations/turnstile";
 import { logSecurityEvent } from "#/server/security/events";
 
 async function loadPublicPageBySlug(slug: string) {
-  const request = getRequest();
-  const session = request
-    ? await auth.api.getSession({
-        headers: request.headers,
-      })
-    : null;
+  const session = await getAuthSession();
 
   setResponseHeader(
     "Cache-Control",
@@ -98,12 +93,7 @@ export const getPublicPageBySlug = createServerFn({ method: "GET" })
 export const getPublicPostBySlug = createServerFn({ method: "GET" })
   .inputValidator((slug: string) => slug)
   .handler(async ({ data: slug }) => {
-    const request = getRequest();
-    const session = request
-      ? await auth.api.getSession({
-          headers: request.headers,
-        })
-      : null;
+    const session = await getAuthSession();
 
     const post = await db.query.posts.findFirst({
       where: eq(posts.slug, slug),

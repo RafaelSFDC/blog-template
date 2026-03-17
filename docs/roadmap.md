@@ -136,11 +136,11 @@ Exit criteria:
 
 Objective: enforce repository architectural rules without functional regressions.
 
-- [ ] Create/normalize `src/server/actions` as the single action boundary.
-- [ ] Migrate existing action modules into the required structure.
-- [ ] Update imports and route handlers to new action locations.
-- [ ] Add lint/validation guard to prevent future placement drift.
-- [ ] Verify no behavior change through regression tests.
+- [x] Create/normalize `src/server/actions` as the single action boundary.
+- [x] Migrate existing action modules into the required structure.
+- [x] Update imports and route handlers to new action locations.
+- [x] Add lint/validation guard to prevent future placement drift.
+- [x] Verify no behavior change through regression tests.
 
 Exit criteria:
 
@@ -153,11 +153,11 @@ Exit criteria:
 
 Objective: remove unsafe typing from critical runtime layers.
 
-- [ ] Remove forbidden `any` usage in database/runtime paths.
-- [ ] Replace `ts-ignore`/`ts-expect-error` where avoidable with typed contracts.
-- [ ] Consolidate schemas/types as single source of truth.
-- [ ] Add strict typecheck gate to CI (`tsc --noEmit`).
-- [ ] Add typing regression tests for key action payload contracts.
+- [x] Remove forbidden `any` usage in database/runtime paths.
+- [x] Replace `ts-ignore`/`ts-expect-error` where avoidable with typed contracts.
+- [x] Consolidate schemas/types as single source of truth.
+- [x] Add strict typecheck gate to CI (`tsc --noEmit`).
+- [x] Add typing regression tests for key action payload contracts.
 
 Exit criteria:
 

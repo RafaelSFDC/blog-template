@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { PageEditorScreen } from "#/components/dashboard/page-editor-screen";
 import { normalizePageSubmission } from "#/lib/editorial-form-utils";
 import { isPuckPageContent } from "#/lib/puck";
+import type { PageEditorFormValues } from "#/types/editorial";
 import { getPageById, updatePage } from "#/server/page-actions";
 
 export const Route = createFileRoute("/dashboard/pages/$pageId/edit")({
@@ -43,7 +44,7 @@ function EditPagePage() {
         ogImage: page.ogImage || "",
         seoNoIndex: page.seoNoIndex || false,
         isPremium: page.isPremium || false,
-        teaserMode: page.teaserMode || "excerpt",
+        teaserMode: (page.teaserMode || "excerpt") as PageEditorFormValues["teaserMode"],
         status: page.status as "draft" | "published" | "private",
         isHome: page.isHome || false,
         useVisualBuilder: isPuckPageContent(page.content),

@@ -47,8 +47,7 @@ export const session = table(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("sessions_userId_idx").on(t.userId)],
+  (t) => [index("sessions_userId_idx").on(t.userId)],
 );
 
 export const account = table(
@@ -70,8 +69,7 @@ export const account = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("accounts_userId_idx").on(t.userId)],
+  (t) => [index("accounts_userId_idx").on(t.userId)],
 );
 
 export const verification = table(
@@ -84,8 +82,7 @@ export const verification = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("verifications_identifier_idx").on(t.identifier)],
+  (t) => [index("verifications_identifier_idx").on(t.identifier)],
 );
 
 export const categories = table("categories", {
@@ -170,8 +167,7 @@ export const pages = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("pages_slug_idx").on(t.slug),
     index("pages_status_idx").on(t.status),
     index("pages_is_home_idx").on(t.isHome),
@@ -195,8 +191,7 @@ export const comments = table(
     status: text("status").notNull().default("pending"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("comments_post_id_idx").on(t.postId),
     index("comments_author_id_idx").on(t.authorId),
   ],
@@ -212,8 +207,7 @@ export const postCategories = table(
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("post_categories_idx").on(t.postId, t.categoryId)],
+  (t) => [index("post_categories_idx").on(t.postId, t.categoryId)],
 );
 
 export const postTags = table(
@@ -226,8 +220,7 @@ export const postTags = table(
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("post_tags_idx").on(t.postId, t.tagId)],
+  (t) => [index("post_tags_idx").on(t.postId, t.tagId)],
 );
 
 export const appSettings = table("app_settings", {
@@ -258,8 +251,7 @@ export const menuItems = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("menu_items_menu_id_idx").on(t.menuId),
     index("menu_items_sort_order_idx").on(t.menuId, t.sortOrder),
   ],
@@ -327,8 +319,7 @@ export const newsletterDeliveries = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("newsletter_deliveries_newsletter_id_idx").on(t.newsletterId),
     index("newsletter_deliveries_subscriber_id_idx").on(t.subscriberId),
     index("newsletter_deliveries_status_idx").on(t.status),
@@ -347,8 +338,7 @@ export const subscriberEvents = table(
     metadataJson: text("metadata_json"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("subscriber_events_subscriber_id_idx").on(t.subscriberId),
     index("subscriber_events_type_idx").on(t.type),
     index("subscriber_events_created_at_idx").on(t.createdAt),
@@ -370,8 +360,7 @@ export const newsletterConsents = table(
     userAgent: text("user_agent"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("newsletter_consents_subscriber_id_idx").on(t.subscriberId),
     index("newsletter_consents_email_idx").on(t.email),
     index("newsletter_consents_status_idx").on(t.status),
@@ -389,8 +378,7 @@ export const rateLimitEvents = table(
     createdAt: timestamp("created_at").default(now),
     expiresAt: timestamp("expires_at").notNull(),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("rate_limit_events_scope_identifier_idx").on(t.scope, t.identifierHash),
     index("rate_limit_events_expires_at_idx").on(t.expiresAt),
     index("rate_limit_events_created_at_idx").on(t.createdAt),
@@ -410,8 +398,7 @@ export const securityEvents = table(
     createdAt: timestamp("created_at").default(now),
     expiresAt: timestamp("expires_at"),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("security_events_type_idx").on(t.type),
     index("security_events_scope_idx").on(t.scope),
     index("security_events_expires_at_idx").on(t.expiresAt),
@@ -435,8 +422,7 @@ export const membershipPlans = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("membership_plans_slug_idx").on(t.slug),
     index("membership_plans_active_idx").on(t.isActive),
   ],
@@ -465,8 +451,7 @@ export const subscriptions = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("subscriptions_user_id_idx").on(t.userId),
     index("subscriptions_status_idx").on(t.status),
     index("subscriptions_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
@@ -488,8 +473,7 @@ export const subscriptionEvents = table(
     processedAt: timestamp("processed_at").default(now),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("subscription_events_subscription_id_idx").on(t.subscriptionId),
     index("subscription_events_type_idx").on(t.type),
     index("subscription_events_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
@@ -546,8 +530,7 @@ export const betaOpsAccounts = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("beta_ops_accounts_email_idx").on(t.email),
     index("beta_ops_accounts_stage_idx").on(t.accountStage),
     index("beta_ops_accounts_owner_idx").on(t.ownerUserId),
@@ -575,8 +558,7 @@ export const betaOpsFeedback = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("beta_ops_feedback_account_idx").on(t.betaAccountId),
     index("beta_ops_feedback_status_idx").on(t.status),
     index("beta_ops_feedback_priority_idx").on(t.priority),
@@ -603,8 +585,7 @@ export const redirects = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("redirects_source_path_idx").on(t.sourcePath)],
+  (t) => [index("redirects_source_path_idx").on(t.sourcePath)],
 );
 
 export const webhookDeliveries = table(
@@ -622,8 +603,7 @@ export const webhookDeliveries = table(
     duration: integer("duration"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("webhook_deliveries_webhook_id_idx").on(t.webhookId)],
+  (t) => [index("webhook_deliveries_webhook_id_idx").on(t.webhookId)],
 );
 
 export const visitors = table("visitors", {
@@ -646,8 +626,7 @@ export const pageViews = table(
     device: text("device"), // mobile, desktop, tablet
     timestamp: timestamp("timestamp").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("page_views_visitor_id_idx").on(t.visitorId),
     index("page_views_pathname_idx").on(t.pathname),
     index("page_views_timestamp_idx").on(t.timestamp),
@@ -679,8 +658,7 @@ export const postRevisions = table(
     source: text("source").notNull().default("manual"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("post_revisions_post_id_idx").on(t.postId),
     index("post_revisions_created_at_idx").on(t.createdAt),
   ],
@@ -710,8 +688,7 @@ export const pageRevisions = table(
     source: text("source").notNull().default("manual"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("page_revisions_page_id_idx").on(t.pageId),
     index("page_revisions_created_at_idx").on(t.createdAt),
   ],
@@ -729,8 +706,7 @@ export const activityLogs = table(
     metadataJson: text("metadata_json"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("activity_logs_actor_user_id_idx").on(t.actorUserId),
     index("activity_logs_entity_idx").on(t.entityType, t.entityId),
     index("activity_logs_created_at_idx").on(t.createdAt),
@@ -750,8 +726,7 @@ export const invitations = table(
     revokedAt: timestamp("revoked_at"),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("invitations_email_idx").on(t.email),
     index("invitations_expires_at_idx").on(t.expiresAt),
   ],
@@ -770,8 +745,7 @@ export const contentLocks = table(
     expiresAt: timestamp("expires_at").notNull(),
     lastHeartbeatAt: timestamp("last_heartbeat_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("content_locks_entity_idx").on(t.entityType, t.entityId),
     index("content_locks_user_id_idx").on(t.userId),
     index("content_locks_expires_at_idx").on(t.expiresAt),
@@ -793,8 +767,7 @@ export const editorialComments = table(
     resolvedBy: text("resolved_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("editorial_comments_post_id_idx").on(t.postId),
     index("editorial_comments_author_user_id_idx").on(t.authorUserId),
     index("editorial_comments_resolved_at_idx").on(t.resolvedAt),
@@ -814,8 +787,7 @@ export const editorialChecklists = table(
     completedBy: text("completed_by").references(() => user.id, { onDelete: "set null" }),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [
+  (t) => [
     index("editorial_checklists_post_id_idx").on(t.postId),
     index("editorial_checklists_post_item_idx").on(t.postId, t.itemKey),
   ],

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Stripe from "stripe";
-import { processStripeWebhookEvent } from "#/server/membership-actions";
+import { processStripeWebhookEvent } from "#/server/actions/membership/membership-actions";
 import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
 import { stripe } from "#/server/stripe";

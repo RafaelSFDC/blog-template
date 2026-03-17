@@ -3,6 +3,7 @@ import { FileText } from "lucide-react";
 import { toast } from "sonner";
 import { PostEditorScreen } from "#/components/dashboard/post-editor-screen";
 import { normalizePostSubmission } from "#/lib/editorial-form-utils";
+import type { PostEditorFormValues } from "#/types/editorial";
 import { getPostForEdit, updatePost } from "#/server/post-actions";
 
 export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
@@ -38,7 +39,7 @@ function EditPostPage() {
         seoNoIndex: post.seoNoIndex || false,
         isPremium: post.isPremium || false,
         commentsEnabled: post.commentsEnabled ?? true,
-        teaserMode: post.teaserMode || "excerpt",
+        teaserMode: (post.teaserMode || "excerpt") as PostEditorFormValues["teaserMode"],
         status: post.status as "draft" | "in_review" | "published" | "scheduled" | "archived",
         publishedAt: post.publishedAt
           ? new Date(post.publishedAt).toISOString().slice(0, 16)
@@ -57,7 +58,18 @@ function EditPostPage() {
       }}
       entityId={post.id}
       initialRevisions={post.revisions || []}
-      initialWorkflow={post.workflow}
+      initialWorkflow={{
+        status: post.status,
+        editorOwnerId: post.editorOwnerId ?? null,
+        reviewRequestedAt: post.reviewRequestedAt ?? null,
+        approvedAt: post.approvedAt ?? null,
+        scheduledAt: post.scheduledAt ?? null,
+        archivedAt: post.archivedAt ?? null,
+        permissions: post.permissions,
+        checklist: post.workflow.checklist,
+        comments: post.workflow.comments,
+        editors: post.workflow.editors,
+      }}
       onSubmit={async (values) => {
         const normalizedPost = normalizePostSubmission(values);
         if (!normalizedPost) {

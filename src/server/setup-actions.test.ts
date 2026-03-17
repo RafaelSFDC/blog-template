@@ -7,7 +7,7 @@ describe("setup actions", () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
         import("#/db/index"),
         import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/actions/system/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([
@@ -39,7 +39,7 @@ describe("setup actions", () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
         import("#/db/index"),
         import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/actions/system/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([
@@ -87,7 +87,7 @@ describe("setup actions", () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
         import("#/db/index"),
         import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/actions/system/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([

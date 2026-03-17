@@ -1,13 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest, setResponseHeader } from "@tanstack/react-start/server";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
 import { posts } from "#/db/schema";
-import { auth } from "#/server/auth/auth";
+import { getAuthSession } from "#/server/auth/session";
 import { buildPricingComparison } from "#/lib/conversion";
 import { resolveTeaserContent } from "#/lib/membership";
 import { getPrivateCacheControl, getPublicCacheControl } from "#/lib/seo";
-import { getPricingPlansData, getUserEntitlement } from "#/server/membership-actions";
+import { getPricingPlansData, getUserEntitlement } from "#/server/actions/membership/membership-actions";
 import { getPublishedHomepage } from "#/server/page-actions";
 
 export const getTopPosts = createServerFn({ method: "GET" }).handler(async () => {
@@ -21,12 +21,7 @@ export const getTopPosts = createServerFn({ method: "GET" }).handler(async () =>
 });
 
 export const getHomepage = createServerFn({ method: "GET" }).handler(async () => {
-  const request = getRequest();
-  const session = request
-    ? await auth.api.getSession({
-        headers: request.headers,
-      })
-    : null;
+  const session = await getAuthSession();
 
   if (session) {
     setResponseHeader("Cache-Control", getPrivateCacheControl());
@@ -67,12 +62,7 @@ export const getHomepage = createServerFn({ method: "GET" }).handler(async () =>
 });
 
 export const getPricingPageData = createServerFn({ method: "GET" }).handler(async () => {
-  const request = getRequest();
-  const session = request
-    ? await auth.api.getSession({
-        headers: request.headers,
-      })
-    : null;
+  const session = await getAuthSession();
 
   const pricingPlans = await getPricingPlansData();
   type PricingPlan = (typeof pricingPlans)[number];

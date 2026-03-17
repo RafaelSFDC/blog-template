@@ -2,14 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import { eq, desc } from "drizzle-orm";
 import { pages, posts } from "#/db/schema";
-import { getPublishedCategories, getPublishedTags } from "#/server/taxonomy-actions";
+import { getPublishedCategories, getPublishedTags } from "#/server/actions/content/taxonomy-actions";
 import { getGlobalSiteData } from "#/server/system/site-data";
 import { resolveSiteUrl } from "#/lib/seo";
-
-type SitemapPost = Awaited<ReturnType<typeof db.query.posts.findMany>>[number];
-type SitemapPage = Awaited<ReturnType<typeof db.query.pages.findMany>>[number];
-type SitemapCategory = Awaited<ReturnType<typeof getPublishedCategories>>[number];
-type SitemapTag = Awaited<ReturnType<typeof getPublishedTags>>[number];
 
 export const Route = createFileRoute("/sitemap/xml")({
   server: {
@@ -53,9 +48,9 @@ export const Route = createFileRoute("/sitemap/xml")({
     <priority>0.8</priority>
   </url>
   ${allPages
-    .filter((page: SitemapPage) => !page.isHome)
+    .filter((page) => !page.isHome)
     .map(
-      (page: SitemapPage) => `
+      (page) => `
   <url>
     <loc>${baseUrl}/${page.slug}</loc>
     <lastmod>${page.updatedAt?.toISOString().split("T")[0]}</lastmod>
@@ -66,7 +61,7 @@ export const Route = createFileRoute("/sitemap/xml")({
     .join("")}
   ${allPosts
     .map(
-      (post: SitemapPost) => `
+      (post) => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${post.updatedAt?.toISOString().split("T")[0]}</lastmod>
@@ -77,7 +72,7 @@ export const Route = createFileRoute("/sitemap/xml")({
     .join("")}
   ${allCategories
     .map(
-      (category: SitemapCategory) => `
+      (category) => `
   <url>
     <loc>${baseUrl}/blog/category/${category.slug}</loc>
     <changefreq>weekly</changefreq>
@@ -87,7 +82,7 @@ export const Route = createFileRoute("/sitemap/xml")({
     .join("")}
   ${allTags
     .map(
-      (tag: SitemapTag) => `
+      (tag) => `
   <url>
     <loc>${baseUrl}/blog/tag/${tag.slug}</loc>
     <changefreq>weekly</changefreq>

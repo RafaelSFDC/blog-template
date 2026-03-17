@@ -169,9 +169,7 @@ function DashboardOverview() {
                   </h4>
                   <p className="text-xs text-muted-foreground mt-1 font-bold">
                     Updated{" "}
-                    {new Date(
-                      post.updatedAt || post.createdAt,
-                    ).toLocaleDateString()}
+                    {new Date(post.updatedAt ?? post.publishedAt ?? "1970-01-01").toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

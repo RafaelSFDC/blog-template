@@ -17,7 +17,7 @@ describe("redirect actions integration", () => {
     await withIsolatedDatabase("redirect-actions", async () => {
       const { db } = await import("#/db/index");
       const { redirects } = await import("#/db/schema");
-      const { getRedirectByPath, saveRedirect } = await import("#/server/redirect-actions");
+      const { getRedirectByPath, saveRedirect } = await import("#/server/actions/content/redirect-actions");
 
       await saveRedirect({
         data: {
@@ -52,7 +52,7 @@ describe("redirect actions integration", () => {
 
   it("blocks redirect loops before persisting changes", async () => {
     await withIsolatedDatabase("redirect-loop", async () => {
-      const { saveRedirect } = await import("#/server/redirect-actions");
+      const { saveRedirect } = await import("#/server/actions/content/redirect-actions");
 
       await saveRedirect({
         data: {

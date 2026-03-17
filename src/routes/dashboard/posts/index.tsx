@@ -14,7 +14,7 @@ import { StatusBadge } from "#/components/ui/status-badge";
 import { authClient } from "#/lib/auth-client";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/post-actions";
-import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import { getSetupStatusForDashboard } from "#/server/actions/system/setup-actions";
 import type { SetupStatus } from "#/types/system";
 
 type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];

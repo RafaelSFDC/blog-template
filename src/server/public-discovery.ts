@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { db } from "#/db/index";
 import { categories, postCategories, posts, postTags, user } from "#/db/schema";
-import { BLOG_PAGE_SIZE } from "#/server/taxonomy-actions";
+import { BLOG_PAGE_SIZE } from "#/server/actions/content/taxonomy-actions";
 import { getPaginationMeta } from "#/lib/pagination";
 
 export async function getAuthorPageBySlug(slug: string, page = 1) {

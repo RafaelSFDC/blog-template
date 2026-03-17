@@ -20,7 +20,7 @@ import {
   validateRedirectFormValues,
   type RedirectFormValues,
 } from "#/lib/redirect-form";
-import { deleteRedirect, getRedirects, saveRedirect } from "#/server/redirect-actions";
+import { deleteRedirect, getRedirects, saveRedirect } from "#/server/actions/content/redirect-actions";
 
 type RedirectRow = Awaited<ReturnType<typeof getRedirects>>[number];
 

@@ -9,7 +9,7 @@ import {
   getMediaItems,
   uploadMedia,
   deleteMediaItem,
-} from "#/server/media-actions";
+} from "#/server/actions/content/media-actions";
 import { toast } from "sonner";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { Checkbox } from "#/components/ui/checkbox";

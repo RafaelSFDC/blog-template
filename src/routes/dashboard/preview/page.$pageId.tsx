@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PageEditorialPreview } from "#/components/dashboard/editorial-preview";
 import { buildPagePreviewDraft } from "#/lib/editorial-preview";
+import type { PageEditorFormValues } from "#/types/editorial";
 import { getPagePreviewData } from "#/server/page-actions";
 
 export const Route = createFileRoute("/dashboard/preview/page/$pageId")({
@@ -20,7 +21,7 @@ function PagePreviewPage() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6">
-      <PageEditorialPreview draft={buildPagePreviewDraft(data)} />
+      <PageEditorialPreview draft={buildPagePreviewDraft(data as PageEditorFormValues)} />
     </div>
   );
 }

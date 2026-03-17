@@ -39,7 +39,7 @@ import {
   getDashboardSettings,
   updateDashboardSettings,
 } from "#/server/system/settings";
-import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import { getSetupStatusForDashboard } from "#/server/actions/system/setup-actions";
 import type { SetupStatus } from "#/types/system";
 
 export const Route = createFileRoute("/dashboard/settings")({

@@ -6,7 +6,7 @@ import { categories, postCategories, posts, postTags, tags, user } from "#/db/sc
 import { getPaginationMeta, normalizePage } from "#/lib/pagination";
 import { getPublicCacheControl } from "#/lib/seo";
 import { normalizeSearchQuery, rankSearchPosts } from "#/server/post-search";
-import { BLOG_PAGE_SIZE } from "#/server/taxonomy-actions";
+import { BLOG_PAGE_SIZE } from "#/server/actions/content/taxonomy-actions";
 
 export const getBlogIndexPosts = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => {

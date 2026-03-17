@@ -23,7 +23,7 @@ import {
   getSetupStatus,
   saveSetupStep,
   skipSetup,
-} from "#/server/setup-actions";
+} from "#/server/actions/system/setup-actions";
 import { getDashboardSettings } from "#/server/system/settings";
 import { getAvailableThemes } from "#/lib/theme-utils";
 import {

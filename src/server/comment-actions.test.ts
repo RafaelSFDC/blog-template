@@ -25,7 +25,7 @@ vi.mock("#/db/index", () => ({
   },
 }));
 
-import { createPendingComment } from "#/server/comment-actions";
+import { createPendingComment } from "#/server/actions/content/comment-actions";
 
 describe("comment-actions", () => {
   beforeEach(() => {

@@ -17,7 +17,7 @@ describe("menu actions integration", () => {
     await withIsolatedDatabase("menu-actions", async () => {
       const { db } = await import("#/db/index");
       const { menuItems, menus, pages } = await import("#/db/schema");
-      const { saveMenu } = await import("#/server/menu-actions");
+      const { saveMenu } = await import("#/server/actions/content/menu-actions");
 
       await db.insert(pages).values([
         {

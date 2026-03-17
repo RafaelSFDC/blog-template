@@ -1,5 +1,6 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { redirect } from '@tanstack/react-router'
+import type { AppAuthSession } from '#/types/auth'
 
 function normalizeDashboardRole(role?: string | null) {
   if (role === 'superAdmin') {
@@ -16,9 +17,14 @@ export async function getAuthSession() {
   const { auth } = await import('#/server/auth/auth')
   const request = getRequest()
   if (!request) return null
-  return await auth.api.getSession({
+  const session = await auth.api.getSession({
     headers: request.headers,
   })
+  if (!session?.user) {
+    return null
+  }
+
+  return session as unknown as AppAuthSession
 }
 
 /**

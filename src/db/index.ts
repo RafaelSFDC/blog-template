@@ -1,8 +1,11 @@
 import * as schema from "./schema";
 import { getBinding } from "#/server/system/cf-env";
+import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _db: any = null;
+type SqliteDatabase = BetterSQLite3Database<typeof schema>;
+type RuntimeDatabase = SqliteDatabase | Record<string, unknown>;
+
+let _db: RuntimeDatabase | null = null;
 let _sqliteClient: { close?: () => void } | null = null;
 
 function getDatabaseConfig() {
@@ -24,7 +27,7 @@ async function initializeDb() {
     if (foundD1) {
       const { drizzle: drizzleD1 } =
         await importRuntimeModule<typeof import("drizzle-orm/d1")>("drizzle-orm/d1");
-      _db = drizzleD1(foundD1 as never, { schema }) as unknown as Record<string, unknown>;
+      _db = drizzleD1(foundD1 as never, { schema }) as unknown as RuntimeDatabase;
       return;
     }
   } else if (dbType === "neon") {
@@ -37,7 +40,7 @@ async function initializeDb() {
         "drizzle-orm/neon-http",
       );
     const sql = neon(dbUrl!);
-    _db = drizzleNeon(sql, { schema }) as unknown as Record<string, unknown>;
+    _db = drizzleNeon(sql, { schema }) as unknown as RuntimeDatabase;
     return;
   } else if (dbType === "libsql") {
     const { createClient } =
@@ -50,7 +53,7 @@ async function initializeDb() {
       url: dbUrl!,
       authToken: process.env.DATABASE_AUTH_TOKEN,
     });
-    _db = drizzleLibsql(client, { schema }) as unknown as Record<string, unknown>;
+    _db = drizzleLibsql(client, { schema }) as unknown as RuntimeDatabase;
     return;
   }
 
@@ -66,7 +69,7 @@ async function initializeDb() {
         : (DatabaseModule as { default: typeof import("better-sqlite3") }).default;
     const sqlite = new Database(dbUrl || "blog.db");
     _sqliteClient = sqlite as unknown as { close?: () => void };
-    _db = drizzleSqlite(sqlite, { schema }) as unknown as Record<string, unknown>;
+    _db = drizzleSqlite(sqlite, { schema });
   } catch (error) {
     console.debug(
       'SQLite initialization failed (likely running in environment without better-sqlite3):',
@@ -89,12 +92,11 @@ export async function reinitializeDbForTesting() {
   await initializeDb();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = new Proxy({} as any, {
+const db = new Proxy({} as SqliteDatabase, {
   get(_target, prop) {
     const { dbType } = getDatabaseConfig();
     if (prop === "schema") return schema;
-    if (_db) return _db[prop as string];
+    if (_db) return Reflect.get(_db as object, prop);
 
     throw new Error(`Database driver for "${dbType}" not initialized or failed to load.`);
   },

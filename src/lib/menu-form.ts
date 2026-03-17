@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { getMenusForDashboard } from "#/server/menu-actions";
+import type { getMenusForDashboard } from "#/server/actions/content/menu-actions";
 import { menuUpdateSchema } from "#/schemas/system";
 
 type MenuUpdateInput = z.input<typeof menuUpdateSchema>;

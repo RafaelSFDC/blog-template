@@ -11,7 +11,7 @@ describe("comment-actions integration", () => {
     await withIsolatedDatabase("comments-disabled", async () => {
       const { db } = await import("#/db/index");
       const { posts } = await import("#/db/schema");
-      const { createPendingComment } = await import("#/server/comment-actions");
+      const { createPendingComment } = await import("#/server/actions/content/comment-actions");
 
       const [post] = await db
         .insert(posts)
@@ -41,7 +41,7 @@ describe("comment-actions integration", () => {
     await withIsolatedDatabase("comments-spam", async () => {
       const { db } = await import("#/db/index");
       const { comments, posts } = await import("#/db/schema");
-      const { createPendingComment } = await import("#/server/comment-actions");
+      const { createPendingComment } = await import("#/server/actions/content/comment-actions");
 
       const [post] = await db
         .insert(posts)

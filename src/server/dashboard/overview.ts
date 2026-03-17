@@ -3,7 +3,7 @@ import { count, desc, eq, sql } from "drizzle-orm";
 import { db } from "#/db/index";
 import { contactMessages, newsletters, posts, subscribers } from "#/db/schema";
 import { requireDashboardAccess } from "#/server/auth/session";
-import { getSetupStatusSummaryForRole } from "#/server/setup-actions";
+import { getSetupStatusSummaryForRole } from "#/server/actions/system/setup-actions";
 
 export const getDashboardOverview = createServerFn({ method: "GET" }).handler(
   async () => {

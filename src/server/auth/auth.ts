@@ -4,9 +4,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin as adminPlugin } from "better-auth/plugins";
 import { db } from "#/db/index";
 import * as schema from "#/db/schema";
-import { type InferSelectModel } from "drizzle-orm";
-
-type User = InferSelectModel<typeof schema.user>;
 import {
   ac,
   reader,
@@ -25,7 +22,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user: User) => {
+        before: async (user: Record<string, unknown>) => {
           // Check if any user already exists
           const existingUser = await db
             .select({ id: schema.user.id })
@@ -37,29 +34,31 @@ export const auth = betterAuth({
             data: {
               ...user,
               role: isFirstUser ? "admin" : "reader",
-            } as User,
+            },
           };
         },
       },
       update: {
-        before: async (user: User) => {
+        before: async (user: Record<string, unknown>) => {
           // Prevent users from performing critical actions on themselves
           const { getAuthSession } = await import("#/server/auth/session");
           const session = await getAuthSession();
+          const sessionUser = session?.user;
+          const nextRole = typeof user.role === "string" ? user.role : null;
+          const nextBanned = typeof user.banned === "boolean" ? user.banned : null;
 
-          if (session?.user?.id === user.id) {
+          if (sessionUser && sessionUser.id === user.id) {
             // Prevent self-role modification
-            if (user.role) {
-              const currentRole = (session?.user as { role?: string })?.role;
-              if (currentRole && currentRole !== user.role) {
+            if (nextRole) {
+              const currentRole = sessionUser.role ?? null;
+              if (currentRole && currentRole !== nextRole) {
                 throw new Error("You cannot change your own role");
               }
             }
 
             // Prevent self-banning
-            if (user.banned === true) {
-              const isCurrentlyBanned = (session?.user as { banned?: boolean })
-                ?.banned;
+            if (nextBanned === true) {
+              const isCurrentlyBanned = sessionUser.banned ?? false;
               if (!isCurrentlyBanned) {
                 throw new Error("You cannot ban yourself");
               }
@@ -69,11 +68,11 @@ export const auth = betterAuth({
         },
       },
       delete: {
-        before: async (user: { id: string }) => {
+        before: async (user: { id?: string }) => {
           const { getAuthSession } = await import("#/server/auth/session");
           const session = await getAuthSession();
 
-          if (session?.user?.id === user.id) {
+          if (user.id && session?.user?.id === user.id) {
             throw new Error("You cannot delete your own account");
           }
         },
@@ -82,7 +81,13 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    async sendResetPassword({ user, url }: { user: User; url: string }) {
+    async sendResetPassword({
+      user,
+      url,
+    }: {
+      user: Record<string, unknown>;
+      url: string;
+    }) {
       const { resend: defaultResend } = await import(
         "#/server/integrations/resend"
       );
@@ -105,12 +110,12 @@ export const auth = betterAuth({
 
       await resendClient.emails.send({
         from: `${blogName} <${senderEmail}>`,
-        to: user.email,
+        to: String(user.email ?? ""),
         subject: `Reset your password for ${blogName}`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 10px;">
             <h2 style="color: #333;">Password Reset Request</h2>
-            <p>Hi ${user.name || "there"},</p>
+            <p>Hi ${String(user.name || "there")},</p>
             <p>We received a request to reset your password for your <strong>${blogName}</strong> account.</p>
             <p>Click the button below to set a new password:</p>
             <div style="text-align: center; margin: 30px 0;">

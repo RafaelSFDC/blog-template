@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
-import { getCurrentSubscription } from "#/server/membership-actions";
+import { getCurrentSubscription } from "#/server/actions/membership/membership-actions";
 import { stripe } from "#/server/stripe";
 import { auth } from "#/server/auth/auth";
 

@@ -45,7 +45,7 @@ describe("membership webhook integration", () => {
     await withIsolatedDatabase("stripe-webhook", async () => {
       const { db } = await import("#/db/index");
       const { appSettings, user } = await import("#/db/schema");
-      const { processStripeWebhookEvent } = await import("#/server/membership-actions");
+      const { processStripeWebhookEvent } = await import("#/server/actions/membership/membership-actions");
 
       await db.insert(user).values({
         id: "member-1",

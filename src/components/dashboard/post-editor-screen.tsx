@@ -39,7 +39,7 @@ import {
   sendPostBackToDraft,
   updateEditorialChecklist,
 } from "#/server/post-actions";
-import { getCategories, getTags } from "#/server/taxonomy-actions";
+import { getCategories, getTags } from "#/server/actions/content/taxonomy-actions";
 
 type PostStatus = PostEditorFormValues["status"];
 type Category = Awaited<ReturnType<typeof getCategories>>[number];

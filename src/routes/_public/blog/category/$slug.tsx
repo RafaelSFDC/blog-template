@@ -4,7 +4,7 @@ import { Newsletter } from "#/components/blog/newsletter";
 import { PostCard, type Post } from "#/components/blog/PostCard";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { FolderOpen } from "lucide-react";
-import { getPublishedCategoryBySlug } from "#/server/taxonomy-actions";
+import { getPublishedCategoryBySlug } from "#/server/actions/content/taxonomy-actions";
 import { getSeoSiteData } from "#/server/seo-actions";
 import {
   buildBreadcrumbJsonLd,
@@ -15,7 +15,7 @@ import {
 } from "#/lib/seo";
 import { normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
-import { getRedirectByPath } from "#/server/redirect-actions";
+import { getRedirectByPath } from "#/server/actions/content/redirect-actions";
 
 type CategoryPageLoaderData = NonNullable<
   Awaited<ReturnType<typeof getPublishedCategoryBySlug>>

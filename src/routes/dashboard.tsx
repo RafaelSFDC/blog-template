@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { usePostHog } from "@posthog/react"
 import { checkDashboardAccess } from '#/server/system/dashboard-access'
 import { captureClientEvent } from "#/lib/analytics-client"
-import { getSetupStatus, skipSetup } from '#/server/setup-actions'
+import { getSetupStatus, skipSetup } from '#/server/actions/system/setup-actions'
 import { shouldRedirectToSetup } from '#/lib/setup'
 
 export const Route = createFileRoute('/dashboard')({

@@ -214,56 +214,54 @@ export async function restorePostRevisionToDraft(revisionId: number) {
     throw new Error("Revision not found");
   }
 
-  await db.transaction(async (tx: typeof db) => {
-    await tx
-      .update(posts)
-      .set({
-        title: revision.title,
-        slug: revision.slug,
-        excerpt: revision.excerpt,
-        content: revision.content,
-        metaTitle: revision.metaTitle,
-        metaDescription: revision.metaDescription,
-        ogImage: revision.ogImage,
-        seoNoIndex: revision.seoNoIndex,
-        isPremium: revision.isPremium,
-        teaserMode: revision.teaserMode,
-        status: "draft",
-        reviewRequestedAt: null,
-        reviewRequestedBy: null,
-        lastReviewedAt: null,
-        lastReviewedBy: null,
-        approvedAt: null,
-        approvedBy: null,
-        scheduledAt: null,
-        archivedAt: null,
-        publishedAt: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(posts.id, revision.postId));
+  await db
+    .update(posts)
+    .set({
+      title: revision.title,
+      slug: revision.slug,
+      excerpt: revision.excerpt,
+      content: revision.content,
+      metaTitle: revision.metaTitle,
+      metaDescription: revision.metaDescription,
+      ogImage: revision.ogImage,
+      seoNoIndex: revision.seoNoIndex,
+      isPremium: revision.isPremium,
+      teaserMode: revision.teaserMode,
+      status: "draft",
+      reviewRequestedAt: null,
+      reviewRequestedBy: null,
+      lastReviewedAt: null,
+      lastReviewedBy: null,
+      approvedAt: null,
+      approvedBy: null,
+      scheduledAt: null,
+      archivedAt: null,
+      publishedAt: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(posts.id, revision.postId));
 
-    await tx.delete(postCategories).where(eq(postCategories.postId, revision.postId));
-    const categoryIds = parseJsonArray(revision.categoryIdsSnapshot);
-    if (categoryIds.length > 0) {
-      await tx.insert(postCategories).values(
-        categoryIds.map((categoryId) => ({
-          postId: revision.postId,
-          categoryId,
-        })),
-      );
-    }
+  await db.delete(postCategories).where(eq(postCategories.postId, revision.postId));
+  const categoryIds = parseJsonArray(revision.categoryIdsSnapshot);
+  if (categoryIds.length > 0) {
+    await db.insert(postCategories).values(
+      categoryIds.map((categoryId) => ({
+        postId: revision.postId,
+        categoryId,
+      })),
+    );
+  }
 
-    await tx.delete(postTags).where(eq(postTags.postId, revision.postId));
-    const tagIds = parseJsonArray(revision.tagIdsSnapshot);
-    if (tagIds.length > 0) {
-      await tx.insert(postTags).values(
-        tagIds.map((tagId) => ({
-          postId: revision.postId,
-          tagId,
-        })),
-      );
-    }
-  });
+  await db.delete(postTags).where(eq(postTags.postId, revision.postId));
+  const tagIds = parseJsonArray(revision.tagIdsSnapshot);
+  if (tagIds.length > 0) {
+    await db.insert(postTags).values(
+      tagIds.map((tagId) => ({
+        postId: revision.postId,
+        tagId,
+      })),
+    );
+  }
 
   return revision;
 }
