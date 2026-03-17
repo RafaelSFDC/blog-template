@@ -10,6 +10,9 @@ import {
 } from "./dialect";
 import { relations } from "drizzle-orm";
 
+// Compatibility typing for table index callback blocks in this DB-abstraction phase.
+type TableIndexBuilderLike = Record<string, unknown>;
+
 export const user = table("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -47,8 +50,7 @@ export const session = table(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("sessions_userId_idx").on(t.userId)],
+  (t: TableIndexBuilderLike) => [index("sessions_userId_idx").on((t as { userId: unknown }).userId)],
 );
 
 export const account = table(
@@ -70,8 +72,7 @@ export const account = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("accounts_userId_idx").on(t.userId)],
+  (t: TableIndexBuilderLike) => [index("accounts_userId_idx").on((t as { userId: unknown }).userId)],
 );
 
 export const verification = table(
@@ -84,8 +85,7 @@ export const verification = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (t: any) => [index("verifications_identifier_idx").on(t.identifier)],
+  (t: TableIndexBuilderLike) => [index("verifications_identifier_idx").on((t as { identifier: unknown }).identifier)],
 );
 
 export const categories = table("categories", {

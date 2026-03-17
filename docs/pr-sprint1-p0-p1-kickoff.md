@@ -37,3 +37,16 @@ This PR delivers Sprint 1 P0 hardening and starts P1 schema cohesion.
 - Reduce `any` usage in DB core layer (`src/db/index.ts` and `src/db/dialect.ts`).
 - Continue schema/type unification for other duplicated domains.
 
+## P1 Fatia 2 Notes (DB Typing Conservative)
+
+- Current compatibility debt intentionally kept:
+  - `table`, `index`, `primaryKey` in `src/db/dialect.ts` still use permissive typing.
+  - Most index callback blocks in `src/db/schema.ts` still use legacy permissive callback typing.
+- Why: these are the primary triggers for Drizzle signature cascades when tightened too early.
+- Incremental progress in this slice:
+  - Column helpers in `src/db/dialect.ts` moved away from `any` to explicit return unions.
+  - Cast pattern centralized via a single safe helper.
+  - Local reusable alias introduced in `src/db/schema.ts` and applied to a small subset for validation.
+- Planned removal path:
+  - Next dedicated slice: migrate callback blocks in small batches.
+  - Final slice: type `table/index/primaryKey` with stronger abstractions once schema callbacks are stabilized.
