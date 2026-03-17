@@ -13,22 +13,13 @@ import { Textarea } from "#/components/ui/textarea";
 import { Button } from "#/components/ui/button";
 import { useTurnstileConfig } from "#/hooks/use-turnstile";
 import { captureClientEvent } from "#/lib/analytics-client";
+import type { BetaRequestSubmissionValues, BetaRequestValues } from "#/schemas";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { captureClientException } from "#/lib/sentry-client";
 import { submitLuminaBetaRequest } from "#/server/public/lumina-beta";
 import { useEffect } from "react";
 
-type BetaRequestFormValues = {
-  name: string;
-  email: string;
-  role: "creator" | "journalist" | "publication_lead";
-  publicationType: "independent_newsletter" | "digital_magazine" | "premium_blog" | "other";
-  currentStack: string;
-  message: string;
-  path: string;
-  source: string;
-  turnstileToken: string;
-};
+type BetaRequestFormValues = BetaRequestSubmissionValues;
 
 export function LuminaBetaRequestForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -197,7 +188,7 @@ export function LuminaBetaRequestForm() {
                 onBlur={field.handleBlur}
                 onChange={(event) =>
                   field.handleChange(
-                    event.target.value as "creator" | "journalist" | "publication_lead",
+                    event.target.value as BetaRequestValues["role"],
                   )
                 }
                 className="w-full"
@@ -222,11 +213,7 @@ export function LuminaBetaRequestForm() {
                 onBlur={field.handleBlur}
                 onChange={(event) =>
                   field.handleChange(
-                    event.target.value as
-                      | "independent_newsletter"
-                      | "digital_magazine"
-                      | "premium_blog"
-                      | "other",
+                    event.target.value as BetaRequestValues["publicationType"],
                   )
                 }
                 className="w-full"

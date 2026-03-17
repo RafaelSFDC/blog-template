@@ -1,18 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { BetaRequestValues } from "#/schemas";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { formatLuminaBetaRequestMessage } from "#/lib/lumina-marketing";
 import { captureServerEvent } from "#/server/analytics";
 
-export function buildLuminaBetaRequestRecord(data: {
-  name: string;
-  email: string;
-  role: "creator" | "journalist" | "publication_lead";
-  publicationType: "independent_newsletter" | "digital_magazine" | "premium_blog" | "other";
-  currentStack: string;
-  message: string;
+type LuminaBetaRequestRecordInput = BetaRequestValues & {
   path?: string;
   source?: string;
-}) {
+};
+
+export function buildLuminaBetaRequestRecord(data: LuminaBetaRequestRecordInput) {
   return {
     subject: `[Lumina Beta] ${data.role} · ${data.publicationType}`,
     message: formatLuminaBetaRequestMessage(data),

@@ -50,3 +50,8 @@ export {
   webhookEventSchema,
   webhookToggleSchema,
 } from "#/schemas/core";
+
+export type {
+  BetaRequestSubmissionValues,
+  BetaRequestValues,
+} from "#/schemas/core";
