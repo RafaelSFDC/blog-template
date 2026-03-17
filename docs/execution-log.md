@@ -125,3 +125,68 @@
 
 - `pnpm ops:smoke` failed when no HTTP target was actively provisioned (`fetch failed`); this script requires a pre-running server URL and is treated as environment-dependent operational validation.
 - Roadmap phases 07 through 12 are now closed.
+
+## 2026-03-17 - Batch 4 (PROD Roadmap SQLite-Only, Fase 01 -> 10)
+
+### Scope
+
+- Full execution of `docs/prod-readiness-roadmap-final.md` in strict order.
+- Runtime scope locked to SQLite only (no Worker, no D1 changes).
+
+### Changes
+
+- Fase 01:
+  - Added `docs/release-policy.md`.
+  - Standardized release/rollback conventions and RC tagging policy.
+- Fase 02:
+  - Pinned nondeterministic dependency (`nitro-nightly`) in `package.json`.
+  - Added `docs/dependency-policy.md`.
+- Fase 03:
+  - Added `docs/security-secrets-checklist.md`.
+  - Revalidated webhook security and abuse surfaces.
+- Fase 04:
+  - Updated `docs/backup-restore.md` with measured restore evidence.
+  - Added artifacts under `artifacts/prod-readiness/phase-04/20260317-121140/`.
+  - Found snapshot drift on legacy `sqlite.db` (`contact_messages` missing) and documented mitigation.
+- Fase 05:
+  - Standardized operational log envelope in `src/server/system/operations.ts`.
+  - Added/expanded structured logs in:
+    - `src/routes/api/auth/$.ts`
+    - `src/routes/api/newsletter/webhook.ts`
+    - `src/server/actions/content/comment-actions.ts`
+    - `src/server/actions/content/post-actions.ts`
+    - `src/server/actions/dashboard/comments.ts`
+  - Added `docs/observability-standard.md`.
+- Fase 06:
+  - Added route latency baseline collection via e2e (`tests/e2e/perf-baseline.spec.ts`).
+  - Added performance artifact:
+    - `artifacts/prod-readiness/phase-06/public-route-baseline.json`
+    - `artifacts/prod-readiness/phase-06/editorial-load-baseline.json`
+  - Added `docs/performance-report-prod-readiness.md`.
+- Fase 07:
+  - Fixed e2e flakiness in setup flow (`tests/e2e/setup.spec.ts`) for optional annual price field.
+  - Final quality gates including smoke/e2e executed.
+- Fase 08:
+  - Executed incident + rollback drill with measured timings.
+  - Added `artifacts/prod-readiness/phase-08/incident-drill-metrics.json`.
+  - Added `docs/incident-drill-report.md`.
+- Fase 09:
+  - Added `docs/go-no-go-record.md` with residual risks and formal decision.
+- Fase 10:
+  - Added `docs/post-go-live-24h-72h.md` with fixed follow-up dates and hardening seed backlog.
+  - Updated final roadmap checkboxes in `docs/prod-readiness-roadmap-final.md`.
+
+### Validation Checklist
+
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+- [x] `pnpm build`
+- [x] `pnpm test:smoke`
+- [x] `pnpm test:e2e`
+
+### Notes
+
+- `test:smoke` and `test:e2e` must run sequentially; parallel execution caused temporary route tree lock and seed collision during an intermediate attempt.
+- Build keeps non-blocking third-party `"use client"` warnings.
+- Final PROD readiness artifacts are now centralized in docs + `artifacts/prod-readiness`.

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { publicCommentSchema } from "#/schemas/editorial";
 import { evaluateCommentSpam } from "#/server/security/comments";
 import { logSecurityEvent } from "#/server/security/events";
+import { logOperationalEvent } from "#/server/system/operations";
 import type { z } from "zod";
 
 export type CreatePendingCommentInput = z.output<typeof publicCommentSchema> & {
@@ -23,10 +24,24 @@ export async function createPendingComment(input: CreatePendingCommentInput) {
   });
 
   if (!post) {
+    logOperationalEvent("comment-create-failed", {
+      actor: input.sourceIpHash ?? null,
+      entity: "comment",
+      outcome: "failure",
+      reason: "post_not_found",
+      postId: data.postId,
+    }, "warn");
     throw new Error("Post not found");
   }
 
   if (post.commentsEnabled === false) {
+    logOperationalEvent("comment-create-failed", {
+      actor: input.sourceIpHash ?? null,
+      entity: "comment",
+      outcome: "failure",
+      reason: "comments_disabled",
+      postId: data.postId,
+    }, "warn");
     throw new Error("Comments are disabled for this post");
   }
 
@@ -50,6 +65,13 @@ export async function createPendingComment(input: CreatePendingCommentInput) {
       },
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
+    logOperationalEvent("comment-blocked", {
+      actor: input.sourceIpHash ?? null,
+      entity: "comment",
+      outcome: "failure",
+      reason: spamCheck.reason,
+      postId: data.postId,
+    }, "warn");
     throw new Error("Your comment looks suspicious and was blocked.");
   }
 
@@ -80,7 +102,24 @@ export async function createPendingComment(input: CreatePendingCommentInput) {
       },
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
+    logOperationalEvent("comment-flagged-spam", {
+      actor: input.sourceIpHash ?? null,
+      entity: "comment",
+      outcome: "warning",
+      reason: spamCheck.reason,
+      postId: data.postId,
+      commentId: created.id,
+    }, "warn");
   }
+
+  logOperationalEvent("comment-created", {
+    actor: input.sourceIpHash ?? null,
+    entity: "comment",
+    outcome: spamCheck.decision === "pending" ? "success" : "warning",
+    postId: data.postId,
+    commentId: created.id,
+    status: created.status,
+  });
 
   return created;
 }

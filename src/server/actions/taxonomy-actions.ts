@@ -1,1 +1,1 @@
-export * from "./actions/content/taxonomy-actions";
+export * from "./content/taxonomy-actions";

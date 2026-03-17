@@ -1,1 +1,1 @@
-export * from "./actions/content/seo-actions";
+export * from "./content/seo-actions";

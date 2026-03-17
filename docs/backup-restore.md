@@ -1,39 +1,62 @@
-# SQLite to D1 Backup and Restore (MVP)
+# Backup and Restore Runbook (SQLite-Only PROD Readiness)
+
+## Scope
+
+- Runtime target: SQLite only.
+- This runbook does not include D1/Worker operations.
 
 ## Backup Policy
 
-- Local dev/test: SQLite file backup before schema-affecting changes.
-- Staging/production: scheduled D1 export snapshots plus pre-release checkpoint.
+- Before every release candidate: full SQLite copy backup.
+- Before every schema migration: full SQLite copy backup.
 - Retention:
-  - daily backups for 7 days
-  - weekly backups for 4 weeks
+  - Last 7 daily backups.
+  - Last 4 weekly backups.
 
-## SQLite Backup (Local)
+## Phase 04 Evidence (2026-03-17)
 
-1. Stop write-heavy processes.
-2. Copy DB file (`DATABASE_URL` target) to timestamped backup path.
-3. Verify file checksum and openability.
+Source artifacts:
+- `artifacts/prod-readiness/phase-04/20260317-121140/metrics.json`
+- `artifacts/prod-readiness/phase-04/20260317-121140/restore-validation.json`
 
-## SQLite Restore (Local)
+Measured results:
+- Clean DB migration: `693.87 ms`
+- Data DB migration (`blog.db` snapshot): `817.86 ms`
+- SQLite backup copy: `41.86 ms`
+- SQLite restore copy: `17.02 ms`
 
-1. Stop app processes.
-2. Replace active DB file with selected backup.
-3. Start app and run:
-   - `pnpm typecheck`
-   - `pnpm test`
-   - smoke checks (`/api/health/readiness`, `/blog`)
+Post-restore validation (row counts):
+- `posts`: `45`
+- `pages`: `4`
+- `media`: `1`
+- `comments`: `3`
+- `subscriptions`: `2`
+- `newsletter_deliveries`: `0`
+- `contact_messages`: `3`
+- `__lumina_migrations`: `14`
 
-## D1 Restore Path (Operational)
+## Operational Targets
 
-1. Identify snapshot and restore window.
-2. Restore D1 dataset using platform export/import workflow.
-3. Validate schema version and key tables:
-   - `posts`, `pages`, `media`, `comments`, `subscriptions`, `newsletter_deliveries`
-4. Run readiness endpoint and publish incident update.
+- Measured `RTO` (technical restore copy): `0.017 s`.
+- Operational `RTO` target (restore + restart + health validation): `<= 5 min`.
+- Measured `RPO` during drill: `0 s` (file-copy snapshot at stop-the-world point).
 
-## Validation Checklist
+## Restore Procedure
 
-- Row counts within expected tolerance for critical tables.
-- Editorial read/write flow operational.
-- Feed/sitemap endpoints return valid XML.
-- No critical security config warnings.
+1. Pause write operations.
+2. Copy active DB file to recovery path (`*.bak`).
+3. Replace active DB file with chosen backup snapshot.
+4. Restart application process.
+5. Validate:
+   - `GET /api/health`
+   - `GET /api/health/readiness`
+   - `GET /api/health/dependencies`
+   - public smoke routes (`/`, `/blog`, `/rss/xml`, `/sitemap/xml`)
+6. Confirm key row counts and migration ledger (`__lumina_migrations`).
+
+## Known Risk Found in Drill
+
+- Snapshot `sqlite.db` failed migration replay with `no such table: contact_messages`.
+- Mitigation:
+  - Use `blog.db` as release snapshot source of truth.
+  - Require pre-release migration check on candidate snapshot before tagging.

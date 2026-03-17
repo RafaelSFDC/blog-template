@@ -1,0 +1,9 @@
+{
+  "sev1_simulation_ms": 4613.72,
+  "rollback_switch_ms": 27.85,
+  "rollback_smoke_ms": 30289.15,
+  "restore_switch_ms": 20.99,
+  "restore_smoke_ms": 33911.9,
+  "backup_source": "artifacts/prod-readiness/phase-04/20260317-121140/sqlite-backup.db",
+  "pre_snapshot": "artifacts/prod-readiness/phase-08/blog.pre-drill.db"
+}

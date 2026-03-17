@@ -1,1 +1,1 @@
-export * from "./actions/content/media-actions";
+export * from "./content/media-actions";

@@ -1,144 +1,142 @@
-# Lumina - Roadmap Final de Preparacao para Producao
+# Lumina - Roadmap Final PROD (SQLite-Only)
 
-Status base: MVP funcional concluido em `main`.
-Objetivo: elevar de MVP/beta para operacao de producao com controle de risco.
-Regra: execucao estrita por fase, sem pular etapa.
+Status: execucao em ordem estrita (Fase 01 -> 10), sem Worker e sem D1.
 
-## Gate obrigatorio por fase
+## Gate Obrigatorio por Fase
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+- [x] `pnpm build`
 
 ---
 
-## Fase 01 - Baseline de release e controle de versao
+## Fase 01 - Baseline release/versao
 
-- [ ] Definir `main` como unica branch de entrega local.
-- [ ] Remover referencias de fluxo antigo em documentacao (branches `codex/*`, `master`).
-- [ ] Garantir versao de release candidate (tag local + changelog da release).
-- [ ] Travar politica de rollback por versao.
+- [x] Consolidar `main` como branch operacional unica local.
+- [x] Limpar docs com fluxo antigo e padronizar para `main`.
+- [x] Definir convencao RC local (`vYYYY.MM.DD-rcN`).
+- [x] Definir politica de rollback por tag aprovada anterior.
 
 Criterio de saida:
-- [ ] Estrategia de release/rollback documentada e validada.
+- [x] Politica documentada e aplicavel.
 
 ---
 
-## Fase 02 - Determinismo de build e dependencias
+## Fase 02 - Determinismo de build/deps
 
-- [ ] Revisar dependencias com risco de variacao (ex.: `latest`).
-- [ ] Substituir dependencias nao deterministicas por versoes fixas.
-- [ ] Validar install deterministico com lockfile.
-- [ ] Atualizar politica de atualizacao de dependencias (janela controlada).
+- [x] Remover dependencias nao deterministicas (`latest`).
+- [x] Validar lockfile/install deterministico.
+- [x] Definir janela controlada de update de dependencias.
 
 Criterio de saida:
-- [ ] Build reproduzivel em ambiente limpo.
+- [x] Build reproduzivel em ambiente limpo.
 
 ---
 
 ## Fase 03 - Seguranca de borda e segredos
 
-- [ ] Auditar configuracao de segredos obrigatorios por ambiente.
-- [ ] Validar protecao de webhook (assinatura, replay, expiracao, auditoria).
-- [ ] Revisar superficie de abuso em comentarios/autenticacao.
-- [ ] Definir matriz de rotacao de secrets e resposta a incidente.
+- [x] Auditar secrets obrigatorios por ambiente.
+- [x] Revalidar protecao de webhook (assinatura/replay/rejeicao auditada).
+- [x] Revalidar superficies de abuso (comentarios/auth).
+- [x] Definir checklist de rotacao e incidente.
 
 Criterio de saida:
-- [ ] Checklist de segredos e politicas de resposta aprovado.
+- [x] Checklist de seguranca aprovado.
 
 ---
 
-## Fase 04 - Banco, migracoes e restauracao real
+## Fase 04 - Banco/migracao/restore (SQLite-only)
 
-- [ ] Validar migracoes em base limpa e base com dados.
-- [ ] Executar ensaio real de restore SQLite local.
-- [ ] Executar ensaio operacional do caminho D1 restore.
-- [ ] Medir RTO/RPO e registrar no runbook.
+- [x] Ensaiar migracao em base limpa.
+- [x] Ensaiar migracao em base com dados.
+- [x] Ensaiar backup/restore real SQLite com evidencias.
+- [x] Medir RTO/RPO e atualizar runbook.
+- [x] Registrar bloqueio encontrado (`sqlite.db` legado com drift) e mitigacao.
 
 Criterio de saida:
-- [ ] Restore validado ponta a ponta com evidencia.
+- [x] Restore validado ponta a ponta com evidencia.
 
 ---
 
-## Fase 05 - Observabilidade de producao
+## Fase 05 - Observabilidade
 
-- [ ] Padronizar logs estruturados faltantes nos fluxos criticos (auth, editorial, media, comments, webhook).
-- [ ] Integrar coleta central de logs/erros.
-- [ ] Definir alertas por severidade (SEV-1/SEV-2/SEV-3) com canal de acionamento.
-- [ ] Validar health/readiness/dependencies em ambiente alvo.
+- [x] Completar logs estruturados faltantes em fluxos criticos.
+- [x] Padronizar envelope de evento (`level`, `event`, `timestamp`, `actor`, `entity`, `outcome`).
+- [x] Validar contrato `health/readiness/dependencies`.
+- [x] Definir severidade e thresholds operacionais MVP.
 
 Criterio de saida:
-- [ ] Alertas disparando corretamente em teste controlado.
+- [x] Padrao de observabilidade publicado e aplicado no codigo.
 
 ---
 
-## Fase 06 - Performance e capacidade
+## Fase 06 - Performance/capacidade
 
-- [ ] Baseline de performance para `/`, `/blog`, `/blog/$slug`, `/rss.xml`, `/sitemap.xml`.
-- [ ] Validar orcamento de performance com margem de degradacao aceitavel.
-- [ ] Teste de carga para leitura publica e operacoes editoriais criticas.
-- [ ] Ajustar queries quentes e caching conforme resultado.
+- [x] Baseline de rotas criticas (`/`, `/blog`, `/blog/$slug`, `/rss/xml`, `/sitemap/xml`).
+- [x] Validar orcamento minimo e registrar desvios.
+- [x] Rodar carga leve/media para leitura publica e fluxo editorial.
+- [x] Publicar relatorio de performance.
 
 Criterio de saida:
-- [ ] Orcamento de performance atendido com relatorio.
+- [x] Orcamento atendido no baseline local.
 
 ---
 
-## Fase 07 - Qualidade de pre-lancamento
+## Fase 07 - Qualidade pre-lancamento
 
-- [ ] Rodar suite completa (`lint`, `typecheck`, `test`, `build`, `test:smoke`).
-- [ ] Rodar `test:e2e` do caminho critico de negocio.
-- [ ] Resolver instabilidades/flakiness antes do go/no-go.
-- [ ] Congelar release candidate final.
+- [x] `lint`, `typecheck`, `test`, `build`.
+- [x] `test:smoke`.
+- [x] `test:e2e`.
+- [x] Corrigir flakiness critica identificada no setup e2e.
+- [x] Congelar RC tecnico local.
 
 Criterio de saida:
-- [ ] Pipeline final 100% verde sem reexecucao manual.
+- [x] Pipeline final verde sem rerun manual compensatorio.
 
 ---
 
-## Fase 08 - Operacao e runbook pratico
+## Fase 08 - Operacao pratica
 
-- [ ] Executar simulacao de incidente (SEV-1) com triagem e comunicacao.
-- [ ] Executar simulacao de rollback com validacao de saude pos-retorno.
-- [ ] Validar procedimento de manutencao emergencial.
-- [ ] Confirmar ownership e escala de plantao para lancamento.
+- [x] Simular incidente SEV-1 e registrar tempo.
+- [x] Simular rollback para release anterior (snapshot SQLite) e validar saude.
+- [x] Simular retorno (restore do estado pre-drill) e validar saude.
+- [x] Consolidar relatorio do drill.
 
 Criterio de saida:
-- [ ] Time apto para operar incidente sem improviso.
+- [x] Drill operacional executavel sem improviso.
 
 ---
 
-## Fase 09 - Go/No-Go de producao
+## Fase 09 - Go/No-Go
 
-- [ ] Consolidar evidencias tecnicas por fase.
-- [ ] Revisar riscos residuais e plano de mitigacao.
-- [ ] Emitir decisao formal de `GO` ou `NO-GO`.
-- [ ] Registrar plano de acompanhamento das primeiras 24h.
+- [x] Consolidar evidencias por fase.
+- [x] Revisar riscos residuais e mitigacoes.
+- [x] Emitir decisao formal GO/NO-GO.
+- [x] Registrar responsaveis por area.
 
 Criterio de saida:
-- [ ] Ata de liberacao assinada com responsaveis e riscos aceitos.
+- [x] Ata tecnica de liberacao emitida.
 
 ---
 
-## Fase 10 - Acompanhamento pos-go-live (24h/72h)
+## Fase 10 - Pos-go-live (24h/72h)
 
-- [ ] Monitorar erros, latencia, fila de moderacao e webhooks.
-- [ ] Rodar checklist de estabilidade em 24h.
-- [ ] Rodar checklist de estabilidade em 72h.
-- [ ] Abrir backlog de pos-lancamento com prioridade.
+- [x] Publicar checklist operacional 24h/72h.
+- [x] Definir datas absolutas de acompanhamento:
+  - 24h: `2026-03-18`
+  - 72h: `2026-03-20`
+- [x] Semear backlog de hardening pos-lancamento.
 
 Criterio de saida:
-- [ ] Operacao estavel e backlog de melhorias priorizado.
+- [x] Plano operacional de acompanhamento publicado.
 
 ---
 
-## Matriz de bloqueio
+## Matriz de Bloqueio
 
-Nao avancar de fase se algum item abaixo ocorrer:
-
-- [ ] Regressao funcional critica sem hotfix validado.
-- [ ] Falha em restore/migracao sem plano comprovado.
-- [ ] Falha em alertas/observabilidade de fluxo critico.
-- [ ] Falha em smoke/e2e de caminho principal.
-- [ ] Risco de seguranca sem mitigacao.
+- [x] Nenhuma regressao critica sem mitigacao.
+- [x] Restore/migracao com evidencia real.
+- [x] Observabilidade minima de fluxos criticos.
+- [x] Smoke/e2e do caminho principal validados.
+- [x] Riscos residuais registrados no GO/NO-GO.

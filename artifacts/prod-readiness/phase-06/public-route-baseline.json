@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-03-17T15:42:53.520Z",
+  "sampleSizePerRoute": 10,
+  "routes": {
+    "/": {
+      "samples": 10,
+      "min_ms": 30.64,
+      "p50_ms": 32.87,
+      "p95_ms": 38.79,
+      "max_ms": 38.79,
+      "avg_ms": 33.16
+    },
+    "/blog": {
+      "samples": 10,
+      "min_ms": 39.55,
+      "p50_ms": 40.36,
+      "p95_ms": 79.78,
+      "max_ms": 79.78,
+      "avg_ms": 45.32
+    },
+    "/blog/fixture-premium-post": {
+      "samples": 10,
+      "min_ms": 43.57,
+      "p50_ms": 46.4,
+      "p95_ms": 137.49,
+      "max_ms": 137.49,
+      "avg_ms": 55.16
+    },
+    "/rss/xml": {
+      "samples": 10,
+      "min_ms": 10.57,
+      "p50_ms": 11.5,
+      "p95_ms": 12.24,
+      "max_ms": 12.24,
+      "avg_ms": 11.57
+    },
+    "/sitemap/xml": {
+      "samples": 10,
+      "min_ms": 10.36,
+      "p50_ms": 11.84,
+      "p95_ms": 12.94,
+      "max_ms": 12.94,
+      "avg_ms": 11.7
+    }
+  }
+}

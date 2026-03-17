@@ -1,1 +1,1 @@
-export * from "./actions/system/setup-actions";
+export * from "./system/setup-actions";

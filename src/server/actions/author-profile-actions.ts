@@ -1,1 +1,1 @@
-export * from "./actions/content/author-profile-actions";
+export * from "./content/author-profile-actions";

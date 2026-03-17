@@ -1,1 +1,1 @@
-export * from "./actions/content/post-actions";
+export * from "./content/post-actions";

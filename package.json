@@ -32,6 +32,7 @@
     "db:pull": "drizzle-kit pull",
     "db:studio": "drizzle-kit studio",
     "ops:smoke": "tsx scripts/ops/smoke-check.ts",
+    "ops:perf-baseline": "tsx scripts/ops/perf-baseline.ts",
     "ops:backup:d1": "tsx scripts/ops/d1-backup.ts",
     "ops:restore:d1": "tsx scripts/ops/d1-restore.ts",
     "ops:restore:time-travel": "tsx scripts/ops/d1-time-travel-restore.ts"
@@ -137,7 +138,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
     "jsdom": "^28.1.0",
-    "nitro": "npm:nitro-nightly@latest",
+    "nitro": "npm:nitro-nightly@3.0.1-20260227-181935-bfbb207c",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.57.0",

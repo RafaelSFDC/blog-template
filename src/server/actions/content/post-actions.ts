@@ -287,7 +287,15 @@ export const createPost = createServerFn({ method: "POST" })
               slug,
             },
           });
-          console.error("Post created, but webhook delivery failed:", error);
+          logOperationalEvent("post-webhook-delivery-failed", {
+            actor: session.user.id,
+            entity: "post",
+            outcome: "failure",
+            operation: "create",
+            postId: created.id,
+            slug,
+            reason: error instanceof Error ? error.message : String(error),
+          }, "error");
         }
       }
 
@@ -439,7 +447,15 @@ export const updatePost = createServerFn({ method: "POST" })
               slug,
             },
           });
-          console.error("Post updated, but webhook delivery failed:", error);
+          logOperationalEvent("post-webhook-delivery-failed", {
+            actor: session.user.id,
+            entity: "post",
+            outcome: "failure",
+            operation: "update",
+            postId: data.id,
+            slug,
+            reason: error instanceof Error ? error.message : String(error),
+          }, "error");
         }
       }
 
@@ -529,6 +545,13 @@ export const restorePostRevision = createServerFn({ method: "POST" })
         revisionId: data.revisionId,
       },
     });
+    logOperationalEvent("post-revision-restored", {
+      actor: session.user.id,
+      entity: "post",
+      outcome: "success",
+      postId: revision.postId,
+      revisionId: data.revisionId,
+    });
 
     return { ok: true as const, postId: revision.postId };
   });
@@ -581,6 +604,13 @@ export const requestPostReview = createServerFn({ method: "POST" })
       metadata: {
         editorOwnerId: data.editorOwnerId ?? post.editorOwnerId ?? null,
       },
+    });
+    logOperationalEvent("post-review-requested", {
+      actor: session.user.id,
+      entity: "post",
+      outcome: "success",
+      postId: data.id,
+      nextStatus: "in_review",
     });
 
     return { ok: true as const };
@@ -686,6 +716,15 @@ async function transitionPostWorkflow(input: {
       nextStatus,
       scheduledAt: scheduledAt ?? null,
     },
+  });
+  logOperationalEvent("post-workflow-transitioned", {
+    actor: input.actorUserId,
+    entity: "post",
+    outcome: "success",
+    postId: input.postId,
+    action: input.action,
+    nextStatus,
+    scheduledAt: scheduledAt ?? null,
   });
 
   if (input.action === "publish" && shouldTriggerPublishedWebhook(existing.status as never, nextStatus as never)) {

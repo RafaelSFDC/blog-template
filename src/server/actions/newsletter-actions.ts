@@ -1,1 +1,1 @@
-export * from "./actions/newsletter/newsletter-actions";
+export * from "./newsletter/newsletter-actions";

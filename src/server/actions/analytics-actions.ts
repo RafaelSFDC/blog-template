@@ -1,1 +1,1 @@
-export * from "./actions/analytics/analytics-actions";
+export * from "./analytics/analytics-actions";

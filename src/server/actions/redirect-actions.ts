@@ -1,1 +1,1 @@
-export * from "./actions/content/redirect-actions";
+export * from "./content/redirect-actions";

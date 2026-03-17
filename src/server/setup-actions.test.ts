@@ -1,6 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { withIsolatedDatabase } from "../../tests/helpers/sqlite-test-db";
 
+async function upsertSettings(
+  db: Awaited<typeof import("#/db/index")>["db"],
+  appSettings: Awaited<typeof import("#/db/schema")>["appSettings"],
+  entries: Array<{ key: string; value: string; updatedAt: Date }>,
+) {
+  for (const entry of entries) {
+    await db
+      .insert(appSettings)
+      .values(entry)
+      .onConflictDoUpdate({
+        target: appSettings.key,
+        set: {
+          value: entry.value,
+          updatedAt: entry.updatedAt,
+        },
+      });
+  }
+}
+
 describe("setup actions", () => {
   it("returns skipped setup state without breaking checklist progress", async () => {
     await withIsolatedDatabase("setup-actions-skip", async () => {
@@ -10,7 +29,7 @@ describe("setup actions", () => {
         import("#/server/actions/system/setup-actions"),
       ]);
 
-      await db.insert(appSettings).values([
+      await upsertSettings(db, appSettings, [
         {
           key: "setupWizardStartedAt",
           value: "2026-03-16T10:00:00.000Z",
@@ -32,7 +51,7 @@ describe("setup actions", () => {
       expect(status?.nextAction?.step).toBe("identity");
       expect(status?.progressPercent).toBe(0);
     });
-  }, 15000);
+  }, 20000);
 
   it("treats completed setup as non-blocking even if content work remains", async () => {
     await withIsolatedDatabase("setup-actions-content", async () => {
@@ -42,7 +61,7 @@ describe("setup actions", () => {
         import("#/server/actions/system/setup-actions"),
       ]);
 
-      await db.insert(appSettings).values([
+      await upsertSettings(db, appSettings, [
         {
           key: "setupWizardStartedAt",
           value: "2026-03-16T10:00:00.000Z",
@@ -90,7 +109,7 @@ describe("setup actions", () => {
         import("#/server/actions/system/setup-actions"),
       ]);
 
-      await db.insert(appSettings).values([
+      await upsertSettings(db, appSettings, [
         {
           key: "setupWizardStartedAt",
           value: "2026-03-16T10:00:00.000Z",

@@ -61,7 +61,10 @@ async function finishSetupStepsUntilPreset(page: Page) {
 
     if (await page.getByPlaceholder("price_monthly_...").isVisible()) {
       await page.getByPlaceholder("price_monthly_...").fill("price_test_monthly");
-      await page.getByPlaceholder("price_annual_...").fill("price_test_annual");
+      const annualPriceInput = page.getByPlaceholder("price_annual_...");
+      if (await annualPriceInput.isVisible()) {
+        await annualPriceInput.fill("price_test_annual");
+      }
     }
 
     if (!(await continueButton.isVisible())) {

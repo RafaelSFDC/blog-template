@@ -1,1 +1,1 @@
-export * from "./actions/membership/membership-actions";
+export * from "./membership/membership-actions";

@@ -181,6 +181,9 @@ export const Route = createFileRoute("/api/newsletter/webhook")({
 
           const result = await processResendWebhook(payload);
           logOperationalEvent("newsletter-webhook-processed", {
+            actor: "resend",
+            entity: "newsletter.webhook",
+            outcome: "success",
             type: payload.type,
             emailId: payload.data?.email_id ?? null,
             duplicate: result?.duplicate ?? false,
@@ -196,6 +199,12 @@ export const Route = createFileRoute("/api/newsletter/webhook")({
               requestUrl: request.url,
             },
           });
+          logOperationalEvent("newsletter-webhook-failed", {
+            actor: "resend",
+            entity: "newsletter.webhook",
+            outcome: "failure",
+            reason: error instanceof Error ? error.message : String(error),
+          }, "error");
           return new Response("Webhook processing failed", { status: 500 });
         }
       },

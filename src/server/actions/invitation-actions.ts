@@ -1,1 +1,1 @@
-export * from "./actions/auth/invitation-actions";
+export * from "./auth/invitation-actions";

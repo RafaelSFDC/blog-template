@@ -5,6 +5,7 @@ import { enforceRateLimit } from '#/server/security/rate-limit'
 import { getSecurityRequestMetadata } from '#/server/security/request'
 import { verifyTurnstileToken } from '#/server/integrations/turnstile'
 import { logSecurityEvent } from '#/server/security/events'
+import { logOperationalEvent } from '#/server/system/operations'
 
 async function parseAuthRequestBody(request: Request) {
   const contentType = request.headers.get("content-type") || "";
@@ -46,6 +47,11 @@ export const Route = createFileRoute('/api/auth/$')({
           (typeof body.turnstileToken === "string" ? body.turnstileToken : "")
 
         if (isSignUpRoute && (await isRegistrationLocked())) {
+          logOperationalEvent("auth-registration-locked", {
+            actor: email,
+            entity: "auth.sign_up",
+            outcome: "failure",
+          }, "warn")
           return new Response('Registration is closed.', { status: 403 })
         }
 
@@ -67,6 +73,12 @@ export const Route = createFileRoute('/api/auth/$')({
           })
 
           if (!decision.allowed) {
+            logOperationalEvent("auth-rate-limit-rejected", {
+              actor: email,
+              entity: scope,
+              outcome: "failure",
+              retryAfterSeconds: decision.retryAfterSeconds,
+            }, "warn")
             return new Response("Too many attempts. Please try again later.", {
               status: 429,
               headers: {
@@ -93,6 +105,12 @@ export const Route = createFileRoute('/api/auth/$')({
               },
               expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             })
+            logOperationalEvent("auth-turnstile-rejected", {
+              actor: email,
+              entity: scope,
+              outcome: "failure",
+              errors: verification.errors ?? [],
+            }, "warn")
             return new Response("Security verification failed. Please try again.", { status: 403 })
           }
         }
@@ -101,6 +119,21 @@ export const Route = createFileRoute('/api/auth/$')({
 
         if (isSignUpRoute && response.ok) {
           await lockRegistration()
+        }
+
+        if (isProtectedRoute) {
+          logOperationalEvent("auth-request-processed", {
+            actor: email,
+            entity: isSignUpRoute
+              ? "auth.sign_up"
+              : isSignInRoute
+                ? "auth.sign_in"
+                : isRequestPasswordResetRoute
+                  ? "auth.request_password_reset"
+                  : "auth.reset_password",
+            outcome: response.ok ? "success" : "failure",
+            statusCode: response.status,
+          }, response.ok ? "info" : "warn")
         }
 
         return response

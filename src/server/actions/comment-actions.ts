@@ -1,1 +1,1 @@
-export * from "./actions/content/comment-actions";
+export * from "./content/comment-actions";

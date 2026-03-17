@@ -9,6 +9,7 @@ import {
   commentStatusUpdateSchema,
   recordIdSchema,
 } from "#/schemas";
+import { logOperationalEvent } from "#/server/system/operations";
 
 export const getDashboardComments = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -49,6 +50,13 @@ export const updateDashboardCommentStatus = createServerFn({ method: "POST" })
         status: data.status,
       },
     });
+    logOperationalEvent("comment-moderation-updated", {
+      actor: session.user.id,
+      entity: "comment",
+      outcome: "success",
+      commentId: data.id,
+      status: data.status,
+    });
 
     return { success: true as const };
   });
@@ -65,6 +73,12 @@ export const deleteDashboardComment = createServerFn({ method: "POST" })
       entityId: data.id,
       action: "comment.delete",
       summary: `Comment ${data.id} deleted`,
+    });
+    logOperationalEvent("comment-moderation-deleted", {
+      actor: session.user.id,
+      entity: "comment",
+      outcome: "success",
+      commentId: data.id,
     });
 
     return { success: true as const };
@@ -89,6 +103,12 @@ export const bulkModerateDashboardComments = createServerFn({ method: "POST" })
         metadata: {
           ids: data.ids,
         },
+      });
+      logOperationalEvent("comment-moderation-bulk-deleted", {
+        actor: session.user.id,
+        entity: "comment",
+        outcome: "success",
+        count: data.ids.length,
       });
 
       return { success: true as const };
@@ -116,6 +136,13 @@ export const bulkModerateDashboardComments = createServerFn({ method: "POST" })
         ids: data.ids,
         status: nextStatus,
       },
+    });
+    logOperationalEvent("comment-moderation-bulk-updated", {
+      actor: session.user.id,
+      entity: "comment",
+      outcome: "success",
+      count: data.ids.length,
+      status: nextStatus,
     });
 
     return { success: true as const };
