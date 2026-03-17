@@ -33,8 +33,8 @@ import {
   createNewsletterCampaignAction,
   getNewsletterCampaignAction,
   updateNewsletterCampaignAction,
-} from "#/server/newsletter-actions";
-import { getNewsletterTemplatePosts } from "#/server/dashboard/newsletters";
+} from "#/server/actions/newsletter-actions";
+import { getNewsletterTemplatePosts } from "#/server/actions/dashboard/newsletters";
 
 export const Route = createFileRoute("/dashboard/newsletters/new")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -42,10 +42,14 @@ export const Route = createFileRoute("/dashboard/newsletters/new")({
   }),
   loaderDeps: ({ search }) => ({ fromId: search.fromId }),
   loader: async ({ deps }) => {
-    const [recentPosts, existing] = await Promise.all([
+    const [recentPosts, existingCampaign] = await Promise.all([
       getNewsletterTemplatePosts(),
-      deps.fromId ? getNewsletterCampaignAction({ data: deps.fromId }) : Promise.resolve(null),
+      deps.fromId
+        ? getNewsletterCampaignAction({ data: deps.fromId })
+        : Promise.resolve(null),
     ]);
+
+    const existing = existingCampaign ?? null;
 
     return { recentPosts, existing };
   },
@@ -308,3 +312,4 @@ function NewsletterComposerPage() {
     </DashboardPageContainer>
   );
 }
+

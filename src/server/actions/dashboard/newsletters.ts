@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc } from "drizzle-orm";
-import { db } from "#/db/index";
-import { posts } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { posts } from "#/server/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 
 export const getNewsletterTemplatePosts = createServerFn({ method: "GET" }).handler(
@@ -20,3 +20,4 @@ export const getNewsletterTemplatePosts = createServerFn({ method: "GET" }).hand
       .limit(10);
   },
 );
+

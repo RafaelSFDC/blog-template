@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { DashboardHeader } from "#/components/dashboard/Header";
 import { DashboardPageContainer } from "#/components/dashboard/DashboardPageContainer";
-import { contactMessages } from "#/db/schema";
+import { contactMessages } from "#/server/db/schema";
 import { Button } from "#/components/ui/button";
 import { Mail, Check, Archive, Inbox, ClipboardList } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -12,8 +12,8 @@ import {
   deleteDashboardMessage,
   getDashboardMessages,
   updateDashboardMessageStatus,
-} from "#/server/dashboard/messages";
-import { promoteMessageToBetaOpsAccount } from "#/server/dashboard/beta-ops";
+} from "#/server/actions/dashboard/messages";
+import { promoteMessageToBetaOpsAccount } from "#/server/actions/dashboard/beta-ops";
 
 type MessageRow = typeof contactMessages.$inferSelect;
 type DashboardMessage = Awaited<ReturnType<typeof getDashboardMessages>>[number];
@@ -216,3 +216,4 @@ function MessagesPage() {
     </DashboardPageContainer>
   );
 }
+

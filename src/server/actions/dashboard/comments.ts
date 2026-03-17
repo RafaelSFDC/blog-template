@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc, eq, inArray } from "drizzle-orm";
-import { db } from "#/db/index";
-import { comments, posts } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { comments, posts } from "#/server/db/schema";
 import { requireCommentModerationAccess } from "#/server/editorial/access";
 import { logActivity } from "#/server/activity-log";
 import {
@@ -120,3 +120,4 @@ export const bulkModerateDashboardComments = createServerFn({ method: "POST" })
 
     return { success: true as const };
   });
+

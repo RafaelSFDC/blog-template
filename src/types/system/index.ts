@@ -1,3 +1,12 @@
+import type { z } from "zod";
+import type {
+  betaAccountStageSchema,
+  betaOnboardingStatusSchema,
+  contactMessageTypeSchema,
+  opsPrioritySchema,
+  redirectSchema,
+} from "#/schemas/system";
+
 export interface MenuItemView {
   id: number;
   label: string;
@@ -48,14 +57,9 @@ export type LaunchTemplateKey =
   | "newsletterLanding"
   | "membersOnlyArchive";
 
-export type RedirectFormValues = {
-  id?: number;
-  sourcePath: string;
-  destinationPath: string;
-  statusCode: 301 | 302;
-};
+export type RedirectFormValues = z.input<typeof redirectSchema>;
 
-export type StorageMode = "binding" | "remote-api" | "local";
+export type StorageMode = "binding" | "local";
 
 export interface StoredMediaResult {
   storageMode: StorageMode;
@@ -119,22 +123,11 @@ export interface SetupNextAction {
 
 export type SetupFlowStatus = "not_started" | "in_progress" | "completed";
 
-export type ContactMessageType = "general" | "beta_request" | "ops_feedback";
-export type BetaAccountStage =
-  | "new_lead"
-  | "qualified"
-  | "onboarding"
-  | "active_beta"
-  | "at_risk"
-  | "paused";
-export type BetaOnboardingStatus =
-  | "not_started"
-  | "scheduled"
-  | "in_progress"
-  | "completed"
-  | "blocked";
+export type ContactMessageType = z.infer<typeof contactMessageTypeSchema>;
+export type BetaAccountStage = z.infer<typeof betaAccountStageSchema>;
+export type BetaOnboardingStatus = z.infer<typeof betaOnboardingStatusSchema>;
 export type FeedbackStatus = "new" | "reviewed" | "planned" | "closed";
-export type OpsPriority = "low" | "medium" | "high";
+export type OpsPriority = z.infer<typeof opsPrioritySchema>;
 
 export interface SetupStatus {
   status: SetupFlowStatus;

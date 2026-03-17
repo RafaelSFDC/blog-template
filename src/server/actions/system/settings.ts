@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { db } from "#/db/index";
-import { appSettings } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { appSettings } from "#/server/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 import {
   mapSettingsRowsToFormValues,
 } from "#/lib/settings-form";
 import { settingsSchema } from "#/schemas";
-import { getSecurityConfigAudit } from "#/server/security/config";
+import { getSecurityConfigAudit } from "#/server/actions/security/config";
 
 type AppSettingRow = typeof appSettings.$inferSelect;
 
@@ -82,3 +82,4 @@ export const updateDashboardSettings = createServerFn({ method: "POST" })
 
     return { ok: true as const };
   });
+

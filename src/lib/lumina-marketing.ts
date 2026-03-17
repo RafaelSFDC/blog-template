@@ -1,4 +1,5 @@
 import { buildCanonicalUrl, buildJsonLdScript } from "#/lib/seo";
+import type { BetaRequestValues } from "#/schemas";
 
 export type LuminaAudienceKey = "creators" | "journalists" | "publications";
 
@@ -39,14 +40,7 @@ export interface LuminaProductSeoInput {
   description: string;
 }
 
-export interface LuminaBetaRequestValues {
-  name: string;
-  email: string;
-  role: "creator" | "journalist" | "publication_lead";
-  publicationType: "independent_newsletter" | "digital_magazine" | "premium_blog" | "other";
-  currentStack: string;
-  message: string;
-}
+export type LuminaBetaRequestValues = BetaRequestValues;
 
 export const LUMINA_PRODUCT_NAME = "Lumina";
 export const LUMINA_PRODUCT_SITE_URL = "";

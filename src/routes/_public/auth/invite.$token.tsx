@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "#/lib/auth-client";
-import { acceptInvitation, getInvitationByToken } from "#/server/invitation-actions";
+import { acceptInvitation, getInvitationByToken } from "#/server/actions/invitation-actions";
 import { Button } from "#/components/ui/button";
 import { TurnstileField } from "#/components/security/turnstile-field";
 import { Input } from "#/components/ui/input";
@@ -207,3 +207,4 @@ function AcceptInvitationPage() {
     </div>
   );
 }
+

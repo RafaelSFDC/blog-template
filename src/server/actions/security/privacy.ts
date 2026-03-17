@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq, or } from "drizzle-orm";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import {
   account,
   comments,
@@ -13,7 +13,7 @@ import {
   subscribers,
   subscriptions,
   user,
-} from "#/db/schema";
+} from "#/server/db/schema";
 import { requireSession } from "#/server/auth/session";
 
 async function exportCurrentUserDataImpl() {
@@ -132,3 +132,4 @@ export const exportCurrentUserData = createServerFn({ method: "GET" }).handler(a
 export const deleteCurrentUserData = createServerFn({ method: "POST" }).handler(async () => {
   return deleteCurrentUserDataImpl();
 });
+

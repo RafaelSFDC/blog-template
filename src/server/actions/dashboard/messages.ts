@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc, eq } from "drizzle-orm";
-import { db } from "#/db/index";
-import { contactMessages } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { contactMessages } from "#/server/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 import { recordIdSchema } from "#/schemas";
 import { z } from "zod";
-import { parseContactMessageMetadata } from "#/server/dashboard/beta-ops";
+import { parseContactMessageMetadata } from "#/server/actions/dashboard/beta-ops";
 
 const messageStatusUpdateSchema = z.object({
   id: z.number().int().positive(),
@@ -56,3 +56,4 @@ export const deleteDashboardMessage = createServerFn({ method: "POST" })
     await db.delete(contactMessages).where(eq(contactMessages.id, data.id));
     return { success: true as const };
   });
+

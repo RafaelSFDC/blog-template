@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ZodError } from "zod";
-import { db } from "#/db/index";
-import { comments } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { comments } from "#/server/db/schema";
 import { eq } from "drizzle-orm";
 import { requireCommentModerationAccess } from "#/server/editorial/access";
 import { commentStatusUpdateSchema, recordIdSchema } from "#/schemas";
@@ -103,3 +103,4 @@ export const Route = createFileRoute("/api/comments/$id")({
     }
   },
 });
+

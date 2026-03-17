@@ -11,7 +11,7 @@ import {
   deleteNewsletterCampaignAction,
   exportSubscribersCsv,
   getNewsletterIndexData,
-} from "#/server/newsletter-actions";
+} from "#/server/actions/newsletter-actions";
 
 export const Route = createFileRoute("/dashboard/newsletters/")({
   loader: () => getNewsletterIndexData(),
@@ -168,3 +168,4 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
     </div>
   );
 }
+

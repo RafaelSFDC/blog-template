@@ -14,7 +14,7 @@ import {
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { getArchivePosts } from "#/server/public-discovery";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 
 type ArchiveLoaderData = Awaited<ReturnType<typeof getArchivePosts>> & {
   site: Awaited<ReturnType<typeof getSeoSiteData>>;
@@ -123,3 +123,4 @@ function MonthArchivePage() {
     </main>
   );
 }
+

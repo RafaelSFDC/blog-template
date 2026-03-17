@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc } from "drizzle-orm";
 import { format } from "date-fns";
-import { db } from "#/db/index";
-import { subscribers } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { subscribers } from "#/server/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 
 export const getDashboardSubscribers = createServerFn({ method: "GET" }).handler(
@@ -51,3 +51,4 @@ export const exportDashboardSubscribersCsv = createServerFn({ method: "GET" }).h
     };
   },
 );
+

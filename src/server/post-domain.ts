@@ -1,5 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
-import { posts } from "#/db/schema";
+import { posts } from "#/server/db/schema";
 import type { z } from "zod";
 import { postServerSchema } from "#/schemas/editorial";
 
@@ -82,3 +82,4 @@ export function isAuthorizedCronRequest(
 
   return requestSecret === config.secret;
 }
+

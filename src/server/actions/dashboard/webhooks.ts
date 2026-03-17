@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc, eq } from "drizzle-orm";
-import { db } from "#/db/index";
-import { webhooks } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { webhooks } from "#/server/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 import {
   getFriendlyDbError,
@@ -57,3 +57,4 @@ export const toggleDashboardWebhook = createServerFn({ method: "POST" })
       .where(eq(webhooks.id, data.id));
     return { success: true as const };
   });
+

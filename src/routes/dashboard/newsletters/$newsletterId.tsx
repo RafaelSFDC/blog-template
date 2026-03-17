@@ -6,7 +6,7 @@ import { Button } from "#/components/ui/button";
 import {
   getNewsletterCampaignAction,
   listNewsletterDeliveriesAction,
-} from "#/server/newsletter-actions";
+} from "#/server/actions/newsletter-actions";
 
 export const Route = createFileRoute("/dashboard/newsletters/$newsletterId")({
   loader: async ({ params }) => {
@@ -95,3 +95,4 @@ function Metric({ label, value }: { label: string; value: number | string }) {
     </div>
   );
 }
+

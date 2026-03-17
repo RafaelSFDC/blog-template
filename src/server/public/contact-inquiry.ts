@@ -1,6 +1,6 @@
 import { getRequest } from "@tanstack/react-start/server";
-import { db } from "#/db/index";
-import { contactMessages } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { contactMessages } from "#/server/db/schema";
 import { verifyTurnstileToken } from "#/server/integrations/turnstile";
 import { logSecurityEvent } from "#/server/security/events";
 import { enforceRateLimit } from "#/server/security/rate-limit";
@@ -71,3 +71,4 @@ export async function submitPublicInquiry(input: {
 
   return { success: true as const };
 }
+

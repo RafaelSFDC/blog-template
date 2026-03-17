@@ -1,5 +1,5 @@
-import { db } from "#/db/index";
-import { activityLogs } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { activityLogs } from "#/server/db/schema";
 
 interface LogActivityInput {
   actorUserId?: string | null;
@@ -21,3 +21,4 @@ export async function logActivity(input: LogActivityInput) {
     createdAt: new Date(),
   });
 }
+

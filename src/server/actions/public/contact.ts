@@ -32,3 +32,4 @@ export const submitPublicContactForm = createServerFn({ method: "POST" })
       throw error;
     }
   });
+

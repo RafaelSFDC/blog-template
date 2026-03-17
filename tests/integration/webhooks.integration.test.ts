@@ -14,12 +14,12 @@ vi.mock("#/server/auth/session", () => ({
 describe("webhooks integration", () => {
   it("creates, toggles, lists, and deletes dashboard webhooks", async () => {
     await withIsolatedDatabase("webhooks", async () => {
-      const { db } = await import("#/db/index");
+      const { db } = await import("#/server/db/index");
       const {
         createDashboardWebhook,
         deleteDashboardWebhook,
         toggleDashboardWebhook,
-      } = await import("#/server/dashboard/webhooks");
+      } = await import("#/server/actions/dashboard/webhooks");
 
       await createDashboardWebhook({
         data: {
@@ -47,10 +47,11 @@ describe("webhooks integration", () => {
       hooks = await db.query.webhooks.findMany();
       expect(hooks[0]?.isActive).toBe(false);
 
-      await deleteDashboardWebhook({ data: { id: hooks[0].id } as never });
+      await deleteDashboardWebhook({ data: { id: hooks[0].id } });
 
       hooks = await db.query.webhooks.findMany();
       expect(hooks).toHaveLength(0);
     });
   }, 15000);
 });
+

@@ -1,5 +1,5 @@
 import type { TurnstileVerificationResult } from "#/types/security";
-import { getTurnstileConfig } from "#/server/security/config";
+import { getTurnstileConfig } from "#/server/actions/security/config";
 
 export async function verifyTurnstileToken(input: {
   token: string;
@@ -39,3 +39,4 @@ export async function verifyTurnstileToken(input: {
     errors: payload["error-codes"] ?? [],
   };
 }
+

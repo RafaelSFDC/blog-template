@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { count, desc, eq, inArray } from "drizzle-orm";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import {
   betaOpsAccounts,
   betaOpsFeedback,
   contactMessages,
   user,
-} from "#/db/schema";
+} from "#/server/db/schema";
 import {
   betaOpsAccountCreateFromMessageSchema,
   betaOpsAccountUpdateSchema,
@@ -304,3 +304,4 @@ export const updateBetaOpsFeedback = createServerFn({ method: "POST" })
   });
 
 export type BetaOpsDashboardData = Awaited<ReturnType<typeof getBetaOpsDashboard>>;
+
