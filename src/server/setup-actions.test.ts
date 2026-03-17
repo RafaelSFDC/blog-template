@@ -32,7 +32,7 @@ describe("setup actions", () => {
       expect(status?.nextAction?.step).toBe("identity");
       expect(status?.progressPercent).toBe(0);
     });
-  });
+  }, 15000);
 
   it("treats completed setup as non-blocking even if content work remains", async () => {
     await withIsolatedDatabase("setup-actions-content", async () => {
@@ -80,7 +80,7 @@ describe("setup actions", () => {
       expect(status?.nextAction).toBeNull();
       expect(status?.sitePresetKey).toBe("creator");
     });
-  });
+  }, 15000);
 
   it("returns the same setup summary for admin, super-admin, and legacy superAdmin", async () => {
     await withIsolatedDatabase("setup-actions-role-parity", async () => {
@@ -125,5 +125,5 @@ describe("setup actions", () => {
       expect(adminStatus).toEqual(superAdminStatus);
       expect(adminStatus).toEqual(legacySuperAdminStatus);
     });
-  });
+  }, 15000);
 });

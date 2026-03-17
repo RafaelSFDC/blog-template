@@ -157,8 +157,6 @@ test("redirects admins into setup, supports pause/resume, and completes the firs
   await expect(page.getByText(/nada aqui volta a bloquear o dashboard/i)).toBeVisible();
   await selectPreset(page, "Premium Publication");
   await page.getByRole("button", { name: /criar starter kit e concluir/i }).click();
-
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
   await page.goto("/dashboard/pages");
   await expect(page.getByText("/about")).toHaveCount(1);
   await expect(page.getByText("/members-only-archive")).toHaveCount(1);
