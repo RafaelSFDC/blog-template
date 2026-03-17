@@ -9,6 +9,7 @@ import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
 import { logSecurityEvent } from "#/server/security/events";
 import { getCurrentSecurityRequestMetadata } from "#/server/security/request";
+import { logOperationalEvent } from "#/server/system/operations";
 
 const MIME_EXTENSION_ALLOWLIST: Record<string, string[]> = {
   "image/jpeg": [".jpg", ".jpeg"],
@@ -126,6 +127,13 @@ export const uploadMedia = createServerFn({ method: "POST" })
         })
         .returning();
 
+      logOperationalEvent("media-uploaded", {
+        mediaId: created.id,
+        filename: created.filename,
+        mimeType: created.mimeType,
+        ownerId: created.ownerId,
+      });
+
       return created;
     } catch (error) {
       captureServerException(error, {
@@ -138,6 +146,10 @@ export const uploadMedia = createServerFn({ method: "POST" })
           fileType: file?.type,
         },
       });
+      logOperationalEvent("media-upload-failed", {
+        fileName: file?.name ?? null,
+        fileType: file?.type ?? null,
+      }, "error");
       throw error;
     }
   });
@@ -161,6 +173,11 @@ export const deleteMediaItem = createServerFn({ method: "POST" })
       metadata: {
         filename: item.filename,
       },
+    });
+    logOperationalEvent("media-deleted", {
+      mediaId: data.id,
+      filename: item.filename,
+      actorUserId: session.user.id,
     });
 
     return { success: true };
@@ -200,6 +217,11 @@ export const bulkDeleteMedia = createServerFn({ method: "POST" })
       metadata: {
         ids: items.map((item: MediaRow) => item.id),
       },
+    });
+    logOperationalEvent("media-bulk-deleted", {
+      count: items.length,
+      mediaIds: items.map((item: MediaRow) => item.id),
+      actorUserId: session.user.id,
     });
 
     return { success: true, count: items.length };
@@ -256,6 +278,11 @@ export const cleanupOrphanedMedia = createServerFn({ method: "POST" })
       metadata: {
         ids: orphanRows.map((row) => row.id),
       },
+    });
+    logOperationalEvent("media-orphans-cleaned", {
+      count: orphanRows.length,
+      mediaIds: orphanRows.map((row) => row.id),
+      actorUserId: session.user.id,
     });
 
     return {

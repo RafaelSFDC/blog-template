@@ -44,6 +44,10 @@ export function getSecurityRequestMetadata(request: Request): SecurityRequestMet
 }
 
 export function getCurrentSecurityRequestMetadata() {
-  const request = getRequest();
-  return request ? getSecurityRequestMetadata(request) : null;
+  try {
+    const request = getRequest();
+    return request ? getSecurityRequestMetadata(request) : null;
+  } catch {
+    return null;
+  }
 }

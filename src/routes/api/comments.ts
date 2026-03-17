@@ -8,6 +8,7 @@ import { enforceRateLimit } from "#/server/security/rate-limit";
 import { getSecurityRequestMetadata } from "#/server/security/request";
 import { verifyTurnstileToken } from "#/server/integrations/turnstile";
 import { logSecurityEvent } from "#/server/security/events";
+import { logOperationalEvent } from "#/server/system/operations";
 
 export const Route = createFileRoute("/api/comments")({
   server: {
@@ -35,6 +36,10 @@ export const Route = createFileRoute("/api/comments")({
           });
 
           if (!decision.allowed) {
+            logOperationalEvent("comments-rate-limit-hit", {
+              postId: parsed.postId,
+              email: parsed.authorEmail?.toLowerCase() ?? null,
+            }, "warn");
             return new Response("Too many comments. Please try again later.", {
               status: 429,
             });
@@ -67,6 +72,11 @@ export const Route = createFileRoute("/api/comments")({
             sourceIpHash: metadata.ipHash,
             userAgent: metadata.userAgentShort,
           });
+          logOperationalEvent("comment-created", {
+            postId: newComment.postId,
+            commentId: newComment.id,
+            status: newComment.status,
+          });
 
           return Response.json(newComment);
         } catch (error: unknown) {
@@ -90,6 +100,9 @@ export const Route = createFileRoute("/api/comments")({
             },
           });
           console.error("Error creating comment:", error);
+          logOperationalEvent("comment-create-failed", {
+            requestUrl: request.url,
+          }, "error");
           const message = error instanceof Error ? error.message : "Internal Server Error";
           return new Response(message, { status: 500 });
         }

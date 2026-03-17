@@ -9,6 +9,7 @@ import {
 import { getFriendlyDbError, normalizeSlug } from "#/schemas/system";
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
+import { logOperationalEvent } from "#/server/system/operations";
 import {
   acquireContentLock,
   createPageRevision,
@@ -104,6 +105,12 @@ export const createPage = createServerFn({ method: "POST" })
           isPremium: created.isPremium,
         },
       });
+      logOperationalEvent("page-created", {
+        pageId: created.id,
+        slug,
+        status: created.status,
+        actorUserId: session.user.id,
+      });
 
       return created;
     } catch (error) {
@@ -187,6 +194,12 @@ export const updatePage = createServerFn({ method: "POST" })
           isHome: updated.isHome,
           isPremium: updated.isPremium,
         },
+      });
+      logOperationalEvent("page-updated", {
+        pageId: updated.id,
+        slug,
+        status: updated.status,
+        actorUserId: session.user.id,
       });
 
       return updated;

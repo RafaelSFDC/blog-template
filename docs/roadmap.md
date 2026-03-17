@@ -187,11 +187,11 @@ Exit criteria:
 
 Objective: finalize must-have blog CMS behavior for authors/editors.
 
-- [ ] Validate full post lifecycle: draft -> review -> publish -> update.
-- [ ] Validate page lifecycle and permalink behavior.
-- [ ] Ensure revision history + restore flow is reliable.
-- [ ] Confirm slug uniqueness and collision handling.
-- [ ] Add missing UX/system feedback for failed editorial actions.
+- [x] Validate full post lifecycle: draft -> review -> publish -> update.
+- [x] Validate page lifecycle and permalink behavior.
+- [x] Ensure revision history + restore flow is reliable.
+- [x] Confirm slug uniqueness and collision handling.
+- [x] Add missing UX/system feedback for failed editorial actions.
 
 Exit criteria:
 
@@ -203,11 +203,11 @@ Exit criteria:
 
 Objective: stabilize upload, metadata, and local simulation behavior.
 
-- [ ] Validate local media persistence in repository folder (no Cloudflare coupling in dev).
-- [ ] Enforce upload validation (mime/type/size/security checks).
-- [ ] Ensure metadata model supports alt/title/caption and rendering.
-- [ ] Implement orphan cleanup policy and safe deletion flow.
-- [ ] Add integration tests for upload, retrieval, and deletion.
+- [x] Validate local media persistence in repository folder (no Cloudflare coupling in dev).
+- [x] Enforce upload validation (mime/type/size/security checks).
+- [x] Ensure metadata model supports alt/title/caption and rendering.
+- [x] Implement orphan cleanup policy and safe deletion flow.
+- [x] Add integration tests for upload, retrieval, and deletion.
 
 Exit criteria:
 
@@ -220,11 +220,11 @@ Exit criteria:
 
 Objective: ship public interaction safely.
 
-- [ ] Validate public comment submission and moderation state machine.
-- [ ] Enforce anti-spam/abuse controls per IP/session/fingerprint strategy.
-- [ ] Ensure moderation panel supports approve/reject/remove workflows.
-- [ ] Add audit logging for moderation actions.
-- [ ] Add tests for abuse scenarios and moderation regressions.
+- [x] Validate public comment submission and moderation state machine.
+- [x] Enforce anti-spam/abuse controls per IP/session/fingerprint strategy.
+- [x] Ensure moderation panel supports approve/reject/remove workflows.
+- [x] Add audit logging for moderation actions.
+- [x] Add tests for abuse scenarios and moderation regressions.
 
 Exit criteria:
 
@@ -236,11 +236,11 @@ Exit criteria:
 
 Objective: make content indexable, fast, and stable under expected load.
 
-- [ ] Review canonical/meta strategy per page type.
-- [ ] Ensure robots and indexing directives are coherent by environment.
-- [ ] Optimize high-traffic listing/search queries (indexes + query plans).
-- [ ] Establish MVP performance budget for primary routes.
-- [ ] Add regression checks for sitemap/feed freshness and metadata.
+- [x] Review canonical/meta strategy per page type.
+- [x] Ensure robots and indexing directives are coherent by environment.
+- [x] Optimize high-traffic listing/search queries (indexes + query plans).
+- [x] Establish MVP performance budget for primary routes.
+- [x] Add regression checks for sitemap/feed freshness and metadata.
 
 Exit criteria:
 
@@ -252,11 +252,11 @@ Exit criteria:
 
 Objective: prepare for controlled production rollout and incident response.
 
-- [ ] Standardize structured logging for critical flows.
-- [ ] Finalize health endpoints for DB, queue/jobs, and external integrations.
-- [ ] Document incident triage + rollback runbook.
-- [ ] Validate backup/restore process for SQLite/D1 migration path.
-- [ ] Define alerting thresholds for MVP launch.
+- [x] Standardize structured logging for critical flows.
+- [x] Finalize health endpoints for DB, queue/jobs, and external integrations.
+- [x] Document incident triage + rollback runbook.
+- [x] Validate backup/restore process for SQLite/D1 migration path.
+- [x] Define alerting thresholds for MVP launch.
 
 Exit criteria:
 
@@ -268,11 +268,11 @@ Exit criteria:
 
 Objective: execute final quality gate and launch with rollback safety.
 
-- [ ] Run full pipeline: lint, strict typecheck, unit, integration, smoke/e2e.
-- [ ] Execute business acceptance checklist against MVP contract.
-- [ ] Freeze release candidate and verify migration scripts.
-- [ ] Perform controlled rollout rehearsal (including rollback drill).
-- [ ] Publish final launch report with residual risks and mitigations.
+- [x] Run full pipeline: lint, strict typecheck, unit, integration, smoke/e2e.
+- [x] Execute business acceptance checklist against MVP contract.
+- [x] Freeze release candidate and verify migration scripts.
+- [x] Perform controlled rollout rehearsal (including rollback drill).
+- [x] Publish final launch report with residual risks and mitigations.
 
 Exit criteria:
 

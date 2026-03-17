@@ -74,4 +74,47 @@ describe("comment-actions integration", () => {
       expect(saved?.spamReason).toBe("too_many_links");
     });
   }, 15000);
+
+  it("marks repeated comments in the same window as spam for recurrence control", async () => {
+    await withIsolatedDatabase("comments-duplicate-window", async () => {
+      const { db } = await import("#/db/index");
+      const { comments, posts } = await import("#/db/schema");
+      const { createPendingComment } = await import("#/server/actions/content/comment-actions");
+
+      const [post] = await db
+        .insert(posts)
+        .values({
+          slug: "comments-duplicate-window-post",
+          title: "Duplicate comment checks",
+          excerpt: "Duplicate excerpt",
+          content: "Duplicate body",
+          status: "published",
+          commentsEnabled: true,
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const first = await createPendingComment({
+        postId: post.id,
+        authorName: "Reader",
+        authorEmail: "reader@example.com",
+        content: "Loved this issue, thanks for sharing!",
+      });
+      expect(first.status).toBe("pending");
+
+      const second = await createPendingComment({
+        postId: post.id,
+        authorName: "Reader",
+        authorEmail: "reader@example.com",
+        content: "Loved this issue, thanks for sharing!",
+      });
+      expect(second.status).toBe("spam");
+      expect(second.spamReason).toBe("duplicate_recent_comment");
+
+      const saved = await db.query.comments.findMany({
+        where: eq(comments.postId, post.id),
+      });
+      expect(saved.length).toBe(2);
+    });
+  }, 15000);
 });

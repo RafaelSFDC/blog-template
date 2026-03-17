@@ -41,6 +41,7 @@ import {
 import { captureServerException } from "#/server/sentry";
 import { logActivity } from "#/server/activity-log";
 import { captureServerEvent } from "#/server/analytics";
+import { logOperationalEvent } from "#/server/system/operations";
 import {
   acquireContentLock,
   createPostRevision,
@@ -251,6 +252,12 @@ export const createPost = createServerFn({ method: "POST" })
           teaserMode: data.teaserMode,
         },
       });
+      logOperationalEvent("post-created", {
+        postId: created.id,
+        slug,
+        status: data.status,
+        actorUserId: session.user.id,
+      });
 
       if (shouldTriggerPublishedWebhook(undefined, data.status)) {
         await captureFirstPostPublishedIfNeeded({
@@ -396,6 +403,12 @@ export const updatePost = createServerFn({ method: "POST" })
           editorOwnerId: data.editorOwnerId ?? null,
           teaserMode: data.teaserMode,
         },
+      });
+      logOperationalEvent("post-updated", {
+        postId: data.id,
+        slug,
+        status: data.status,
+        actorUserId: session.user.id,
       });
 
       if (shouldTriggerPublishedWebhook(existingPost.status as never, data.status)) {

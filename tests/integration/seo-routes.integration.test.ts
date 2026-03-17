@@ -19,5 +19,10 @@ describe("seo routes integration", () => {
     expect(footerSource).toContain('href="/rss/xml"');
     expect(rssSource).toContain('createFileRoute("/rss/xml")');
     expect(sitemapSource).toContain('createFileRoute("/sitemap/xml")');
+    expect(rssSource).toContain('"Content-Type": "application/xml"');
+    expect(sitemapSource).toContain('"Content-Type": "application/xml"');
+    expect(rssSource).toContain("<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>");
+    expect(sitemapSource).toContain("post.updatedAt?.toISOString().split(\"T\")[0]");
+    expect(sitemapSource).toContain("page.updatedAt?.toISOString().split(\"T\")[0]");
   });
 });
