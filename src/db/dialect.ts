@@ -21,21 +21,21 @@ const dbType = process.env.DB_TYPE || "sqlite";
 
 export const isPostgres = dbType === "neon";
 
-type SqliteTextColumn = ReturnType<typeof sqliteText>
-type PgTextColumn = ReturnType<typeof pgText>
-type SqliteIntegerColumn = ReturnType<typeof sqliteInteger>
-type PgIntegerColumn = ReturnType<typeof pgInteger>
-type PgBooleanColumn = ReturnType<typeof pgBoolean>
-type PgTimestampColumn = ReturnType<typeof pgTimestamp>
-type PgSerialColumn = ReturnType<typeof pgSerial>
-type UnsafeAny = ReturnType<typeof JSON.parse>;
+type SqliteTextColumn = ReturnType<typeof sqliteText>;
+type PgTextColumn = ReturnType<typeof pgText>;
+type SqliteIntegerColumn = ReturnType<typeof sqliteInteger>;
+type PgIntegerColumn = ReturnType<typeof pgInteger>;
+type PgBooleanColumn = ReturnType<typeof pgBoolean>;
+type PgTimestampColumn = ReturnType<typeof pgTimestamp>;
+type PgSerialColumn = ReturnType<typeof pgSerial>;
+type JsonParsedValue = ReturnType<typeof JSON.parse>;
 
 function castColumn<T>(value: unknown): T {
   return value as T;
 }
 
 // Compatibility layer while schema unification is still in progress.
-export const table: UnsafeAny = isPostgres ? pgTable : sqliteTable;
+export const table: JsonParsedValue = isPostgres ? pgTable : sqliteTable;
 
 export function text(name: string): SqliteTextColumn | PgTextColumn {
   return isPostgres ? pgText(name) : sqliteText(name);
@@ -63,7 +63,7 @@ export function autoIncrementId(name: string = "id"): SqliteIntegerColumn | PgSe
     : castColumn<PgSerialColumn>(sqliteInteger(name).primaryKey({ autoIncrement: true }));
 }
 
-export const index: UnsafeAny = isPostgres ? pgIndex : sqliteIndex;
-export const primaryKey: UnsafeAny = isPostgres ? pgPrimaryKey : sqlitePrimaryKey;
+export const index: JsonParsedValue = isPostgres ? pgIndex : sqliteIndex;
+export const primaryKey: JsonParsedValue = isPostgres ? pgPrimaryKey : sqlitePrimaryKey;
 
 export const now = isPostgres ? sql`now()` : sql`(unixepoch())`;

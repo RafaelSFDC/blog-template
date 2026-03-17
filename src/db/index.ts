@@ -6,8 +6,8 @@ type NeonDbClient = ReturnType<(typeof import("drizzle-orm/neon-http"))["drizzle
 type LibsqlDbClient = ReturnType<(typeof import("drizzle-orm/libsql/http"))["drizzle"]>;
 type SqliteDbClient = ReturnType<(typeof import("drizzle-orm/better-sqlite3"))["drizzle"]>;
 type DbClient = D1DbClient | NeonDbClient | LibsqlDbClient | SqliteDbClient;
-type UnsafeAny = ReturnType<typeof JSON.parse>;
-type DbFacade = UnsafeAny & { schema: typeof schema };
+type JsonParsedValue = ReturnType<typeof JSON.parse>;
+type DbFacade = JsonParsedValue & { schema: typeof schema };
 
 type SqliteClientLike = { close?: () => void };
 

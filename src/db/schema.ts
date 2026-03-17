@@ -10,8 +10,7 @@ import {
 } from "./dialect";
 import { relations } from "drizzle-orm";
 
-// Compatibility typing for table index callback blocks in this DB-abstraction phase.
-type TableIndexBuilderLike = Record<string, unknown>;
+type TableIndexColumns = Record<string, unknown>;
 
 export const user = table("users", {
   id: text("id").primaryKey(),
@@ -50,7 +49,7 @@ export const session = table(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  (t: TableIndexBuilderLike) => [index("sessions_userId_idx").on((t as { userId: unknown }).userId)],
+  (t: TableIndexColumns) => [index("sessions_userId_idx").on(t.userId)],
 );
 
 export const account = table(
@@ -72,7 +71,7 @@ export const account = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  (t: TableIndexBuilderLike) => [index("accounts_userId_idx").on((t as { userId: unknown }).userId)],
+  (t: TableIndexColumns) => [index("accounts_userId_idx").on(t.userId)],
 );
 
 export const verification = table(
@@ -85,7 +84,7 @@ export const verification = table(
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
   },
-  (t: TableIndexBuilderLike) => [index("verifications_identifier_idx").on((t as { identifier: unknown }).identifier)],
+  (t: TableIndexColumns) => [index("verifications_identifier_idx").on(t.identifier)],
 );
 
 export const categories = table("categories", {
@@ -169,7 +168,7 @@ export const pages = table(
     publishedAt: timestamp("published_at"),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("pages_slug_idx").on(t.slug),
     index("pages_status_idx").on(t.status),
     index("pages_is_home_idx").on(t.isHome),
@@ -192,7 +191,7 @@ export const comments = table(
     content: text("content").notNull(),
     status: text("status").notNull().default("pending"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("comments_post_id_idx").on(t.postId),
     index("comments_author_id_idx").on(t.authorId),
   ],
@@ -207,7 +206,7 @@ export const postCategories = table(
     categoryId: integer("category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),
-  },(t: TableIndexBuilderLike) => [index("post_categories_idx").on(t.postId, t.categoryId)],
+  },(t: TableIndexColumns) => [index("post_categories_idx").on(t.postId, t.categoryId)],
 );
 
 export const postTags = table(
@@ -219,7 +218,7 @@ export const postTags = table(
     tagId: integer("tag_id")
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
-  },(t: TableIndexBuilderLike) => [index("post_tags_idx").on(t.postId, t.tagId)],
+  },(t: TableIndexColumns) => [index("post_tags_idx").on(t.postId, t.tagId)],
 );
 
 export const appSettings = table("app_settings", {
@@ -249,7 +248,7 @@ export const menuItems = table(
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("menu_items_menu_id_idx").on(t.menuId),
     index("menu_items_sort_order_idx").on(t.menuId, t.sortOrder),
   ],
@@ -316,7 +315,7 @@ export const newsletterDeliveries = table(
     lastAttemptAt: timestamp("last_attempt_at"),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("newsletter_deliveries_newsletter_id_idx").on(t.newsletterId),
     index("newsletter_deliveries_subscriber_id_idx").on(t.subscriberId),
     index("newsletter_deliveries_status_idx").on(t.status),
@@ -334,7 +333,7 @@ export const subscriberEvents = table(
     type: text("type").notNull(),
     metadataJson: text("metadata_json"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("subscriber_events_subscriber_id_idx").on(t.subscriberId),
     index("subscriber_events_type_idx").on(t.type),
     index("subscriber_events_created_at_idx").on(t.createdAt),
@@ -355,7 +354,7 @@ export const newsletterConsents = table(
     ipHash: text("ip_hash"),
     userAgent: text("user_agent"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("newsletter_consents_subscriber_id_idx").on(t.subscriberId),
     index("newsletter_consents_email_idx").on(t.email),
     index("newsletter_consents_status_idx").on(t.status),
@@ -372,7 +371,7 @@ export const rateLimitEvents = table(
     keyJson: text("key_json"),
     createdAt: timestamp("created_at").default(now),
     expiresAt: timestamp("expires_at").notNull(),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("rate_limit_events_scope_identifier_idx").on(t.scope, t.identifierHash),
     index("rate_limit_events_expires_at_idx").on(t.expiresAt),
     index("rate_limit_events_created_at_idx").on(t.createdAt),
@@ -391,7 +390,7 @@ export const securityEvents = table(
     metadataJson: text("metadata_json"),
     createdAt: timestamp("created_at").default(now),
     expiresAt: timestamp("expires_at"),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("security_events_type_idx").on(t.type),
     index("security_events_scope_idx").on(t.scope),
     index("security_events_expires_at_idx").on(t.expiresAt),
@@ -414,7 +413,7 @@ export const membershipPlans = table(
     isDefault: boolean("is_default").notNull().default(false),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("membership_plans_slug_idx").on(t.slug),
     index("membership_plans_active_idx").on(t.isActive),
   ],
@@ -442,7 +441,7 @@ export const subscriptions = table(
     gracePeriodEndsAt: timestamp("grace_period_ends_at"),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("subscriptions_user_id_idx").on(t.userId),
     index("subscriptions_status_idx").on(t.status),
     index("subscriptions_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
@@ -463,7 +462,7 @@ export const subscriptionEvents = table(
     payloadJson: text("payload_json").notNull(),
     processedAt: timestamp("processed_at").default(now),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("subscription_events_subscription_id_idx").on(t.subscriptionId),
     index("subscription_events_type_idx").on(t.type),
     index("subscription_events_stripe_subscription_id_idx").on(t.stripeSubscriptionId),
@@ -519,7 +518,7 @@ export const betaOpsAccounts = table(
     lastContactedAt: timestamp("last_contacted_at"),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("beta_ops_accounts_email_idx").on(t.email),
     index("beta_ops_accounts_stage_idx").on(t.accountStage),
     index("beta_ops_accounts_owner_idx").on(t.ownerUserId),
@@ -546,7 +545,7 @@ export const betaOpsFeedback = table(
     notes: text("notes"),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("beta_ops_feedback_account_idx").on(t.betaAccountId),
     index("beta_ops_feedback_status_idx").on(t.status),
     index("beta_ops_feedback_priority_idx").on(t.priority),
@@ -572,7 +571,7 @@ export const redirects = table(
     statusCode: integer("status_code").notNull().default(301),
     createdAt: timestamp("created_at").default(now),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [index("redirects_source_path_idx").on(t.sourcePath)],
+  },(t: TableIndexColumns) => [index("redirects_source_path_idx").on(t.sourcePath)],
 );
 
 export const webhookDeliveries = table(
@@ -589,7 +588,7 @@ export const webhookDeliveries = table(
     error: text("error"),
     duration: integer("duration"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [index("webhook_deliveries_webhook_id_idx").on(t.webhookId)],
+  },(t: TableIndexColumns) => [index("webhook_deliveries_webhook_id_idx").on(t.webhookId)],
 );
 
 export const visitors = table("visitors", {
@@ -611,7 +610,7 @@ export const pageViews = table(
     os: text("os"),
     device: text("device"), // mobile, desktop, tablet
     timestamp: timestamp("timestamp").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("page_views_visitor_id_idx").on(t.visitorId),
     index("page_views_pathname_idx").on(t.pathname),
     index("page_views_timestamp_idx").on(t.timestamp),
@@ -642,7 +641,7 @@ export const postRevisions = table(
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     source: text("source").notNull().default("manual"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("post_revisions_post_id_idx").on(t.postId),
     index("post_revisions_created_at_idx").on(t.createdAt),
   ],
@@ -671,7 +670,7 @@ export const pageRevisions = table(
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     source: text("source").notNull().default("manual"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("page_revisions_page_id_idx").on(t.pageId),
     index("page_revisions_created_at_idx").on(t.createdAt),
   ],
@@ -688,7 +687,7 @@ export const activityLogs = table(
     summary: text("summary").notNull(),
     metadataJson: text("metadata_json"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("activity_logs_actor_user_id_idx").on(t.actorUserId),
     index("activity_logs_entity_idx").on(t.entityType, t.entityId),
     index("activity_logs_created_at_idx").on(t.createdAt),
@@ -707,7 +706,7 @@ export const invitations = table(
     acceptedAt: timestamp("accepted_at"),
     revokedAt: timestamp("revoked_at"),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("invitations_email_idx").on(t.email),
     index("invitations_expires_at_idx").on(t.expiresAt),
   ],
@@ -725,7 +724,7 @@ export const contentLocks = table(
     acquiredAt: timestamp("acquired_at").default(now),
     expiresAt: timestamp("expires_at").notNull(),
     lastHeartbeatAt: timestamp("last_heartbeat_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("content_locks_entity_idx").on(t.entityType, t.entityId),
     index("content_locks_user_id_idx").on(t.userId),
     index("content_locks_expires_at_idx").on(t.expiresAt),
@@ -746,7 +745,7 @@ export const editorialComments = table(
     resolvedAt: timestamp("resolved_at"),
     resolvedBy: text("resolved_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("editorial_comments_post_id_idx").on(t.postId),
     index("editorial_comments_author_user_id_idx").on(t.authorUserId),
     index("editorial_comments_resolved_at_idx").on(t.resolvedAt),
@@ -765,7 +764,7 @@ export const editorialChecklists = table(
     completedAt: timestamp("completed_at"),
     completedBy: text("completed_by").references(() => user.id, { onDelete: "set null" }),
     updatedAt: timestamp("updated_at").default(now),
-  },(t: TableIndexBuilderLike) => [
+  },(t: TableIndexColumns) => [
     index("editorial_checklists_post_id_idx").on(t.postId),
     index("editorial_checklists_post_item_idx").on(t.postId, t.itemKey),
   ],
@@ -957,4 +956,7 @@ export const subscriptionEventsRelations = relations(subscriptionEvents, ({ one 
     references: [subscriptions.id],
   }),
 }));
+
+
+
 
