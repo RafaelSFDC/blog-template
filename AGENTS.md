@@ -5,6 +5,8 @@
 - Reusable hooks must live in `src/hooks`.
 - All server-only code must live in `src/server`.
 - Server actions must live in `src/server/actions`.
+- All schemas must live in `src/schemas` unless they are specific to a component or function.
+- All types must live in `src/types` unless they are specific to a component or function.
 - Shared helpers that do not belong to hooks or server code should live in `src/lib` or `src/utils`.
 
 ## Runtime Rules
