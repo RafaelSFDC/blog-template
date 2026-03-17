@@ -13,11 +13,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#
 import { StatusBadge } from "#/components/ui/status-badge";
 import { authClient } from "#/lib/auth-client";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
-import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/post-actions";
-import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import { bulkUpdatePosts, deletePost, getDashboardPosts } from "#/server/actions/post-actions";
+import { getSetupStatusForDashboard } from "#/server/actions/setup-actions";
 import type { SetupStatus } from "#/types/system";
 
 type DashboardPost = Awaited<ReturnType<typeof getDashboardPosts>>[number];
+type DashboardPostStatusFilter =
+  | "all"
+  | "draft"
+  | "in_review"
+  | "scheduled"
+  | "published"
+  | "archived";
+type DashboardPostVisibilityFilter = "all" | "mine" | "team";
+type DashboardPostBulkAction =
+  | "request_review"
+  | "move_to_draft"
+  | "publish"
+  | "schedule"
+  | "archive"
+  | "delete";
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -45,9 +60,11 @@ function PostsManagementPage() {
   const [postList, setPostList] = useState<DashboardPost[]>(initialPosts);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
-  const [visibility, setVisibility] = useState(session?.user.role === "author" ? "mine" : "all");
-  const [bulkAction, setBulkAction] = useState("request_review");
+  const [status, setStatus] = useState<DashboardPostStatusFilter>("all");
+  const [visibility, setVisibility] = useState<DashboardPostVisibilityFilter>(
+    session?.user.role === "author" ? "mine" : "all",
+  );
+  const [bulkAction, setBulkAction] = useState<DashboardPostBulkAction>("request_review");
   const [scheduledFor, setScheduledFor] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -61,14 +78,21 @@ function PostsManagementPage() {
     return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
   }, [postList]);
 
-  async function refresh(filters?: { query?: string; status?: string; visibility?: string }) {
+  async function refresh(filters?: {
+    query?: string;
+    status?: DashboardPostStatusFilter;
+    visibility?: DashboardPostVisibilityFilter;
+  }) {
     setLoading(true);
     try {
       const next = await getDashboardPosts({
         data: {
           query: filters?.query ?? (query || undefined),
-          status: filters?.status && filters.status !== "all" ? (filters.status as never) : undefined,
-          visibility: filters?.visibility && filters.visibility !== "all" ? (filters.visibility as never) : undefined,
+          status: filters?.status && filters.status !== "all" ? filters.status : undefined,
+          visibility:
+            filters?.visibility && filters.visibility !== "all"
+              ? filters.visibility
+              : undefined,
         },
       });
       setPostList(next);
@@ -105,7 +129,7 @@ function PostsManagementPage() {
       await bulkUpdatePosts({
         data: {
           ids: selectedIds,
-          action: bulkAction as never,
+          action: bulkAction,
           scheduledFor: bulkAction === "schedule" && scheduledFor ? new Date(scheduledFor) : undefined,
         },
       });
@@ -158,7 +182,10 @@ function PostsManagementPage() {
               placeholder="Search by title, slug, or author"
             />
           </div>
-          <Select value={status} onValueChange={setStatus}>
+          <Select
+            value={status}
+            onValueChange={(value) => setStatus(value as DashboardPostStatusFilter)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
@@ -172,7 +199,10 @@ function PostsManagementPage() {
             </SelectContent>
           </Select>
           {session?.user.role !== "author" ? (
-            <Select value={visibility} onValueChange={setVisibility}>
+          <Select
+            value={visibility}
+            onValueChange={(value) => setVisibility(value as DashboardPostVisibilityFilter)}
+          >
               <SelectTrigger>
                 <SelectValue placeholder="Visibility" />
               </SelectTrigger>
@@ -202,7 +232,10 @@ function PostsManagementPage() {
             {selectedIds.length} selected
           </div>
           <div className="grid gap-3 md:grid-cols-[1fr,auto,auto]">
-            <Select value={bulkAction} onValueChange={setBulkAction}>
+            <Select
+              value={bulkAction}
+              onValueChange={(value) => setBulkAction(value as DashboardPostBulkAction)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Bulk action" />
               </SelectTrigger>
@@ -329,3 +362,4 @@ function PostsManagementPage() {
     </DashboardPageContainer>
   );
 }
+

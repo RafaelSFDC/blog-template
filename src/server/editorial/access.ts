@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { redirect } from "@tanstack/react-router";
-import { db } from "#/db/index";
-import { comments, media, pages, posts } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { comments, media, pages, posts } from "#/server/db/schema";
 import { getAuthSession, requireDashboardAccess } from "#/server/auth/session";
 import type { ContentAction } from "#/types/editorial";
 
@@ -229,3 +229,4 @@ export async function requireCommentOwnershipOrModeration(commentId: number) {
 
   return { session };
 }
+

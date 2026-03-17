@@ -7,9 +7,9 @@ import { Button } from "#/components/ui/button";
 import { SiteHeader } from "#/components/SiteHeader";
 import { Input } from "#/components/ui/input";
 import { IconBox } from "#/components/IconBox";
-import { categories } from "#/db/schema";
+import { categories } from "#/server/db/schema";
 import { type InferSelectModel } from "drizzle-orm";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 import {
   buildPaginatedPath,
   buildPaginationLinks,
@@ -18,7 +18,7 @@ import {
 } from "#/lib/seo";
 import { getPaginationMeta, normalizePage } from "#/lib/pagination";
 import { PaginationNav } from "#/components/blog/PaginationNav";
-import { getBlogIndexPosts, getPublicCategories } from "#/server/public/blog";
+import { getBlogIndexPosts, getPublicCategories } from "#/server/actions/public/blog";
 
 type Category = InferSelectModel<typeof categories>;
 type BlogIndexLoaderData = {
@@ -213,3 +213,4 @@ function BlogIndex() {
     </main>
   );
 }
+

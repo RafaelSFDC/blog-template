@@ -10,7 +10,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-} from "#/server/taxonomy-actions";
+} from "#/server/actions/taxonomy-actions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
@@ -339,3 +339,4 @@ function CategoriesPage() {
     </DashboardPageContainer>
   );
 }
+

@@ -3,7 +3,8 @@ import { FileText } from "lucide-react";
 import { toast } from "sonner";
 import { PostEditorScreen } from "#/components/dashboard/post-editor-screen";
 import { normalizePostSubmission } from "#/lib/editorial-form-utils";
-import { getPostForEdit, updatePost } from "#/server/post-actions";
+import { postStatusSchema, teaserModeSchema } from "#/schemas/editorial";
+import { getPostForEdit, updatePost } from "#/server/actions/post-actions";
 
 export const Route = createFileRoute("/dashboard/posts/$postId/edit")({
   loader: ({ params }) => {
@@ -38,8 +39,8 @@ function EditPostPage() {
         seoNoIndex: post.seoNoIndex || false,
         isPremium: post.isPremium || false,
         commentsEnabled: post.commentsEnabled ?? true,
-        teaserMode: post.teaserMode || "excerpt",
-        status: post.status as "draft" | "in_review" | "published" | "scheduled" | "archived",
+        teaserMode: teaserModeSchema.catch("excerpt").parse(post.teaserMode),
+        status: postStatusSchema.parse(post.status),
         publishedAt: post.publishedAt
           ? new Date(post.publishedAt).toISOString().slice(0, 16)
           : new Date().toISOString().slice(0, 16),
@@ -79,3 +80,4 @@ function EditPostPage() {
     />
   );
 }
+

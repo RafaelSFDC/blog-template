@@ -11,12 +11,12 @@ import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { IconBox } from "#/components/IconBox";
 import { contactFormSchema } from "#/schemas";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
 import { usePostHog } from "@posthog/react";
 import { captureClientException } from "#/lib/sentry-client";
-import { submitPublicContactForm } from "#/server/public/contact";
-import { getOptionalPublicPageBySlug } from "#/server/public/content";
+import { submitPublicContactForm } from "#/server/actions/public/contact";
+import { getOptionalPublicPageBySlug } from "#/server/actions/public/content";
 import { PageContent } from "#/components/cms/PageContent";
 
 type ContactFormValues = {
@@ -339,3 +339,4 @@ function ContactPage() {
     </>
   );
 }
+

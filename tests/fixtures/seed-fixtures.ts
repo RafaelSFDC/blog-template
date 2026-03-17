@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { hashPassword } from "better-auth/crypto";
 import { eq, inArray } from "drizzle-orm";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import {
   account,
   appSettings,
@@ -29,7 +29,7 @@ import {
   tags,
   user,
   webhooks,
-} from "#/db/schema";
+} from "#/server/db/schema";
 
 const FIXTURE_PASSWORD = "Password123!";
 
@@ -952,3 +952,4 @@ export async function seedOperationalFixtures() {
     })),
   };
 }
+

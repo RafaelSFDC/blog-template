@@ -3,7 +3,7 @@ import {
   betaOpsAccountUpdateSchema,
   betaOpsFeedbackCreateSchema,
 } from "#/schemas";
-import { buildBetaOpsAccountSeedFromMessage } from "#/server/dashboard/beta-ops";
+import { buildBetaOpsAccountSeedFromMessage } from "#/server/actions/dashboard/beta-ops";
 
 describe("beta ops", () => {
   it("parses canonical account and feedback enums", () => {
@@ -64,3 +64,4 @@ describe("beta ops", () => {
     });
   });
 });
+

@@ -9,8 +9,8 @@ import {
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
-import { getPublicPageBySlug } from "#/server/public/content";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getPublicPageBySlug } from "#/server/actions/public/content";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 
 export const Route = createFileRoute("/_public/$")({
   loader: async ({ params }) => {
@@ -122,3 +122,4 @@ function CmsPage() {
     />
   );
 }
+

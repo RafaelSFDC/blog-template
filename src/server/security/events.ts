@@ -1,5 +1,5 @@
-import { db } from "#/db/index";
-import { securityEvents } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { securityEvents } from "#/server/db/schema";
 
 export async function logSecurityEvent(input: {
   type: string;
@@ -21,3 +21,4 @@ export async function logSecurityEvent(input: {
     expiresAt: input.expiresAt ?? null,
   });
 }
+

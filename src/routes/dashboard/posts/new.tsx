@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import { toast } from "sonner";
 import { PostEditorScreen } from "#/components/dashboard/post-editor-screen";
 import { normalizePostSubmission } from "#/lib/editorial-form-utils";
-import { createPost } from "#/server/post-actions";
+import { createPost } from "#/server/actions/post-actions";
 
 export const Route = createFileRoute("/dashboard/posts/new")({
   component: NewPostPage,
@@ -66,3 +66,4 @@ function NewPostPage() {
     />
   );
 }
+

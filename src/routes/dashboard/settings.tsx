@@ -38,8 +38,8 @@ import {
 import {
   getDashboardSettings,
   updateDashboardSettings,
-} from "#/server/system/settings";
-import { getSetupStatusForDashboard } from "#/server/setup-actions";
+} from "#/server/actions/system/settings";
+import { getSetupStatusForDashboard } from "#/server/actions/setup-actions";
 import type { SetupStatus } from "#/types/system";
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -761,3 +761,4 @@ function SettingsPage() {
     </DashboardPageContainer>
   );
 }
+

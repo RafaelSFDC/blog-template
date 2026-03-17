@@ -9,17 +9,17 @@ vi.mock("#/server/newsletter-campaigns", () => ({
 }));
 
 function getClickHandler() {
-  return (
-    (Route as unknown as {
-      options?: {
+  const options = Reflect.get(Route, "options") as
+    | {
         server?: {
           handlers?: {
             GET?: (input: { request: Request }) => Promise<Response>;
           };
         };
-      };
-    }).options?.server?.handlers?.GET ?? null
-  );
+      }
+    | undefined;
+
+  return options?.server?.handlers?.GET ?? null;
 }
 
 import { Route } from "#/routes/api/newsletter/click";
@@ -59,4 +59,3 @@ describe("newsletter click api", () => {
     expect(mocks.recordNewsletterClick).not.toHaveBeenCalled();
   });
 });
-

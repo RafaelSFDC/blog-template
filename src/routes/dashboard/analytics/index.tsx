@@ -8,7 +8,7 @@ import { StatCard } from "#/components/ui/stat-card";
 import { Button } from "#/components/ui/button";
 import { analyticsRangeSchema } from "#/lib/analytics-events";
 import { useHydrated } from "#/hooks/use-hydrated";
-import { getAnalyticsStats } from "#/server/analytics-actions";
+import { getAnalyticsStats } from "#/server/actions/analytics-actions";
 import type { AnalyticsDashboardData } from "#/server/analytics-dashboard";
 
 export const Route = createFileRoute("/dashboard/analytics/")({
@@ -155,3 +155,4 @@ function AnalyticsDashboardSkeleton() {
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 import { and, count, eq, gte, lte, sql } from "drizzle-orm";
-import { db } from "#/db/index";
-import { rateLimitEvents } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { rateLimitEvents } from "#/server/db/schema";
 import type { RateLimitDecision, SecurityScope } from "#/types/security";
 import { getSecurityRequestMetadata, sha256 } from "#/server/security/request";
 import { logSecurityEvent } from "#/server/security/events";
@@ -106,3 +106,4 @@ export async function cleanupExpiredRateLimitEvents(now = new Date()) {
 
   return result.length;
 }
+

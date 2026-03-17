@@ -4,10 +4,10 @@ import { Badge } from "#/components/ui/badge";
 import { Lightbulb, Zap, Target } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { IconBox } from "#/components/IconBox";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 import { buildPublicSeo } from "#/lib/seo";
 import { PageContent } from "#/components/cms/PageContent";
-import { getOptionalPublicPageBySlug } from "#/server/public/content";
+import { getOptionalPublicPageBySlug } from "#/server/actions/public/content";
 
 export const Route = createFileRoute("/_public/about")({
   loader: async () => {
@@ -154,3 +154,4 @@ function About() {
     </main>
   );
 }
+

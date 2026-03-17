@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getBinding } from "#/server/system/cf-env";
-import { publishScheduledPosts } from "#/server/post-actions";
+import { publishScheduledPosts } from "#/server/actions/post-actions";
 import {
   getCronSecretConfig,
   isAuthorizedCronRequest,
@@ -54,3 +54,4 @@ export const Route = createFileRoute("/api/cron/publish")({
     },
   },
 });
+

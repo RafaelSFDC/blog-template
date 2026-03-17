@@ -17,7 +17,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "#/components/ui/sonner";
 import { useEffect } from "react";
 import { captureClientException } from "#/lib/sentry-client";
-import { getGlobalSettings } from "#/server/system/root-settings";
+import { getGlobalSettings } from "#/server/actions/system/root-settings";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -271,3 +271,4 @@ function RootNotFoundComponent() {
     </main>
   );
 }
+

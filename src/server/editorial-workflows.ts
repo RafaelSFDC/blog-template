@@ -1,5 +1,5 @@
 import { and, desc, eq, gt, inArray, lt } from "drizzle-orm";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import {
   contentLocks,
   editorialChecklists,
@@ -11,7 +11,7 @@ import {
   posts,
   postTags,
   user,
-} from "#/db/schema";
+} from "#/server/db/schema";
 import type { ContentLockState, RevisionSource } from "#/types/editorial";
 import { EDITORIAL_CHECKLIST_ITEMS } from "#/lib/editorial-workflow";
 
@@ -506,3 +506,4 @@ export async function listAssignableEditors() {
     orderBy: [user.name],
   });
 }
+

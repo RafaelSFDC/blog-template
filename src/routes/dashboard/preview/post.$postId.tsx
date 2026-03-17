@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PostEditorialPreview } from "#/components/dashboard/editorial-preview";
 import { buildPostPreviewDraft } from "#/lib/editorial-preview";
-import { getPostPreviewData } from "#/server/post-actions";
+import { getPostPreviewData } from "#/server/actions/post-actions";
 
 export const Route = createFileRoute("/dashboard/preview/post/$postId")({
   loader: async ({ params }) => {
@@ -31,3 +31,4 @@ function PostPreviewPage() {
     </div>
   );
 }
+

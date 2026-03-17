@@ -16,7 +16,7 @@ import { captureClientEvent } from "#/lib/analytics-client";
 import type { BetaRequestSubmissionValues, BetaRequestValues } from "#/schemas";
 import { betaRequestSubmissionSchema } from "#/schemas";
 import { captureClientException } from "#/lib/sentry-client";
-import { submitLuminaBetaRequest } from "#/server/public/lumina-beta";
+import { submitLuminaBetaRequest } from "#/server/actions/public/lumina-beta";
 import { useEffect } from "react";
 
 type BetaRequestFormValues = BetaRequestSubmissionValues;
@@ -286,3 +286,4 @@ export function LuminaBetaRequestForm() {
     </form>
   );
 }
+

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import { eq, desc } from "drizzle-orm";
-import { posts } from "#/db/schema";
+import { posts } from "#/server/db/schema";
 import { getGlobalSiteData } from "#/server/system/site-data";
 import { resolveSiteUrl } from "#/lib/seo";
 
@@ -62,3 +62,4 @@ export const Route = createFileRoute("/rss/xml")({
     },
   },
 });
+

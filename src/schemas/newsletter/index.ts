@@ -14,3 +14,8 @@ export {
   newsletterSubscribeSubmissionSchema,
   subscriberStatusSchema,
 } from "#/schemas/core";
+
+export {
+  newsletterCampaignFormSchema,
+  newsletterCampaignSubmissionSchema,
+} from "#/schemas/newsletter/forms";

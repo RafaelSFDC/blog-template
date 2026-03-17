@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("#/db/index", () => ({
+vi.mock("#/server/db/index", () => ({
   db: {
     query: {
       posts: {
@@ -25,7 +25,7 @@ vi.mock("#/db/index", () => ({
   },
 }));
 
-import { createPendingComment } from "#/server/comment-actions";
+import { createPendingComment } from "#/server/actions/comment-actions";
 
 describe("comment-actions", () => {
   beforeEach(() => {
@@ -118,3 +118,4 @@ describe("comment-actions", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 });
+

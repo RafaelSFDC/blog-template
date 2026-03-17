@@ -21,7 +21,7 @@ import {
 } from "#/lib/seo";
 import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
-import { addPublicComment, getPublicPostBySlug } from "#/server/public/content";
+import { addPublicComment, getPublicPostBySlug } from "#/server/actions/public/content";
 
 type PostBySlugData = Awaited<ReturnType<typeof getPublicPostBySlug>>;
 
@@ -240,3 +240,4 @@ function PostDetail() {
     </main>
   );
 }
+

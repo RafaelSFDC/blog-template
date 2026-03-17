@@ -7,8 +7,8 @@ import { SetupIncompleteNotice } from "#/components/dashboard/setup-incomplete-n
 import { Library, Plus, Pencil, Trash2, House } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { deletePage, getPages } from "#/server/page-actions";
-import { getSetupStatusForDashboard } from "#/server/setup-actions";
+import { deletePage, getPages } from "#/server/actions/page-actions";
+import { getSetupStatusForDashboard } from "#/server/actions/setup-actions";
 import type { SetupStatus } from "#/types/system";
 
 type DashboardPage = Awaited<ReturnType<typeof getPages>>[number];
@@ -139,3 +139,4 @@ function PagesManagementPage() {
     </DashboardPageContainer>
   );
 }
+

@@ -7,7 +7,7 @@ import { SetupChecklist } from "#/components/dashboard/setup-checklist";
 import { Button } from "#/components/ui/button";
 import { StatCard } from "#/components/ui/stat-card";
 import { StatusBadge } from "#/components/ui/status-badge";
-import { posts } from "#/db/schema";
+import { posts } from "#/server/db/schema";
 import {
   FileText,
   Eye,
@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { getEditorialStatusCopy, getEditorialStatusTone } from "#/lib/editorial-workflow";
 import { authClient } from "#/lib/auth-client";
-import { getDashboardOverview } from "#/server/dashboard/overview";
+import { getDashboardOverview } from "#/server/actions/dashboard/overview";
 import type { SetupStatus } from "#/types/system";
 
 type PostRow = typeof posts.$inferSelect;
@@ -169,9 +169,7 @@ function DashboardOverview() {
                   </h4>
                   <p className="text-xs text-muted-foreground mt-1 font-bold">
                     Updated{" "}
-                    {new Date(
-                      post.updatedAt || post.createdAt,
-                    ).toLocaleDateString()}
+                    {new Date(post.updatedAt ?? new Date()).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -229,3 +227,4 @@ function DashboardOverview() {
     </DashboardPageContainer>
   );
 }
+

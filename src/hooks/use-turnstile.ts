@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPublicSecurityConfig } from "#/server/security/config";
+import { getPublicSecurityConfig } from "#/server/actions/security/config";
 
 declare global {
   interface Window {
@@ -120,3 +120,4 @@ export function useTurnstileScript(enabled: boolean) {
 
   return { loaded, error };
 }
+

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { betaRequestSubmissionSchema } from "#/schemas";
-import { buildLuminaBetaRequestRecord } from "#/server/public/lumina-beta";
+import { buildLuminaBetaRequestRecord } from "#/server/actions/public/lumina-beta";
 
 describe("lumina beta request", () => {
   it("builds a triage-friendly contact message record", () => {
@@ -39,3 +39,4 @@ describe("lumina beta request", () => {
     expect(record.message).toContain(parsed.message);
   });
 });
+

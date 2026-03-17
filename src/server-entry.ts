@@ -8,7 +8,7 @@ import {
   processNewsletterQueueBatch,
   type NewsletterQueueMessage,
 } from "#/server/newsletter-campaigns";
-import { publishScheduledPosts } from "#/server/post-actions";
+import { publishScheduledPosts } from "#/server/actions/post-actions";
 import { cleanupExpiredRateLimitEvents } from "#/server/security/rate-limit";
 import {
   captureServerException,
@@ -50,8 +50,7 @@ type WorkerEnv = {
   SENTRY_RELEASE?: string;
 };
 
-const workerFetch =
-  fetch as unknown as ExportedHandlerFetchHandler<WorkerEnv, unknown>;
+const workerFetch = fetch as ExportedHandlerFetchHandler<WorkerEnv, unknown>;
 
 function isNewsletterQueueMessage(value: unknown): value is NewsletterQueueMessage {
   if (!value || typeof value !== "object") {
@@ -103,3 +102,4 @@ export default Sentry.withSentry(
   (env: WorkerEnv) => getWorkerSentryOptions(env),
   handler,
 );
+

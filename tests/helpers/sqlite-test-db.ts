@@ -78,25 +78,18 @@ export async function withIsolatedDatabase<T>(
   name: string,
   run: (dbPath: string) => Promise<T>,
 ) {
-  const previousType = process.env.DB_TYPE;
   const previousUrl = process.env.DATABASE_URL;
   const dbPath = createTempDatabasePath(name);
 
   applySqliteMigrations(dbPath);
-  process.env.DB_TYPE = "sqlite";
   process.env.DATABASE_URL = dbPath;
 
-  const { reinitializeDbForTesting } = await import("#/db/index");
+  const { reinitializeDbForTesting } = await import("#/server/db/index");
   await reinitializeDbForTesting();
 
   try {
     return await run(dbPath);
   } finally {
-    if (previousType === undefined) {
-      Reflect.deleteProperty(process.env, "DB_TYPE");
-    } else {
-      process.env.DB_TYPE = previousType;
-    }
     if (previousUrl === undefined) {
       Reflect.deleteProperty(process.env, "DATABASE_URL");
     } else {
@@ -106,3 +99,4 @@ export async function withIsolatedDatabase<T>(
     await removeFileWithRetries(dbPath);
   }
 }
+

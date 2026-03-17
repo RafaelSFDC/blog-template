@@ -26,7 +26,7 @@ import LinkExtension from '@tiptap/extension-link'
 import UnderlineExtension from '@tiptap/extension-underline'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import TextAlign from '@tiptap/extension-text-align'
-import { uploadMedia } from '#/server/media-actions'
+import { uploadMedia } from '#/server/actions/media-actions'
 import { useRef } from 'react'
 import { toast } from 'sonner'
 import { captureClientException } from '#/lib/sentry-client'
@@ -307,3 +307,4 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     </div>
   )
 }
+

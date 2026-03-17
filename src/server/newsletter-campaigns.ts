@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, count, desc, eq, lte } from "drizzle-orm";
 import { assertSafeExternalUrl } from "#/lib/url-security";
-import { db } from "#/db/index";
+import { db } from "#/server/db/index";
 import {
   newsletterDeliveries,
   newsletterConsents,
@@ -11,7 +11,7 @@ import {
   subscriberEvents,
   subscriptions,
   user,
-} from "#/db/schema";
+} from "#/server/db/schema";
 import { getBinding } from "#/server/system/cf-env";
 import { resend as defaultResend } from "#/server/integrations/resend";
 import { getEffectiveSubscriptionStatus, hasPremiumEntitlement } from "#/lib/membership";
@@ -1208,3 +1208,4 @@ export async function processResendWebhook(payload: ResendWebhookPayload) {
   await finalizeCampaignStatus(delivery.newsletterId);
   return { duplicate: false, processed: true };
 }
+

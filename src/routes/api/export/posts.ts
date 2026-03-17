@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { db } from '#/db/index'
+import { db } from '#/server/db/index'
 import { requireAdminSession } from '#/server/auth/session'
 
 export const Route = createFileRoute('/api/export/posts')({
@@ -30,3 +30,4 @@ export const Route = createFileRoute('/api/export/posts')({
     }
   }
 })
+

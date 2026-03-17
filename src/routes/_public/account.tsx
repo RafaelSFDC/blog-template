@@ -10,10 +10,10 @@ import { Input } from "#/components/ui/input";
 import { captureClientEvent } from "#/lib/analytics-client";
 import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
-import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
-import { getCurrentSubscriptionSummary } from "#/server/membership-actions";
-import { deleteCurrentUserData, exportCurrentUserData } from "#/server/security/privacy";
-import { checkAuthenticatedUserAccess } from "#/server/system/dashboard-access";
+import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/actions/author-profile-actions";
+import { getCurrentSubscriptionSummary } from "#/server/actions/membership-actions";
+import { deleteCurrentUserData, exportCurrentUserData } from "#/server/actions/security/privacy";
+import { checkAuthenticatedUserAccess } from "#/server/actions/system/dashboard-access";
 
 export const Route = createFileRoute("/_public/account")({
   beforeLoad: async () => {
@@ -822,3 +822,4 @@ function AccountPage() {
     </div>
   );
 }
+

@@ -17,7 +17,7 @@ import { usePostHog } from "@posthog/react";
 import { useState } from "react";
 import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
-import { getCurrentAuthSession } from "#/server/public/auth";
+import { getCurrentAuthSession } from "#/server/actions/public/auth";
 
 export const Route = createFileRoute("/_public/auth/login")({
   beforeLoad: async () => {
@@ -199,3 +199,4 @@ function LoginPage() {
     </div>
   );
 }
+

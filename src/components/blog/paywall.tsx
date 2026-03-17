@@ -7,7 +7,7 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { buildPaywallCopy, type PaywallVariantKey } from "#/lib/conversion";
 import { captureClientException } from "#/lib/sentry-client";
-import { subscribeNewsletter } from "#/server/newsletter-actions";
+import { subscribeNewsletter } from "#/server/actions/newsletter-actions";
 
 interface PaywallProps {
   onSubscribe?: () => void;
@@ -245,3 +245,4 @@ export function Paywall({
     </div>
   );
 }
+

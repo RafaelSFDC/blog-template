@@ -1,6 +1,6 @@
 import { and, desc, eq, gte } from "drizzle-orm";
-import { db } from "#/db/index";
-import { comments } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { comments } from "#/server/db/schema";
 
 const SUSPICIOUS_TERMS = [
   "crypto giveaway",
@@ -67,3 +67,4 @@ export async function evaluateCommentSpam(input: {
 
   return { decision: "pending" as const, reason: null };
 }
+

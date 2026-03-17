@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useEffect } from "react"
 import { usePostHog } from "@posthog/react"
-import { checkDashboardAccess } from '#/server/system/dashboard-access'
+import { checkDashboardAccess } from '#/server/actions/system/dashboard-access'
 import { captureClientEvent } from "#/lib/analytics-client"
-import { getSetupStatus, skipSetup } from '#/server/setup-actions'
+import { getSetupStatus, skipSetup } from '#/server/actions/setup-actions'
 import { shouldRedirectToSetup } from '#/lib/setup'
 
 export const Route = createFileRoute('/dashboard')({
@@ -27,9 +27,8 @@ export const Route = createFileRoute('/dashboard')({
     }
 
     if (
-      result.session.user.role === 'admin' ||
-      result.session.user.role === 'super-admin' ||
-      result.session.user.role === 'superAdmin'
+      ((result.session.user as { role?: string }).role === 'admin') ||
+      ((result.session.user as { role?: string }).role === 'super-admin')
     ) {
       if (skipSetupRequested) {
         await skipSetup()
@@ -39,7 +38,7 @@ export const Route = createFileRoute('/dashboard')({
       }
 
       const setupStatus = await getSetupStatus()
-      if (shouldRedirectToSetup(setupStatus, result.session.user.role)) {
+      if (shouldRedirectToSetup(setupStatus, (result.session.user as { role?: string }).role)) {
         throw redirect({
           to: '/dashboard/setup',
         })
@@ -81,3 +80,4 @@ function DashboardLayout() {
     </SidebarProvider>
   )
 }
+

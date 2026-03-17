@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type Stripe from "stripe";
 import { withIsolatedDatabase } from "../helpers/sqlite-test-db";
 
 const mocks = vi.hoisted(() => ({
@@ -31,7 +30,7 @@ vi.mock("#/server/stripe", () => ({
         unit_amount: 1900,
         currency: "usd",
         type: "one_time",
-      } satisfies Partial<Stripe.Price>),
+      }),
     },
   },
 }));
@@ -43,9 +42,9 @@ describe("membership webhook integration", () => {
 
   it("stores stripe events once and ignores duplicates", async () => {
     await withIsolatedDatabase("stripe-webhook", async () => {
-      const { db } = await import("#/db/index");
-      const { appSettings, user } = await import("#/db/schema");
-      const { processStripeWebhookEvent } = await import("#/server/membership-actions");
+      const { db } = await import("#/server/db/index");
+      const { appSettings, user } = await import("#/server/db/schema");
+      const { processStripeWebhookEvent } = await import("#/server/actions/membership-actions");
 
       await db.insert(user).values({
         id: "member-1",
@@ -70,27 +69,15 @@ describe("membership webhook integration", () => {
         canceled_at: null,
         ended_at: null,
         items: {
-          object: "list",
-          has_more: false,
-          url: "/v1/subscription_items",
           data: [
             {
-              id: "si_123",
-              object: "subscription_item",
-              billing_thresholds: null,
-              created: 1_773_014_400,
-              discounts: [],
-              metadata: {},
-              quantity: 1,
-              subscription: "sub_123",
-              tax_rates: [],
-              price: { id: "price_monthly" } as Stripe.Price,
+              price: { id: "price_monthly" },
               current_period_start: 1_773_014_400,
               current_period_end: 1_775_692_800,
-            } as unknown as Stripe.SubscriptionItem,
+            },
           ],
-        } as Stripe.ApiList<Stripe.SubscriptionItem>,
-      } satisfies Partial<Stripe.Subscription>);
+        },
+      });
 
       const event = {
         id: "evt_fixture_checkout",
@@ -106,7 +93,7 @@ describe("membership webhook integration", () => {
             },
           },
         },
-      } as unknown as Stripe.Event;
+      };
 
       const first = await processStripeWebhookEvent(event);
       const duplicate = await processStripeWebhookEvent(event);
@@ -116,3 +103,4 @@ describe("membership webhook integration", () => {
     });
   }, 15000);
 });
+
