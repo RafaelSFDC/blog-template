@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
   exportDashboardSubscribersCsv,
   getDashboardSubscribers,
-} from "#/server/dashboard/subscribers";
+} from "#/server/actions/dashboard/subscribers";
 
 export const Route = createFileRoute("/dashboard/users/subscribers")({
   loader: () => getDashboardSubscribers(),
@@ -136,3 +136,4 @@ function SubscribersPage() {
     </DashboardPageContainer>
   );
 }
+

@@ -126,7 +126,6 @@ Os documentos em [`docs/vision.md`](./docs/vision.md), [`docs/current-state.md`]
 - Better Auth
 - SQLite local via `better-sqlite3`
 - Cloudflare D1
-- suporte adicional a Neon e LibSQL/Turso
 
 ### Infra e servicos
 
@@ -136,7 +135,6 @@ Os documentos em [`docs/vision.md`](./docs/vision.md), [`docs/current-state.md`]
 - PostHog
 - Stripe
 - Resend
-- AWS SDK S3 client para acesso compativel ao R2 via API
 
 ### Qualidade e DX
 
@@ -153,7 +151,7 @@ O projeto segue uma organizacao full-stack em torno do TanStack Start:
 - `src/routes`: rotas file-based publicas, administrativas e de API
 - `src/server`: regras de dominio e server actions por modulo
 - `src/components`: componentes de UI, blog, dashboard, auth, CMS e analytics
-- `src/db`: adaptadores, schema e bootstrap do Drizzle
+- `src/server/db`: schema e bootstrap do Drizzle para runtime server-only
 - `src/lib`: utilitarios, validacoes, auth, SEO, storage, CMS e webhooks
 - `src/styles`: temas CSS do produto
 - `drizzle`: migrations SQL
@@ -177,10 +175,11 @@ lumina/
 |  |  |- dashboard/          # layout e componentes do painel
 |  |  |- tiptap/             # extensoes e toolbars do editor
 |  |  `- ui/                 # biblioteca de componentes reutilizaveis
-|  |- db/
-|  |  |- dialect.ts          # abstracao entre sqlite e postgres
-|  |  |- index.ts            # inicializacao do Drizzle por ambiente
-|  |  `- schema.ts           # schema principal do banco
+|  |- server/
+|  |  |- db/
+|  |  |  |- dialect.ts       # abstracao sqlite para o schema
+|  |  |  |- index.ts         # inicializacao do Drizzle no runtime server
+|  |  |  `- schema.ts        # schema principal do banco
 |  |- integrations/
 |  |  |- better-auth/
 |  |  `- tanstack-query/
@@ -255,7 +254,7 @@ lumina/
 
 ## Modelo De Dados
 
-O schema principal em `src/db/schema.ts` cobre:
+O schema principal em `src/server/db/schema.ts` cobre:
 
 - usuarios, sessoes, contas e verificacoes
 - categorias e tags
@@ -276,32 +275,22 @@ O schema principal em `src/db/schema.ts` cobre:
 
 ## Banco E Adaptadores
 
-O projeto suporta multiplos modos de banco definidos por `DB_TYPE`:
-
-- `sqlite`: desenvolvimento local com arquivo `blog.db`
-- `d1`: producao/local Cloudflare com binding `DB`
-- `neon`: Postgres serverless
-- `libsql`: Turso/LibSQL
+O projeto usa **SQLite no desenvolvimento e testes** e **Cloudflare D1 em producao**.
 
 Arquivos principais:
 
-- `src/db/index.ts`: escolhe o driver em runtime
-- `src/db/dialect.ts`: abstrai tipos do schema entre sqlite e postgres
-- `drizzle.config.ts`: configuracao do Drizzle Kit
+- `src/server/db/index.ts`: inicializa SQLite local e D1 em ambiente de producao
+- `src/server/db/dialect.ts`: definicoes SQLite compartilhadas pelo schema
+- `drizzle.config.ts`: configuracao do Drizzle Kit para SQLite
 
 ## Storage De Midia
 
-O modulo de storage possui tres modos:
+O modulo de storage possui dois modos:
 
-- `binding`: usa o binding `STORAGE` do Cloudflare R2
-- `remote-api`: usa R2 pela API S3 compativel
-- `local`: salva uploads em `public/uploads`
+- `binding`: usa o binding `STORAGE` do Cloudflare R2 em producao
+- `local`: salva uploads em `public/uploads` no desenvolvimento/testes
 
-Isso permite:
-
-- desenvolver localmente sem depender de R2
-- validar fluxo de objetos no Cloudflare local runtime
-- servir midia por URL publica ou por `/api/media/:filename`
+As midias podem ser servidas por URL publica configurada (`R2_PUBLIC_URL`) ou por `/api/media/:filename`.
 
 ## Autenticacao E Permissoes
 
@@ -466,7 +455,7 @@ Como funciona:
 Entrypoints envolvidos:
 
 - `src/server-entry.ts`: handler `scheduled`
-- `src/server/post-actions.ts`: regra de publicacao agendada
+- `src/server/actions/post-actions.ts`: regra de publicacao agendada
 - `src/routes/api/cron.publish.ts`: fallback/manual trigger por HTTP
 
 No Cloudflare, o cron esta configurado em `wrangler.jsonc` para rodar a cada 5 minutos.
@@ -478,9 +467,7 @@ Copie `.env.example` para `.env.local` ou `.env`.
 ### Banco
 
 ```bash
-DB_TYPE=sqlite
 DATABASE_URL=blog.db
-DATABASE_AUTH_TOKEN=
 ```
 
 ### Cloudflare D1
@@ -505,10 +492,6 @@ GOOGLE_CLIENT_SECRET=
 ### Cloudflare R2
 
 ```bash
-R2_ACCESS_KEY_ID=
-R2_SECRET_ACCESS_KEY=
-R2_ACCOUNT_ID=
-R2_BUCKET_NAME=
 R2_PUBLIC_URL=
 ```
 
@@ -559,28 +542,19 @@ cp .env.example .env.local
 
 No Windows PowerShell, voce pode criar/copiar manualmente o arquivo se preferir.
 
-### 3. Escolher o modo de banco
-
-Para desenvolvimento simples, use:
-
-```bash
-DB_TYPE=sqlite
-DATABASE_URL=blog.db
-```
-
-### 4. Rodar migracoes
+### 3. Rodar migracoes
 
 ```bash
 pnpm db:migrate
 ```
 
-### 5. Popular dados de exemplo
+### 4. Popular dados de exemplo
 
 ```bash
 pnpm seed
 ```
 
-### 6. Subir o projeto
+### 5. Subir o projeto
 
 ```bash
 pnpm dev
@@ -588,39 +562,16 @@ pnpm dev
 
 Aplicacao disponivel em `http://localhost:3000`.
 
-## Desenvolvimento Com Cloudflare
-
-Para validar bindings e runtime de Worker localmente:
-
-```bash
-pnpm dev:cf
-```
-
-Para testar eventos agendados:
-
-```bash
-pnpm dev:cf:scheduled
-```
-
-Depois acesse:
-
-```text
-http://localhost:3000/__scheduled
-```
-
 ## Scripts Importantes
 
 ```bash
 pnpm dev                 # Vite dev server
-pnpm dev:cf             # Worker local com Wrangler
-pnpm dev:cf:scheduled   # Worker local com suporte a scheduled
 pnpm build              # build de producao
 pnpm preview            # preview local do build
 pnpm lint               # lint
 pnpm lint:fix           # lint com correcao
 pnpm test               # testes com Vitest
 pnpm seed               # popula dados de exemplo
-pnpm seed:cf            # prepara D1 local e roda seed
 pnpm db:migrate         # migracoes locais
 pnpm db:migrate:prod    # migracoes para producao
 pnpm db:generate        # gera migration Drizzle
@@ -687,9 +638,9 @@ Ha testes cobrindo areas como:
 - `wrangler.jsonc`: config do Worker, D1, R2 e cron
 - `drizzle.config.ts`: config do Drizzle Kit
 - `src/server-entry.ts`: entrada do Worker e eventos scheduled
-- `src/db/schema.ts`: schema central
+- `src/server/db/schema.ts`: schema central
 - `src/lib/auth.ts`: configuracao do Better Auth
-- `src/lib/storage.ts`: storage local/R2
+- `src/server/system/storage.ts`: storage local/R2
 - `src/lib/cms.ts`: carregamento de settings e menus globais
 
 ## Documentacao Interna

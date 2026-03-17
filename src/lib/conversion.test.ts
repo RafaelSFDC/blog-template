@@ -17,7 +17,7 @@ describe("conversion helpers", () => {
 
     expect(
       resolvePaywallVariant({
-        sitePresetKey: "premium-publication" as never,
+        sitePresetKey: "premium-publication",
         teaserMode: "excerpt",
         isPremium: true,
       }),

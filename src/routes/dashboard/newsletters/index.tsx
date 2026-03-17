@@ -11,7 +11,7 @@ import {
   deleteNewsletterCampaignAction,
   exportSubscribersCsv,
   getNewsletterIndexData,
-} from "#/server/newsletter-actions";
+} from "#/server/actions/newsletter-actions";
 
 export const Route = createFileRoute("/dashboard/newsletters/")({
   loader: () => getNewsletterIndexData(),
@@ -114,7 +114,12 @@ function NewsletterIndexPage() {
                     {campaign.preheader || "No preheader defined yet."}
                   </p>
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                    <span>Created {format(new Date(campaign.createdAt), "MMM d, yyyy HH:mm")}</span>
+                    <span>
+                      Created{" "}
+                      {campaign.createdAt
+                        ? format(new Date(campaign.createdAt), "MMM d, yyyy HH:mm")
+                        : "Unknown"}
+                    </span>
                     <span>Recipients {campaign.totalRecipients}</span>
                     <span>Sent {campaign.sentCount}</span>
                     <span>Failed {campaign.failedCount}</span>
@@ -163,3 +168,4 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
     </div>
   );
 }
+

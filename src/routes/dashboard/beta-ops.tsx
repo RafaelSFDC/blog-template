@@ -26,8 +26,8 @@ import {
   promoteMessageToBetaOpsAccount,
   updateBetaOpsAccount,
   updateBetaOpsFeedback,
-} from "#/server/dashboard/beta-ops";
-import type { BetaOpsDashboardData } from "#/server/dashboard/beta-ops";
+} from "#/server/actions/dashboard/beta-ops";
+import type { BetaOpsDashboardData } from "#/server/actions/dashboard/beta-ops";
 
 export const Route = createFileRoute("/dashboard/beta-ops")({
   loader: () => getBetaOpsDashboard(),
@@ -599,3 +599,4 @@ function formatDateInput(value: Date | string | null | undefined) {
 
   return date.toISOString().slice(0, 10);
 }
+

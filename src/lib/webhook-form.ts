@@ -1,12 +1,7 @@
-import { z } from "zod";
+import { webhookFormSchema } from "#/schemas/system";
 import type { WebhookFormValues } from "#/types/forms";
 
-export const webhookFormSchema = z.object({
-  name: z.string(),
-  url: z.string(),
-  event: z.literal("post.published"),
-  secret: z.string(),
-});
+export { webhookFormSchema };
 
 export const defaultWebhookFormValues: WebhookFormValues = {
   name: "",

@@ -27,7 +27,7 @@ import {
   heartbeatPageLock,
   releasePageLock,
   restorePageRevision,
-} from "#/server/page-actions";
+} from "#/server/actions/page-actions";
 
 type PageStatus = PageEditorFormValues["status"];
 type PageRevision = Awaited<ReturnType<typeof getPageRevisionsForEditor>>[number];
@@ -576,3 +576,4 @@ export function PageEditorScreen({
     </DashboardPageContainer>
   );
 }
+

@@ -320,7 +320,7 @@ export function buildSetupStatus(snapshot: SetupSnapshot): SetupStatus {
 }
 
 export function shouldRedirectToSetup(status: SetupStatus, role?: string | null) {
-  const isAdmin = role === "admin" || role === "super-admin" || role === "superAdmin";
+  const isAdmin = role === "admin" || role === "super-admin";
   return isAdmin && status.isBlocking && !status.isSkipped && status.nextAction !== null;
 }
 

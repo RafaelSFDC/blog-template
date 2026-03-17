@@ -414,6 +414,9 @@ export const betaRequestSubmissionSchema = betaRequestSchema.extend({
   turnstileToken: turnstileTokenSchema,
 });
 
+export type BetaRequestValues = z.infer<typeof betaRequestSchema>;
+export type BetaRequestSubmissionValues = z.infer<typeof betaRequestSubmissionSchema>;
+
 export const betaOpsAccountCreateFromMessageSchema = z.object({
   messageId: positiveIntSchema,
 });

@@ -30,7 +30,7 @@ import {
   normalizeWebhookFormValues,
   webhookFormSchema,
 } from "#/lib/webhook-form";
-import { createDashboardWebhook } from "#/server/dashboard/webhooks";
+import { createDashboardWebhook } from "#/server/actions/dashboard/webhooks";
 
 export const Route = createFileRoute("/dashboard/webhooks/new")({
   component: NewWebhookPage,
@@ -220,3 +220,4 @@ function NewWebhookPage() {
     </DashboardPageContainer>
   );
 }
+

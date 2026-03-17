@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { PageEditorScreen } from "#/components/dashboard/page-editor-screen";
 import { normalizePageSubmission } from "#/lib/editorial-form-utils";
 import { isPuckPageContent } from "#/lib/puck";
-import { getPageById, updatePage } from "#/server/page-actions";
+import { teaserModeSchema } from "#/schemas/editorial";
+import { getPageById, updatePage } from "#/server/actions/page-actions";
 
 export const Route = createFileRoute("/dashboard/pages/$pageId/edit")({
   loader: async ({ params }) => {
@@ -43,7 +44,7 @@ function EditPagePage() {
         ogImage: page.ogImage || "",
         seoNoIndex: page.seoNoIndex || false,
         isPremium: page.isPremium || false,
-        teaserMode: page.teaserMode || "excerpt",
+        teaserMode: teaserModeSchema.catch("excerpt").parse(page.teaserMode),
         status: page.status as "draft" | "published" | "private",
         isHome: page.isHome || false,
         useVisualBuilder: isPuckPageContent(page.content),
@@ -67,3 +68,4 @@ function EditPagePage() {
     />
   );
 }
+

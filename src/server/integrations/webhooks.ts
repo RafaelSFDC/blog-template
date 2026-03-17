@@ -1,8 +1,8 @@
-import { db } from "#/db/index";
-import { webhooks, webhookDeliveries } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { webhooks, webhookDeliveries } from "#/server/db/schema";
 import { eq, and, type InferSelectModel } from "drizzle-orm";
 import { type z } from "zod";
-import * as schema from "#/db/schema";
+import * as schema from "#/server/db/schema";
 import { webhookEventSchema } from "#/schemas/system";
 
 type Webhook = InferSelectModel<typeof schema.webhooks>;
@@ -64,3 +64,4 @@ export async function triggerWebhook(event: WebhookEvent, payload: unknown) {
   // In a serverless env, we might need to wait or use event.waitUntil
   await Promise.allSettled(deliveryPromises);
 }
+

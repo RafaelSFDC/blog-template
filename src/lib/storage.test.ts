@@ -6,22 +6,12 @@ import {
 } from "#/server/system/storage";
 
 describe("storage", () => {
-  it("resolves local mode when no binding or remote config exists", () => {
+  it("resolves local mode when no binding exists", () => {
     expect(
       resolveStorageMode({
         hasBinding: false,
-        hasRemoteApiConfig: false,
       }),
     ).toBe("local");
-  });
-
-  it("resolves remote-api mode when credentials are available", () => {
-    expect(
-      resolveStorageMode({
-        hasBinding: false,
-        hasRemoteApiConfig: true,
-      }),
-    ).toBe("remote-api");
   });
 
   it("prefers a public R2 url when configured", () => {

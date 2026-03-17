@@ -8,8 +8,8 @@ import { PageContent } from "#/components/cms/PageContent";
 import { Button } from "#/components/ui/button";
 import { captureClientEvent } from "#/lib/analytics-client";
 import { captureClientException } from "#/lib/sentry-client";
-import { getOptionalPublicPageBySlug } from "#/server/public/content";
-import { getPricingPageData } from "#/server/public/site";
+import { getOptionalPublicPageBySlug } from "#/server/actions/public/content";
+import { getPricingPageData } from "#/server/actions/public/site";
 
 const pricingSearchSchema = z.object({
   plan: z.enum(["monthly", "annual"]).optional(),
@@ -420,3 +420,4 @@ function PricingPage() {
     </>
   );
 }
+

@@ -4,7 +4,7 @@ import { TurnstileField } from "#/components/security/turnstile-field";
 import { Input } from "#/components/ui/input";
 import { Mail } from "lucide-react";
 import { cn } from "#/lib/utils";
-import { subscribeNewsletter } from "#/server/newsletter-actions";
+import { subscribeNewsletter } from "#/server/actions/newsletter-actions";
 import { toast } from "sonner";
 import { usePostHog } from "@posthog/react";
 import { captureClientEvent } from "#/lib/analytics-client";
@@ -141,3 +141,4 @@ export function Newsletter({
     </section>
   );
 }
+

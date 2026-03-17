@@ -5,19 +5,19 @@ import { withIsolatedDatabase } from "../helpers/sqlite-test-db";
 describe("beta ops integration", () => {
   it("promotes a beta request, updates the account, and logs feedback", async () => {
     await withIsolatedDatabase("beta-ops", async () => {
-      const { db } = await import("#/db/index");
+      const { db } = await import("#/server/db/index");
       const {
         betaOpsAccounts,
         contactMessages,
         user,
-      } = await import("#/db/schema");
+      } = await import("#/server/db/schema");
       const {
         createBetaOpsFeedbackRecord,
         getBetaOpsDashboardData,
         promoteContactMessageToBetaOpsAccount,
         updateBetaOpsAccountRecord,
         updateBetaOpsFeedbackRecord,
-      } = await import("#/server/dashboard/beta-ops");
+      } = await import("#/server/actions/dashboard/beta-ops");
 
       await db.insert(user).values({
         id: "ops-owner",
@@ -112,3 +112,4 @@ describe("beta ops integration", () => {
     });
   }, 15000);
 });
+

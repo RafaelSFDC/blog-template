@@ -2,8 +2,8 @@
 const REGISTRATION_LOCK_KEY = 'registration_locked'
 
 export async function isRegistrationLocked() {
-  const { db } = await import('#/db/index')
-  const { appSettings } = await import('#/db/schema')
+  const { db } = await import('#/server/db/index')
+  const { appSettings } = await import('#/server/db/schema')
   const { eq } = await import('drizzle-orm')
 
   const row = await db.query.appSettings.findFirst({
@@ -14,8 +14,8 @@ export async function isRegistrationLocked() {
 }
 
 export async function lockRegistration() {
-  const { db } = await import('#/db/index')
-  const { appSettings } = await import('#/db/schema')
+  const { db } = await import('#/server/db/index')
+  const { appSettings } = await import('#/server/db/schema')
 
   await db
     .insert(appSettings)
@@ -32,3 +32,4 @@ export async function lockRegistration() {
       },
     })
 }
+

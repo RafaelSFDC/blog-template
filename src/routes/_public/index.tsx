@@ -16,8 +16,8 @@ import {
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { captureClientException } from "#/lib/sentry-client";
-import { getHomepage, getTopPosts } from "#/server/public/site";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getHomepage, getTopPosts } from "#/server/actions/public/site";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 
 export const Route = createFileRoute("/_public/")({
   loader: async () => {
@@ -249,3 +249,4 @@ function Home() {
     </main>
   );
 }
+

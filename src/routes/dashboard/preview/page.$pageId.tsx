@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PageEditorialPreview } from "#/components/dashboard/editorial-preview";
 import { buildPagePreviewDraft } from "#/lib/editorial-preview";
-import { getPagePreviewData } from "#/server/page-actions";
+import { getPagePreviewData } from "#/server/actions/page-actions";
 
 export const Route = createFileRoute("/dashboard/preview/page/$pageId")({
   loader: async ({ params }) => {
@@ -24,3 +24,4 @@ function PagePreviewPage() {
     </div>
   );
 }
+

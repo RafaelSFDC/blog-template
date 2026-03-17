@@ -5,9 +5,9 @@ describe("setup actions", () => {
   it("returns skipped setup state without breaking checklist progress", async () => {
     await withIsolatedDatabase("setup-actions-skip", async () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
-        import("#/db/index"),
-        import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/db/index"),
+        import("#/server/db/schema"),
+        import("#/server/actions/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([
@@ -37,9 +37,9 @@ describe("setup actions", () => {
   it("treats completed setup as non-blocking even if content work remains", async () => {
     await withIsolatedDatabase("setup-actions-content", async () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
-        import("#/db/index"),
-        import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/db/index"),
+        import("#/server/db/schema"),
+        import("#/server/actions/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([
@@ -85,9 +85,9 @@ describe("setup actions", () => {
   it("returns the same setup summary for admin, super-admin, and legacy superAdmin", async () => {
     await withIsolatedDatabase("setup-actions-role-parity", async () => {
       const [{ db }, { appSettings }, { getSetupStatusSummaryForRole }] = await Promise.all([
-        import("#/db/index"),
-        import("#/db/schema"),
-        import("#/server/setup-actions"),
+        import("#/server/db/index"),
+        import("#/server/db/schema"),
+        import("#/server/actions/setup-actions"),
       ]);
 
       await db.insert(appSettings).values([
@@ -127,3 +127,4 @@ describe("setup actions", () => {
     });
   }, 15000);
 });
+

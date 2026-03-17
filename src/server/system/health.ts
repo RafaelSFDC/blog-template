@@ -1,5 +1,5 @@
-import { db } from "#/db/index";
-import { getSecurityConfigAudit } from "#/server/security/config";
+import { db } from "#/server/db/index";
+import { getSecurityConfigAudit } from "#/server/actions/security/config";
 import { getBinding } from "#/server/system/cf-env";
 
 type StorageProbe = {
@@ -182,3 +182,4 @@ export async function getDependencyHealthStatus(deps: ReadinessDeps = {}) {
     checks: readiness.checks,
   };
 }
+

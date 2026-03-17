@@ -14,11 +14,11 @@ vi.mock("#/server/auth/session", () => ({
 describe("settings integration", () => {
   it("round-trips dashboard settings into stored public site data", async () => {
     await withIsolatedDatabase("settings-actions", async () => {
-      const { db } = await import("#/db/index");
-      const { appSettings } = await import("#/db/schema");
+      const { db } = await import("#/server/db/index");
+      const { appSettings } = await import("#/server/db/schema");
       const { mapSettingsRowsToFormValues } = await import("#/lib/settings-form");
       const { updateDashboardSettings } = await import(
-        "#/server/system/settings"
+        "#/server/actions/system/settings"
       );
       const { getGlobalSiteData } = await import("#/server/system/site-data");
 
@@ -113,7 +113,7 @@ describe("settings integration", () => {
   it("hydrates dashboard settings defaults and local security warnings without external services", async () => {
     await withIsolatedDatabase("settings-defaults", async () => {
       const { mapSettingsRowsToFormValues } = await import("#/lib/settings-form");
-      const { getSecurityConfigAudit } = await import("#/server/security/config");
+      const { getSecurityConfigAudit } = await import("#/server/actions/security/config");
 
       const previousSiteKey = process.env.TURNSTILE_SITE_KEY;
       const previousSecretKey = process.env.TURNSTILE_SECRET_KEY;
@@ -167,3 +167,4 @@ describe("settings integration", () => {
     });
   }, 15000);
 });
+

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "#/db/index";
-import { appSettings } from "#/db/schema";
+import { db } from "#/server/db/index";
+import { appSettings } from "#/server/db/schema";
 
 export async function getSettingValue(key: string) {
   const row = await db.query.appSettings.findFirst({
@@ -37,3 +37,4 @@ export function parseBooleanSetting(value: string | undefined, fallback = false)
 
   return fallback;
 }
+

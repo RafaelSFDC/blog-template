@@ -23,8 +23,8 @@ import {
   getSetupStatus,
   saveSetupStep,
   skipSetup,
-} from "#/server/setup-actions";
-import { getDashboardSettings } from "#/server/system/settings";
+} from "#/server/actions/setup-actions";
+import { getDashboardSettings } from "#/server/actions/system/settings";
 import { getAvailableThemes } from "#/lib/theme-utils";
 import {
   getStepIndex,
@@ -691,3 +691,4 @@ function ThemeField(props: { value: string; onChange: (value: string) => void })
     </label>
   );
 }
+

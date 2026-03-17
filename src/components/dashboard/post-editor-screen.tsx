@@ -38,8 +38,8 @@ import {
   restorePostRevision,
   sendPostBackToDraft,
   updateEditorialChecklist,
-} from "#/server/post-actions";
-import { getCategories, getTags } from "#/server/taxonomy-actions";
+} from "#/server/actions/post-actions";
+import { getCategories, getTags } from "#/server/actions/taxonomy-actions";
 
 type PostStatus = PostEditorFormValues["status"];
 type Category = Awaited<ReturnType<typeof getCategories>>[number];
@@ -121,7 +121,7 @@ export function PostEditorScreen({
 
   const values = form.state.values;
   const role = session?.user?.role;
-  const canPublish = role === "editor" || role === "admin" || role === "super-admin" || role === "superAdmin";
+  const canPublish = role === "editor" || role === "admin" || role === "super-admin";
   const availableStatuses: PostStatus[] = canPublish
     ? ["draft", "in_review", "scheduled", "published", "archived"]
     : ["draft", "in_review"];
@@ -857,3 +857,4 @@ export function PostEditorScreen({
     </DashboardPageContainer>
   );
 }
+

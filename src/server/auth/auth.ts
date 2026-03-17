@@ -2,11 +2,8 @@ import { betterAuth } from "better-auth";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin as adminPlugin } from "better-auth/plugins";
-import { db } from "#/db/index";
-import * as schema from "#/db/schema";
-import { type InferSelectModel } from "drizzle-orm";
-
-type User = InferSelectModel<typeof schema.user>;
+import { db } from "#/server/db/index";
+import * as schema from "#/server/db/schema";
 import {
   ac,
   reader,
@@ -25,7 +22,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user: User) => {
+        before: async (user) => {
           // Check if any user already exists
           const existingUser = await db
             .select({ id: schema.user.id })
@@ -37,29 +34,30 @@ export const auth = betterAuth({
             data: {
               ...user,
               role: isFirstUser ? "admin" : "reader",
-            } as User,
+            },
           };
         },
       },
       update: {
-        before: async (user: User) => {
+        before: async (user) => {
           // Prevent users from performing critical actions on themselves
           const { getAuthSession } = await import("#/server/auth/session");
           const session = await getAuthSession();
+          const requestedRole = typeof user.role === "string" ? user.role : null;
+          const requestedBan = user.banned === true;
 
-          if (session?.user?.id === user.id) {
+          if (session?.user && session.user.id === user.id) {
             // Prevent self-role modification
-            if (user.role) {
-              const currentRole = (session?.user as { role?: string })?.role;
-              if (currentRole && currentRole !== user.role) {
+            if (requestedRole) {
+              const currentRole = session.user.role ?? null;
+              if (currentRole && currentRole !== requestedRole) {
                 throw new Error("You cannot change your own role");
               }
             }
 
             // Prevent self-banning
-            if (user.banned === true) {
-              const isCurrentlyBanned = (session?.user as { banned?: boolean })
-                ?.banned;
+            if (requestedBan) {
+              const isCurrentlyBanned = session.user.banned === true;
               if (!isCurrentlyBanned) {
                 throw new Error("You cannot ban yourself");
               }
@@ -82,12 +80,12 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    async sendResetPassword({ user, url }: { user: User; url: string }) {
+    async sendResetPassword({ user, url }) {
       const { resend: defaultResend } = await import(
         "#/server/integrations/resend"
       );
       const { Resend } = await import("resend");
-      const { appSettings } = await import("#/db/schema");
+      const { appSettings } = await import("#/server/db/schema");
 
       // Fetch settings for Resend
       const settings = await db.select().from(appSettings);
@@ -150,3 +148,4 @@ export const auth = betterAuth({
     }),
   ],
 });
+

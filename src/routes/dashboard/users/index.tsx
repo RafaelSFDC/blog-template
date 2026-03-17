@@ -24,8 +24,8 @@ import {
 } from "#/components/ui/dropdown-menu";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "#/components/dashboard/DataTable";
-import { createInvitation, listInvitations, revokeInvitation } from "#/server/invitation-actions";
-import { checkAdminAccess } from "#/server/system/dashboard-access";
+import { createInvitation, listInvitations, revokeInvitation } from "#/server/actions/invitation-actions";
+import { checkAdminAccess } from "#/server/actions/system/dashboard-access";
 import { Input } from "#/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 import { Field, FieldLabel } from "#/components/ui/field";
@@ -365,3 +365,4 @@ function UsersManagementPage() {
     </DashboardPageContainer>
   );
 }
+

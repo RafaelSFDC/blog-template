@@ -5,7 +5,7 @@ import type { InferSelectModel } from "drizzle-orm";
 config({ path: [".env.local", ".env"], override: true });
 
 async function seed() {
-  const { db } = await import("./src/db/index");
+  const { db } = await import("./src/server/db/index");
   const {
     user,
     posts,
@@ -14,7 +14,7 @@ async function seed() {
     postCategories,
     postTags,
     appSettings,
-  } = await import("./src/db/schema");
+  } = await import("./src/server/db/schema");
 
   type User = InferSelectModel<typeof user>;
   type Category = InferSelectModel<typeof categories>;

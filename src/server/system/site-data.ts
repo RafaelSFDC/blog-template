@@ -1,6 +1,6 @@
 import { asc } from "drizzle-orm";
-import { appSettings, menuItems, menus } from "#/db/schema";
-import { db } from "#/db/index";
+import { appSettings, menuItems, menus } from "#/server/db/schema";
+import { db } from "#/server/db/index";
 import { MENU_KEYS } from "#/schemas/system";
 import type { GlobalSiteData, MenuItemView } from "#/types/system";
 import { resolveSitePresetKey } from "#/lib/site-presets";
@@ -149,3 +149,4 @@ export async function getGlobalSiteData(): Promise<GlobalSiteData> {
     footerMenu: menuItemsByMenuId.get(menuIdByKey.get("footer") ?? -1) ?? [],
   };
 }
+

@@ -1,5 +1,5 @@
 import { resolveSitePresetKey } from "#/lib/site-presets";
-import type { SitePresetKey } from "#/types/system";
+import type { LegacySitePresetKey, SitePresetKey } from "#/types/system";
 import type { SubscriptionStatus } from "#/types/membership";
 
 export type PaywallVariantKey =
@@ -66,7 +66,7 @@ function formatMoney(amount?: number | null, currency = "usd") {
 }
 
 export function resolvePaywallVariant(input: {
-  sitePresetKey?: SitePresetKey | null;
+  sitePresetKey?: SitePresetKey | LegacySitePresetKey | null;
   teaserMode?: string | null;
   isPremium: boolean;
 }): PaywallVariantKey {

@@ -6,11 +6,10 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: [".env.local", ".env"] });
 
-const dbType = process.env.DB_TYPE || "sqlite";
 const isProd = process.argv.includes("--prod");
 const databaseUrl = process.env.DATABASE_URL || "blog.db";
 
-console.log(`🚀 Starting automigration for: ${dbType}${isProd ? " (Production)" : ""}`);
+console.log(`🚀 Starting automigration${isProd ? " (Production D1)" : " (Local SQLite)"}`);
 
 function isIgnorableMigrationError(message: string) {
   return (
@@ -104,34 +103,15 @@ function runSqliteMigrations(dbPath: string) {
 }
 
 try {
-  switch (dbType) {
-    case "d1": {
-      const d1Command = isProd
-        ? "npx wrangler d1 migrations apply blog-db --remote"
-        : "npx wrangler d1 migrations apply blog-db --local";
-      console.log(`Running: ${d1Command}`);
-      execSync(d1Command, { stdio: "inherit" });
-      break;
-    }
-
-    case "sqlite": {
-      console.log(`Running local SQL migrations against: ${databaseUrl}`);
-      runSqliteMigrations(databaseUrl);
-      break;
-    }
-
-    case "libsql":
-    case "neon": {
-      const drizzleCommand = "npx drizzle-kit push";
-      console.log(`Running: ${drizzleCommand}`);
-      execSync(drizzleCommand, { stdio: "inherit" });
-      break;
-    }
-
-    default:
-      console.error(`❌ Unknown DB_TYPE: ${dbType}`);
-      process.exit(1);
+  if (isProd) {
+    const d1Command = "npx wrangler d1 migrations apply blog-db --remote";
+    console.log(`Running: ${d1Command}`);
+    execSync(d1Command, { stdio: "inherit" });
+  } else {
+    console.log(`Running local SQL migrations against: ${databaseUrl}`);
+    runSqliteMigrations(databaseUrl);
   }
+
   console.log("✅ Migration completed successfully!");
 } catch (error) {
   console.error("❌ Migration failed:", error);

@@ -9,13 +9,13 @@ import { DashboardPageContainer } from "#/components/dashboard/DashboardPageCont
 import { DeleteButton } from "#/components/dashboard/DeleteButton";
 import { EmptyState } from "#/components/dashboard/EmptyState";
 import { Button } from "#/components/ui/button";
-import { webhooks as webhooksSchema } from "#/db/schema";
+import { webhooks as webhooksSchema } from "#/server/db/schema";
 import { cn } from "#/lib/utils";
 import {
   deleteDashboardWebhook,
   getDashboardWebhooks,
   toggleDashboardWebhook,
-} from "#/server/dashboard/webhooks";
+} from "#/server/actions/dashboard/webhooks";
 
 type WebhookType = InferSelectModel<typeof webhooksSchema>;
 
@@ -178,3 +178,4 @@ function WebhooksPage() {
     </DashboardPageContainer>
   );
 }
+

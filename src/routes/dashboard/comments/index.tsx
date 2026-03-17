@@ -14,7 +14,7 @@ import {
   deleteDashboardComment,
   getDashboardComments,
   updateDashboardCommentStatus,
-} from "#/server/dashboard/comments";
+} from "#/server/actions/dashboard/comments";
 
 export const Route = createFileRoute("/dashboard/comments/")({
   loader: () => getDashboardComments(),
@@ -22,12 +22,13 @@ export const Route = createFileRoute("/dashboard/comments/")({
 });
 
 type CommentRow = Awaited<ReturnType<typeof getDashboardComments>>[number];
+type CommentBulkAction = "approve" | "spam" | "pending" | "delete";
 
 function CommentsPage() {
   const initialComments = Route.useLoaderData();
   const [commentsList, setCommentsList] = useState<CommentRow[]>(initialComments);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [bulkAction, setBulkAction] = useState("approve");
+  const [bulkAction, setBulkAction] = useState<CommentBulkAction>("approve");
 
   const handleStatus = useCallback(async (
     id: number,
@@ -56,7 +57,7 @@ function CommentsPage() {
     await bulkModerateDashboardComments({
       data: {
         ids: selectedIds,
-        action: bulkAction as never,
+        action: bulkAction,
       },
     });
 
@@ -100,7 +101,7 @@ function CommentsPage() {
           />
           <span className="text-sm font-medium">Select all</span>
         </label>
-        <Select value={bulkAction} onValueChange={setBulkAction}>
+        <Select value={bulkAction} onValueChange={(value) => setBulkAction(value as CommentBulkAction)}>
           <SelectTrigger>
             <SelectValue placeholder="Bulk action" />
           </SelectTrigger>
@@ -210,3 +211,4 @@ function CommentsPage() {
     </DashboardPageContainer>
   );
 }
+

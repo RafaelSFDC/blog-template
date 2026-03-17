@@ -15,9 +15,9 @@ vi.mock("#/server/auth/session", () => ({
 describe("menu actions integration", () => {
   it("saves ordered menu items and returns dashboard-friendly data", async () => {
     await withIsolatedDatabase("menu-actions", async () => {
-      const { db } = await import("#/db/index");
-      const { menuItems, menus, pages } = await import("#/db/schema");
-      const { saveMenu } = await import("#/server/menu-actions");
+      const { db } = await import("#/server/db/index");
+      const { menuItems, menus, pages } = await import("#/server/db/schema");
+      const { saveMenu } = await import("#/server/actions/menu-actions");
 
       await db.insert(pages).values([
         {
@@ -79,3 +79,4 @@ describe("menu actions integration", () => {
     });
   }, 15000);
 });
+

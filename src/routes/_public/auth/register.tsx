@@ -20,7 +20,7 @@ import { captureClientException } from "#/lib/sentry-client";
 import {
   getCurrentAuthSession,
   getPublicRegistrationStatus,
-} from "#/server/public/auth";
+} from "#/server/actions/public/auth";
 
 export const Route = createFileRoute("/_public/auth/register")({
   beforeLoad: async () => {
@@ -286,3 +286,4 @@ function RegisterPage() {
     </div>
   );
 }
+

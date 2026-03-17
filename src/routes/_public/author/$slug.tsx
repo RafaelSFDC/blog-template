@@ -16,7 +16,7 @@ import {
   resolvePublicIndexability,
 } from "#/lib/seo";
 import { getAuthorPageBySlug } from "#/server/public-discovery";
-import { getSeoSiteData } from "#/server/seo-actions";
+import { getSeoSiteData } from "#/server/actions/seo-actions";
 
 type AuthorPageLoaderData = NonNullable<Awaited<ReturnType<typeof getAuthorPageBySlug>>> & {
   site: Awaited<ReturnType<typeof getSeoSiteData>>;
@@ -138,3 +138,4 @@ function AuthorArchivePage() {
     </main>
   );
 }
+

@@ -9,9 +9,9 @@ describe("comment-actions integration", () => {
 
   it("blocks comments when the post disables discussion", async () => {
     await withIsolatedDatabase("comments-disabled", async () => {
-      const { db } = await import("#/db/index");
-      const { posts } = await import("#/db/schema");
-      const { createPendingComment } = await import("#/server/comment-actions");
+      const { db } = await import("#/server/db/index");
+      const { posts } = await import("#/server/db/schema");
+      const { createPendingComment } = await import("#/server/actions/comment-actions");
 
       const [post] = await db
         .insert(posts)
@@ -39,9 +39,9 @@ describe("comment-actions integration", () => {
 
   it("marks suspicious comments as spam and stores the spam reason", async () => {
     await withIsolatedDatabase("comments-spam", async () => {
-      const { db } = await import("#/db/index");
-      const { comments, posts } = await import("#/db/schema");
-      const { createPendingComment } = await import("#/server/comment-actions");
+      const { db } = await import("#/server/db/index");
+      const { comments, posts } = await import("#/server/db/schema");
+      const { createPendingComment } = await import("#/server/actions/comment-actions");
 
       const [post] = await db
         .insert(posts)
@@ -75,3 +75,4 @@ describe("comment-actions integration", () => {
     });
   }, 15000);
 });
+
