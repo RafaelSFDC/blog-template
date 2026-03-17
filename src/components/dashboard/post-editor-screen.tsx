@@ -145,6 +145,9 @@ export function PostEditorScreen({
     initialData: initialWorkflow,
   });
   const workflow = workflowQuery.data;
+  type WorkflowEditor = NonNullable<PostWorkflowState>["editors"][number];
+  type WorkflowChecklistItem = NonNullable<PostWorkflowState>["checklist"][number];
+  type WorkflowComment = NonNullable<PostWorkflowState>["comments"][number];
   const permissions = workflow?.permissions;
   const isReadOnly = lockState === "held_by_other" || (entityId ? !permissions?.canEditContent : false);
 
@@ -637,7 +640,7 @@ export function PostEditorScreen({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="unassigned">Unassigned</SelectItem>
-                        {workflow?.editors.map((editor) => (
+                        {workflow?.editors.map((editor: WorkflowEditor) => (
                           <SelectItem key={editor.id} value={editor.id}>
                             {editor.name}
                           </SelectItem>
@@ -727,7 +730,7 @@ export function PostEditorScreen({
                       <h3 className="font-bold text-foreground">Editorial Checklist</h3>
                     </div>
                     <div className="space-y-2">
-                      {workflow.checklist.map((item) => (
+                      {workflow.checklist.map((item: WorkflowChecklistItem) => (
                         <label
                           key={item.key}
                           className="flex items-start gap-3 rounded-lg border border-border/60 px-3 py-2"
@@ -768,7 +771,7 @@ export function PostEditorScreen({
                       </Button>
                     </div>
                     <div className="space-y-2">
-                      {workflow.comments.map((comment) => (
+                      {workflow.comments.map((comment: WorkflowComment) => (
                         <div key={comment.id} className="rounded-lg border border-border/60 p-3">
                           <div className="flex items-center justify-between gap-3">
                             <div>

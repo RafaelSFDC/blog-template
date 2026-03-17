@@ -35,7 +35,7 @@ export function getEditorialStatusTone(status: string) {
     case "in_review":
       return "warning";
     case "archived":
-      return "secondary";
+      return "info";
     default:
       return "warning";
   }

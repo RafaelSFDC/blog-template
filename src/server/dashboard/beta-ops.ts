@@ -98,8 +98,13 @@ export async function getBetaOpsDashboardData() {
         .where(eq(betaOpsFeedback.status, "new")),
     ]);
 
-  const ownerById = new Map(owners.map((owner) => [owner.id, owner]));
-  const feedbackByAccount = new Map<number, typeof feedbackRaw>();
+  type OpsOwner = (typeof owners)[number];
+  type BetaOpsAccount = (typeof accountsRaw)[number];
+  type BetaOpsFeedbackItem = (typeof feedbackRaw)[number];
+  type TriageMessage = (typeof triageMessages)[number];
+
+  const ownerById = new Map<string, OpsOwner>(owners.map((owner: OpsOwner) => [owner.id, owner]));
+  const feedbackByAccount = new Map<number, BetaOpsFeedbackItem[]>();
 
   for (const item of feedbackRaw) {
     if (!item.betaAccountId) {
@@ -111,16 +116,16 @@ export async function getBetaOpsDashboardData() {
     feedbackByAccount.set(item.betaAccountId, current);
   }
 
-  const accountByContactMessageId = new Map(
+  const accountByContactMessageId = new Map<number, number>(
     accountsRaw
-      .filter((account) => account.contactMessageId)
-      .map((account) => [account.contactMessageId as number, account.id]),
+      .filter((account: BetaOpsAccount) => account.contactMessageId)
+      .map((account: BetaOpsAccount) => [account.contactMessageId as number, account.id]),
   );
 
-  const accounts = accountsRaw.map((account) => ({
+  const accounts = accountsRaw.map((account: BetaOpsAccount) => ({
     ...account,
     ownerName: account.ownerUserId ? ownerById.get(account.ownerUserId)?.name ?? null : null,
-    feedbackItems: (feedbackByAccount.get(account.id) ?? []).map((item) => ({
+    feedbackItems: (feedbackByAccount.get(account.id) ?? []).map((item: BetaOpsFeedbackItem) => ({
       ...item,
       ownerName: item.ownerUserId ? ownerById.get(item.ownerUserId)?.name ?? null : null,
     })),
@@ -132,15 +137,15 @@ export async function getBetaOpsDashboardData() {
       accountCount: accountCount.value || 0,
       blockedOnboarding: blockedCount.value || 0,
       newFeedbackCount: newFeedbackCount.value || 0,
-      untriagedRequests: triageMessages.filter((message) => !accountByContactMessageId.has(message.id))
+      untriagedRequests: triageMessages.filter((message: TriageMessage) => !accountByContactMessageId.has(message.id))
         .length,
     },
     accounts,
-    recentFeedback: feedbackRaw.slice(0, 8).map((item) => ({
+    recentFeedback: feedbackRaw.slice(0, 8).map((item: BetaOpsFeedbackItem) => ({
       ...item,
       ownerName: item.ownerUserId ? ownerById.get(item.ownerUserId)?.name ?? null : null,
     })),
-    triageMessages: triageMessages.map((message) => {
+    triageMessages: triageMessages.map((message: TriageMessage) => {
       const metadata = parseContactMessageMetadata(message.metadataJson);
       return {
         ...message,

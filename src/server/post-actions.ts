@@ -3,12 +3,14 @@ import { and, count, desc, eq, inArray, lte, ne } from "drizzle-orm";
 import { notFound } from "@tanstack/react-router";
 import { db } from "#/db/index";
 import {
+  categories,
   editorialChecklists,
   editorialComments,
   postCategories,
   postRevisions,
   posts,
   postTags,
+  tags,
 } from "#/db/schema";
 import {
   canManagePostWorkflow,
@@ -185,7 +187,7 @@ export const createPost = createServerFn({ method: "POST" })
     const now = new Date();
 
     try {
-      const created = await db.transaction(async (tx) => {
+      const created = await db.transaction(async (tx: typeof db) => {
         const [inserted] = await tx
           .insert(posts)
           .values({
@@ -319,7 +321,7 @@ export const updatePost = createServerFn({ method: "POST" })
     try {
       await assertPostSlugAvailable(slug, data.id);
 
-      await db.transaction(async (tx) => {
+      await db.transaction(async (tx: typeof db) => {
         await tx
           .update(posts)
           .set({
@@ -923,6 +925,8 @@ export const getPostPreviewData = createServerFn({ method: "GET" })
       where: eq(postRevisions.postId, data.postId),
       orderBy: [desc(postRevisions.createdAt)],
     });
+    type CategoryRow = { categoryId: number };
+    type TagRow = { tagId: number };
 
     const categoryIds = latestRevision
       ? JSON.parse(latestRevision.categoryIdsSnapshot)
@@ -931,7 +935,7 @@ export const getPostPreviewData = createServerFn({ method: "GET" })
             .select({ categoryId: postCategories.categoryId })
             .from(postCategories)
             .where(eq(postCategories.postId, data.postId))
-        ).map((row) => row.categoryId);
+        ).map((row: CategoryRow) => row.categoryId);
     const tagIds = latestRevision
       ? JSON.parse(latestRevision.tagIdsSnapshot)
       : (
@@ -939,16 +943,16 @@ export const getPostPreviewData = createServerFn({ method: "GET" })
             .select({ tagId: postTags.tagId })
             .from(postTags)
             .where(eq(postTags.postId, data.postId))
-        ).map((row) => row.tagId);
+        ).map((row: TagRow) => row.tagId);
 
     const categoryRecords = categoryIds.length
       ? await db.query.categories.findMany({
-          where: (categories, { inArray }) => inArray(categories.id, categoryIds),
+          where: inArray(categories.id, categoryIds),
         })
       : [];
     const tagRecords = tagIds.length
       ? await db.query.tags.findMany({
-          where: (tags, { inArray }) => inArray(tags.id, tagIds),
+          where: inArray(tags.id, tagIds),
         })
       : [];
 
@@ -977,11 +981,11 @@ export const getPostPreviewData = createServerFn({ method: "GET" })
           : "",
       categoryIds,
       tagIds,
-      categories: categoryRecords.map((category) => ({
+      categories: categoryRecords.map((category: (typeof categoryRecords)[number]) => ({
         id: category.id,
         name: category.name,
       })),
-      tags: tagRecords.map((tag) => ({
+      tags: tagRecords.map((tag: (typeof tagRecords)[number]) => ({
         id: tag.id,
         name: tag.name,
       })),
@@ -1008,7 +1012,7 @@ export async function publishScheduledPosts(now = new Date()) {
 
   const publishedIds: number[] = [];
 
-  for (const post of duePosts) {
+  for (const post of duePosts as (typeof duePosts)) {
     await db
       .update(posts)
       .set({
@@ -1074,7 +1078,7 @@ export const bulkUpdatePosts = createServerFn({ method: "POST" })
       throw new Error("No posts found for this bulk action");
     }
 
-    for (const post of selectedPosts) {
+    for (const post of selectedPosts as (typeof selectedPosts)) {
       if (data.action === "delete") {
         await deletePost({ data: { id: post.id } });
         continue;
@@ -1164,7 +1168,8 @@ export const getDashboardPosts = createServerFn({ method: "GET" })
 
     const search = normalizeSearchText(data.query);
 
-    return rows.filter((post) => {
+    type DashboardPostRow = (typeof rows)[number];
+    return rows.filter((post: DashboardPostRow) => {
       if (isAuthor && post.authorId !== session.user.id) {
         return false;
       }
@@ -1189,11 +1194,11 @@ export const getDashboardPosts = createServerFn({ method: "GET" })
         return false;
       }
 
-      if (data.taxonomyType === "category" && data.taxonomyId && !post.postCategories.some((item) => item.categoryId === data.taxonomyId)) {
+      if (data.taxonomyType === "category" && data.taxonomyId && !post.postCategories.some((item: DashboardPostRow["postCategories"][number]) => item.categoryId === data.taxonomyId)) {
         return false;
       }
 
-      if (data.taxonomyType === "tag" && data.taxonomyId && !post.postTags.some((item) => item.tagId === data.taxonomyId)) {
+      if (data.taxonomyType === "tag" && data.taxonomyId && !post.postTags.some((item: DashboardPostRow["postTags"][number]) => item.tagId === data.taxonomyId)) {
         return false;
       }
 
@@ -1221,7 +1226,7 @@ export const getDashboardPosts = createServerFn({ method: "GET" })
       }
 
       return true;
-    }).map((post) => ({
+    }).map((post: DashboardPostRow) => ({
       id: post.id,
       slug: post.slug,
       title: post.title,

@@ -4,7 +4,7 @@ import { withIsolatedDatabase } from "../helpers/sqlite-test-db";
 
 describe("comment-actions integration", () => {
   beforeEach(() => {
-    delete process.env.ENVIRONMENT;
+    Reflect.deleteProperty(process.env, "ENVIRONMENT");
   });
 
   it("blocks comments when the post disables discussion", async () => {

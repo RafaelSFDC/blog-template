@@ -36,6 +36,11 @@ export const Route = createFileRoute("/dashboard/beta-ops")({
 
 function BetaOpsPage() {
   const data = Route.useLoaderData() as BetaOpsDashboardData;
+  type BetaOpsAccount = BetaOpsDashboardData["accounts"][number];
+  type TriageMessage = BetaOpsDashboardData["triageMessages"][number];
+  type OpsOwner = BetaOpsDashboardData["owners"][number];
+  type FeedbackItem = BetaOpsAccount["feedbackItems"][number];
+  type RecentFeedbackItem = BetaOpsDashboardData["recentFeedback"][number];
   const router = useRouter();
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -44,7 +49,7 @@ function BetaOpsPage() {
 
   const filteredAccounts = useMemo(
     () =>
-      data.accounts.filter((account) => {
+      data.accounts.filter((account: BetaOpsAccount) => {
         if (stageFilter !== "all" && account.accountStage !== stageFilter) {
           return false;
         }
@@ -191,7 +196,7 @@ function BetaOpsPage() {
 
         <div className="grid gap-4">
           {data.triageMessages.length > 0 ? (
-            data.triageMessages.map((message) => (
+            data.triageMessages.map((message: TriageMessage) => (
               <article key={message.id} className="rounded-md border border-border/70 bg-background p-4">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="space-y-2">
@@ -298,7 +303,7 @@ function BetaOpsPage() {
       <div className="grid gap-8 xl:grid-cols-[1.65fr_1fr]">
         <section className="space-y-6">
           {filteredAccounts.length > 0 ? (
-            filteredAccounts.map((account) => (
+            filteredAccounts.map((account: BetaOpsAccount) => (
               <article key={account.id} className="rounded-md border bg-card p-6 shadow-sm">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -368,7 +373,7 @@ function BetaOpsPage() {
                       <FieldLabel>Owner</FieldLabel>
                       <NativeSelect name="ownerUserId" defaultValue={account.ownerUserId ?? ""} className="w-full">
                         <NativeSelectOption value="">Unassigned</NativeSelectOption>
-                        {data.owners.map((owner) => (
+                        {data.owners.map((owner: OpsOwner) => (
                           <NativeSelectOption key={owner.id} value={owner.id}>
                             {owner.name}
                           </NativeSelectOption>
@@ -421,7 +426,7 @@ function BetaOpsPage() {
                     </div>
                     <div className="space-y-3">
                       {account.feedbackItems.length > 0 ? (
-                        account.feedbackItems.map((item) => (
+                        account.feedbackItems.map((item: FeedbackItem) => (
                           <form
                             key={item.id}
                             className="rounded-md border border-border/60 p-3"
@@ -447,7 +452,7 @@ function BetaOpsPage() {
                               </NativeSelect>
                               <NativeSelect name="ownerUserId" defaultValue={item.ownerUserId ?? ""} className="w-full">
                                 <NativeSelectOption value="">Unassigned</NativeSelectOption>
-                                {data.owners.map((owner) => (
+                                {data.owners.map((owner: OpsOwner) => (
                                   <NativeSelectOption key={owner.id} value={owner.id}>
                                     {owner.name}
                                   </NativeSelectOption>
@@ -512,7 +517,7 @@ function BetaOpsPage() {
                         </NativeSelect>
                         <NativeSelect name="ownerUserId" defaultValue={account.ownerUserId ?? ""} className="w-full">
                           <NativeSelectOption value="">Unassigned</NativeSelectOption>
-                          {data.owners.map((owner) => (
+                          {data.owners.map((owner: OpsOwner) => (
                             <NativeSelectOption key={owner.id} value={owner.id}>
                               {owner.name}
                             </NativeSelectOption>
@@ -552,7 +557,7 @@ function BetaOpsPage() {
             <h2 className="mb-3 text-xl font-black text-foreground">Recent Feedback</h2>
             <div className="space-y-3">
               {data.recentFeedback.length > 0 ? (
-                data.recentFeedback.map((item) => (
+                data.recentFeedback.map((item: RecentFeedbackItem) => (
                   <div key={item.id} className="rounded-md border border-border/60 bg-background p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-foreground">{item.title}</p>

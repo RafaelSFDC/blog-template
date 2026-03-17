@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, lt } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, lt } from "drizzle-orm";
 import { db } from "#/db/index";
 import {
   contentLocks,
@@ -85,8 +85,8 @@ export async function createPostRevision(input: {
       teaserMode: post.teaserMode ?? "excerpt",
       status: post.status,
       publishedAt: post.publishedAt,
-      categoryIds: categoryRows.map((row) => row.categoryId),
-      tagIds: tagRows.map((row) => row.tagId),
+      categoryIds: categoryRows.map((row: (typeof categoryRows)[number]) => row.categoryId),
+      tagIds: tagRows.map((row: (typeof tagRows)[number]) => row.tagId),
     };
   }
 
@@ -214,7 +214,7 @@ export async function restorePostRevisionToDraft(revisionId: number) {
     throw new Error("Revision not found");
   }
 
-  await db.transaction(async (tx) => {
+  await db.transaction(async (tx: typeof db) => {
     await tx
       .update(posts)
       .set({
@@ -432,7 +432,7 @@ export async function ensurePostChecklist(postId: number) {
     where: eq(editorialChecklists.postId, postId),
   });
 
-  const existingKeys = new Set(existing.map((item) => item.itemKey));
+  const existingKeys = new Set(existing.map((item: (typeof existing)[number]) => item.itemKey));
   const missingItems = EDITORIAL_CHECKLIST_ITEMS.filter((item) => !existingKeys.has(item.key));
 
   if (missingItems.length > 0) {
@@ -463,7 +463,7 @@ export async function listEditorialChecklist(postId: number) {
   });
 
   return EDITORIAL_CHECKLIST_ITEMS.map((definition) => {
-    const item = rows.find((row) => row.itemKey === definition.key);
+    const item = rows.find((row: (typeof rows)[number]) => row.itemKey === definition.key);
     return {
       key: definition.key,
       label: definition.label,
@@ -497,7 +497,7 @@ export async function listEditorialComments(postId: number) {
 
 export async function listAssignableEditors() {
   return db.query.user.findMany({
-    where: (users, { inArray }) => inArray(users.role, ["editor", "admin", "super-admin"]),
+    where: inArray(user.role, ["editor", "admin", "super-admin"]),
     columns: {
       id: true,
       name: true,

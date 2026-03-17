@@ -50,9 +50,10 @@ export async function evaluateCommentSpam(input: {
         limit: 20,
       })
     : [];
+  type RecentComment = (typeof recentMatches)[number];
 
   const repeated = recentMatches.find(
-    (comment) =>
+    (comment: RecentComment) =>
       comment.content.trim().toLowerCase() === normalized &&
       ((input.authorEmail &&
         comment.authorEmail &&

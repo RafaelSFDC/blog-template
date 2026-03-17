@@ -36,12 +36,13 @@ export const Route = createFileRoute("/_public/")({
           homepage: {
             title: string;
             metaTitle?: string | null;
-            excerpt?: string | null;
-            metaDescription?: string | null;
-            ogImage?: string | null;
-            isPremium?: boolean | null;
-            hasAccess?: boolean;
-          } | null;
+          excerpt?: string | null;
+          metaDescription?: string | null;
+          ogImage?: string | null;
+          seoNoIndex?: boolean;
+          isPremium?: boolean | null;
+          hasAccess?: boolean;
+        } | null;
           site: Awaited<ReturnType<typeof getSeoSiteData>>;
         }
       | undefined;

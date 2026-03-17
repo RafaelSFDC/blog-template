@@ -320,7 +320,9 @@ export async function processStripeWebhookEvent(event: Stripe.Event) {
     const subscriptionRef =
       invoice.parent && invoice.parent.type === "subscription_details"
         ? invoice.parent.subscription_details?.subscription
-        : invoice.subscription;
+        : "subscription" in invoice
+          ? invoice.subscription
+          : null;
     stripeSubscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : null;
     stripeCustomerId = typeof invoice.customer === "string" ? invoice.customer : null;
 
@@ -354,7 +356,8 @@ export async function processStripeWebhookEvent(event: Stripe.Event) {
 
 export const getPricingPlans = createServerFn({ method: "GET" }).handler(async () => {
   const plans = await getPricingPlansData();
-  return plans.map((plan) => ({
+  type PricingPlan = (typeof plans)[number];
+  return plans.map((plan: PricingPlan) => ({
     id: plan.id,
     slug: plan.slug,
     name: plan.name,
@@ -370,10 +373,13 @@ export const getPricingPlans = createServerFn({ method: "GET" }).handler(async (
 
 export const getCurrentSubscriptionSummary = createServerFn({ method: "GET" }).handler(async () => {
   const session = await requireSession();
+  const sessionUser = session.user as typeof session.user & {
+    stripeCustomerId?: string | null;
+  };
   const subscription = await getCurrentSubscription(session.user.id);
   const plans = await getPricingPlansData();
   const hasBillingPortal = Boolean(
-    subscription?.stripeCustomerId ?? session.user.stripeCustomerId,
+    subscription?.stripeCustomerId ?? sessionUser.stripeCustomerId,
   );
 
   return {
@@ -431,8 +437,11 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
 
 export const createBillingPortalSession = createServerFn({ method: "POST" }).handler(async () => {
   const session = await requireSession();
+  const sessionUser = session.user as typeof session.user & {
+    stripeCustomerId?: string | null;
+  };
   const subscription = await getCurrentSubscription(session.user.id);
-  const customerId = subscription?.stripeCustomerId ?? session.user.stripeCustomerId;
+  const customerId = subscription?.stripeCustomerId ?? sessionUser.stripeCustomerId;
 
   if (!customerId) {
     throw new Error("No billing customer is linked to this account");

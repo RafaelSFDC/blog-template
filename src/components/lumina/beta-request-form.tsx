@@ -18,6 +18,18 @@ import { captureClientException } from "#/lib/sentry-client";
 import { submitLuminaBetaRequest } from "#/server/public/lumina-beta";
 import { useEffect } from "react";
 
+type BetaRequestFormValues = {
+  name: string;
+  email: string;
+  role: "creator" | "journalist" | "publication_lead";
+  publicationType: "independent_newsletter" | "digital_magazine" | "premium_blog" | "other";
+  currentStack: string;
+  message: string;
+  path: string;
+  source: string;
+  turnstileToken: string;
+};
+
 export function LuminaBetaRequestForm() {
   const [submitted, setSubmitted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
@@ -25,8 +37,7 @@ export function LuminaBetaRequestForm() {
   const location = useLocation();
   const turnstileConfig = useTurnstileConfig();
 
-  const form = useForm({
-    defaultValues: {
+  const defaultValues: BetaRequestFormValues = {
       name: "",
       email: "",
       role: "creator" as const,
@@ -36,10 +47,10 @@ export function LuminaBetaRequestForm() {
       path: "/lumina/beta",
       source: "beta_form_submit",
       turnstileToken: "",
-    },
-    validators: {
-      onChange: betaRequestSubmissionSchema,
-    },
+    };
+
+  const form = useForm({
+    defaultValues,
     onSubmit: async ({ value }) => {
       try {
         const path = location.pathname || "/lumina/beta";
@@ -113,6 +124,16 @@ export function LuminaBetaRequestForm() {
       }}
       className="space-y-6 rounded-md border bg-card p-6 shadow-sm sm:p-8"
     >
+      <form.Subscribe selector={(state) => state.values}>
+        {(values) => {
+          const result = betaRequestSubmissionSchema.safeParse(values);
+          return result.success ? null : (
+            <div className="hidden" aria-hidden="true">
+              Validation errors: {result.error.issues.length}
+            </div>
+          );
+        }}
+      </form.Subscribe>
       <div className="grid gap-6 sm:grid-cols-2">
         <form.Field name="name">
           {(field) => (

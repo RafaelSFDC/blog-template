@@ -120,8 +120,12 @@ export async function getRelatedPostsByTaxonomy(postId: number) {
     return [];
   }
 
-  const categoryIds = sourcePost.postCategories.map((item) => item.categoryId);
-  const tagIds = sourcePost.postTags.map((item) => item.tagId);
+  const categoryIds = sourcePost.postCategories.map(
+    (item: (typeof sourcePost.postCategories)[number]) => item.categoryId,
+  );
+  const tagIds = sourcePost.postTags.map(
+    (item: (typeof sourcePost.postTags)[number]) => item.tagId,
+  );
 
   const candidateRows = await db
     .select({
@@ -156,7 +160,7 @@ export async function getRelatedPostsByTaxonomy(postId: number) {
     tagMatches: number;
   }>();
 
-  for (const row of candidateRows) {
+  for (const row of candidateRows as (typeof candidateRows)) {
     const entry = scored.get(row.id) ?? {
       id: row.id,
       slug: row.slug,
@@ -206,5 +210,5 @@ export async function getPublishedArchiveYears() {
     .groupBy(sql`strftime('%Y', ${posts.publishedAt})`)
     .orderBy(sql`strftime('%Y', ${posts.publishedAt}) DESC`);
 
-  return rows.map((row) => row.year).filter(Boolean);
+  return rows.map((row: (typeof rows)[number]) => row.year).filter(Boolean);
 }

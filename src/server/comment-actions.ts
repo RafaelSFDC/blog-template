@@ -4,8 +4,9 @@ import { eq } from "drizzle-orm";
 import { publicCommentSchema } from "#/schemas/editorial";
 import { evaluateCommentSpam } from "#/server/security/comments";
 import { logSecurityEvent } from "#/server/security/events";
+import type { z } from "zod";
 
-export type CreatePendingCommentInput = Parameters<typeof publicCommentSchema.parse>[0] & {
+export type CreatePendingCommentInput = z.output<typeof publicCommentSchema> & {
   sourceIpHash?: string | null;
   userAgent?: string | null;
 };

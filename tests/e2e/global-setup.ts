@@ -17,12 +17,12 @@ export default async function globalSetup() {
     cwd,
     env,
     stdio: "inherit",
-    shell: true,
+    shell: process.platform === "win32" ? "cmd.exe" : undefined,
   });
   execSync("pnpm seed:fixtures", {
     cwd,
     env,
     stdio: "inherit",
-    shell: true,
+    shell: process.platform === "win32" ? "cmd.exe" : undefined,
   });
 }

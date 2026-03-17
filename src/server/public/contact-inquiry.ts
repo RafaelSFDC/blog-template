@@ -5,6 +5,7 @@ import { verifyTurnstileToken } from "#/server/integrations/turnstile";
 import { logSecurityEvent } from "#/server/security/events";
 import { enforceRateLimit } from "#/server/security/rate-limit";
 import { getSecurityRequestMetadata } from "#/server/security/request";
+import type { SecurityScope } from "#/types/security";
 
 export async function submitPublicInquiry(input: {
   name: string;
@@ -12,7 +13,7 @@ export async function submitPublicInquiry(input: {
   subject: string;
   message: string;
   turnstileToken: string;
-  scope: string;
+  scope: SecurityScope;
   messageType?: "general" | "beta_request" | "ops_feedback";
   sourcePath?: string | null;
   source?: string | null;

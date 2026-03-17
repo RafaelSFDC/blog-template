@@ -200,7 +200,7 @@ async function getSettingsMap(): Promise<SettingsMap> {
 
   const settings: SettingsMap = {};
 
-  for (const row of rows as Array<{ key: string; value: string }>) {
+  for (const row of rows as Array<typeof appSettings.$inferSelect>) {
     settings[row.key] = row.value;
   }
 
@@ -228,8 +228,8 @@ async function loadSetupSnapshot(): Promise<SetupSnapshot> {
       .where(inArray(membershipPlans.slug, ["monthly", "annual"])),
   ]);
 
-  const monthlyPlan = planRows.find((plan) => plan.slug === "monthly");
-  const annualPlan = planRows.find((plan) => plan.slug === "annual");
+  const monthlyPlan = planRows.find((plan: (typeof planRows)[number]) => plan.slug === "monthly");
+  const annualPlan = planRows.find((plan: (typeof planRows)[number]) => plan.slug === "annual");
 
   return {
     hasStoredBlogName: hasValue(settings.blogName),
@@ -248,15 +248,15 @@ async function loadSetupSnapshot(): Promise<SetupSnapshot> {
       hasValue(settings.stripeAnnualPriceId) || hasValue(annualPlan?.stripePriceId ?? undefined),
     hasStoredNewsletterSenderEmail: hasValue(settings.newsletterSenderEmail),
     hasStoredDoubleOptInSetting: hasBooleanSetting(settings.doubleOptInEnabled),
-    hasHomepage: pageRows.some((page) => page.isHome),
-    hasAboutPage: pageRows.some((page) => page.slug === "about"),
-    hasPricingPage: pageRows.some((page) => page.slug === "pricing"),
-    hasContactPage: pageRows.some((page) => page.slug === "contact"),
+    hasHomepage: pageRows.some((page: (typeof pageRows)[number]) => page.isHome),
+    hasAboutPage: pageRows.some((page: (typeof pageRows)[number]) => page.slug === "about"),
+    hasPricingPage: pageRows.some((page: (typeof pageRows)[number]) => page.slug === "pricing"),
+    hasContactPage: pageRows.some((page: (typeof pageRows)[number]) => page.slug === "contact"),
     hasFirstPost: (postCountRow?.value ?? 0) > 0,
     wizardStartedAt: settings.setupWizardStartedAt ?? null,
     wizardCompletedAt: settings.setupWizardCompletedAt ?? null,
     wizardSkippedAt: settings.setupWizardSkippedAt ?? null,
-    wizardLastStep: setupStepSchema.safeParse(settings.setupWizardLastStep).success
+    wizardLastStep: setupStepSchema.safeParse(settings.setupWizardLastStep ?? "").success
       ? (settings.setupWizardLastStep as SetupSnapshot["wizardLastStep"])
       : null,
     starterContentGeneratedAt: settings.setupStarterContentGeneratedAt ?? null,
@@ -372,7 +372,7 @@ async function createStarterPages(input: {
   const createdSlugs: string[] = [];
 
   for (const template of templateDefinitions) {
-    if (existingPages.some((page) => page.slug === template.slug)) {
+    if (existingPages.some((page: (typeof existingPages)[number]) => page.slug === template.slug)) {
       continue;
     }
 

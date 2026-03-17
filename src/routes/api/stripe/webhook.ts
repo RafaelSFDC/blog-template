@@ -52,8 +52,10 @@ export const Route = createFileRoute("/api/stripe/webhook")({
                 properties: {
                   user_id: session.metadata?.userId,
                   customer_email: session.customer_email,
-                  stripe_customer_id: session.customer,
-                  stripe_subscription_id: session.subscription,
+                  stripe_customer_id:
+                    typeof session.customer === "string" ? session.customer : null,
+                  stripe_subscription_id:
+                    typeof session.subscription === "string" ? session.subscription : null,
                   plan_slug: session.metadata?.planSlug,
                   surface: "checkout",
                 },
@@ -66,7 +68,8 @@ export const Route = createFileRoute("/api/stripe/webhook")({
                 distinctId: String(subscription.customer || "stripe-billing"),
                 event: "subscription_canceled",
                 properties: {
-                  stripe_customer_id: subscription.customer,
+                  stripe_customer_id:
+                    typeof subscription.customer === "string" ? subscription.customer : null,
                   stripe_subscription_id: subscription.id,
                   surface: "billing",
                 },

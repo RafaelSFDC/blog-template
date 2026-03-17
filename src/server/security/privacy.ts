@@ -95,7 +95,7 @@ async function deleteCurrentUserDataImpl() {
     throw new Error("Your account still owns content and must be handled by an administrator.");
   }
 
-  await db.transaction(async (tx) => {
+  await db.transaction(async (tx: typeof db) => {
     await tx.delete(comments).where(eq(comments.authorId, userId));
     await tx.delete(pageViews).where(eq(pageViews.visitorId, userId));
     await tx.delete(subscriptions).where(eq(subscriptions.userId, userId));

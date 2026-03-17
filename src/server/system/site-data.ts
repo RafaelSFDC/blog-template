@@ -5,6 +5,8 @@ import { MENU_KEYS } from "#/schemas/system";
 import type { GlobalSiteData, MenuItemView } from "#/types/system";
 import { resolveSitePresetKey } from "#/lib/site-presets";
 
+export type { GlobalSiteData } from "#/types/system";
+
 export const DEFAULT_SITE_DATA: GlobalSiteData = {
   blogName: "Lumina",
   accentColor: "var(--primary)",

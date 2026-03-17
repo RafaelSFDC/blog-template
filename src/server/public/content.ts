@@ -48,10 +48,11 @@ async function loadPublicPageBySlug(slug: string) {
     isPremium: Boolean(page.isPremium),
   });
   const plans = await getPricingPlansData();
+  type PricingPlan = (typeof plans)[number];
   const defaultPlan =
-    plans.find((plan) => plan.isDefault && plan.isActive) ??
-    plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-    plans.find((plan) => plan.slug === "monthly" && plan.isActive);
+    plans.find((plan: PricingPlan) => plan.isDefault && plan.isActive) ??
+    plans.find((plan: PricingPlan) => plan.slug === "annual" && plan.isActive) ??
+    plans.find((plan: PricingPlan) => plan.slug === "monthly" && plan.isActive);
 
   return {
     page: {
@@ -164,10 +165,11 @@ export const getPublicPostBySlug = createServerFn({ method: "GET" })
     });
     const hasAccess = entitlement.access === "full";
     const plans = await getPricingPlansData();
+    type PricingPlan = (typeof plans)[number];
     const defaultPlan =
-      plans.find((plan) => plan.isDefault && plan.isActive) ??
-      plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-      plans.find((plan) => plan.slug === "monthly" && plan.isActive);
+      plans.find((plan: PricingPlan) => plan.isDefault && plan.isActive) ??
+      plans.find((plan: PricingPlan) => plan.slug === "annual" && plan.isActive) ??
+      plans.find((plan: PricingPlan) => plan.slug === "monthly" && plan.isActive);
 
     const commentsList = await db.query.comments
       .findMany({

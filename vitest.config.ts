@@ -7,7 +7,13 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}", "tests/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["Kataly/**", "node_modules/**", "dist/**", ".output/**"],
+    exclude: [
+      "Kataly/**",
+      "node_modules/**",
+      "dist/**",
+      ".output/**",
+      "tests/e2e/**",
+    ],
     passWithNoTests: true,
   },
 });

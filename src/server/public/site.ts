@@ -74,7 +74,9 @@ export const getPricingPageData = createServerFn({ method: "GET" }).handler(asyn
       })
     : null;
 
-  const plans = (await getPricingPlansData()).map((plan) => ({
+  const pricingPlans = await getPricingPlansData();
+  type PricingPlan = (typeof pricingPlans)[number];
+  const plans = pricingPlans.map((plan: PricingPlan) => ({
       id: plan.id,
       slug: plan.slug,
       name: plan.name,

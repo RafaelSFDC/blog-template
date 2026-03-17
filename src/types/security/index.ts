@@ -5,6 +5,7 @@ export type SecurityScope =
   | "auth.reset_password"
   | "comment.create"
   | "contact.submit"
+  | "lumina.beta.submit"
   | "newsletter.subscribe";
 
 export interface RateLimitDecision {

@@ -8,7 +8,7 @@ export type PostRow = InferSelectModel<typeof posts>;
 
 export function resolvePostPublishedAt(
   status: PostInput["status"],
-  requestedScheduledAt: Date | undefined,
+  _requestedScheduledAt: Date | undefined,
   existingPublishedAt?: Date | null,
 ) {
   if (status === "published") {

@@ -8,7 +8,6 @@ describe("beta ops integration", () => {
       const { db } = await import("#/db/index");
       const {
         betaOpsAccounts,
-        betaOpsFeedback,
         contactMessages,
         user,
       } = await import("#/db/schema");

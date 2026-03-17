@@ -23,6 +23,7 @@ export const Route = createFileRoute("/dashboard/newsletters/$newsletterId")({
 
 function NewsletterDetailPage() {
   const { campaign, deliveries } = Route.useLoaderData();
+  type Delivery = (typeof deliveries)[number];
 
   if (!campaign) {
     return null;
@@ -56,7 +57,7 @@ function NewsletterDetailPage() {
           <h2 className="text-lg font-bold">Deliveries</h2>
         </div>
         <div className="divide-y">
-          {deliveries.map((delivery) => (
+          {deliveries.map((delivery: Delivery) => (
             <div key={delivery.id} className="flex flex-col gap-2 px-6 py-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="font-semibold">{delivery.subscriberEmail}</p>

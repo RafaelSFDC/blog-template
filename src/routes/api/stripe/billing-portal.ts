@@ -17,10 +17,14 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
           return new Response("Unauthorized", { status: 401 });
         }
 
+        const sessionUser = session.user as typeof session.user & {
+          stripeCustomerId?: string | null;
+        };
+
         try {
           const retentionState = request.headers.get("X-Retention-State");
-          const subscription = await getCurrentSubscription(session.user.id);
-          const customerId = subscription?.stripeCustomerId ?? session.user.stripeCustomerId;
+          const subscription = await getCurrentSubscription(sessionUser.id);
+          const customerId = subscription?.stripeCustomerId ?? sessionUser.stripeCustomerId;
 
           if (!customerId) {
             return new Response(JSON.stringify({ error: "No billing customer linked to this account" }), {
@@ -35,10 +39,10 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
           });
 
           await captureServerEvent({
-            distinctId: session.user.email,
+            distinctId: sessionUser.email,
             event: "billing_portal_opened",
             properties: {
-              user_id: session.user.id,
+              user_id: sessionUser.id,
               stripe_customer_id: customerId,
               account_retention_state: retentionState || undefined,
               source: "account_page",
@@ -57,7 +61,7 @@ export const Route = createFileRoute("/api/stripe/billing-portal")({
             },
             extras: {
               requestUrl: request.url,
-              userId: session.user.id,
+              userId: sessionUser.id,
             },
           });
 

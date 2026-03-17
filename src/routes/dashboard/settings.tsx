@@ -63,6 +63,9 @@ function SettingsPage() {
     setup: SetupStatus | null;
   };
   const [saving, setSaving] = useState(false);
+  const securityContactConfigured = !securityAudit.optionalWarnings.includes(
+    "SECURITY_CONTACT_EMAIL",
+  );
 
   const form = useForm({
     defaultValues: {
@@ -685,7 +688,7 @@ function SettingsPage() {
         </div>
 
         <aside className="space-y-6">
-          {!securityAudit.turnstileConfigured ? (
+          {!securityAudit.turnstileEnabled ? (
             <div className="border shadow-sm rounded-md bg-destructive/10 p-6 border-destructive/30">
               <h3 className="tracking-tighter text-destructive mb-4 flex items-center gap-2">
                 <Info size={18} />
@@ -697,7 +700,7 @@ function SettingsPage() {
               </p>
             </div>
           ) : null}
-          {!securityAudit.securityContactConfigured ? (
+          {!securityContactConfigured ? (
             <div className="border shadow-sm rounded-md bg-amber-500/10 p-6 border-amber-500/30">
               <h3 className="tracking-tighter text-amber-700 mb-4 flex items-center gap-2">
                 <Info size={18} />

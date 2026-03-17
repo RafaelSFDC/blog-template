@@ -85,8 +85,8 @@ function YearArchivePage() {
 
         {posts.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post as Post} />
+            {posts.map((post: Post) => (
+              <PostCard key={post.id} post={post} />
             ))}
           </div>
         ) : (

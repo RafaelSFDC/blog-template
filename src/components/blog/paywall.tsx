@@ -226,7 +226,7 @@ export function Paywall({
               }}
               disabled={isLoading}
             >
-              {isLoading ? "Please wait..." : "Unlock full access"}
+              {isLoading ? "Please wait..." : "Subscribe now"}
             </Button>
             <Button
               variant="outline"

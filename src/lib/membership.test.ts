@@ -18,19 +18,23 @@ describe("membership helpers", () => {
     const now = new Date("2026-03-15T12:00:00.000Z");
 
     expect(
-      getEffectiveSubscriptionStatus({
-        status: "canceled",
-        currentPeriodEnd: new Date("2026-03-16T12:00:00.000Z"),
+      getEffectiveSubscriptionStatus(
+        {
+          status: "canceled",
+          currentPeriodEnd: new Date("2026-03-16T12:00:00.000Z"),
+        },
         now,
-      }),
+      ),
     ).toBe("canceled");
 
     expect(
-      getEffectiveSubscriptionStatus({
-        status: "canceled",
-        currentPeriodEnd: new Date("2026-03-14T12:00:00.000Z"),
+      getEffectiveSubscriptionStatus(
+        {
+          status: "canceled",
+          currentPeriodEnd: new Date("2026-03-14T12:00:00.000Z"),
+        },
         now,
-      }),
+      ),
     ).toBe("expired");
   });
 
@@ -38,19 +42,23 @@ describe("membership helpers", () => {
     const now = new Date("2026-03-15T12:00:00.000Z");
 
     expect(
-      getEffectiveSubscriptionStatus({
-        status: "past_due",
-        gracePeriodEndsAt: new Date("2026-03-16T12:00:00.000Z"),
+      getEffectiveSubscriptionStatus(
+        {
+          status: "past_due",
+          gracePeriodEndsAt: new Date("2026-03-16T12:00:00.000Z"),
+        },
         now,
-      }),
+      ),
     ).toBe("past_due");
 
     expect(
-      getEffectiveSubscriptionStatus({
-        status: "past_due",
-        gracePeriodEndsAt: new Date("2026-03-14T12:00:00.000Z"),
+      getEffectiveSubscriptionStatus(
+        {
+          status: "past_due",
+          gracePeriodEndsAt: new Date("2026-03-14T12:00:00.000Z"),
+        },
         now,
-      }),
+      ),
     ).toBe("expired");
   });
 

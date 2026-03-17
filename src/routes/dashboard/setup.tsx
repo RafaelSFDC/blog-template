@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { CheckCircle2, ChevronLeft, ChevronRight, Rocket, SkipForward } from "lucide-react";
 import { DashboardHeader } from "#/components/dashboard/Header";
@@ -22,6 +22,7 @@ import {
   getLaunchTemplateCatalog,
   getSetupStatus,
   saveSetupStep,
+  skipSetup,
 } from "#/server/setup-actions";
 import { getDashboardSettings } from "#/server/system/settings";
 import { getAvailableThemes } from "#/lib/theme-utils";
@@ -161,6 +162,10 @@ function DashboardSetupPage() {
         });
         toast.success("Starter kit criado e setup concluido.");
         await router.invalidate();
+        if (typeof window !== "undefined") {
+          window.location.assign("/dashboard");
+          return;
+        }
         await navigate({ to: "/dashboard" });
         return;
       }
@@ -188,9 +193,28 @@ function DashboardSetupPage() {
       });
       toast.success("Setup concluido. Voce pode criar o conteudo manualmente depois.");
       await router.invalidate();
+      if (typeof window !== "undefined") {
+        window.location.assign("/dashboard");
+        return;
+      }
       await navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Nao foi possivel concluir o setup.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSkipSetup(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+
+    try {
+      setSaving(true);
+      await skipSetup();
+      await router.invalidate();
+      await navigate({ to: "/dashboard" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Nao foi possivel pausar o setup.");
     } finally {
       setSaving(false);
     }
@@ -261,10 +285,10 @@ function DashboardSetupPage() {
             </Button>
           ) : (
             <Button asChild type="button" variant="outline" className="w-full" disabled={saving}>
-              <a href="/dashboard?skipSetup=1">
+              <Link to="/dashboard" search={{ skipSetup: "1" }} onClick={(event) => void handleSkipSetup(event)}>
                 <SkipForward className="mr-2 h-4 w-4" />
                 {status.isSkipped ? "Setup pausado" : "Pular por agora"}
-              </a>
+              </Link>
             </Button>
           )}
         </aside>
@@ -556,7 +580,7 @@ function DashboardSetupPage() {
               </Button>
 
               <Button type="button" disabled={saving} onClick={() => void handleNext()}>
-                {saving ? "Salvando..." : "Salvar e continuar"}
+                Salvar e continuar
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

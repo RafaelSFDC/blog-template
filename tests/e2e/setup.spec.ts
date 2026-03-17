@@ -49,8 +49,13 @@ async function waitForClientReady(page: Page) {
 }
 
 async function finishSetupStepsUntilPreset(page: Page) {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    if (await page.getByRole("heading", { name: /conteudo inicial/i }).isVisible()) {
+  const starterKitButton = page.getByRole("button", { name: /criar starter kit e concluir/i });
+  const continueButton = page.getByRole("button", { name: /salvar e continuar/i });
+
+  let completedTransitions = 0;
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (await starterKitButton.isVisible()) {
       return;
     }
 
@@ -59,9 +64,26 @@ async function finishSetupStepsUntilPreset(page: Page) {
       await page.getByPlaceholder("price_annual_...").fill("price_test_annual");
     }
 
-    await page.getByRole("button", { name: /salvar e continuar/i }).click();
+    if (!(await continueButton.isVisible())) {
+      await page.waitForTimeout(300);
+      continue;
+    }
+
+    if (!(await continueButton.isEnabled())) {
+      await page.waitForTimeout(300);
+      continue;
+    }
+
+    await continueButton.click({ noWaitAfter: true });
+    completedTransitions += 1;
     await waitForClientReady(page);
+
+    if (completedTransitions >= 5) {
+      break;
+    }
   }
+
+  await expect(starterKitButton).toBeVisible({ timeout: 10000 });
 }
 
 async function selectPreset(page: Page, label: string) {

@@ -93,12 +93,12 @@ export async function withIsolatedDatabase<T>(
     return await run(dbPath);
   } finally {
     if (previousType === undefined) {
-      delete process.env.DB_TYPE;
+      Reflect.deleteProperty(process.env, "DB_TYPE");
     } else {
       process.env.DB_TYPE = previousType;
     }
     if (previousUrl === undefined) {
-      delete process.env.DATABASE_URL;
+      Reflect.deleteProperty(process.env, "DATABASE_URL");
     } else {
       process.env.DATABASE_URL = previousUrl;
     }

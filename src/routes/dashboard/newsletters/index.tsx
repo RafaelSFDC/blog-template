@@ -20,7 +20,8 @@ export const Route = createFileRoute("/dashboard/newsletters/")({
 
 function NewsletterIndexPage() {
   const initial = Route.useLoaderData();
-  const [campaigns, setCampaigns] = useState(initial.campaigns);
+  type Campaign = (typeof initial.campaigns)[number];
+  const [campaigns, setCampaigns] = useState<Campaign[]>(initial.campaigns);
   const stats = initial.stats;
 
   async function handleExport() {
@@ -41,7 +42,9 @@ function NewsletterIndexPage() {
   async function handleDelete(id: number) {
     try {
       await deleteNewsletterCampaignAction({ data: id });
-      setCampaigns((current) => current.filter((campaign) => campaign.id !== id));
+      setCampaigns((current: Campaign[]) =>
+        current.filter((campaign: Campaign) => campaign.id !== id),
+      );
     } catch {
       toast.error("Failed to delete campaign.");
     }
@@ -91,7 +94,7 @@ function NewsletterIndexPage() {
             }
           />
         ) : (
-          campaigns.map((campaign) => (
+          campaigns.map((campaign: Campaign) => (
             <div
               key={campaign.id}
               className="rounded-2xl border bg-card p-6 shadow-sm"

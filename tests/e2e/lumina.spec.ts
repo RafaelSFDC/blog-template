@@ -132,7 +132,8 @@ test("shows the analytics dashboard fallback when PostHog is not configured", as
   await signInAs(page, "admin@lumina.test");
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/dashboard\/setup$/);
-  await page.getByRole("link", { name: /pular por agora/i }).click();
+  await page.goto("/dashboard?skipSetup=1");
+  await expect(page).toHaveURL(/\/dashboard\/?$/);
 
   await page.goto("/dashboard/analytics");
 

@@ -3,6 +3,8 @@ import { newsletterCampaignSchema } from "#/schemas/newsletter";
 import type { NewsletterCampaignFormValues } from "#/types/forms";
 import type { NewsletterTemplatePost } from "#/types/newsletter";
 
+export type { NewsletterTemplatePost } from "#/types/newsletter";
+
 const trimmedRequiredString = (
   min: number,
   message: string,

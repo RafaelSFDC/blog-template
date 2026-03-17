@@ -53,15 +53,39 @@ type WorkerEnv = {
 const workerFetch =
   fetch as unknown as ExportedHandlerFetchHandler<WorkerEnv, unknown>;
 
+function isNewsletterQueueMessage(value: unknown): value is NewsletterQueueMessage {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  if (candidate.type === "campaign") {
+    return typeof candidate.newsletterId === "number";
+  }
+
+  if (candidate.type === "delivery") {
+    return (
+      typeof candidate.newsletterId === "number" &&
+      typeof candidate.deliveryId === "number" &&
+      typeof candidate.attempt === "number"
+    );
+  }
+
+  return false;
+}
+
 const handler = {
   fetch: workerFetch,
-  async queue(batch: MessageBatch<NewsletterQueueMessage>) {
+  async queue(batch: MessageBatch<unknown>) {
     logOperationalEvent("newsletter-queue-batch-started", {
       size: batch.messages.length,
     });
-    await processNewsletterQueueBatch(batch.messages.map((message) => message.body));
+    const messages = batch.messages
+      .map((message) => message.body)
+      .filter(isNewsletterQueueMessage);
+    await processNewsletterQueueBatch(messages);
     logOperationalEvent("newsletter-queue-batch-finished", {
-      size: batch.messages.length,
+      size: messages.length,
     });
   },
   scheduled(

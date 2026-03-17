@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "#/db/index";
 import { comments, posts } from "#/db/schema";
 import { requireCommentModerationAccess } from "#/server/editorial/access";
@@ -56,7 +56,7 @@ export const bulkModerateDashboardComments = createServerFn({ method: "POST" })
     if (data.action === "delete") {
       await db
         .delete(comments)
-        .where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
+        .where(inArray(comments.id, data.ids));
       return { success: true as const };
     }
 
@@ -70,7 +70,7 @@ export const bulkModerateDashboardComments = createServerFn({ method: "POST" })
     await db
       .update(comments)
       .set({ status: nextStatus })
-      .where((commentsTable, { inArray }) => inArray(commentsTable.id, data.ids));
+      .where(inArray(comments.id, data.ids));
 
     return { success: true as const };
   });

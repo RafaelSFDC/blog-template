@@ -141,7 +141,7 @@ async function trackNewsletterEvent(
     | "newsletter_unsubscribed"
     | "newsletter_opened"
     | "newsletter_clicked",
-  properties: Record<string, unknown>,
+  properties: NonNullable<Parameters<typeof captureServerEvent>[0]["properties"]>,
 ) {
   try {
     await captureServerEvent({
@@ -295,15 +295,16 @@ async function finalizeCampaignStatus(newsletterId: number) {
   const deliveries = await db.query.newsletterDeliveries.findMany({
     where: eq(newsletterDeliveries.newsletterId, newsletterId),
   });
+  type Delivery = (typeof deliveries)[number];
 
-  const sentCount = deliveries.filter((delivery) =>
+  const sentCount = deliveries.filter((delivery: Delivery) =>
     ["sent", "delivered", "opened", "clicked"].includes(delivery.status),
   ).length;
-  const failedCount = deliveries.filter((delivery) =>
+  const failedCount = deliveries.filter((delivery: Delivery) =>
     ["failed", "bounced", "complained"].includes(delivery.status),
   ).length;
-  const openCount = deliveries.filter((delivery) => Boolean(delivery.openedAt)).length;
-  const clickCount = deliveries.filter((delivery) => Boolean(delivery.clickedAt)).length;
+  const openCount = deliveries.filter((delivery: Delivery) => Boolean(delivery.openedAt)).length;
+  const clickCount = deliveries.filter((delivery: Delivery) => Boolean(delivery.clickedAt)).length;
   const totalRecipients = deliveries.length;
 
   let status: string = "sending";

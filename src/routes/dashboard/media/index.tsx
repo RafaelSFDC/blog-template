@@ -103,7 +103,9 @@ function MediaLibraryPage() {
             <Checkbox
               checked={mediaItems.length > 0 && selectedIds.length === mediaItems.length}
               onCheckedChange={(checked) =>
-                setSelectedIds(checked === true ? mediaItems.map((item) => item.id) : [])
+                setSelectedIds(
+                  checked === true ? mediaItems.map((item: MediaItem) => item.id) : [],
+                )
               }
             />
             <span className="text-sm font-medium">Select all</span>
@@ -150,7 +152,7 @@ function MediaLibraryPage() {
                 <Checkbox
                   checked={selectedIds.includes(item.id)}
                   onCheckedChange={(checked) =>
-                    setSelectedIds((current) =>
+                    setSelectedIds((current: number[]) =>
                       checked === true
                         ? [...current, item.id]
                         : current.filter((id) => id !== item.id),

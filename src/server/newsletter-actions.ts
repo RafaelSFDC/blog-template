@@ -219,18 +219,20 @@ export const getNewsletterIndexData = createServerFn({ method: "GET" }).handler(
       orderBy: [desc(subscribers.createdAt)],
     }),
   ]);
+  type Campaign = (typeof campaigns)[number];
+  type SubscriberRow = (typeof subscriberRows)[number];
 
-  const activeCount = subscriberRows.filter((row) => row.status === "active").length;
-  const sentCampaigns = campaigns.filter((row) => row.status === "sent").length;
+  const activeCount = subscriberRows.filter((row: SubscriberRow) => row.status === "active").length;
+  const sentCampaigns = campaigns.filter((row: Campaign) => row.status === "sent").length;
   const averageOpenRate =
     campaigns.length === 0
       ? 0
-      : campaigns.reduce((sum, row) => sum + (row.totalRecipients > 0 ? row.openCount / row.totalRecipients : 0), 0) /
+      : campaigns.reduce((sum: number, row: Campaign) => sum + (row.totalRecipients > 0 ? row.openCount / row.totalRecipients : 0), 0) /
         campaigns.length;
   const averageClickRate =
     campaigns.length === 0
       ? 0
-      : campaigns.reduce((sum, row) => sum + (row.totalRecipients > 0 ? row.clickCount / row.totalRecipients : 0), 0) /
+      : campaigns.reduce((sum: number, row: Campaign) => sum + (row.totalRecipients > 0 ? row.clickCount / row.totalRecipients : 0), 0) /
         campaigns.length;
 
   return {
@@ -250,6 +252,7 @@ export const exportSubscribersCsv = createServerFn({ method: "GET" }).handler(as
   const rows = await db.query.subscribers.findMany({
     orderBy: [desc(subscribers.createdAt)],
   });
+  type SubscriberRow = (typeof rows)[number];
 
   const header = [
     "Email",
@@ -261,7 +264,7 @@ export const exportSubscribersCsv = createServerFn({ method: "GET" }).handler(as
   ].join(",");
 
   const body = rows
-    .map((row) =>
+    .map((row: SubscriberRow) =>
       [
         row.email,
         row.status,

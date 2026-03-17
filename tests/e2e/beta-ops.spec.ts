@@ -47,8 +47,8 @@ async function signInAs(page: Page, email: string) {
 async function skipSetupGate(page: Page) {
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/dashboard\/setup$/);
-  await page.getByRole("link", { name: /pular por agora/i }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/dashboard?skipSetup=1");
+  await expect(page).toHaveURL(/\/dashboard\/?$/);
 }
 
 test("lets admins triage beta requests and manage beta ops state", async ({ page }) => {

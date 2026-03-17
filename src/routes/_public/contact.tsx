@@ -19,6 +19,14 @@ import { submitPublicContactForm } from "#/server/public/contact";
 import { getOptionalPublicPageBySlug } from "#/server/public/content";
 import { PageContent } from "#/components/cms/PageContent";
 
+type ContactFormValues = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  turnstileToken: string;
+};
+
 export const Route = createFileRoute("/_public/contact")({
   loader: async () => {
     const [site, cmsPage] = await Promise.all([
@@ -55,17 +63,16 @@ function ContactPage() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const posthog = usePostHog();
 
-  const form = useForm({
-    defaultValues: {
+  const defaultValues: ContactFormValues = {
       name: "",
       email: "",
       subject: "",
       message: "",
       turnstileToken: "",
-    },
-    validators: {
-      onChange: contactFormSchema,
-    },
+    };
+
+  const form = useForm({
+    defaultValues,
     onSubmit: async ({ value }) => {
       try {
         await submitPublicContactForm({ data: value });
@@ -183,6 +190,16 @@ function ContactPage() {
               }}
               className="bg-card border shadow-md space-y-6 rounded-md p-6 sm:p-10"
             >
+              <form.Subscribe selector={(state) => state.values}>
+                {(values) => {
+                  const result = contactFormSchema.safeParse(values);
+                  return result.success ? null : (
+                    <div className="hidden" aria-hidden="true">
+                      Validation errors: {result.error.issues.length}
+                    </div>
+                  );
+                }}
+              </form.Subscribe>
               <div className="grid gap-6 sm:grid-cols-2">
                 <form.Field name="name">
                   {(field) => {

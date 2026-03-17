@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { desc, eq } from "drizzle-orm";
 import { db } from "#/db/index";
-import { betaOpsAccounts, contactMessages } from "#/db/schema";
+import { contactMessages } from "#/db/schema";
 import { requireAdminSession } from "#/server/auth/session";
 import { recordIdSchema } from "#/schemas";
 import { z } from "zod";
@@ -21,14 +21,16 @@ export const getDashboardMessages = createServerFn({ method: "GET" }).handler(
       }),
       db.query.betaOpsAccounts.findMany(),
     ]);
+    type BetaOpsAccount = (typeof accounts)[number];
+    type DashboardMessage = (typeof messages)[number];
 
-    const accountByContactMessageId = new Map(
+    const accountByContactMessageId = new Map<number, number>(
       accounts
-        .filter((account) => account.contactMessageId)
-        .map((account) => [account.contactMessageId as number, account.id]),
+        .filter((account: BetaOpsAccount) => account.contactMessageId)
+        .map((account: BetaOpsAccount) => [account.contactMessageId as number, account.id]),
     );
 
-    return messages.map((message) => ({
+    return messages.map((message: DashboardMessage) => ({
       ...message,
       linkedBetaAccountId: accountByContactMessageId.get(message.id) ?? null,
       metadata: parseContactMessageMetadata(message.metadataJson),

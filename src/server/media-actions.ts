@@ -174,13 +174,16 @@ export const bulkDeleteMedia = createServerFn({ method: "POST" })
         filename: true,
       },
     });
+    type MediaRow = (typeof items)[number];
 
-    for (const item of items) {
+    for (const item of items as MediaRow[]) {
       const { item: scopedItem } = await requireMediaAccess("delete", item.id);
       await deleteObject(scopedItem.filename);
     }
 
-    await db.delete(mediaTable).where(inArray(mediaTable.id, items.map((item) => item.id)));
+    await db.delete(mediaTable).where(
+      inArray(mediaTable.id, items.map((item: MediaRow) => item.id)),
+    );
 
     await logActivity({
       actorUserId: session.user.id,
@@ -189,7 +192,7 @@ export const bulkDeleteMedia = createServerFn({ method: "POST" })
       action: "media.bulk_delete",
       summary: `${items.length} media items deleted`,
       metadata: {
-        ids: items.map((item) => item.id),
+        ids: items.map((item: MediaRow) => item.id),
       },
     });
 

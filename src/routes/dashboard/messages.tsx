@@ -16,6 +16,7 @@ import {
 import { promoteMessageToBetaOpsAccount } from "#/server/dashboard/beta-ops";
 
 type MessageRow = typeof contactMessages.$inferSelect;
+type DashboardMessage = Awaited<ReturnType<typeof getDashboardMessages>>[number];
 
 export const Route = createFileRoute("/dashboard/messages")({
   loader: () => getDashboardMessages(),
@@ -23,8 +24,8 @@ export const Route = createFileRoute("/dashboard/messages")({
 });
 
 function MessagesPage() {
-  const initialMessages = Route.useLoaderData();
-  const [messages, setMessages] = useState(initialMessages);
+  const initialMessages = Route.useLoaderData() as DashboardMessage[];
+  const [messages, setMessages] = useState<DashboardMessage[]>(initialMessages);
   const [promotingId, setPromotingId] = useState<number | null>(null);
   const router = useRouter();
 
@@ -33,8 +34,8 @@ function MessagesPage() {
     status: "read" | "archived" | "new",
   ) => {
     await updateDashboardMessageStatus({ data: { id, status } });
-    setMessages((current) =>
-      current.map((message) =>
+    setMessages((current: DashboardMessage[]) =>
+      current.map((message: DashboardMessage) =>
         message.id === id ? { ...message, status } : message,
       ),
     );
@@ -42,7 +43,9 @@ function MessagesPage() {
 
   const handleDelete = useCallback(async (id: number) => {
     await deleteDashboardMessage({ data: id });
-    setMessages((current) => current.filter((message) => message.id !== id));
+    setMessages((current: DashboardMessage[]) =>
+      current.filter((message: DashboardMessage) => message.id !== id),
+    );
   }, []);
 
   const handlePromote = useCallback(async (id: number) => {

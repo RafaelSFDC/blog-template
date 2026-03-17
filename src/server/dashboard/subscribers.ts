@@ -20,13 +20,14 @@ export const exportDashboardSubscribersCsv = createServerFn({ method: "GET" }).h
     const allSubscribers = await db.query.subscribers.findMany({
       orderBy: [desc(subscribers.createdAt)],
     });
+    type Subscriber = (typeof allSubscribers)[number];
 
     if (allSubscribers.length === 0) {
       return { data: null, error: "No subscribers found" };
     }
 
     const headers = ["Email", "Status", "Subscribed At"];
-    const rows = allSubscribers.map((subscriber) => [
+    const rows = allSubscribers.map((subscriber: Subscriber) => [
       subscriber.email,
       subscriber.status,
       subscriber.createdAt
@@ -38,8 +39,8 @@ export const exportDashboardSubscribersCsv = createServerFn({ method: "GET" }).h
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
-        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","),
+      ...rows.map((row: (string | number)[]) =>
+        row.map((value: string | number) => `"${String(value).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
 

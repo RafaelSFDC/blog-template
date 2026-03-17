@@ -74,7 +74,7 @@ export const settingsFormSchema = z.object({
     .max(20, "Too many social links"),
 });
 
-type SettingsPayload = z.input<typeof settingsSchema>;
+type SettingsPayload = z.output<typeof settingsSchema>;
 type SettingsRow = { key: string; value: string };
 
 function buildSettingsRecord(rows: SettingsRow[]) {

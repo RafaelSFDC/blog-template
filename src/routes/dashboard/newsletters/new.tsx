@@ -173,7 +173,7 @@ function NewsletterComposerPage() {
                   {(field) => (
                     <Field>
                       <FieldLabel>Segment</FieldLabel>
-                      <Select value={field.state.value} onValueChange={field.handleChange}>
+                      <Select value={field.state.value} onValueChange={(value) => field.handleChange(value as typeof field.state.value)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>

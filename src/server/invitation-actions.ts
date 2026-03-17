@@ -211,7 +211,7 @@ export const acceptInvitation = createServerFn({ method: "POST" })
       throw new Error("Invitation email does not match the signed-in account");
     }
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: typeof db) => {
       await tx
         .update(user)
         .set({

@@ -2,6 +2,8 @@ import type { z } from "zod";
 import { redirectSchema } from "#/schemas/system";
 import type { RedirectFormValues } from "#/types/system";
 
+export type { RedirectFormValues } from "#/types/system";
+
 type RedirectInput = z.input<typeof redirectSchema>;
 
 export function createEmptyRedirectDraft(): RedirectFormValues {
