@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { asc, eq } from "drizzle-orm";
 import { withIsolatedDatabase } from "../helpers/sqlite-test-db";
 
 vi.mock("#/server/auth/session", () => ({
@@ -52,11 +53,11 @@ describe("menu actions integration", () => {
       });
 
       const primaryMenu = await db.query.menus.findFirst({
-        where: (table, { eq }) => eq(table.key, "primary"),
+        where: eq(menus.key, "primary"),
       });
       const items = await db.query.menuItems.findMany({
-        where: (table, { eq }) => eq(table.menuId, primaryMenu!.id),
-        orderBy: (table, { asc }) => [asc(table.sortOrder)],
+        where: eq(menuItems.menuId, primaryMenu!.id),
+        orderBy: [asc(menuItems.sortOrder)],
       });
 
       expect(primaryMenu).toBeTruthy();
@@ -74,7 +75,7 @@ describe("menu actions integration", () => {
         sortOrder: 1,
       });
       const pageRows = await db.select().from(pages);
-      expect(pageRows.map((entry) => entry.slug)).toEqual(["about", "contact"]);
+      expect(pageRows.map((entry: { slug: string }) => entry.slug)).toEqual(["about", "contact"]);
     });
   }, 15000);
 });

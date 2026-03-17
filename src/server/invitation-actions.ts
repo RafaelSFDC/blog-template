@@ -6,6 +6,7 @@ import { invitations, user } from "#/db/schema";
 import { getAuthSession } from "#/server/auth/session";
 import { requireRoleAccess } from "#/server/editorial/access";
 import { resend } from "#/server/integrations/resend";
+import { resolveExternalBaseUrl } from "#/server/system/runtime-config";
 import { z } from "zod";
 import { logActivity } from "#/server/activity-log";
 
@@ -32,8 +33,11 @@ function hashToken(token: string) {
 }
 
 function buildInviteUrl(token: string) {
-  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
-  return `${baseUrl.replace(/\/+$/, "")}/auth/invite/${token}`;
+  const baseUrl = resolveExternalBaseUrl({
+    envVarName: "BETTER_AUTH_URL",
+    label: "BETTER_AUTH_URL",
+  });
+  return `${baseUrl}/auth/invite/${token}`;
 }
 
 async function sendInvitationEmail(input: {

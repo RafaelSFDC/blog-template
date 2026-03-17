@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { isSafeExternalUrl } from "#/lib/url-security";
 import { recordNewsletterClick } from "#/server/newsletter-campaigns";
+import { isStrictEnvironment } from "#/server/system/runtime-config";
 
 export const Route = createFileRoute("/api/newsletter/click")({
   server: {
@@ -11,6 +13,14 @@ export const Route = createFileRoute("/api/newsletter/click")({
 
         if (!targetUrl) {
           return new Response("Missing target URL", { status: 400 });
+        }
+
+        const isValidTarget = isSafeExternalUrl(targetUrl, {
+          allowLocalHttp: !isStrictEnvironment(),
+        });
+
+        if (!isValidTarget) {
+          return new Response("Invalid target URL", { status: 400 });
         }
 
         if (Number.isFinite(deliveryId) && deliveryId > 0) {

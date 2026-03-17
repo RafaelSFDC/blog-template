@@ -115,7 +115,7 @@ export function LuminaMarketingShell({ children }: { children: React.ReactNode }
               Built for creators, journalists, and small publications that want a launch-ready stack without duct tape.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              `/lumina` explains and sells the Lumina product. Reader memberships for a publication built with Lumina stay on that publication's public pricing flow.
+              `/lumina` explains and sells the Lumina product. Reader memberships for a publication built with Lumina stay on that publication&apos;s public pricing flow.
             </p>
           </div>
 

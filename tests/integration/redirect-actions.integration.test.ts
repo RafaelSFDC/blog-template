@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { eq } from "drizzle-orm";
 import { withIsolatedDatabase } from "../helpers/sqlite-test-db";
 
 vi.mock("#/server/auth/session", () => ({
@@ -27,7 +28,7 @@ describe("redirect actions integration", () => {
       });
 
       const created = await db.query.redirects.findFirst({
-        where: (table, { eq }) => eq(table.sourcePath, "/coverage-start"),
+        where: eq(redirects.sourcePath, "/coverage-start"),
       });
 
       expect(created?.sourcePath).toBe("/coverage-start");

@@ -55,7 +55,7 @@ describe("settings integration", () => {
 
       const storedRows = await db.select().from(appSettings);
       const dashboard = mapSettingsRowsToFormValues(
-        storedRows.map((row) => ({
+        storedRows.map((row: { key: string; value: string | null }) => ({
           key: row.key,
           value: row.value ?? "",
         })),

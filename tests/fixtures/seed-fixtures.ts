@@ -33,7 +33,17 @@ import {
 
 const FIXTURE_PASSWORD = "Password123!";
 
-const FIXTURE_USERS = [
+type FixtureUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: "reader" | "author" | "editor" | "moderator" | "admin" | "super-admin";
+  publicAuthorSlug?: string;
+  authorHeadline?: string;
+  authorBio?: string;
+};
+
+const FIXTURE_USERS: readonly FixtureUser[] = [
   {
     id: "fixture-admin",
     name: "Fixture Admin",
@@ -85,7 +95,7 @@ const FIXTURE_USERS = [
     email: "past-due@lumina.test",
     role: "reader",
   },
-] as const;
+];
 
 const FIXTURE_SETTINGS = [
   { key: "blogName", value: "Lumina" },
@@ -336,10 +346,12 @@ async function ensureFixturePosts(authorId: string) {
 
   const allCategories = await db.query.categories.findMany();
   const allTags = await db.query.tags.findMany();
-  const operations = allCategories.find((entry) => entry.slug === "operations");
-  const strategy = allCategories.find((entry) => entry.slug === "editorial-strategy");
-  const readiness = allTags.find((entry) => entry.slug === "readiness");
-  const launch = allTags.find((entry) => entry.slug === "launch");
+  const operations = allCategories.find((entry: { slug: string }) => entry.slug === "operations");
+  const strategy = allCategories.find(
+    (entry: { slug: string }) => entry.slug === "editorial-strategy",
+  );
+  const readiness = allTags.find((entry: { slug: string }) => entry.slug === "readiness");
+  const launch = allTags.find((entry: { slug: string }) => entry.slug === "launch");
 
   const publishedPost = await db.query.posts.findFirst({
     where: eq(posts.slug, "fixture-published-post"),
@@ -497,8 +509,8 @@ async function ensureNavigationFixtures() {
     .onConflictDoNothing();
 
   const menuRows = await db.query.menus.findMany();
-  const primaryMenu = menuRows.find((entry) => entry.key === "primary");
-  const footerMenu = menuRows.find((entry) => entry.key === "footer");
+  const primaryMenu = menuRows.find((entry: { key: string }) => entry.key === "primary");
+  const footerMenu = menuRows.find((entry: { key: string }) => entry.key === "footer");
 
   if (!primaryMenu || !footerMenu) {
     throw new Error("Fixture menus were not created.");
@@ -925,6 +937,9 @@ export async function seedOperationalFixtures() {
   await ensureTaxonomyFixtures();
   await ensureFixturePosts("fixture-author");
   await ensureFixturePages();
+  await ensureNavigationFixtures();
+  await ensureRedirectAndWebhookFixtures();
+  await ensureMediaFixture();
   await ensureMembershipFixture();
   await ensureNewsletterFixture();
   await ensureLaunchOpsFixture();

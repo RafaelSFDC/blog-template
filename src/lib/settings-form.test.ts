@@ -149,6 +149,10 @@ describe("settings-form", () => {
     });
 
     expect(result.success).toBe(false);
+    if (result.success) {
+      throw new Error("Expected invalid payload for settings schema");
+    }
+
     expect(result.error.flatten().fieldErrors.blogLogo).toBeTruthy();
     expect(result.error.flatten().fieldErrors.siteUrl).toBeTruthy();
     expect(result.error.flatten().fieldErrors.defaultOgImage).toBeTruthy();

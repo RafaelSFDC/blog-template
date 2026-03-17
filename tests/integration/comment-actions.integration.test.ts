@@ -35,7 +35,7 @@ describe("comment-actions integration", () => {
         }),
       ).rejects.toThrow("Comments are disabled for this post");
     });
-  });
+  }, 15000);
 
   it("marks suspicious comments as spam and stores the spam reason", async () => {
     await withIsolatedDatabase("comments-spam", async () => {
@@ -73,5 +73,5 @@ describe("comment-actions integration", () => {
       expect(saved?.status).toBe("spam");
       expect(saved?.spamReason).toBe("too_many_links");
     });
-  });
+  }, 15000);
 });

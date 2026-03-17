@@ -14,6 +14,7 @@ import {
   mapStripeStatusToSubscriptionStatus,
 } from "#/lib/membership";
 import { stripe } from "#/server/stripe";
+import { resolveExternalBaseUrl } from "#/server/system/runtime-config";
 
 function toDate(value?: number | null) {
   return value ? new Date(value * 1000) : null;
@@ -107,6 +108,13 @@ export async function getPricingPlansData() {
   return db.query.membershipPlans.findMany({
     where: sql`${membershipPlans.slug} in ('monthly', 'annual')`,
     orderBy: [membershipPlans.id],
+  });
+}
+
+function getAppBaseUrl() {
+  return resolveExternalBaseUrl({
+    envVarName: "APP_URL",
+    label: "APP_URL",
   });
 }
 
@@ -420,8 +428,8 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.APP_URL || "http://localhost:3000"}/account?success=true`,
-      cancel_url: `${process.env.APP_URL || "http://localhost:3000"}/pricing?canceled=true`,
+      success_url: `${getAppBaseUrl()}/account?success=true`,
+      cancel_url: `${getAppBaseUrl()}/pricing?canceled=true`,
       metadata: {
         userId: session.user.id,
         planSlug: selectedPlan.slug,
@@ -449,7 +457,7 @@ export const createBillingPortalSession = createServerFn({ method: "POST" }).han
 
   const portal = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${process.env.APP_URL || "http://localhost:3000"}/account`,
+    return_url: `${getAppBaseUrl()}/account`,
   });
 
   return {

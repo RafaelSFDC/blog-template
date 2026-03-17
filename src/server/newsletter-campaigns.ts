@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, count, desc, eq, lte } from "drizzle-orm";
+import { assertSafeExternalUrl } from "#/lib/url-security";
 import { db } from "#/db/index";
 import {
   newsletterDeliveries,
@@ -18,13 +19,17 @@ import { logActivity } from "#/server/activity-log";
 import { getSettingValue, getSettingValues, parseBooleanSetting } from "#/server/app-settings";
 import { captureServerEvent } from "#/server/analytics";
 import { captureServerException } from "#/server/sentry";
+import {
+  isStrictEnvironment,
+  resolveExternalBaseUrl,
+  resolveNewsletterTokenSecret,
+} from "#/server/system/runtime-config";
 import type { ConsentStatus } from "#/types/security";
 import type { SecurityRequestMetadata } from "#/server/security/request";
 
 const MAX_NEWSLETTER_ATTEMPTS = 3;
 const NEWSLETTER_QUEUE_NAME = "NEWSLETTER_QUEUE";
 const DEFAULT_SENDER_EMAIL = "newsletter@resend.dev";
-const DEFAULT_SITE_URL = "http://localhost:3000";
 const OPEN_PIXEL =
   "R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
 
@@ -44,12 +49,7 @@ type ResendWebhookPayload = {
 };
 
 function getNewsletterSecret() {
-  return (
-    process.env.NEWSLETTER_TOKEN_SECRET ||
-    process.env.BETTER_AUTH_SECRET ||
-    process.env.AUTH_SECRET ||
-    "lumina-newsletter-secret"
-  );
+  return resolveNewsletterTokenSecret();
 }
 
 function createSignature(payload: string) {
@@ -113,9 +113,30 @@ async function getNewsletterSettings() {
     "doubleOptInEnabled",
     "blogName",
   ]);
+  const configuredSiteUrl = settings.siteUrl?.trim() || "";
+  const strict = isStrictEnvironment();
+
+  if (configuredSiteUrl) {
+    const normalizedSiteUrl = configuredSiteUrl.replace(/\/+$/, "");
+    assertSafeExternalUrl(normalizedSiteUrl, {
+      allowLocalHttp: !strict,
+      label: "Site URL",
+    });
+  }
+
+  const siteUrl =
+    (configuredSiteUrl ? configuredSiteUrl.replace(/\/+$/, "") : "") ||
+    resolveExternalBaseUrl({
+      envVarName: "APP_URL",
+      label: "APP_URL",
+    });
+
+  if (strict && !siteUrl.startsWith("https://")) {
+    throw new Error("siteUrl/APP_URL must use https in staging/production.");
+  }
 
   return {
-    siteUrl: settings.siteUrl || process.env.APP_URL || DEFAULT_SITE_URL,
+    siteUrl,
     senderEmail: settings.newsletterSenderEmail || DEFAULT_SENDER_EMAIL,
     doubleOptInEnabled: parseBooleanSetting(settings.doubleOptInEnabled, false),
     blogName: settings.blogName || "Lumina",

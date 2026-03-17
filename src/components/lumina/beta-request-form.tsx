@@ -2,7 +2,7 @@ import { usePostHog } from "@posthog/react";
 import { useForm } from "@tanstack/react-form";
 import { useLocation } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { IconBox } from "#/components/IconBox";
 import { TurnstileField } from "#/components/security/turnstile-field";
@@ -89,10 +89,24 @@ export function LuminaBetaRequestForm() {
       return;
     }
 
-    const nextToken = turnstileConfig.turnstileEnabled ? "" : "turnstile_bypassed";
-    setTurnstileToken(nextToken);
-    form.setFieldValue("turnstileToken", nextToken);
-  }, [form, turnstileConfig.loading, turnstileConfig.turnstileEnabled]);
+    const nextToken = turnstileConfig.turnstileEnabled
+      ? turnstileToken
+      : "turnstile_bypassed";
+
+    if (form.state.values.turnstileToken !== nextToken) {
+      form.setFieldValue("turnstileToken", nextToken);
+    }
+  }, [
+    form,
+    turnstileToken,
+    turnstileConfig.loading,
+    turnstileConfig.turnstileEnabled,
+  ]);
+
+  const turnstileValue = useMemo(
+    () => (turnstileConfig.turnstileEnabled ? turnstileToken : "turnstile_bypassed"),
+    [turnstileConfig.turnstileEnabled, turnstileToken],
+  );
 
   if (submitted) {
     return (
@@ -267,7 +281,7 @@ export function LuminaBetaRequestForm() {
 
       <TurnstileField
         action="lumina_beta_request"
-        value={turnstileToken}
+        value={turnstileValue}
         onTokenChange={(token) => {
           setTurnstileToken(token);
           form.setFieldValue("turnstileToken", token);
