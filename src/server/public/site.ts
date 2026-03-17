@@ -45,10 +45,11 @@ export const getHomepage = createServerFn({ method: "GET" }).handler(async () =>
     isPremium: Boolean(homepage.isPremium),
   });
   const plans = await getPricingPlansData();
+  type PricingPlan = (typeof plans)[number];
   const defaultPlan =
-    plans.find((plan) => plan.isDefault && plan.isActive) ??
-    plans.find((plan) => plan.slug === "annual" && plan.isActive) ??
-    plans.find((plan) => plan.slug === "monthly" && plan.isActive);
+    plans.find((plan: PricingPlan) => plan.isDefault && plan.isActive) ??
+    plans.find((plan: PricingPlan) => plan.slug === "annual" && plan.isActive) ??
+    plans.find((plan: PricingPlan) => plan.slug === "monthly" && plan.isActive);
 
   return {
     ...homepage,

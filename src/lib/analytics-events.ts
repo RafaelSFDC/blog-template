@@ -144,6 +144,21 @@ export const analyticsEventDefinitions = {
     description: "A paywall CTA was clicked from a post detail page.",
     properties: ["plan_slug", "post_slug", "post_title", "surface"],
   },
+  pricing_plan_selected: {
+    category: "revenue",
+    description: "A pricing plan was selected before checkout.",
+    properties: ["surface", "path", "plan_slug", "source", "paywall_variant", "post_slug"],
+  },
+  pricing_cta_clicked: {
+    category: "revenue",
+    description: "A pricing CTA was clicked before checkout began.",
+    properties: ["surface", "path", "plan_slug", "source", "paywall_variant", "post_slug"],
+  },
+  account_upgrade_prompt_clicked: {
+    category: "retention",
+    description: "A pricing or billing prompt was clicked from the account page.",
+    properties: ["surface", "path", "plan_slug", "source", "account_retention_state"],
+  },
   newsletter_campaign_sent: {
     category: "newsletter",
     description: "A newsletter campaign entered the send flow.",
@@ -210,6 +225,9 @@ export const analyticsCommonProperties = [
   "campaign_segment",
   "user_role",
   "source",
+  "paywall_variant",
+  "post_slug",
+  "account_retention_state",
 ] as const;
 
 export function compactAnalyticsProperties<T extends AnalyticsEventProperties>(
@@ -221,7 +239,8 @@ export function compactAnalyticsProperties<T extends AnalyticsEventProperties>(
 }
 
 export function getLegacyEventNames(event: AnalyticsEventName) {
-  return analyticsEventDefinitions[event].legacyEvents ?? [];
+  const definition = analyticsEventDefinitions[event];
+  return "legacyEvents" in definition ? (definition.legacyEvents ?? []) : [];
 }
 
 export function resolveAnalyticsRange(

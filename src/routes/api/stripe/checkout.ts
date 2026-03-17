@@ -20,13 +20,14 @@ export const Route = createFileRoute("/api/stripe/checkout")({
 
         const payload = stripeCheckoutSchema.parse(await request.json());
         const plans = await getPricingPlansData();
+        type PricingPlan = (typeof plans)[number];
         const selectedPlan =
           (payload.planSlug
-            ? plans.find((plan) => plan.slug === payload.planSlug)
+            ? plans.find((plan: PricingPlan) => plan.slug === payload.planSlug)
             : payload.priceId
-              ? plans.find((plan) => plan.stripePriceId === payload.priceId)
-              : plans.find((plan) => plan.isDefault && plan.isActive)) ??
-          plans.find((plan) => plan.isActive);
+              ? plans.find((plan: PricingPlan) => plan.stripePriceId === payload.priceId)
+              : plans.find((plan: PricingPlan) => plan.isDefault && plan.isActive)) ??
+          plans.find((plan: PricingPlan) => plan.isActive);
 
         if (!selectedPlan?.stripePriceId) {
           return new Response(
@@ -38,7 +39,10 @@ export const Route = createFileRoute("/api/stripe/checkout")({
         const sessionId = request.headers.get("X-PostHog-Session-Id");
         const distinctId = request.headers.get("X-PostHog-Distinct-Id") || session.user.email;
         const referer = request.headers.get("referer") || "";
-        const source = referer.includes("/blog/") ? "paywall" : "pricing_page";
+        const explicitSource = request.headers.get("X-Conversion-Source");
+        const paywallVariant = request.headers.get("X-Paywall-Variant");
+        const postSlug = request.headers.get("X-Post-Slug");
+        const source = explicitSource || (referer.includes("/blog/") ? "paywall" : "pricing_page");
 
         try {
           const origin = new URL(request.url).origin;
@@ -71,6 +75,8 @@ export const Route = createFileRoute("/api/stripe/checkout")({
               price_id: selectedPlan.stripePriceId,
               path: referer || undefined,
               source,
+              paywall_variant: paywallVariant || undefined,
+              post_slug: postSlug || undefined,
               surface: "checkout",
             },
           });

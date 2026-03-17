@@ -112,9 +112,23 @@ export function Paywall({
             </div>
           </div>
 
-          <p className="mb-6 text-base leading-relaxed text-muted-foreground">
+          <p className="mb-4 text-base leading-relaxed text-muted-foreground">
             {copy.newsletterDescription}
           </p>
+          <div className="mb-6 grid gap-3 sm:grid-cols-3">
+            {[
+              "Get the free editorial briefing first",
+              "Stay close to the publication while you evaluate the premium path",
+              "Upgrade only when the archive feels worth paying for",
+            ].map((step) => (
+              <div
+                key={step}
+                className="rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm font-medium text-foreground"
+              >
+                {step}
+              </div>
+            ))}
+          </div>
 
           <form className="space-y-4" onSubmit={(event) => void handleNewsletterSubmit(event)}>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -184,6 +198,15 @@ export function Paywall({
                 {benefit}
               </div>
             ))}
+          </div>
+
+          <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 text-left">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+              Upgrade path
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Start with free email delivery, then move to the paid archive once the publication proves it belongs in your routine.
+            </p>
           </div>
 
           <div className="flex flex-col justify-center gap-4 pt-8 sm:flex-row">

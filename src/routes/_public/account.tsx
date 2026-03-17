@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "#/components/ui/button";
 import { Field, FieldError, FieldLabel } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
+import { captureClientEvent } from "#/lib/analytics-client";
 import { authClient } from "#/lib/auth-client";
 import { captureClientException, setClientSentryUser } from "#/lib/sentry-client";
 import { getCurrentAuthorProfile, updateCurrentAuthorProfile } from "#/server/author-profile-actions";
@@ -38,9 +39,42 @@ function formatMoney(amount?: number | null, currency = "usd") {
   }).format(amount / 100);
 }
 
+function getMembershipTimeline(input: {
+  effectiveStatus?: string | null;
+  currentPeriodEnd?: Date | string | null;
+  gracePeriodEndsAt?: Date | string | null;
+}) {
+  if (input.effectiveStatus === "past_due" && input.gracePeriodEndsAt) {
+    return {
+      label: "Resolve by",
+      value: formatDate(input.gracePeriodEndsAt),
+    };
+  }
+
+  if ((input.effectiveStatus === "active" || input.effectiveStatus === "canceled") && input.currentPeriodEnd) {
+    return {
+      label: input.effectiveStatus === "canceled" ? "Access ends" : "Renews on",
+      value: formatDate(input.currentPeriodEnd),
+    };
+  }
+
+  if (input.effectiveStatus === "expired") {
+    return {
+      label: "Status",
+      value: "Premium access has ended",
+    };
+  }
+
+  return {
+    label: "Status",
+    value: "Upgrade whenever the publication proves valuable",
+  };
+}
+
 function AccountPage() {
   const { data: session } = authClient.useSession();
   const { subscription, plans, retention, hasBillingPortal } = Route.useLoaderData();
+  type PricingPlan = (typeof plans)[number];
   const posthog = usePostHog();
   const [savingAuthorProfile, setSavingAuthorProfile] = useState(false);
   const [exportingData, setExportingData] = useState(false);
@@ -234,11 +268,25 @@ function AccountPage() {
     }
   }
 
-  const activePlan = subscription?.membershipPlan ?? plans.find((plan) => plan.isDefault) ?? null;
+  const activePlan =
+    subscription?.membershipPlan ?? plans.find((plan: PricingPlan) => plan.isDefault) ?? null;
   const activePrice = activePlan ? formatMoney(activePlan.priceCents, activePlan.currency) : null;
+  const membershipTimeline = getMembershipTimeline({
+    effectiveStatus: subscription?.effectiveStatus,
+    currentPeriodEnd: subscription?.currentPeriodEnd,
+    gracePeriodEndsAt: subscription?.gracePeriodEndsAt,
+  });
   const showBillingPortal = hasBillingPortal;
 
   async function handleRetentionPrimaryAction() {
+    captureClientEvent(posthog, "account_upgrade_prompt_clicked", {
+      surface: "public_site",
+      path: "/account",
+      plan_slug: activePlan?.slug,
+      source: retention.primaryAction.trackingSource,
+      account_retention_state: retention.key,
+    });
+
     if (retention.primaryAction.kind === "billing_portal") {
       await openBillingPortal();
       return;
@@ -249,7 +297,13 @@ function AccountPage() {
       return;
     }
 
-    window.location.href = "/pricing";
+    const search = new URLSearchParams({
+      source: retention.primaryAction.trackingSource,
+    });
+    if (activePlan?.slug) {
+      search.set("plan", activePlan.slug);
+    }
+    window.location.href = `/pricing?${search.toString()}`;
   }
 
   return (
@@ -279,6 +333,14 @@ function AccountPage() {
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
               {retention.description}
             </p>
+            <div className="mt-4 flex flex-wrap gap-3 text-sm">
+              <span className="rounded-full border border-primary/20 bg-card px-3 py-1 font-black text-primary">
+                {retention.statusLabel}
+              </span>
+              <span className="rounded-full border border-border/70 bg-card px-3 py-1 font-medium text-muted-foreground">
+                {membershipTimeline.label}: <span className="text-foreground">{membershipTimeline.value}</span>
+              </span>
+            </div>
           </div>
           <div className="flex flex-wrap gap-3">
             <Button size="lg" onClick={() => void handleRetentionPrimaryAction()}>
@@ -303,6 +365,57 @@ function AccountPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
+          <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Membership snapshot
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground">
+                  {activePlan?.name || "Free Tier"}
+                </h2>
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                  {retention.description}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Recommended next move
+                </p>
+                <p className="mt-2 text-lg font-black text-foreground">
+                  {retention.primaryAction.label}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+                  Current status
+                </p>
+                <p className="mt-3 text-2xl font-black tracking-tight text-foreground">
+                  {retention.statusLabel}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+                  {membershipTimeline.label}
+                </p>
+                <p className="mt-3 text-2xl font-black tracking-tight text-foreground">
+                  {membershipTimeline.value}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">
+                  Plan value
+                </p>
+                <p className="mt-3 text-2xl font-black tracking-tight text-foreground">
+                  {activePrice ? `${activePrice} / ${activePlan?.interval === "year" ? "year" : "month"}` : "Newsletter first"}
+                </p>
+              </div>
+            </div>
+          </section>
+
           <section className="rounded-md border bg-card p-6 shadow-sm sm:p-10">
             <h2 className="mb-8 flex items-center gap-2 text-xl font-black text-foreground">
               <User size={20} className="text-primary" strokeWidth={3} />
@@ -643,11 +756,8 @@ function AccountPage() {
               ) : null}
             </div>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Status: <span className="font-semibold capitalize text-foreground">{subscription?.effectiveStatus || "inactive"}</span></p>
-              <p>Renews or ends: <span className="font-semibold text-foreground">{formatDate(subscription?.currentPeriodEnd)}</span></p>
-              {subscription?.gracePeriodEndsAt ? (
-                <p>Grace period: <span className="font-semibold text-foreground">{formatDate(subscription.gracePeriodEndsAt)}</span></p>
-              ) : null}
+              <p>Status: <span className="font-semibold text-foreground">{retention.statusLabel}</span></p>
+              <p>{membershipTimeline.label}: <span className="font-semibold text-foreground">{membershipTimeline.value}</span></p>
             </div>
             <p className="mb-8 mt-6 text-sm font-medium leading-relaxed text-muted-foreground/80">
               Full-site entitlement unlocks every premium post and premium page.
@@ -656,12 +766,14 @@ function AccountPage() {
               <Button variant="default" className="w-full" onClick={() => void handleRetentionPrimaryAction()}>
                 {retention.primaryAction.label}
               </Button>
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/pricing">View Plans</Link>
-              </Button>
-              {showBillingPortal ? (
+              {retention.secondaryAction ? (
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to={retention.secondaryAction.href}>{retention.secondaryAction.label}</Link>
+                </Button>
+              ) : null}
+              {showBillingPortal && retention.primaryAction.kind !== "billing_portal" ? (
                 <Button variant="ghost" className="w-full" onClick={() => void openBillingPortal()}>
-                  Open billing portal
+                  Manage billing details
                 </Button>
               ) : null}
             </div>

@@ -393,12 +393,13 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await requireSession();
     const plans = await getPricingPlansData();
+    type PricingPlan = (typeof plans)[number];
     const selectedPlan =
       (data.planSlug
-        ? plans.find((plan) => plan.slug === data.planSlug)
+        ? plans.find((plan: PricingPlan) => plan.slug === data.planSlug)
         : data.priceId
-          ? plans.find((plan) => plan.stripePriceId === data.priceId)
-          : plans.find((plan) => plan.isDefault)) ?? null;
+          ? plans.find((plan: PricingPlan) => plan.stripePriceId === data.priceId)
+          : plans.find((plan: PricingPlan) => plan.isDefault)) ?? null;
 
     if (!selectedPlan?.stripePriceId) {
       throw new Error("No membership plan is configured for checkout");

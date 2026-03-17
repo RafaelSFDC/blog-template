@@ -133,6 +133,12 @@ export function AnalyticsCharts({ data }: { data: AnalyticsDashboardData }) {
         title="Checkout entry sources"
         rows={data.sections.monetization.breakdown}
       />
+      {data.sections.monetization.secondaryBreakdown?.length ? (
+        <BreakdownCard
+          title="Pricing selection sources"
+          rows={data.sections.monetization.secondaryBreakdown}
+        />
+      ) : null}
       <BreakdownCard
         title="Newsletter subscriber sources"
         rows={data.sections.publication.breakdown}
@@ -140,6 +146,12 @@ export function AnalyticsCharts({ data }: { data: AnalyticsDashboardData }) {
       <FunnelCard title="Monetization Funnel" steps={data.sections.monetization.funnel} />
       <SectionCard title="Newsletter / Publication" items={data.sections.publication.cards} />
       <SectionCard title="Retention / Operations" items={data.sections.operations.cards} />
+      {data.sections.operations.breakdown?.length ? (
+        <BreakdownCard
+          title="Account upgrade prompt sources"
+          rows={data.sections.operations.breakdown}
+        />
+      ) : null}
     </div>
   );
 }

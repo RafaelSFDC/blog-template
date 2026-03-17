@@ -41,10 +41,13 @@ describe("analytics dashboard", () => {
       .mockResolvedValueOnce(countResult(3))
       .mockResolvedValueOnce(countResult(5))
       .mockResolvedValueOnce(countResult(22))
+      .mockResolvedValueOnce(countResult(14))
+      .mockResolvedValueOnce(countResult(9))
       .mockResolvedValueOnce(countResult(8))
       .mockResolvedValueOnce(countResult(31))
       .mockResolvedValueOnce(countResult(1))
       .mockResolvedValueOnce(countResult(19))
+      .mockResolvedValueOnce(countResult(4))
       .mockResolvedValueOnce(
         breakdownResult([
           ["identity", 6],
@@ -75,38 +78,60 @@ describe("analytics dashboard", () => {
           ["site_form", 20],
           ["paywall_teaser", 11],
         ]),
+      )
+      .mockResolvedValueOnce(
+        breakdownResult([
+          ["pricing_page", 8],
+          ["paywall", 6],
+        ]),
+      )
+      .mockResolvedValueOnce(
+        breakdownResult([
+          ["account_free_reader", 3],
+          ["account_past_due", 1],
+        ]),
       );
 
     const dashboard = await getAnalyticsDashboard("30d");
+    expect(dashboard.sections).not.toBeNull();
+    const sections = dashboard.sections!;
 
     expect(dashboard.isConfigured).toBe(true);
-    expect(mocks.queryPostHog).toHaveBeenCalledTimes(23);
+    expect(mocks.queryPostHog).toHaveBeenCalledTimes(28);
     expect(dashboard.summary).toMatchObject({
       setup_completion_rate: 60,
       marketing_to_cta_rate: 40,
       marketing_to_beta_rate: 10,
       checkout_completion_rate: 50,
     });
-    expect(dashboard.sections.activation.funnel).toEqual([
+    expect(sections.activation.funnel).toEqual([
       { label: "Setup started", value: 10 },
       { label: "Pricing configured", value: 7 },
       { label: "Newsletter configured", value: 5 },
       { label: "First posts published", value: 4 },
       { label: "Setup completed", value: 6 },
     ]);
-    expect(dashboard.sections.activation.breakdown[0]).toEqual({
+    expect(sections.activation.breakdown[0]).toEqual({
       label: "identity",
       count: 6,
     });
-    expect(dashboard.sections.acquisition.secondaryBreakdown?.[0]).toEqual({
+    expect(sections.acquisition.secondaryBreakdown?.[0]).toEqual({
       label: "beta_form_submit",
       count: 10,
     });
-    expect(dashboard.sections.monetization.breakdown[1]).toEqual({
+    expect(sections.monetization.breakdown[1]).toEqual({
       label: "paywall",
       count: 7,
     });
-    expect(dashboard.sections.publication.cards).toEqual([
+    expect(sections.monetization.secondaryBreakdown?.[0]).toEqual({
+      label: "pricing_page",
+      count: 8,
+    });
+    expect(sections.operations.breakdown?.[0]).toEqual({
+      label: "account_free_reader",
+      count: 3,
+    });
+    expect(sections.publication.cards).toEqual([
       { label: "Newsletter campaigns sent", value: 8, suffix: undefined },
       { label: "Newsletter subscribers", value: 31, suffix: undefined },
       { label: "First subscribers captured", value: 1, suffix: undefined },

@@ -99,6 +99,7 @@ function PostDetail() {
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const [subscribing, setSubscribing] = useState(false);
   const posthog = usePostHog();
+  const pricingHref = `/pricing?plan=${encodeURIComponent(defaultPlanSlug)}&source=paywall&paywallVariant=${encodeURIComponent(paywallVariant)}&postSlug=${encodeURIComponent(post.slug)}`;
 
   async function handleSubscribe() {
     captureClientEvent(posthog, "paywall_cta_clicked", {
@@ -117,6 +118,9 @@ function PostDetail() {
           "Content-Type": "application/json",
           "X-PostHog-Session-Id": posthog.get_session_id() ?? "",
           "X-PostHog-Distinct-Id": posthog.get_distinct_id() ?? "",
+          "X-Conversion-Source": "paywall",
+          "X-Paywall-Variant": paywallVariant,
+          "X-Post-Slug": post.slug,
         },
       });
 
@@ -166,7 +170,7 @@ function PostDetail() {
             <Paywall
               onSubscribe={handleSubscribe}
               isLoading={subscribing}
-              ctaHref="/pricing"
+              ctaHref={pricingHref}
               ctaLabel="Compare plans"
               variant={paywallVariant}
               blogName={site.blogName}

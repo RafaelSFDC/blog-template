@@ -94,15 +94,20 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
     subscriptionCanceled,
     billingPortalOpened,
     paywallClicks,
+    pricingPlanSelected,
+    pricingCtaClicked,
     newsletterCampaignSent,
     newsletterSubscribed,
     firstSubscriberCaptured,
     dashboardSessions,
+    accountUpgradePromptClicked,
     setupSteps,
     marketingCtaSources,
     betaRequestSources,
     checkoutSources,
     newsletterSources,
+    pricingSelectionSources,
+    accountUpgradeSources,
   ] = await Promise.all([
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("project_setup_started", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("project_setup_completed", range) }),
@@ -118,10 +123,13 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("subscription_canceled", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("billing_portal_opened", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("paywall_cta_clicked", range) }),
+    queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("pricing_plan_selected", range) }),
+    queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("pricing_cta_clicked", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("newsletter_campaign_sent", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("newsletter_subscribed", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("first_subscriber_captured", range) }),
     queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("dashboard_session_started", range) }),
+    queryPostHog<HogQLCountResult>({ kind: "HogQLQuery", query: buildEventCountQuery("account_upgrade_prompt_clicked", range) }),
     queryPostHog<HogQLCountResult>({
       kind: "HogQLQuery",
       query: buildEventBreakdownQuery("project_setup_step_completed", range, "step", 5),
@@ -141,6 +149,14 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
     queryPostHog<HogQLCountResult>({
       kind: "HogQLQuery",
       query: buildBreakdownQuery("newsletter_subscribed", range, "source", 6),
+    }),
+    queryPostHog<HogQLCountResult>({
+      kind: "HogQLQuery",
+      query: buildBreakdownQuery("pricing_plan_selected", range, "source", 6),
+    }),
+    queryPostHog<HogQLCountResult>({
+      kind: "HogQLQuery",
+      query: buildBreakdownQuery("account_upgrade_prompt_clicked", range, "source", 6),
     }),
   ]);
 
@@ -194,6 +210,8 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
       monetization: {
         cards: createMetricCards([
           { label: "Paywall CTA clicks", result: paywallClicks },
+          { label: "Pricing plan selections", result: pricingPlanSelected },
+          { label: "Pricing CTA clicks", result: pricingCtaClicked },
           { label: "Checkout starts", result: checkoutStarted },
           { label: "Checkout completions", result: checkoutCompleted },
           { label: "Billing portal opens", result: billingPortalOpened },
@@ -201,10 +219,12 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
         ]),
         funnel: [
           { label: "Paywall CTA clicks", value: getCountFromResult(paywallClicks) },
+          { label: "Pricing CTA clicks", value: getCountFromResult(pricingCtaClicked) },
           { label: "Checkout starts", value: checkoutStartedCount },
           { label: "Checkout completions", value: checkoutCompletedCount },
         ],
         breakdown: toBreakdownRows(checkoutSources),
+        secondaryBreakdown: toBreakdownRows(pricingSelectionSources),
       },
       publication: {
         cards: createMetricCards([
@@ -220,7 +240,12 @@ export async function getAnalyticsDashboard(rangeInput?: string | null) {
           { label: "Dashboard sessions", value: dashboardSessionCount },
           { label: "Setup skipped", value: skippedCount },
           { label: "Billing portal opens", value: getCountFromResult(billingPortalOpened) },
+          {
+            label: "Account upgrade prompt clicks",
+            value: getCountFromResult(accountUpgradePromptClicked),
+          },
         ],
+        breakdown: toBreakdownRows(accountUpgradeSources),
       },
     },
     summary: compactAnalyticsProperties({

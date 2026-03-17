@@ -57,6 +57,8 @@ export function PageContent({
               isLoading={isSubscribing}
               ctaHref={ctaHref}
               ctaLabel={ctaLabel}
+              variant="reading-continuity"
+              blogName={title}
             />
           ) : null}
         </article>

@@ -45,6 +45,9 @@ The commercial contract for this launch phase is beta-first:
 | `billing_portal_opened` | Billing portal opened | Server | `surface`, `user_id`, `stripe_customer_id`, `account_retention_state`, `source` | Billing portal session creation | Monetization, retention |
 | `subscription_canceled` | Subscription canceled | Server | `surface`, `stripe_customer_id`, `stripe_subscription_id` | Stripe subscription deletion webhook | Monetization |
 | `paywall_cta_clicked` | Paywall CTA clicked on a post | Client | `surface`, `plan_slug`, `post_slug`, `post_title` | Paywall subscribe interaction | Monetization |
+| `pricing_plan_selected` | A pricing plan was selected before checkout | Client | `surface`, `path`, `plan_slug`, `source`, `paywall_variant`, `post_slug` | Plan card or selector interaction on `/pricing` | Monetization |
+| `pricing_cta_clicked` | A pricing CTA was clicked before checkout starts | Client | `surface`, `path`, `plan_slug`, `source`, `paywall_variant`, `post_slug` | Primary pricing CTA click | Monetization |
+| `account_upgrade_prompt_clicked` | An account retention prompt was clicked | Client | `surface`, `path`, `plan_slug`, `source`, `account_retention_state` | Primary membership action on `/account` | Monetization, retention |
 | `newsletter_campaign_sent` | Newsletter campaign entered send flow | Server | `surface`, `newsletter_id`, `campaign_segment` | Queue/send start | Retention, newsletter |
 | `newsletter_subscribed` | Newsletter signup submitted | Client + server | `surface`, `subscriber_id`, `email`, `source` | Successful subscribe flow | Newsletter |
 | `newsletter_confirmed` | Double opt-in confirmed | Server | `surface`, `subscriber_id` | Confirm token success | Newsletter |
@@ -71,6 +74,6 @@ The minimum official launch reads in `/dashboard/analytics` are:
 
 - activation / onboarding: setup start, setup completion, pricing configured, newsletter configured, first post published, setup-step breakdown
 - acquisition / marketing: Lumina page views, CTA clicks, beta requests, CTA source breakdown, beta-request source breakdown
-- monetization: paywall CTA clicks, checkout starts, checkout completions, billing portal opens, subscription cancellations, checkout source breakdown
+- monetization: pricing plan selections, pricing CTA clicks, paywall CTA clicks, checkout starts, checkout completions, billing portal opens, subscription cancellations, checkout source breakdown
 - newsletter / publication: newsletter campaigns sent, newsletter subscribers, first subscriber captured, first post published, newsletter source breakdown
-- retention / operations: dashboard sessions, setup skips, billing portal opens
+- retention / operations: dashboard sessions, setup skips, billing portal opens, account upgrade prompt clicks

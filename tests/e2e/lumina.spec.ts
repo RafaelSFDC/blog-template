@@ -93,7 +93,38 @@ test("keeps product pricing and publication membership pricing clearly separated
   await page.goto("/pricing");
   await expect(page.getByText(/this page sells reader access to this publication/i)).toBeVisible();
   await expect(page.getByRole("link", { name: /lumina product pricing/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /subscribe now|sign in to subscribe|plan not configured/i }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /continue to checkout|sign in to subscribe|plan not configured/i }).first()).toBeVisible();
+});
+
+test("lets readers choose a pricing path before checkout", async ({ page }) => {
+  await page.goto("/pricing");
+
+  await expect(page.getByText(/choose the commitment that matches reader confidence/i)).toBeVisible();
+  await page.getByRole("button", { name: /choose annual/i }).click();
+  await expect(page.getByRole("heading", { name: /annual/i }).nth(1)).toBeVisible();
+  await expect(page.getByText(/selected path/i)).toBeVisible();
+  await expect(page.getByText(/best value|long-term seat in their inbox/i).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /sign in to subscribe|plan not configured/i })).toBeVisible();
+});
+
+test("surfaces retention-focused account prompts for inactive, active, and past-due readers", async ({ page }) => {
+  await page.goto("/auth/login");
+  await signInAs(page, "reader@lumina.test");
+  await page.goto("/account");
+  await expect(page.getByText(/free reader/i).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /see membership plans/i }).first()).toBeVisible();
+
+  await page.goto("/auth/login");
+  await signInAs(page, "member@lumina.test");
+  await page.goto("/account");
+  await expect(page.getByText(/active membership/i).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /manage billing/i }).first()).toBeVisible();
+
+  await page.goto("/auth/login");
+  await signInAs(page, "past-due@lumina.test");
+  await page.goto("/account");
+  await expect(page.getByText(/payment issue/i).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /fix billing/i }).first()).toBeVisible();
 });
 
 test("shows the analytics dashboard fallback when PostHog is not configured", async ({ page }) => {

@@ -25,6 +25,7 @@ export interface PricingComparisonViewModel {
   plans: PricingComparisonPlanViewModel[];
   annualSavingsLabel: string | null;
   recommendedPlanSlug: "monthly" | "annual" | null;
+  recommendedReason: string | null;
   benefitRows: Array<{
     label: string;
     monthly: string;
@@ -43,11 +44,13 @@ export interface AccountRetentionState {
   primaryAction: {
     label: string;
     kind: "billing_portal" | "pricing" | "read";
+    trackingSource: string;
   };
   secondaryAction?: {
     label: string;
     href: string;
   };
+  statusLabel: string;
   valueBullets: string[];
 }
 
@@ -146,7 +149,7 @@ export function buildPricingComparison(input: {
     .map((plan) => ({
       slug: plan.slug as "monthly" | "annual",
       name: plan.name,
-      interval: plan.interval === "year" ? "year" : "month",
+      interval: (plan.interval === "year" ? "year" : "month") as "year" | "month",
       priceCents: plan.priceCents,
       currency: plan.currency,
       description: plan.description ?? "Full premium access for committed readers.",
@@ -172,15 +175,25 @@ export function buildPricingComparison(input: {
           return `Save ${percent}% with annual billing`;
         })()
       : null;
+  const recommendedPlanSlug =
+    normalizedPlans.find((plan) => plan.isDefault)?.slug ??
+    annualPlan?.slug ??
+    monthlyPlan?.slug ??
+    null;
+  const recommendedReason =
+    recommendedPlanSlug === "annual" && annualSavingsLabel
+      ? `${annualSavingsLabel}. Best for committed readers who already value the publication.`
+      : recommendedPlanSlug === "annual"
+        ? "Best value for readers ready to stay with the publication for the long run."
+        : recommendedPlanSlug === "monthly"
+          ? "Best for readers who want premium access now with a lighter commitment."
+          : null;
 
   return {
     plans: normalizedPlans,
     annualSavingsLabel,
-    recommendedPlanSlug:
-      normalizedPlans.find((plan) => plan.isDefault)?.slug ??
-      annualPlan?.slug ??
-      monthlyPlan?.slug ??
-      null,
+    recommendedPlanSlug,
+    recommendedReason,
     benefitRows: [
       {
         label: "Premium posts and pages",
@@ -230,11 +243,13 @@ export function buildAccountRetentionState(input: {
       primaryAction: {
         label: input.hasBillingPortal ? "Manage billing" : "See plans",
         kind: input.hasBillingPortal ? "billing_portal" : "pricing",
+        trackingSource: "account_active",
       },
       secondaryAction: {
         label: "Return to the archive",
         href: "/blog",
       },
+      statusLabel: "Active membership",
       valueBullets: [
         "Premium posts and pages stay unlocked",
         "Billing remains self-serve when you need changes",
@@ -251,11 +266,13 @@ export function buildAccountRetentionState(input: {
       primaryAction: {
         label: "Fix billing",
         kind: input.hasBillingPortal ? "billing_portal" : "pricing",
+        trackingSource: "account_past_due",
       },
       secondaryAction: {
         label: "Review membership value",
         href: "/pricing",
       },
+      statusLabel: "Payment issue",
       valueBullets: [
         "Premium access may expire after the grace window",
         "Updating payment details is the fastest save action",
@@ -272,11 +289,13 @@ export function buildAccountRetentionState(input: {
       primaryAction: {
         label: input.hasBillingPortal ? "Reactivate billing" : "Choose a plan",
         kind: input.hasBillingPortal ? "billing_portal" : "pricing",
+        trackingSource: "account_grace_period",
       },
       secondaryAction: {
         label: "Keep reading while active",
         href: "/blog",
       },
+      statusLabel: "Ending soon",
       valueBullets: [
         "Current access remains live until the period ends",
         "Reactivation is easier before access fully expires",
@@ -293,11 +312,13 @@ export function buildAccountRetentionState(input: {
       primaryAction: {
         label: "Restart membership",
         kind: "pricing",
+        trackingSource: "account_reactivation",
       },
       secondaryAction: {
         label: "Browse public stories",
         href: "/blog",
       },
+      statusLabel: "Expired membership",
       valueBullets: [
         "Public content remains available",
         "Premium archive returns immediately after subscribing",
@@ -313,11 +334,13 @@ export function buildAccountRetentionState(input: {
     primaryAction: {
       label: "See membership plans",
       kind: "pricing",
+      trackingSource: "account_free_reader",
     },
     secondaryAction: {
       label: "Read public posts",
       href: "/blog",
     },
+    statusLabel: "Free reader",
     valueBullets: [
       "Newsletter signup stays available for free readers",
       "Membership unlocks premium posts and pages",

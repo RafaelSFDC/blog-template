@@ -67,6 +67,12 @@ const FIXTURE_USERS = [
     email: "member@lumina.test",
     role: "reader",
   },
+  {
+    id: "fixture-past-due",
+    name: "Fixture Past Due",
+    email: "past-due@lumina.test",
+    role: "reader",
+  },
 ] as const;
 
 const FIXTURE_SETTINGS = [
@@ -339,6 +345,36 @@ async function ensureMembershipFixture() {
         status: "active",
         currentPeriodStart: new Date("2026-03-01T00:00:00.000Z"),
         currentPeriodEnd: new Date("2026-04-01T00:00:00.000Z"),
+        updatedAt: new Date(),
+      },
+    });
+
+  await db
+    .insert(subscriptions)
+    .values({
+      userId: "fixture-past-due",
+      membershipPlanId: plan.id,
+      stripeCustomerId: "cus_fixture_past_due",
+      stripeSubscriptionId: "sub_fixture_past_due",
+      stripePriceId: "price_fixture_monthly",
+      status: "past_due",
+      currentPeriodStart: new Date("2026-03-01T00:00:00.000Z"),
+      currentPeriodEnd: new Date("2026-04-01T00:00:00.000Z"),
+      gracePeriodEndsAt: new Date("2026-04-04T00:00:00.000Z"),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: subscriptions.stripeSubscriptionId,
+      set: {
+        userId: "fixture-past-due",
+        membershipPlanId: plan.id,
+        stripeCustomerId: "cus_fixture_past_due",
+        stripePriceId: "price_fixture_monthly",
+        status: "past_due",
+        currentPeriodStart: new Date("2026-03-01T00:00:00.000Z"),
+        currentPeriodEnd: new Date("2026-04-01T00:00:00.000Z"),
+        gracePeriodEndsAt: new Date("2026-04-04T00:00:00.000Z"),
         updatedAt: new Date(),
       },
     });

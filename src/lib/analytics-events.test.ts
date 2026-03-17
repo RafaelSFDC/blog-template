@@ -66,6 +66,21 @@ describe("analytics events", () => {
       "source",
       "surface",
     ]);
+    expect(analyticsEventDefinitions.pricing_plan_selected.properties).toEqual([
+      "surface",
+      "path",
+      "plan_slug",
+      "source",
+      "paywall_variant",
+      "post_slug",
+    ]);
+    expect(analyticsEventDefinitions.account_upgrade_prompt_clicked.properties).toEqual([
+      "surface",
+      "path",
+      "plan_slug",
+      "source",
+      "account_retention_state",
+    ]);
   });
 
   it("limits legacy dual-write to the explicitly supported events", () => {
