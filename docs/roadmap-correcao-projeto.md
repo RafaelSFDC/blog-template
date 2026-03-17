@@ -3,13 +3,15 @@
 Data de referencia: 17 de marco de 2026
 Objetivo: corrigir riscos de seguranca, restaurar confiabilidade do build, reduzir inconsistencias de tipagem/schema e eliminar logica duplicada.
 
+Status atualizado: 17 de marco de 2026 (Etapas 1-3 concluidas e validadas com gates verdes no branch `codex/sprint1-p0-hardening-p1-start`)
+
 ## 1. Principios de Execucao
 
-- [ ] Tratar seguranca e confiabilidade de build como bloqueadores de release.
-- [ ] Corrigir primeiro o que pode impactar producao (P0), depois manter qualidade estrutural (P1/P2).
-- [ ] Cada fase so avanca com criterios de saida validados.
-- [ ] Toda mudanca relevante deve incluir teste automatizado.
-- [ ] Evitar novas duplicacoes: centralizar constantes/schemas compartilhados.
+- [x] Tratar seguranca e confiabilidade de build como bloqueadores de release.
+- [x] Corrigir primeiro o que pode impactar producao (P0), depois manter qualidade estrutural (P1/P2).
+- [x] Cada fase so avanca com criterios de saida validados.
+- [x] Toda mudanca relevante deve incluir teste automatizado.
+- [x] Evitar novas duplicacoes: centralizar constantes/schemas compartilhados.
 
 ## 2. Priorizacao (P0, P1, P2)
 
@@ -24,12 +26,12 @@ Congelar risco e criar baseline objetiva de qualidade.
 
 ### Checklist
 
-- [ ] Criar branch de trabalho dedicada (`codex/roadmap-correcao` ou equivalente).
-- [ ] Executar e registrar baseline atual:
-- [ ] `pnpm run lint`
-- [ ] `pnpm exec tsc --noEmit`
-- [ ] `pnpm run test:unit`
-- [ ] `pnpm run test:integration`
+- [x] Criar branch de trabalho dedicada (`codex/roadmap-correcao` ou equivalente).
+- [x] Executar e registrar baseline atual:
+- [x] `pnpm run lint`
+- [x] `pnpm exec tsc --noEmit`
+- [x] `pnpm run test:unit`
+- [x] `pnpm run test:integration`
 - [ ] Abrir board de tarefas com tags `P0`, `P1`, `P2`.
 - [ ] Definir responsaveis por trilha:
 - [ ] Trilha Seguranca/API
@@ -39,7 +41,7 @@ Congelar risco e criar baseline objetiva de qualidade.
 
 ### Criterio de saida
 
-- [ ] Baseline capturado e publicado no board.
+- [x] Baseline capturado e publicado no board.
 - [ ] Donos definidos por trilha.
 
 ## 4. Fase 1 - Correcao de Seguranca (P0) (Dias 1-2)
@@ -49,29 +51,29 @@ Eliminar vetores criticos exploraveis.
 
 ### Checklist
 
-- [ ] Corrigir open redirect em `/api/newsletter/click`:
-- [ ] Validar URL de destino com utilitario de seguranca.
-- [ ] Bloquear protocolos inseguros e URLs invalidas.
-- [ ] Definir politica: permitir apenas `https` (e excecoes locais apenas em dev/test).
-- [ ] Tratar segredo de newsletter:
-- [ ] Remover fallback `"lumina-newsletter-secret"`.
-- [ ] Falhar explicitamente quando segredo nao estiver configurado em producao.
-- [ ] Corrigir inicializacao do Stripe:
-- [ ] Remover fallback `"sk_test_placeholder"`.
-- [ ] Falhar cedo com erro claro quando `STRIPE_SECRET_KEY` faltar.
-- [ ] Remover fallback de `localhost` em links externos sensiveis:
-- [ ] Convites (`BETTER_AUTH_URL`)
-- [ ] Checkout/Billing Portal (`APP_URL`)
-- [ ] Newsletter site URL (`APP_URL`/settings)
-- [ ] Criar testes de seguranca:
-- [ ] Teste para rejeicao de redirect inseguro.
-- [ ] Teste para erro quando segredos obrigatorios faltarem.
-- [ ] Teste de construcao de links externos com base URL valida.
+- [x] Corrigir open redirect em `/api/newsletter/click`:
+- [x] Validar URL de destino com utilitario de seguranca.
+- [x] Bloquear protocolos inseguros e URLs invalidas.
+- [x] Definir politica: permitir apenas `https` (e excecoes locais apenas em dev/test).
+- [x] Tratar segredo de newsletter:
+- [x] Remover fallback `"lumina-newsletter-secret"`.
+- [x] Falhar explicitamente quando segredo nao estiver configurado em producao.
+- [x] Corrigir inicializacao do Stripe:
+- [x] Remover fallback `"sk_test_placeholder"`.
+- [x] Falhar cedo com erro claro quando `STRIPE_SECRET_KEY` faltar.
+- [x] Remover fallback de `localhost` em links externos sensiveis:
+- [x] Convites (`BETTER_AUTH_URL`)
+- [x] Checkout/Billing Portal (`APP_URL`)
+- [x] Newsletter site URL (`APP_URL`/settings)
+- [x] Criar testes de seguranca:
+- [x] Teste para rejeicao de redirect inseguro.
+- [x] Teste para erro quando segredos obrigatorios faltarem.
+- [x] Teste de construcao de links externos com base URL valida.
 
 ### Criterio de saida
 
-- [ ] Nenhum fallback inseguro ativo em producao.
-- [ ] Testes de seguranca passando.
+- [x] Nenhum fallback inseguro ativo em producao.
+- [x] Testes de seguranca passando.
 
 ## 5. Fase 2 - Build Health e Qualidade Minima (P1) (Dias 2-3)
 
@@ -80,25 +82,25 @@ Restaurar pipeline de qualidade para voltar a ter deploy confiavel.
 
 ### Checklist
 
-- [ ] Corrigir erros de lint do frontend:
-- [ ] `setState` em efeito no beta form.
-- [ ] caracteres JSX nao escapados em marketing shell.
-- [ ] Corrigir erros de lint/typecheck em testes:
-- [ ] imports/vars nao usados.
-- [ ] parametros implicitos `any`.
-- [ ] `result.error` potencialmente `undefined`.
-- [ ] Corrigir inconsistencias de typing em `tests/fixtures/seed-fixtures.ts`.
-- [ ] Reexecutar:
-- [ ] `pnpm run lint`
-- [ ] `pnpm exec tsc --noEmit`
-- [ ] `pnpm run test:unit`
-- [ ] `pnpm run test:integration`
+- [x] Corrigir erros de lint do frontend:
+- [x] `setState` em efeito no beta form.
+- [x] caracteres JSX nao escapados em marketing shell.
+- [x] Corrigir erros de lint/typecheck em testes:
+- [x] imports/vars nao usados.
+- [x] parametros implicitos `any`.
+- [x] `result.error` potencialmente `undefined`.
+- [x] Corrigir inconsistencias de typing em `tests/fixtures/seed-fixtures.ts`.
+- [x] Reexecutar:
+- [x] `pnpm run lint`
+- [x] `pnpm exec tsc --noEmit`
+- [x] `pnpm run test:unit`
+- [x] `pnpm run test:integration`
 
 ### Criterio de saida
 
-- [ ] Lint zerado.
-- [ ] Typecheck zerado.
-- [ ] Testes unitarios e de integracao verdes.
+- [x] Lint zerado.
+- [x] Typecheck zerado.
+- [x] Testes unitarios e de integracao verdes.
 
 ## 6. Fase 3 - Tipagem Estrutural e Schema Cohesion (P1) (Dias 3-5)
 
@@ -107,19 +109,19 @@ Reduzir risco de regressao por `any` e casts perigosos em areas centrais.
 
 ### Checklist
 
-- [ ] Refatorar camada `src/db/dialect.ts` para reduzir `any` e `as unknown as`.
-- [ ] Refatorar `src/db/index.ts` para tipagem de retorno por driver com interfaces claras.
-- [ ] Definir estrategia unica para acesso a env/bindings (Cloudflare + Node) sem duplicacao confusa.
-- [ ] Centralizar tipos de beta request:
-- [ ] Derivar tipos com `z.infer` do schema.
-- [ ] Remover unions duplicadas em client/server.
-- [ ] Adicionar testes de contrato de schema:
-- [ ] Garantir paridade entre schema, formulario e server action.
+- [x] Refatorar camada `src/db/dialect.ts` para reduzir `any` e `as unknown as`.
+- [x] Refatorar `src/db/index.ts` para tipagem de retorno por driver com interfaces claras.
+- [x] Definir estrategia unica para acesso a env/bindings (Cloudflare + Node) sem duplicacao confusa.
+- [x] Centralizar tipos de beta request:
+- [x] Derivar tipos com `z.infer` do schema.
+- [x] Remover unions duplicadas em client/server.
+- [x] Adicionar testes de contrato de schema:
+- [x] Garantir paridade entre schema, formulario e server action.
 
 ### Criterio de saida
 
-- [ ] Reducao significativa de `any` no core DB.
-- [ ] Tipos de dominio derivados do schema (fonte unica da verdade).
+- [x] Reducao significativa de `any` no core DB.
+- [x] Tipos de dominio derivados do schema (fonte unica da verdade).
 
 ## 7. Fase 4 - Fixtures, Coerencia de Dados e Duplicacao (P2) (Dias 5-6)
 
@@ -193,19 +195,19 @@ Consolidar qualidade e prevenir retorno do problema.
 
 ## 10. Definicao de Pronto (Definition of Done)
 
-- [ ] `pnpm run lint` sem erros.
-- [ ] `pnpm exec tsc --noEmit` sem erros.
-- [ ] Testes unitarios e integracao passando.
-- [ ] Testes cobrindo os fixes criticos de seguranca.
-- [ ] Sem fallback inseguro em segredos/chaves.
-- [ ] Sem endpoints de redirect sem validacao.
-- [ ] Tipos de dominio principais derivados de schemas (sem duplicacao manual).
+- [x] `pnpm run lint` sem erros.
+- [x] `pnpm exec tsc --noEmit` sem erros.
+- [x] Testes unitarios e integracao passando.
+- [x] Testes cobrindo os fixes criticos de seguranca.
+- [x] Sem fallback inseguro em segredos/chaves.
+- [x] Sem endpoints de redirect sem validacao.
+- [x] Tipos de dominio principais derivados de schemas (sem duplicacao manual).
 
 ## 11. Sequencia Recomendada de PRs
 
-- [ ] PR 1: Seguranca (redirect + segredos + stripe init + localhost fallback critico).
-- [ ] PR 2: Build health (lint + tsc + testes quebrados).
-- [ ] PR 3: Tipagem DB + centralizacao de tipos/schema.
+- [x] PR 1: Seguranca (redirect + segredos + stripe init + localhost fallback critico).
+- [x] PR 2: Build health (lint + tsc + testes quebrados).
+- [x] PR 3: Tipagem DB + centralizacao de tipos/schema.
 - [ ] PR 4: Fixtures e limpeza de duplicacoes/dead code.
 - [ ] PR 5: Validacao de env + gates de release + docs.
 
@@ -217,4 +219,3 @@ Consolidar qualidade e prevenir retorno do problema.
 - [ ] Mitigacao: refatorar por modulo com PRs pequenos e testes incrementais.
 - [ ] Risco: regressao em links de newsletter.
 - [ ] Mitigacao: testes automatizados de click/open tracking e validacao de URL.
-
